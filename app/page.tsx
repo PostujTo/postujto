@@ -23,23 +23,41 @@ export default function Home() {
     setLoading(true);
     setResults(null);
 
-    // Symulacja generowania - później podłączymy prawdziwe API
-    setTimeout(() => {
-      const mockResults = [
-        {
-          text: `Przykładowy post o ${topic}. To jest demo - wkrótce podłączymy prawdziwe AI!`,
-          hashtags: ['#marketing', '#socialmedia', '#polska'],
-          imagePrompt: `Nowoczesna grafika przedstawiająca ${topic}, profesjonalna fotografia produktowa`
+    try {
+      // Wywołanie prawdziwego API
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        {
-          text: `Alternatywna wersja postu o ${topic}. AI wygeneruje tu prawdziwy content!`,
-          hashtags: ['#biznes', '#digital', '#content'],
-          imagePrompt: `Kolorowa ilustracja związana z ${topic}, styl minimalistyczny`
-        }
-      ];
-      setResults(mockResults);
+        body: JSON.stringify({
+          topic,
+          platform,
+          tone,
+          length,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Błąd podczas generowania postów');
+      }
+
+      const data = await response.json();
+      
+      // Przekształć odpowiedź API na format który rozumie UI
+      const formattedResults = data.posts.map((post: any) => ({
+        text: post.text,
+        hashtags: post.hashtags,
+        imagePrompt: post.imagePrompt,
+      }));
+
+      setResults(formattedResults);
+    } catch (error) {
+      console.error('Błąd:', error);
+      alert('Wystąpił błąd podczas generowania postów. Spróbuj ponownie.');
+    } finally {
       setLoading(false);
-    }, 2000);
+    }
   };
 
   return (
