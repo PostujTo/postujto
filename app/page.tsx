@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 
 export default function Home() {
+  const { user, isLoaded } = useUser();
   const [topic, setTopic] = useState('');
   const [platform, setPlatform] = useState<'facebook' | 'instagram'>('facebook');
   const [tone, setTone] = useState<'professional' | 'casual' | 'humorous' | 'sales'>('professional');
@@ -13,10 +15,55 @@ export default function Home() {
     hashtags: string[];
     imagePrompt: string;
   }> | null>(null);
+  
+  // Nowe state dla kredytów
+  const [credits, setCredits] = useState<{
+    remaining: number;
+    total: number;
+  } | null>(null);
+  const [loadingCredits, setLoadingCredits] = useState(true);
+
+  // Pobierz kredyty użytkownika
+  useEffect(() => {
+    if (isLoaded && user) {
+      fetchUserCredits();
+    }
+  }, [isLoaded, user]);
+
+  const fetchUserCredits = async () => {
+    if (!user) return;
+    
+    setLoadingCredits(true);
+    try {
+      const response = await fetch('/api/credits');
+      
+      if (!response.ok) {
+        console.error('Błąd pobierania kredytów');
+        return;
+      }
+
+      const data = await response.json();
+      
+      setCredits({
+        remaining: data.remaining,
+        total: data.total,
+      });
+    } catch (err) {
+      console.error('Błąd:', err);
+    } finally {
+      setLoadingCredits(false);
+    }
+  };
 
   const generatePost = async () => {
     if (!topic.trim()) {
       alert('Wpisz temat postu!');
+      return;
+    }
+
+    // Sprawdź kredyty
+    if (credits && credits.remaining <= 0) {
+      alert('Brak kredytów! Przejdź na plan Standard lub Premium aby kontynuować.');
       return;
     }
 
@@ -38,11 +85,16 @@ export default function Home() {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('Błąd podczas generowania postów');
-      }
-
       const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 403) {
+          // Brak kredytów
+          alert(data.message || 'Brak kredytów!');
+          return;
+        }
+        throw new Error(data.error || 'Błąd podczas generowania postów');
+      }
       
       // Przekształć odpowiedź API na format który rozumie UI
       const formattedResults = data.posts.map((post: any) => ({
@@ -52,6 +104,14 @@ export default function Home() {
       }));
 
       setResults(formattedResults);
+      
+      // Aktualizuj kredyty lokalnie
+      if (data.creditsRemaining !== undefined) {
+        setCredits({
+          remaining: data.creditsRemaining,
+          total: data.creditsTotal || credits?.total || 10,
+        });
+      }
     } catch (error) {
       console.error('Błąd:', error);
       alert('Wystąpił błąd podczas generowania postów. Spróbuj ponownie.');
@@ -114,9 +174,32 @@ export default function Home() {
               </h1>
               <p className="text-xs text-gray-500 font-medium mt-0.5">AI Social Media Generator</p>
             </div>
-            <button className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-full font-semibold transition-all duration-300 shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 hover:scale-105">
-              Zaloguj się
-            </button>
+            
+            {/* Clerk Auth Buttons */}
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-full font-semibold transition-all duration-300 shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 hover:scale-105">
+                  Zaloguj się
+                </button>
+              </SignInButton>
+            </SignedOut>
+            
+            <SignedIn>
+              <div className="flex items-center gap-4">
+                {/* Wyświetlanie kredytów */}
+                {!loadingCredits && credits && (
+                  <div className="px-4 py-2 bg-purple-100 rounded-full">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-purple-900">
+                        {credits.remaining}/{credits.total}
+                      </span>
+                      <span className="text-xs text-purple-700">kredytów</span>
+                    </div>
+                  </div>
+                )}
+                <UserButton afterSignOutUrl="/" />
+              </div>
+            </SignedIn>
           </div>
         </header>
 

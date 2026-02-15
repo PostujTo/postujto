@@ -1,5 +1,13 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
+import { createClient } from '@supabase/supabase-js';
+
+// Server-side Supabase client z service role
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -7,6 +15,42 @@ const anthropic = new Anthropic({
 
 export async function POST(request: Request) {
   try {
+    // Pobierz ID zalogowanego użytkownika z Clerk
+    const { userId } = await auth();
+    
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Musisz być zalogowany' },
+        { status: 401 }
+      );
+    }
+
+    // Pobierz użytkownika z Supabase
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('clerk_user_id', userId)
+      .single();
+
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: 'Nie znaleziono użytkownika' },
+        { status: 404 }
+      );
+    }
+
+    // Sprawdź czy ma kredyty
+    if (user.credits_remaining <= 0) {
+      return NextResponse.json(
+        { 
+          error: 'Brak kredytów',
+          message: 'Wykorzystałeś wszystkie kredyty w tym miesiącu. Przejdź na plan Standard lub Premium!',
+          creditsRemaining: 0
+        },
+        { status: 403 }
+      );
+    }
+
     const { topic, platform, tone, length } = await request.json();
 
     // Walidacja
@@ -103,7 +147,7 @@ WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy c
       console.error('Odpowiedź Claude:', responseText);
       
       // Fallback - zwróć surowy tekst jako pojedynczy post
-      return NextResponse.json({
+      jsonData = {
         posts: [
           {
             text: responseText,
@@ -111,10 +155,52 @@ WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy c
             imagePrompt: `Grafika związana z: ${topic}`,
           },
         ],
-      });
+      };
     }
 
-    return NextResponse.json(jsonData);
+    // ============================================
+    // ODEJMIJ KREDYT I ZAPISZ GENERACJĘ
+    // ============================================
+    
+    // Odejmij kredyt
+    const { error: creditError } = await supabase
+      .from('users')
+      .update({ 
+        credits_remaining: user.credits_remaining - 1,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', user.id);
+
+    if (creditError) {
+      console.error('Błąd odejmowania kredytu:', creditError);
+    }
+
+    // Zapisz generację w historii
+    const { error: historyError } = await supabase
+      .from('generations')
+      .insert({
+        user_id: user.id,
+        topic,
+        platform,
+        tone,
+        length,
+        generated_posts: jsonData.posts,
+        quality_tier: 'standard',
+        has_image: false,
+        has_audio: false,
+        cost_usd: 0.015, // Koszt Claude
+      });
+
+    if (historyError) {
+      console.error('Błąd zapisywania generacji:', historyError);
+    }
+
+    // Zwróć wynik z aktualnymi kredytami
+    return NextResponse.json({
+      ...jsonData,
+      creditsRemaining: user.credits_remaining - 1,
+      creditsTotal: user.credits_total,
+    });
   } catch (error: any) {
     console.error('Błąd API:', error);
     return NextResponse.json(
