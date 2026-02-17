@@ -1,7 +1,13 @@
 import { headers } from 'next/headers';
 import { Webhook } from 'svix';
 import { WebhookEvent } from '@clerk/nextjs/server';
-import { supabase } from '@/app/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+// Server-side Supabase client z service role (pełny dostęp)
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function POST(req: Request) {
   // Pobierz webhook secret z ENV
@@ -48,7 +54,7 @@ export async function POST(req: Request) {
 
     try {
       // Utwórz użytkownika w Supabase
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('users')
         .insert({
           clerk_user_id: id,
@@ -79,7 +85,7 @@ export async function POST(req: Request) {
 
     try {
       // Zaktualizuj użytkownika w Supabase
-      const { error } = await supabase
+      const { error } = await supabaseAdmin
         .from('users')
         .update({
           email: email_addresses[0].email_address,
@@ -105,7 +111,7 @@ export async function POST(req: Request) {
 
     try {
       // Usuń użytkownika z Supabase
-      const { error } = await supabase
+      const { error } = await supabaseAdmin
         .from('users')
         .delete()
         .eq('clerk_user_id', id);
