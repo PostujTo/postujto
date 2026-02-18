@@ -1,6 +1,12 @@
 import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
 import type { Metadata } from 'next';
+import { Lato } from 'next/font/google';
+
+const lato = Lato({
+  weight: ['400', '700', '900'],
+  subsets: ['latin'],
+});
 
 export const metadata: Metadata = {
   title: 'PostujTo.pl - Generator postów AI',
@@ -15,7 +21,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="pl">
-        <body>{children}</body>
+        <body className={lato.className}>{children}</body>
       </html>
     </ClerkProvider>
   );
