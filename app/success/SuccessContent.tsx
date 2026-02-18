@@ -12,7 +12,7 @@ export default function SuccessContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Symulujemy sprawdzenie sesji (w przyszłości możesz dodać weryfikację)
+    // Symulujemy sprawdzenie sesji
     setTimeout(() => setLoading(false), 1000);
   }, []);
 
@@ -89,7 +89,7 @@ export default function SuccessContent() {
           </ul>
         </div>
 
-        {/* Session ID (dla debugowania) */}
+        {/* Session ID */}
         {sessionId && (
           <div className="mb-6">
             <p className="text-xs text-gray-400">
