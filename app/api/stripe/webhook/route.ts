@@ -300,3 +300,6 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
 
   console.log('⚠️ Subskrypcja oznaczona jako past_due');
 }
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
