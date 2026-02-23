@@ -24,6 +24,8 @@ export async function POST(request: Request) {
     }
 
     const { priceId } = await request.json();
+    
+console.log('🔍 DEBUG:', { priceId, env_standard: process.env.STRIPE_PRICE_ID_STANDARD, env_premium: process.env.STRIPE_PRICE_ID_PREMIUM });
 
     if (!priceId) {
       return NextResponse.json(
@@ -33,18 +35,34 @@ export async function POST(request: Request) {
     }
 
     // Pobierz użytkownika z SupabaseAdmin
-    const { data: user, error: userError } = await supabaseAdmin
-      .from('users')
-      .select('*')
-      .eq('clerk_user_id', userId)
-      .single();
+const { data: userData, error: userError } = await supabaseAdmin
+  .from('users')
+  .select('*')
+  .eq('clerk_user_id', userId)
+  .single();
 
-    if (userError || !user) {
-      return NextResponse.json(
-        { error: 'Nie znaleziono użytkownika' },
-        { status: 404 }
-      );
-    }
+let user = userData;
+if (userError || !user) {
+  const { currentUser } = await import('@clerk/nextjs/server');
+  const clerkUser = await currentUser();
+  
+  const { data: newUser, error: createError } = await supabaseAdmin
+    .from('users')
+    .insert({
+      clerk_user_id: userId,
+      email: clerkUser?.emailAddresses[0]?.emailAddress || '',
+      subscription_plan: 'free',
+      credits_total: 10,
+      credits_remaining: 10,
+    })
+    .select()
+    .single();
+
+  if (createError || !newUser) {
+    return NextResponse.json({ error: 'Nie można utworzyć użytkownika' }, { status: 500 });
+  }
+  user = newUser;
+}
 
     // Jeśli użytkownik już ma stripe_customer_id, użyj go
     let customerId = user.stripe_customer_id;
