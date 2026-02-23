@@ -16,14 +16,12 @@ export default function Home() {
     imagePrompt: string;
   }> | null>(null);
   
-  // Nowe state dla kredytów
   const [credits, setCredits] = useState<{
     remaining: number;
     total: number;
   } | null>(null);
   const [loadingCredits, setLoadingCredits] = useState(true);
 
-  // Pobierz kredyty użytkownika
   useEffect(() => {
     if (isLoaded && user) {
       fetchUserCredits();
@@ -55,13 +53,41 @@ export default function Home() {
     }
   };
 
+  const handleCheckout = async (priceId: string) => {
+    if (!user) {
+      alert('Zaloguj się aby kupić subskrypcję!');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.error || 'Błąd podczas tworzenia sesji płatności');
+        return;
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      console.error('Błąd checkout:', err);
+      alert('Wystąpił błąd. Spróbuj ponownie.');
+    }
+  };
+
   const generatePost = async () => {
     if (!topic.trim()) {
       alert('Wpisz temat postu!');
       return;
     }
 
-    // Sprawdź kredyty
     if (credits && credits.remaining <= 0) {
       alert('Brak kredytów! Przejdź na plan Standard lub Premium aby kontynuować.');
       return;
@@ -71,7 +97,6 @@ export default function Home() {
     setResults(null);
 
     try {
-      // Wywołanie prawdziwego API
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
@@ -89,14 +114,12 @@ export default function Home() {
 
       if (!response.ok) {
         if (response.status === 403) {
-          // Brak kredytów
           alert(data.message || 'Brak kredytów!');
           return;
         }
         throw new Error(data.error || 'Błąd podczas generowania postów');
       }
       
-      // Przekształć odpowiedź API na format który rozumie UI
       const formattedResults = data.posts.map((post: any) => ({
         text: post.text,
         hashtags: post.hashtags,
@@ -105,7 +128,6 @@ export default function Home() {
 
       setResults(formattedResults);
       
-      // Aktualizuj kredyty lokalnie
       if (data.creditsRemaining !== undefined) {
         setCredits({
           remaining: data.creditsRemaining,
@@ -165,7 +187,7 @@ export default function Home() {
           <div className="absolute bottom-20 left-10 w-80 h-80 bg-cyan-200 rounded-full opacity-20 blur-3xl"></div>
         </div>
 
-        {/* Header - 30% purple accent */}
+        {/* Header */}
         <header className="relative border-b border-gray-200 bg-white/80 backdrop-blur-sm shadow-sm">
           <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
             <div>
@@ -175,7 +197,6 @@ export default function Home() {
               <p className="text-xs text-gray-500 font-medium mt-0.5">AI Social Media Generator</p>
             </div>
             
-            {/* Clerk Auth Buttons */}
             <SignedOut>
               <SignInButton mode="modal">
                 <button className="px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-full font-semibold transition-all duration-300 shadow-lg shadow-purple-500/30 hover:shadow-xl hover:shadow-purple-500/40 hover:scale-105">
@@ -186,7 +207,6 @@ export default function Home() {
             
             <SignedIn>
               <div className="flex items-center gap-4">
-                {/* Wyświetlanie kredytów */}
                 {!loadingCredits && credits && (
                   <div className="px-4 py-2 bg-purple-100 rounded-full">
                     <div className="flex items-center gap-2">
@@ -203,7 +223,7 @@ export default function Home() {
           </div>
         </header>
 
-        {/* Main Content - 60% white background */}
+        {/* Main Content */}
         <main className="relative max-w-7xl mx-auto px-6 py-16">
           {/* Hero Section */}
           <div className="text-center mb-16 animate-fade-in-up">
@@ -222,7 +242,7 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Generator Form - 30% purple */}
+          {/* Generator Form */}
           <div className="max-w-3xl mx-auto bg-white rounded-3xl p-10 shadow-2xl border border-gray-200 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <div className="space-y-8">
               {/* Topic Input */}
@@ -276,112 +296,59 @@ export default function Home() {
 
               {/* Tone & Length Row */}
               <div className="space-y-6">
-                {/* Tone Selection */}
                 <div>
                   <label className="block text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">
                     Ton wypowiedzi
                   </label>
                   <div className="grid grid-cols-4 gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setTone('professional')}
-                      className={`px-6 py-4 rounded-2xl font-bold transition-all duration-300 ${
-                        tone === 'professional'
-                          ? 'bg-purple-600 text-white shadow-xl shadow-purple-500/40 scale-105'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-102'
-                      }`}
-                    >
-                      Profesjonalny
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setTone('casual')}
-                      className={`px-6 py-4 rounded-2xl font-bold transition-all duration-300 ${
-                        tone === 'casual'
-                          ? 'bg-purple-600 text-white shadow-xl shadow-purple-500/40 scale-105'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-102'
-                      }`}
-                    >
-                      Swobodny
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setTone('humorous')}
-                      className={`px-6 py-4 rounded-2xl font-bold transition-all duration-300 ${
-                        tone === 'humorous'
-                          ? 'bg-purple-600 text-white shadow-xl shadow-purple-500/40 scale-105'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-102'
-                      }`}
-                    >
-                      Humorystyczny
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setTone('sales')}
-                      className={`px-6 py-4 rounded-2xl font-bold transition-all duration-300 ${
-                        tone === 'sales'
-                          ? 'bg-purple-600 text-white shadow-xl shadow-purple-500/40 scale-105'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-102'
-                      }`}
-                    >
-                      Sprzedażowy
-                    </button>
+                    {(['professional', 'casual', 'humorous', 'sales'] as const).map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => setTone(t)}
+                        className={`px-6 py-4 rounded-2xl font-bold transition-all duration-300 ${
+                          tone === t
+                            ? 'bg-purple-600 text-white shadow-xl shadow-purple-500/40 scale-105'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-102'
+                        }`}
+                      >
+                        {t === 'professional' ? 'Profesjonalny' : t === 'casual' ? 'Swobodny' : t === 'humorous' ? 'Humorystyczny' : 'Sprzedażowy'}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                {/* Length Selection */}
                 <div>
                   <label className="block text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">
                     Długość
                   </label>
                   <div className="grid grid-cols-3 gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setLength('short')}
-                      className={`px-6 py-4 rounded-2xl font-bold transition-all duration-300 ${
-                        length === 'short'
-                          ? 'bg-purple-600 text-white shadow-xl shadow-purple-500/40 scale-105'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-102'
-                      }`}
-                    >
-                      <div className="text-center">
-                        <div className="text-lg font-bold mb-1">Krótki</div>
-                        <div className="text-xs opacity-80">~100 znaków</div>
-                      </div>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setLength('medium')}
-                      className={`px-6 py-4 rounded-2xl font-bold transition-all duration-300 ${
-                        length === 'medium'
-                          ? 'bg-purple-600 text-white shadow-xl shadow-purple-500/40 scale-105'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-102'
-                      }`}
-                    >
-                      <div className="text-center">
-                        <div className="text-lg font-bold mb-1">Średni</div>
-                        <div className="text-xs opacity-80">~250 znaków</div>
-                      </div>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setLength('long')}
-                      className={`px-6 py-4 rounded-2xl font-bold transition-all duration-300 ${
-                        length === 'long'
-                          ? 'bg-purple-600 text-white shadow-xl shadow-purple-500/40 scale-105'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-102'
-                      }`}
-                    >
-                      <div className="text-center">
-                        <div className="text-lg font-bold mb-1">Długi</div>
-                        <div className="text-xs opacity-80">~500 znaków</div>
-                      </div>
-                    </button>
+                    {([
+                      { val: 'short', label: 'Krótki', sub: '~100 znaków' },
+                      { val: 'medium', label: 'Średni', sub: '~250 znaków' },
+                      { val: 'long', label: 'Długi', sub: '~500 znaków' },
+                    ] as const).map(({ val, label, sub }) => (
+                      <button
+                        key={val}
+                        type="button"
+                        onClick={() => setLength(val)}
+                        className={`px-6 py-4 rounded-2xl font-bold transition-all duration-300 ${
+                          length === val
+                            ? 'bg-purple-600 text-white shadow-xl shadow-purple-500/40 scale-105'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-102'
+                        }`}
+                      >
+                        <div className="text-center">
+                          <div className="text-lg font-bold mb-1">{label}</div>
+                          <div className="text-xs opacity-80">{sub}</div>
+                        </div>
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>
 
-              {/* Generate Button - 10% cyan accent */}
+              {/* Generate Button */}
               <div className="flex justify-center">
                 <button
                   onClick={generatePost}
@@ -457,7 +424,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* Pricing Preview - 30% purple */}
+          {/* Pricing Preview */}
           {!results && (
             <div className="mt-20 max-w-5xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
               <div className="text-center mb-10">
@@ -483,7 +450,7 @@ export default function Home() {
                   </button>
                 </div>
 
-                {/* Starter - 10% cyan accent */}
+                {/* Standard */}
                 <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl p-8 shadow-2xl shadow-cyan-500/40 transform scale-105 relative">
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <span className="px-4 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full shadow-lg">
@@ -498,12 +465,15 @@ export default function Home() {
                     <div className="text-3xl font-bold text-white">100</div>
                     <div className="text-sm text-cyan-100 font-medium">postów miesięcznie</div>
                   </div>
-                  <button className="w-full py-3 bg-white hover:bg-gray-50 text-cyan-600 font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl">
+                  <button
+                    onClick={() => handleCheckout(process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD!)}
+                    className="w-full py-3 bg-white hover:bg-gray-50 text-cyan-600 font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl"
+                  >
                     Wybierz Starter
                   </button>
                 </div>
 
-                {/* Pro - 30% purple */}
+                {/* Premium */}
                 <div className="bg-white rounded-2xl p-8 border-2 border-purple-300 hover:border-purple-400 transition-all duration-300 hover:shadow-xl">
                   <div className="text-center mb-6">
                     <div className="text-5xl font-extrabold text-gray-900">149 zł</div>
@@ -513,7 +483,10 @@ export default function Home() {
                     <div className="text-3xl font-bold text-purple-600">500</div>
                     <div className="text-sm text-gray-600 font-medium">postów miesięcznie</div>
                   </div>
-                  <button className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/30 hover:shadow-xl">
+                  <button
+                    onClick={() => handleCheckout(process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM!)}
+                    className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/30 hover:shadow-xl"
+                  >
                     Wybierz Pro
                   </button>
                 </div>
