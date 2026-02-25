@@ -85,7 +85,43 @@ export async function POST(req: Request) {
 
       console.log('✅ User updated successfully');
     }
+// Odnowienie subskrypcji co miesiąc
+if (event.type === 'invoice.payment_succeeded') {
+  const invoice = event.data.object as Stripe.Invoice;
+  const subscriptionId = (invoice as any).subscription as string;
+  if (!subscriptionId) return NextResponse.json({ received: true });
 
+  const subscription: any = await stripe.subscriptions.retrieve(subscriptionId);
+  const priceId = subscription.items.data[0].price.id;
+
+  let credits = 100;
+  if (priceId === process.env.STRIPE_PRICE_ID_PREMIUM) credits = 500;
+
+  await supabaseAdmin
+    .from('users')
+    .update({ credits_remaining: credits, credits_total: credits })
+    .eq('stripe_subscription_id', subscriptionId);
+
+  console.log('✅ Kredyty odnowione dla subskrypcji:', subscriptionId);
+}
+
+// Anulowanie subskrypcji
+if (event.type === 'customer.subscription.deleted') {
+  const subscription = event.data.object as Stripe.Subscription;
+
+  await supabaseAdmin
+    .from('users')
+    .update({
+      subscription_plan: 'free',
+      subscription_status: 'canceled',
+      stripe_subscription_id: null,
+      credits_total: 10,
+      credits_remaining: 10,
+    })
+    .eq('stripe_subscription_id', subscription.id);
+
+  console.log('✅ Subskrypcja anulowana:', subscription.id);
+}
     return NextResponse.json({ received: true }, { status: 200 });
 
   } catch (error: any) {
