@@ -169,7 +169,7 @@ const getPlanButton = (planName: 'standard' | 'premium', priceId: string, color:
               </li>
             </ul>
 
-            <{getPlanButton('standard', process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD!, 'bg-purple-600 hover:bg-purple-700')}
+            {getPlanButton('standard', process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD!, 'bg-purple-600 hover:bg-purple-700')}
           </div>
 
           {/* PREMIUM PLAN */}
