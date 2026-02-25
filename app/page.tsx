@@ -234,7 +234,7 @@ export default function Home() {
                         disabled={portalLoading}
                         className="btn-hover px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-full disabled:opacity-50"
                       >
-                        {portalLoading ? '⏳' : '⚙️ Subskrypcja'}
+                        {portalLoading ? '⏳' : 'Subskrypcja'}
                       </button>
                     )}
                   </>

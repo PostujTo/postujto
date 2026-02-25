@@ -1,12 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 
 export default function PricingPage() {
   const { user } = useUser();
   const [loading, setLoading] = useState<string | null>(null);
+const [currentPlan, setCurrentPlan] = useState<string>('free');
+const [planLoading, setPlanLoading] = useState(true);
 
+useEffect(() => {
+  if (!user) { setPlanLoading(false); return; }
+  fetch('/api/user/plan')
+    .then(r => r.json())
+    .then(data => setCurrentPlan(data.plan || 'free'))
+    .finally(() => setPlanLoading(false));
+}, [user]);
   const handleSubscribe = async (priceId: string, planName: string) => {
     if (!user) {
       alert('Musisz być zalogowany aby wykupić plan!');
@@ -43,7 +52,33 @@ export default function PricingPage() {
       setLoading(null);
     }
   };
-
+const getPlanButton = (planName: 'standard' | 'premium', priceId: string, color: string) => {
+  if (planLoading) return (
+    <button disabled className={`w-full py-3 px-6 ${color} text-white rounded-full font-semibold opacity-50 cursor-not-allowed`}>
+      Ładowanie...
+    </button>
+  );
+  if (currentPlan === planName) return (
+    <button disabled className="w-full py-3 px-6 bg-gray-200 text-gray-500 rounded-full font-semibold cursor-not-allowed">
+      Twój obecny plan
+    </button>
+  );
+  if (currentPlan !== 'free') return (
+    <button disabled className="w-full py-3 px-6 bg-gray-200 text-gray-500 rounded-full font-semibold cursor-not-allowed"
+      title="Anuluj obecną subskrypcję aby zmienić plan">
+      Niedostępne
+    </button>
+  );
+  return (
+    <button
+      onClick={() => handleSubscribe(priceId, planName)}
+      disabled={loading === planName}
+      className={`w-full py-3 px-6 ${color} text-white rounded-full font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
+    >
+      {loading === planName ? 'Ładowanie...' : `Wybierz ${planName.charAt(0).toUpperCase() + planName.slice(1)}`}
+    </button>
+  );
+};
   return (
     <div className="min-h-screen bg-white py-16 px-6">
       <div className="max-w-7xl mx-auto">
@@ -134,13 +169,7 @@ export default function PricingPage() {
               </li>
             </ul>
 
-            <button
-              onClick={() => handleSubscribe(process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD!, 'standard')}
-              disabled={loading === 'standard'}
-              className="w-full py-3 px-6 bg-purple-600 hover:bg-purple-700 text-white rounded-full font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading === 'standard' ? 'Ładowanie...' : 'Wybierz Standard'}
-            </button>
+            <{getPlanButton('standard', process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD!, 'bg-purple-600 hover:bg-purple-700')}
           </div>
 
           {/* PREMIUM PLAN */}
@@ -173,13 +202,7 @@ export default function PricingPage() {
               </li>
             </ul>
 
-            <button
-              onClick={() => handleSubscribe(process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM!, 'premium')}
-              disabled={loading === 'premium'}
-              className="w-full py-3 px-6 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading === 'premium' ? 'Ładowanie...' : 'Wybierz Premium'}
-            </button>
+            {getPlanButton('premium', process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM!, 'bg-cyan-500 hover:bg-cyan-600')}
           </div>
 
         </div>

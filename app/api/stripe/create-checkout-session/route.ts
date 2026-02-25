@@ -63,7 +63,14 @@ if (userError || !user) {
   }
   user = newUser;
 }
-
+// Po pobraniu `user` z Supabase, a przed tworzeniem customerId
+// Sprawdź czy użytkownik już ma aktywną subskrypcję
+if (user.subscription_plan && user.subscription_plan !== 'free') {
+  return NextResponse.json(
+    { error: 'Masz już aktywną subskrypcję. Anuluj ją przed zakupem nowej.' },
+    { status: 400 }
+  );
+}
     // Jeśli użytkownik już ma stripe_customer_id, użyj go
     let customerId = user.stripe_customer_id;
 
