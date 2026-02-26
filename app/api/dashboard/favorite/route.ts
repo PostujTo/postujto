@@ -14,7 +14,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Nie zalogowany' }, { status: 401 });
     }
 
-    const { id, is_favorite } = await req.json();
+    const { id, is_favorite, liked_versions } = await req.json();
 
     // Pobierz user_id z Supabase
     const { data: user, error: userError } = await supabase
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     // Zaktualizuj is_favorite — tylko dla własnych generacji
     const { error } = await supabase
       .from('generations')
-      .update({ is_favorite })
+      .update({ is_favorite, liked_versions: liked_versions ?? [] })
       .eq('id', id)
       .eq('user_id', user.id);
 

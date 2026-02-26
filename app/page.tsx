@@ -29,8 +29,15 @@ export default function Home() {
   text: string;
   hashtags: string[];
   imagePrompt: string;
-}> | null>(null);
-const [generationId, setGenerationId] = useState<string | null>(null);
+}> | null>(() => {
+  if (typeof window === 'undefined') return null;
+  const saved = sessionStorage.getItem('lastResults');
+  return saved ? JSON.parse(saved) : null;
+});
+const [generationId, setGenerationId] = useState<string | null>(() => {
+  if (typeof window === 'undefined') return null;
+  return sessionStorage.getItem('lastGenerationId');
+});
 const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
 const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
 
@@ -137,11 +144,14 @@ const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
       }
       setGenerationId(data.generationId || null);
       setLikedPosts(new Set());
-      setResults(data.posts.map((post: any) => ({
-        text: post.text,
-        hashtags: post.hashtags,
-        imagePrompt: post.imagePrompt,
-      })));
+      sessionStorage.setItem('lastGenerationId', data.generationId || '');
+      const newResults = data.posts.map((post: any) => ({
+  text: post.text,
+  hashtags: post.hashtags,
+  imagePrompt: post.imagePrompt,
+}));
+setResults(newResults);
+sessionStorage.setItem('lastResults', JSON.stringify(newResults));
       if (data.creditsRemaining !== undefined) {
         setCredits(prev => prev ? {
           ...prev,
@@ -409,9 +419,7 @@ const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
               {results.map((result, idx) => (
                 <div key={idx} className="bg-white rounded-2xl p-8 border-2 border-gray-200 shadow-lg">
                   <div className="flex items-start justify-between mb-6">
-                    <span className="px-4 py-2 bg-purple-600 text-white text-sm font-bold rounded-full shadow-lg shadow-purple-500/30">
-                      Wersja {idx + 1}
-                    </span>
+                    
                     <div className="flex items-start justify-between mb-6">
   <span className="px-4 py-2 bg-purple-600 text-white text-sm font-bold rounded-full shadow-lg shadow-purple-500/30">
     Wersja {idx + 1}
@@ -440,10 +448,14 @@ const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
         }
         setLikedPosts(newLiked);
         await fetch('/api/dashboard/favorite', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: generationId, is_favorite: newLiked.size > 0 }),
-        });
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ 
+    id: generationId, 
+    is_favorite: newLiked.size > 0,
+    liked_versions: Array.from(newLiked),
+  }),
+});
       }}
       className={`btn-hover px-5 py-2 rounded-xl text-sm font-semibold shadow-md transition-all ${
         likedPosts.has(idx)

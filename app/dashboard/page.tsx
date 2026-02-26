@@ -18,6 +18,7 @@ type Generation = {
   length: string;
   generated_posts: Post[];
   is_favorite: boolean;
+  liked_versions: number[];
   created_at: string;
 };
 
@@ -55,15 +56,20 @@ export default function DashboardPage() {
   };
 
   const toggleFavorite = async (id: string, current: boolean) => {
-    await fetch('/api/dashboard/favorite', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, is_favorite: !current }),
-    });
-    setGenerations(prev =>
-      prev.map(g => g.id === id ? { ...g, is_favorite: !current } : g)
-    );
-  };
+  await fetch('/api/dashboard/favorite', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, is_favorite: !current }),
+  });
+  const updated = generations.map(g => g.id === id ? { ...g, is_favorite: !current } : g);
+  setGenerations(updated);
+  setStats({
+    total: updated.length,
+    favorites: updated.filter(g => g.is_favorite).length,
+    facebook: updated.filter(g => g.platform === 'facebook').length,
+    instagram: updated.filter(g => g.platform === 'instagram').length,
+  });
+};
 
   const copyPost = (text: string, hashtags: string[], id: string) => {
     const full = `${text}\n\n${hashtags.join(' ')}`;
@@ -254,9 +260,12 @@ export default function DashboardPage() {
                     <div key={idx} className="px-6 py-4">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
-                          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                            Wersja {idx + 1}
-                          </p>
+                          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+  Wersja {idx + 1}
+  {gen.liked_versions?.includes(idx) && (
+    <span className="text-yellow-400">⭐ Polubiona</span>
+  )}
+</p>
                           <p className="text-gray-800 leading-relaxed">{post.text}</p>
                           <div className="flex flex-wrap gap-1 mt-3">
                             {post.hashtags.map((tag, i) => (
