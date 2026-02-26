@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 
 type Plan = 'free' | 'standard' | 'premium';
@@ -239,7 +240,10 @@ export default function Home() {
                     )}
                   </>
                 )}
-                <UserButton afterSignOutUrl="/" />
+                <Link href="/dashboard" className="btn-hover px-4 py-2 bg-purple-100 text-purple-700 text-sm font-semibold rounded-full">
+  📊 Dashboard
+</Link>
+<UserButton afterSignOutUrl="/" />
               </div>
             </SignedIn>
           </div>
