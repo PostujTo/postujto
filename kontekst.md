@@ -29,9 +29,11 @@
 - Strony: `/pricing`, `/success`
 
 ### 🔄 C — Dashboard użytkownika (NASTĘPNY)
+✅ C — Dashboard użytkownika (GOTOWE)
 - Historia wygenerowanych postów
-- Statystyki
-- Zapisane ulubione
+- Statystyki (total, ulubione, Facebook, Instagram)
+- Oznaczanie ulubionych
+- Link do dashboardu w nagłówku
 
 ### ⏳ D — Generowanie obrazów
 - Stable Diffusion XL (Standard)

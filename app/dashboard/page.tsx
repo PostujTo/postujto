@@ -33,7 +33,7 @@ export default function DashboardPage() {
   const [generations, setGenerations] = useState<Generation[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'favorites'>('all');
+  const [filter, setFilter] = useState<'all' | 'favorites' | 'facebook' | 'instagram'>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -72,9 +72,11 @@ export default function DashboardPage() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const filtered = filter === 'favorites'
-    ? generations.filter(g => g.is_favorite)
-    : generations;
+  const filtered = 
+  filter === 'favorites' ? generations.filter(g => g.is_favorite) :
+  filter === 'facebook' ? generations.filter(g => g.platform === 'facebook') :
+  filter === 'instagram' ? generations.filter(g => g.platform === 'instagram') :
+  generations;
 
   const toneLabel: Record<string, string> = {
     professional: 'Profesjonalny',
@@ -149,28 +151,48 @@ export default function DashboardPage() {
         )}
 
         {/* Filtry */}
-        <div className="flex items-center gap-3 mb-6">
-          <button
-            onClick={() => setFilter('all')}
-            className={`px-5 py-2 rounded-full font-semibold text-sm transition-all ${
-              filter === 'all'
-                ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
-                : 'bg-white text-gray-600 border border-gray-200'
-            }`}
-          >
-            Wszystkie ({generations.length})
-          </button>
-          <button
-            onClick={() => setFilter('favorites')}
-            className={`px-5 py-2 rounded-full font-semibold text-sm transition-all ${
-              filter === 'favorites'
-                ? 'bg-yellow-400 text-yellow-900 shadow-lg'
-                : 'bg-white text-gray-600 border border-gray-200'
-            }`}
-          >
-            ⭐ Ulubione ({generations.filter(g => g.is_favorite).length})
-          </button>
-        </div>
+        <div className="flex flex-wrap items-center gap-3 mb-6">
+  <button
+    onClick={() => setFilter('all')}
+    className={`px-5 py-2 rounded-full font-semibold text-sm transition-all ${
+      filter === 'all'
+        ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
+        : 'bg-white text-gray-600 border border-gray-200'
+    }`}
+  >
+    Wszystkie ({generations.length})
+  </button>
+  <button
+    onClick={() => setFilter('favorites')}
+    className={`px-5 py-2 rounded-full font-semibold text-sm transition-all ${
+      filter === 'favorites'
+        ? 'bg-yellow-400 text-yellow-900 shadow-lg'
+        : 'bg-white text-gray-600 border border-gray-200'
+    }`}
+  >
+    ⭐ Ulubione ({generations.filter(g => g.is_favorite).length})
+  </button>
+  <button
+    onClick={() => setFilter('facebook')}
+    className={`px-5 py-2 rounded-full font-semibold text-sm transition-all ${
+      filter === 'facebook'
+        ? 'bg-blue-500 text-white shadow-lg'
+        : 'bg-white text-gray-600 border border-gray-200'
+    }`}
+  >
+    Facebook ({generations.filter(g => g.platform === 'facebook').length})
+  </button>
+  <button
+    onClick={() => setFilter('instagram')}
+    className={`px-5 py-2 rounded-full font-semibold text-sm transition-all ${
+      filter === 'instagram'
+        ? 'bg-pink-500 text-white shadow-lg'
+        : 'bg-white text-gray-600 border border-gray-200'
+    }`}
+  >
+    Instagram ({generations.filter(g => g.platform === 'instagram').length})
+  </button>
+</div>
 
         {/* Lista generacji */}
         {filtered.length === 0 ? (

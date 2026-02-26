@@ -26,10 +26,13 @@ export default function Home() {
   const [length, setLength] = useState<'short' | 'medium' | 'long'>('medium');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<Array<{
-    text: string;
-    hashtags: string[];
-    imagePrompt: string;
-  }> | null>(null);
+  text: string;
+  hashtags: string[];
+  imagePrompt: string;
+}> | null>(null);
+const [generationId, setGenerationId] = useState<string | null>(null);
+const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
+const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
 
   const [credits, setCredits] = useState<{
     remaining: number;
@@ -132,6 +135,8 @@ export default function Home() {
         }
         throw new Error(data.error || 'Błąd podczas generowania postów');
       }
+      setGenerationId(data.generationId || null);
+      setLikedPosts(new Set());
       setResults(data.posts.map((post: any) => ({
         text: post.text,
         hashtags: post.hashtags,
@@ -402,14 +407,54 @@ export default function Home() {
                 <span className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-semibold">✓ Gotowe!</span>
               </div>
               {results.map((result, idx) => (
-                <div key={idx} className="card-hover bg-white rounded-2xl p-8 border-2 border-gray-200 shadow-lg">
+                <div key={idx} className="bg-white rounded-2xl p-8 border-2 border-gray-200 shadow-lg">
                   <div className="flex items-start justify-between mb-6">
                     <span className="px-4 py-2 bg-purple-600 text-white text-sm font-bold rounded-full shadow-lg shadow-purple-500/30">
                       Wersja {idx + 1}
                     </span>
-                    <button className="btn-hover px-5 py-2 bg-cyan-500 text-white rounded-xl text-sm font-semibold shadow-md">
-                      📋 Kopiuj
-                    </button>
+                    <div className="flex items-start justify-between mb-6">
+  <span className="px-4 py-2 bg-purple-600 text-white text-sm font-bold rounded-full shadow-lg shadow-purple-500/30">
+    Wersja {idx + 1}
+  </span>
+  <div className="flex gap-2">
+    <button
+      onClick={() => {
+        const full = `${result.text}\n\n${result.hashtags.join(' ')}`;
+        navigator.clipboard.writeText(full);
+        setCopiedIdx(idx);
+        setTimeout(() => setCopiedIdx(null), 2000);
+      }}
+      className="btn-hover px-5 py-2 bg-cyan-500 text-white rounded-xl text-sm font-semibold shadow-md"
+    >
+      {copiedIdx === idx ? '✅ Skopiowano!' : '📋 Kopiuj'}
+    </button>
+    <button
+      onClick={async () => {
+        if (!generationId) return;
+        const isLiked = likedPosts.has(idx);
+        const newLiked = new Set(likedPosts);
+        if (isLiked) {
+          newLiked.delete(idx);
+        } else {
+          newLiked.add(idx);
+        }
+        setLikedPosts(newLiked);
+        await fetch('/api/dashboard/favorite', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: generationId, is_favorite: newLiked.size > 0 }),
+        });
+      }}
+      className={`btn-hover px-5 py-2 rounded-xl text-sm font-semibold shadow-md transition-all ${
+        likedPosts.has(idx)
+          ? 'bg-yellow-400 text-yellow-900'
+          : 'bg-gray-100 text-gray-600'
+      }`}
+    >
+      {likedPosts.has(idx) ? '⭐ Lubię to!' : '☆ Lubię to'}
+    </button>
+  </div>
+</div>
                   </div>
                   <div className="space-y-6">
                     <div>

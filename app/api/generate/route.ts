@@ -195,12 +195,21 @@ WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy c
       console.error('Błąd zapisywania generacji:', historyError);
     }
 
-    // Zwróć wynik z aktualnymi kredytami
-    return NextResponse.json({
-      ...jsonData,
-      creditsRemaining: user.credits_remaining - 1,
-      creditsTotal: user.credits_total,
-    });
+    // Pobierz ID nowo zapisanej generacji
+const { data: newGen } = await supabase
+  .from('generations')
+  .select('id')
+  .eq('user_id', user.id)
+  .order('created_at', { ascending: false })
+  .limit(1)
+  .single();
+
+return NextResponse.json({
+  ...jsonData,
+  generationId: newGen?.id || null,
+  creditsRemaining: user.credits_remaining - 1,
+  creditsTotal: user.credits_total,
+});
   } catch (error: any) {
     console.error('Błąd API:', error);
     return NextResponse.json(
