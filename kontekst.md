@@ -94,3 +94,8 @@ ANTHROPIC_API_KEY=...
 - Stripe jest w **trybie Sandbox (testowym)** — brak prawdziwych płatności
 - Brak własnej domeny — aplikacja działa na domenie Vercel
 - Użytkownik nie zna się na kodowaniu — wymagane szczegółowe instrukcje krok po kroku
+
+✅ Polska optymalizacja (częściowo)
+- Kalendarz polskich okazji marketingowych (30 dni naprzód)
+- Kafelki branżowe: restauracja, sklep odzieżowy, salon kosmetyczny, budowlanka
+- Prompt wzbogacony o wskazówki branżowe

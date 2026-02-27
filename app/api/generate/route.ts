@@ -91,7 +91,19 @@ export async function POST(request: Request) {
   ? `\nBRANŻA: ${industry} - dostosuj język, styl i treść do tej branży.`
   : '';
 
-const prompt = `Jesteś ekspertem od social media marketingu w Polsce. Wygeneruj 3 różne wersje postu na ${platformDescription}.${industryHint}
+const polishLawHint = `
+POLSKIE PRAWO REKLAMOWE - przestrzegaj tych zasad:
+- Ceny podawaj zawsze w PLN z VAT (ceny brutto)
+- Nie używaj sformułowań "najlepszy", "nr 1", "jedyny" bez udokumentowania
+- Promocje i wyprzedaże muszą mieć określony czas trwania
+- Nie składaj obietnic których nie można spełnić (np. "gwarantujemy najniższą cenę")
+- Unikaj sformułowań mogących wprowadzać w błąd konsumenta
+- Dla suplementów/kosmetyków nie używaj twierdzeń medycznych
+- Zawsze pisz po polsku, naturalnym językiem - nie tłumacz z angielskiego
+- Używaj polskich zwrotów sprzedażowych: "sprawdź", "odkryj", "skorzystaj", "zadzwoń", "zarezerwuj"
+`;
+
+const prompt = `Jesteś ekspertem od social media marketingu w Polsce. Wygeneruj 3 różne wersje postu na ${platformDescription}.${industryHint}${polishLawHint}
 
 TEMAT: ${topic}
 

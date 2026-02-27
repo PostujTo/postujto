@@ -36,10 +36,18 @@ function getUpcomingOccasions() {
 }
 
 const INDUSTRIES = [
-  { id: 'restaurant', label: 'Restauracja', emoji: '🍽️', hint: 'Użyj apetycznych opisów, podkreśl atmosferę i smak, zachęć do rezerwacji lub wizyty' },
-  { id: 'fashion', label: 'Sklep odzieżowy', emoji: '👗', hint: 'Podkreśl styl, trendy sezonu, zachęć do przymierzenia i wizyty w sklepie' },
-  { id: 'beauty', label: 'Salon kosmetyczny', emoji: '💅', hint: 'Podkreśl relaks, profesjonalizm, efekty zabiegu, zachęć do rezerwacji' },
-  { id: 'construction', label: 'Budowlanka/remonty', emoji: '🔨', hint: 'Podkreśl doświadczenie, jakość wykonania, terminowość i solidność ekipy' },
+  { id: 'restaurant', label: 'Restauracja', emoji: '🍽️', hint: 'Użyj apetycznych opisów, podkreśl atmosferę i smak, zachęć do rezerwacji lub wizyty. Wspomnij o polskich smakach i lokalnych składnikach.' },
+  { id: 'fashion', label: 'Sklep odzieżowy', emoji: '👗', hint: 'Podkreśl styl, trendy sezonu, zachęć do przymierzenia i wizyty w sklepie. Używaj modnych polskich określeń.' },
+  { id: 'beauty', label: 'Salon kosmetyczny', emoji: '💅', hint: 'Podkreśl relaks, profesjonalizm, efekty zabiegu, zachęć do rezerwacji. Nie używaj twierdzeń medycznych.' },
+  { id: 'construction', label: 'Budowlanka/remonty', emoji: '🔨', hint: 'Podkreśl doświadczenie, jakość wykonania, terminowość i solidność ekipy. Wspomnij o gwarancji i bezpłatnej wycenie.' },
+  { id: 'ecommerce', label: 'Sklep internetowy', emoji: '🛒', hint: 'Podkreśl szybką dostawę, łatwe zwroty, bezpieczne płatności. Zachęć do złożenia zamówienia.' },
+  { id: 'fitness', label: 'Siłownia/fitness', emoji: '💪', hint: 'Motywuj do działania, podkreśl efekty i atmosferę, zachęć do zapisania się na trening lub karnet.' },
+  { id: 'realestate', label: 'Nieruchomości', emoji: '🏠', hint: 'Podkreśl lokalizację, standard wykończenia i cenę. Zachęć do kontaktu i bezpłatnego oglądania.' },
+  { id: 'medical', label: 'Przychodnia/zdrowie', emoji: '🏥', hint: 'Podkreśl profesjonalizm i doświadczenie lekarzy, krótki czas oczekiwania. Nie składaj obietnic medycznych.' },
+  { id: 'education', label: 'Edukacja/kursy', emoji: '📚', hint: 'Podkreśl certyfikaty, efekty nauki i opinie uczniów. Zachęć do zapisu na bezpłatną lekcję próbną.' },
+  { id: 'automotive', label: 'Motoryzacja', emoji: '🚗', hint: 'Podkreśl parametry techniczne, stan techniczny i cenę. Zachęć do jazdy próbnej lub kontaktu.' },
+  { id: 'tourism', label: 'Turystyka/hotel', emoji: '✈️', hint: 'Podkreśl wyjątkowość miejsca, atrakcje i relaks. Zachęć do rezerwacji i podaj dostępne terminy.' },
+  { id: 'food', label: 'Sklep spożywczy', emoji: '🛍️', hint: 'Podkreśl świeżość, lokalność produktów i atrakcyjne ceny. Zachęć do odwiedzin lub zamówienia online.' },
 ];
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
