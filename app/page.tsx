@@ -402,6 +402,7 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
   onChange={(e) => setTopic(e.target.value)}
   placeholder="np. nowa kolekcja butów sportowych, przepis na ciasto czekoladowe..."
   rows={3}
+  spellCheck={false}
   className="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:bg-white transition-all duration-300 font-medium resize-none"
 />
               </div>
