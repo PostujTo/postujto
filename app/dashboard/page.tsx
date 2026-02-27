@@ -27,6 +27,7 @@ type Stats = {
   favorites: number;
   facebook: number;
   instagram: number;
+  tiktok: number;
 };
 
 export default function DashboardPage() {
@@ -34,7 +35,7 @@ export default function DashboardPage() {
   const [generations, setGenerations] = useState<Generation[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'favorites' | 'facebook' | 'instagram'>('all');
+  const [filter, setFilter] = useState<'all' | 'favorites' | 'facebook' | 'instagram' | 'tiktok'>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -68,6 +69,7 @@ const deleteGeneration = async (id: string) => {
     favorites: updated.filter(g => g.is_favorite).length,
     facebook: updated.filter(g => g.platform === 'facebook').length,
     instagram: updated.filter(g => g.platform === 'instagram').length,
+tiktok: updated.filter(g => g.platform === 'tiktok').length,
   });
 };
 
@@ -88,6 +90,7 @@ const deleteVersion = async (id: string, version_index: number) => {
       favorites: updated.filter(g => g.is_favorite).length,
       facebook: updated.filter(g => g.platform === 'facebook').length,
       instagram: updated.filter(g => g.platform === 'instagram').length,
+tiktok: updated.filter(g => g.platform === 'tiktok').length,
     });
   } else {
     setGenerations(prev => prev.map(g => {
@@ -112,6 +115,7 @@ const deleteVersion = async (id: string, version_index: number) => {
     favorites: updated.filter(g => g.is_favorite).length,
     facebook: updated.filter(g => g.platform === 'facebook').length,
     instagram: updated.filter(g => g.platform === 'instagram').length,
+tiktok: updated.filter(g => g.platform === 'tiktok').length,
   });
 };
 
@@ -126,6 +130,7 @@ const deleteVersion = async (id: string, version_index: number) => {
   filter === 'favorites' ? generations.filter(g => g.is_favorite) :
   filter === 'facebook' ? generations.filter(g => g.platform === 'facebook') :
   filter === 'instagram' ? generations.filter(g => g.platform === 'instagram') :
+  filter === 'tiktok' ? generations.filter(g => g.platform === 'tiktok') :
   generations;
 
   const toneLabel: Record<string, string> = {
@@ -197,6 +202,10 @@ const deleteVersion = async (id: string, version_index: number) => {
               <div className="text-4xl font-extrabold text-pink-500">{stats.instagram}</div>
               <div className="text-sm text-gray-500 font-medium mt-1">Instagram</div>
             </div>
+            <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm text-center">
+  <div className="text-4xl font-extrabold text-gray-900">{stats.tiktok}</div>
+  <div className="text-sm text-gray-500 font-medium mt-1">🎵 TikTok</div>
+</div>
           </div>
         )}
 
@@ -242,6 +251,16 @@ const deleteVersion = async (id: string, version_index: number) => {
   >
     Instagram ({generations.filter(g => g.platform === 'instagram').length})
   </button>
+  <button
+  onClick={() => setFilter('tiktok')}
+  className={`px-5 py-2 rounded-full font-semibold text-sm transition-all ${
+    filter === 'tiktok'
+      ? 'bg-black text-white shadow-lg'
+      : 'bg-white text-gray-600 border border-gray-200'
+  }`}
+>
+  🎵 TikTok ({generations.filter(g => g.platform === 'tiktok').length})
+</button>
 </div>
 
         {/* Lista generacji */}
@@ -269,12 +288,14 @@ const deleteVersion = async (id: string, version_index: number) => {
                   <div className="flex items-center gap-3">
                     <span className="text-lg font-bold text-gray-900">{gen.topic}</span>
                     <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
-                      gen.platform === 'facebook'
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'bg-pink-100 text-pink-700'
-                    }`}>
-                      {gen.platform}
-                    </span>
+  gen.platform === 'facebook'
+    ? 'bg-blue-100 text-blue-700'
+    : gen.platform === 'instagram'
+    ? 'bg-pink-100 text-pink-700'
+    : 'bg-black text-white'
+}`}>
+  {gen.platform === 'tiktok' ? '🎵 TikTok' : gen.platform}
+</span>
                     <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
                       {toneLabel[gen.tone]}
                     </span>

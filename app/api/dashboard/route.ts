@@ -41,6 +41,12 @@ export async function GET() {
     const favorites = generations?.filter(g => g.is_favorite).length || 0;
     const facebook = generations?.filter(g => g.platform === 'facebook').length || 0;
     const instagram = generations?.filter(g => g.platform === 'instagram').length || 0;
+const tiktok = generations?.filter(g => g.platform === 'tiktok').length || 0;
+
+return NextResponse.json({
+  generations: generations || [],
+  stats: { total, favorites, facebook, instagram, tiktok },
+});
 
     return NextResponse.json({
       generations: generations || [],
