@@ -54,7 +54,51 @@ export default function DashboardPage() {
       setLoading(false);
     }
   };
+const deleteGeneration = async (id: string) => {
+  if (!confirm('Czy na pewno chcesz usunąć cały post?')) return;
+  await fetch('/api/dashboard/delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id }),
+  });
+  const updated = generations.filter(g => g.id !== id);
+  setGenerations(updated);
+  setStats({
+    total: updated.length,
+    favorites: updated.filter(g => g.is_favorite).length,
+    facebook: updated.filter(g => g.platform === 'facebook').length,
+    instagram: updated.filter(g => g.platform === 'instagram').length,
+  });
+};
 
+const deleteVersion = async (id: string, version_index: number) => {
+  if (!confirm(`Czy na pewno chcesz usunąć wersję ${version_index + 1}?`)) return;
+  const res = await fetch('/api/dashboard/delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, version_index }),
+  });
+  const data = await res.json();
+  
+  if (data.deleted === 'all') {
+    const updated = generations.filter(g => g.id !== id);
+    setGenerations(updated);
+    setStats({
+      total: updated.length,
+      favorites: updated.filter(g => g.is_favorite).length,
+      facebook: updated.filter(g => g.platform === 'facebook').length,
+      instagram: updated.filter(g => g.platform === 'instagram').length,
+    });
+  } else {
+    setGenerations(prev => prev.map(g => {
+      if (g.id !== id) return g;
+      return {
+        ...g,
+        generated_posts: g.generated_posts.filter((_, i) => i !== version_index),
+      };
+    }));
+  }
+};
   const toggleFavorite = async (id: string, current: boolean) => {
   await fetch('/api/dashboard/favorite', {
     method: 'POST',
@@ -241,16 +285,25 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-gray-400">
                       {new Date(gen.created_at).toLocaleDateString('pl-PL', {
-                        day: 'numeric', month: 'short', year: 'numeric'
-                      })}
+  day: 'numeric', month: 'short', year: 'numeric'
+})} {new Date(gen.created_at).toLocaleTimeString('pl-PL', {
+  hour: '2-digit', minute: '2-digit'
+})}
                     </span>
                     <button
-                      onClick={() => toggleFavorite(gen.id, gen.is_favorite)}
-                      className="text-2xl transition-transform hover:scale-110"
-                      title={gen.is_favorite ? 'Usuń z ulubionych' : 'Dodaj do ulubionych'}
-                    >
-                      {gen.is_favorite ? '⭐' : '☆'}
-                    </button>
+  onClick={() => toggleFavorite(gen.id, gen.is_favorite)}
+  className="text-2xl transition-transform hover:scale-110"
+  title={gen.is_favorite ? 'Usuń z ulubionych' : 'Dodaj do ulubionych'}
+>
+  {gen.is_favorite ? '⭐' : '☆'}
+</button>
+<button
+  onClick={() => deleteGeneration(gen.id)}
+  className="px-3 py-1 bg-red-100 text-red-600 rounded-full text-xs font-semibold hover:bg-red-200 transition-colors"
+  title="Usuń cały post"
+>
+  🗑️ Usuń post
+</button>
                   </div>
                 </div>
 
@@ -275,12 +328,20 @@ export default function DashboardPage() {
                             ))}
                           </div>
                         </div>
-                        <button
-                          onClick={() => copyPost(post.text, post.hashtags, `${gen.id}-${idx}`)}
-                          className="shrink-0 px-4 py-2 bg-cyan-500 text-white rounded-xl text-sm font-semibold hover:bg-cyan-600 transition-colors"
-                        >
-                          {copiedId === `${gen.id}-${idx}` ? '✅ Skopiowano!' : '📋 Kopiuj'}
-                        </button>
+                        <div className="flex flex-col gap-2">
+  <button
+    onClick={() => copyPost(post.text, post.hashtags, `${gen.id}-${idx}`)}
+    className="shrink-0 px-4 py-2 bg-cyan-500 text-white rounded-xl text-sm font-semibold hover:bg-cyan-600 transition-colors"
+  >
+    {copiedId === `${gen.id}-${idx}` ? '✅ Skopiowano!' : '📋 Kopiuj'}
+  </button>
+  <button
+    onClick={() => deleteVersion(gen.id, idx)}
+    className="shrink-0 px-4 py-2 bg-red-100 text-red-600 rounded-xl text-sm font-semibold hover:bg-red-200 transition-colors"
+  >
+    🗑️ Usuń wersję
+  </button>
+</div>
                       </div>
                     </div>
                   ))}
