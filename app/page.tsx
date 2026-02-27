@@ -530,11 +530,11 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
                 <div key={idx} className="bg-white rounded-2xl p-8 border-2 border-gray-200 shadow-lg">
                   <div className="flex items-start justify-between mb-6">
                     
-                    <div className="flex items-start justify-between mb-6">
+                    <div className="flex items-center gap-6 mb-6">
   <span className="px-4 py-2 bg-purple-600 text-white text-sm font-bold rounded-full shadow-lg shadow-purple-500/30">
     Wersja {idx + 1}
   </span>
-  <div className="flex gap-6">
+  <div className="flex gap-6 ml-auto">
     <button
       onClick={() => {
         const full = `${result.text}\n\n${result.hashtags.join(' ')}`;
