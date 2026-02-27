@@ -672,39 +672,6 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
               </div>
             </div>
           )}
-
-          {/* Active subscription card */}
-          {!results && hasActivePlan && credits && (
-            <div className="mt-20 max-w-md mx-auto animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-              <div className="bg-white rounded-2xl p-8 border-2 border-purple-200 shadow-xl text-center">
-                <div className="mb-4">
-                  <span className={`px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wide ${PLAN_COLORS[credits.plan]}`}>
-                    Plan {PLAN_LABELS[credits.plan]}
-                  </span>
-                </div>
-                <div className="text-5xl font-extrabold text-gray-900 mb-2">
-                  {credits.remaining}
-                </div>
-                <div className="text-gray-500 font-medium mb-6">
-                  kredytów pozostało z {credits.total}
-                </div>
-                <div className="w-full bg-gray-100 rounded-full h-3 mb-6">
-                  <div
-                    className="bg-gradient-to-r from-purple-500 to-cyan-500 h-3 rounded-full transition-all duration-500"
-                    style={{ width: `${Math.round((credits.remaining / credits.total) * 100)}%` }}
-                  />
-                </div>
-                <button
-                  onClick={handleCustomerPortal}
-                  disabled={portalLoading}
-                  className="btn-hover w-full py-3 bg-purple-600 text-white font-bold rounded-xl shadow-lg shadow-purple-500/30 disabled:opacity-50"
-                >
-                  {portalLoading ? '⏳ Ładowanie...' : '⚙️ Zarządzaj subskrypcją'}
-                </button>
-                <p className="text-xs text-gray-400 mt-3">Zmień plan lub anuluj subskrypcję</p>
-              </div>
-            </div>
-          )}
         </main>
 
         {/* Footer */}
