@@ -78,9 +78,10 @@ export async function POST(request: Request) {
 
     // Mapowanie platformy na specyfikę
     const platformMap = {
-      facebook: 'Facebook - możesz użyć dłuższych akapitów, ale podziel tekst dla czytelności',
-      instagram: 'Instagram - krótkie akapity, angażujące od pierwszych słów, przyjazne emoji',
-    };
+  facebook: 'Facebook - możesz użyć dłuższych akapitów, ale podziel tekst dla czytelności',
+  instagram: 'Instagram - krótkie akapity, angażujące od pierwszych słów, przyjazne emoji',
+  tiktok: 'TikTok - bardzo krótki, chwytliwy tekst do opisu wideo, max 150 znaków, dużo emoji, młodzieżowy język, trending hashtagi',
+};
 
     const targetLength = lengthMap[length as keyof typeof lengthMap];
     const toneDescription = toneMap[tone as keyof typeof toneMap];
