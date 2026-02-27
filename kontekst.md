@@ -34,6 +34,8 @@
 - Statystyki (total, ulubione, Facebook, Instagram)
 - Oznaczanie ulubionych
 - Link do dashboardu w nagłówku
+- Usuwanie całego postu lub pojedynczej wersji
+- Godzina wygenerowania posta
 
 ### ⏳ D — Generowanie obrazów
 - Stable Diffusion XL (Standard)

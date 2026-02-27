@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { topic, platform, tone, length } = await request.json();
+    const { topic, platform, tone, length, industry } = await request.json();
 
     // Walidacja
     if (!topic || !platform || !tone || !length) {
@@ -87,7 +87,11 @@ export async function POST(request: Request) {
     const platformDescription = platformMap[platform as keyof typeof platformMap];
 
     // Prompt dla Claude
-    const prompt = `Jesteś ekspertem od social media marketingu. Wygeneruj 3 różne wersje postu na ${platformDescription}.
+    const industryHint = industry 
+  ? `\nBRANŻA: ${industry} - dostosuj język, styl i treść do tej branży.`
+  : '';
+
+const prompt = `Jesteś ekspertem od social media marketingu w Polsce. Wygeneruj 3 różne wersje postu na ${platformDescription}.${industryHint}
 
 TEMAT: ${topic}
 

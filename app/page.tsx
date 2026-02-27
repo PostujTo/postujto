@@ -1,5 +1,46 @@
 'use client';
+const POLISH_CALENDAR = [
+  { date: '02-14', name: 'Walentynki', emoji: '💝', days: 0 },
+  { date: '03-08', name: 'Dzień Kobiet', emoji: '🌹', days: 0 },
+  { date: '03-20', name: 'Pierwszy dzień wiosny', emoji: '🌸', days: 0 },
+  { date: '04-20', name: 'Wielkanoc', emoji: '🐣', days: 0 },
+  { date: '05-01', name: 'Święto Pracy', emoji: '🔨', days: 0 },
+  { date: '05-03', name: 'Święto Konstytucji', emoji: '🇵🇱', days: 0 },
+  { date: '05-26', name: 'Dzień Matki', emoji: '💐', days: 0 },
+  { date: '06-01', name: 'Dzień Dziecka', emoji: '🧒', days: 0 },
+  { date: '06-23', name: 'Dzień Ojca', emoji: '👨', days: 0 },
+  { date: '08-15', name: 'Wniebowzięcie NMP', emoji: '⛪', days: 0 },
+  { date: '10-31', name: 'Halloween', emoji: '🎃', days: 0 },
+  { date: '11-01', name: 'Wszystkich Świętych', emoji: '🕯️', days: 0 },
+  { date: '11-11', name: 'Święto Niepodległości', emoji: '🇵🇱', days: 0 },
+  { date: '12-06', name: 'Mikołajki', emoji: '🎅', days: 0 },
+  { date: '12-24', name: 'Wigilia', emoji: '🎄', days: 0 },
+  { date: '12-26', name: 'Boże Narodzenie', emoji: '🎁', days: 0 },
+];
 
+function getUpcomingOccasions() {
+  const today = new Date();
+  const year = today.getFullYear();
+  return POLISH_CALENDAR.map(occasion => {
+    const [month, day] = occasion.date.split('-').map(Number);
+    let occasionDate = new Date(year, month - 1, day);
+    if (occasionDate < today) {
+      occasionDate = new Date(year + 1, month - 1, day);
+    }
+    const daysLeft = Math.ceil((occasionDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return { ...occasion, days: daysLeft };
+  })
+  .filter(o => o.days <= 30)
+  .sort((a, b) => a.days - b.days)
+  .slice(0, 3);
+}
+
+const INDUSTRIES = [
+  { id: 'restaurant', label: 'Restauracja', emoji: '🍽️', hint: 'Użyj apetycznych opisów, podkreśl atmosferę i smak, zachęć do rezerwacji lub wizyty' },
+  { id: 'fashion', label: 'Sklep odzieżowy', emoji: '👗', hint: 'Podkreśl styl, trendy sezonu, zachęć do przymierzenia i wizyty w sklepie' },
+  { id: 'beauty', label: 'Salon kosmetyczny', emoji: '💅', hint: 'Podkreśl relaks, profesjonalizm, efekty zabiegu, zachęć do rezerwacji' },
+  { id: 'construction', label: 'Budowlanka/remonty', emoji: '🔨', hint: 'Podkreśl doświadczenie, jakość wykonania, terminowość i solidność ekipy' },
+];
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
@@ -40,6 +81,8 @@ const [generationId, setGenerationId] = useState<string | null>(() => {
 });
 const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
 const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
+const upcomingOccasions = getUpcomingOccasions();
 
   const [credits, setCredits] = useState<{
     remaining: number;
@@ -132,7 +175,15 @@ const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic, platform, tone, length }),
+        body: JSON.stringify({ 
+  topic, 
+  platform, 
+  tone, 
+  length,
+  industry: selectedIndustry 
+    ? INDUSTRIES.find(i => i.id === selectedIndustry)?.hint 
+    : null,
+}),
       });
       const data = await response.json();
       if (!response.ok) {
@@ -284,6 +335,53 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
           </div>
 
           {/* Generator Form */}
+          {/* Kalendarz okazji */}
+{upcomingOccasions.length > 0 && (
+  <div className="max-w-3xl mx-auto mb-6 animate-fade-in-up">
+    <div className="flex flex-wrap gap-3">
+      {upcomingOccasions.map((occasion) => (
+        <button
+          key={occasion.date}
+          onClick={() => setTopic(`Post z okazji ${occasion.name}`)}
+          className="btn-hover flex items-center gap-2 px-4 py-2 bg-white border-2 border-purple-200 rounded-full shadow-sm hover:border-purple-500 transition-all"
+        >
+          <span className="text-xl">{occasion.emoji}</span>
+          <div className="text-left">
+            <div className="text-sm font-bold text-gray-900">{occasion.name}</div>
+            <div className="text-xs text-purple-600 font-medium">
+              {occasion.days === 0 ? 'Dziś!' : occasion.days === 1 ? 'Jutro!' : `Za ${occasion.days} dni`}
+            </div>
+          </div>
+        </button>
+      ))}
+    </div>
+  </div>
+)}
+
+{/* Kafelki branż */}
+<div className="max-w-3xl mx-auto mb-6 animate-fade-in-up">
+  <p className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">
+    Wybierz branżę (opcjonalnie)
+  </p>
+  <div className="flex flex-wrap gap-3">
+    {INDUSTRIES.map((industry) => (
+      <button
+        key={industry.id}
+        onClick={() => setSelectedIndustry(
+          selectedIndustry === industry.id ? null : industry.id
+        )}
+        className={`btn-hover flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm transition-all ${
+          selectedIndustry === industry.id
+            ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
+            : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-purple-300'
+        }`}
+      >
+        <span>{industry.emoji}</span>
+        {industry.label}
+      </button>
+    ))}
+  </div>
+</div>
           <div className="max-w-3xl mx-auto bg-white rounded-3xl p-10 shadow-2xl border border-gray-200 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <div className="space-y-8">
               {/* Topic */}
