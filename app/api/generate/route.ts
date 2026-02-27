@@ -102,6 +102,7 @@ POLSKIE PRAWO REKLAMOWE - przestrzegaj tych zasad:
 - Dla suplementów/kosmetyków nie używaj twierdzeń medycznych
 - Zawsze pisz po polsku, naturalnym językiem - nie tłumacz z angielskiego
 - Używaj polskich zwrotów sprzedażowych: "sprawdź", "odkryj", "skorzystaj", "zadzwoń", "zarezerwuj"
+- NIE używaj emoji ani emotikon w tekście postu - tylko czysty tekst
 `;
 
 const prompt = `Jesteś ekspertem od social media marketingu w Polsce. Wygeneruj 3 różne wersje postu na ${platformDescription}.${industryHint}${polishLawHint}

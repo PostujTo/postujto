@@ -99,3 +99,5 @@ ANTHROPIC_API_KEY=...
 - Kalendarz polskich okazji marketingowych (30 dni naprzód)
 - Kafelki branżowe: restauracja, sklep odzieżowy, salon kosmetyczny, budowlanka
 - Prompt wzbogacony o wskazówki branżowe
+- TikTok jako trzecia platforma (z własnym promptem)
+- Constraint w Supabase zaktualizowany o TikTok

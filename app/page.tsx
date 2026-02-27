@@ -307,7 +307,7 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
                       <button
                         onClick={handleCustomerPortal}
                         disabled={portalLoading}
-                        className="btn-hover px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold rounded-full disabled:opacity-50"
+                        className="btn-hover px-4 py-2 bg-purple-100 text-purple-700 text-sm font-semibold rounded-full disabled:opacity-50"
                       >
                         {portalLoading ? '⏳' : 'Subskrypcja'}
                       </button>
@@ -315,7 +315,7 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
                   </>
                 )}
                 <Link href="/dashboard" className="btn-hover px-4 py-2 bg-purple-100 text-purple-700 text-sm font-semibold rounded-full">
-  📊 Dashboard
+   Panel użytkownika
 </Link>
 <UserButton afterSignOutUrl="/" />
               </div>
@@ -337,7 +337,7 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
               <span className="text-purple-600">w sekundę</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              AI stworzy dla Ciebie profesjonalne treści na Facebook i Instagram.<br />
+              AI stworzy dla Ciebie profesjonalne treści na Facebook, Instagram i TikTok.<br />
               <span className="text-cyan-600 font-semibold">Zaoszczędź godziny pracy każdego dnia.</span>
             </p>
           </div>
@@ -368,7 +368,7 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
 
 {/* Kafelki branż */}
 <div className="max-w-3xl mx-auto mb-6 animate-fade-in-up">
-  <p className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">
+  <p className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">
     Wybierz branżę (opcjonalnie)
   </p>
   <div className="flex flex-wrap gap-3">
@@ -397,13 +397,13 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
                 <label className="block text-sm font-bold text-gray-900 mb-3 uppercase tracking-wide">
                   O czym ma być post?
                 </label>
-                <input
-                  type="text"
-                  value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
-                  placeholder="np. nowa kolekcja butów sportowych, przepis na ciasto czekoladowe..."
-                  className="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:bg-white transition-all duration-300 font-medium"
-                />
+                <textarea
+  value={topic}
+  onChange={(e) => setTopic(e.target.value)}
+  placeholder="np. nowa kolekcja butów sportowych, przepis na ciasto czekoladowe..."
+  rows={3}
+  className="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:bg-white transition-all duration-300 font-medium resize-none"
+/>
               </div>
 
               {/* Platform */}
@@ -414,7 +414,7 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
                     <button
                       key={p}
                       onClick={() => setPlatform(p)}
-                      className={`btn-hover relative px-6 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 ${
+                      className={`btn-hover relative px-5 py-3 rounded-2xl font-bold flex items-center justify-center gap-2 ${
                         platform === p
                           ? 'bg-purple-600 text-white shadow-xl shadow-purple-500/40'
                           : 'bg-gray-100 text-gray-700'
@@ -453,7 +453,7 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
                       key={val}
                       type="button"
                       onClick={() => setTone(val)}
-                      className={`btn-hover px-4 py-4 rounded-2xl font-bold ${
+                      className={`btn-hover px-4 py-3 rounded-2xl font-bold ${
                         tone === val
                           ? 'bg-purple-600 text-white shadow-xl shadow-purple-500/40'
                           : 'bg-gray-100 text-gray-700'
@@ -478,7 +478,7 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
                       key={val}
                       type="button"
                       onClick={() => setLength(val)}
-                      className={`btn-hover px-6 py-4 rounded-2xl font-bold ${
+                      className={`btn-hover px-5 py-3 rounded-2xl font-bold ${
                         length === val
                           ? 'bg-purple-600 text-white shadow-xl shadow-purple-500/40'
                           : 'bg-gray-100 text-gray-700'
@@ -511,7 +511,7 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
                   ) : (
                     <span className="flex items-center gap-2">
                       <span className="text-2xl">✨</span>
-                      Wygeneruj posty AI
+                      Wygeneruj posty
                     </span>
                   )}
                 </button>
@@ -534,7 +534,7 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
   <span className="px-4 py-2 bg-purple-600 text-white text-sm font-bold rounded-full shadow-lg shadow-purple-500/30">
     Wersja {idx + 1}
   </span>
-  <div className="flex gap-2">
+  <div className="flex gap-6">
     <button
       onClick={() => {
         const full = `${result.text}\n\n${result.hashtags.join(' ')}`;
