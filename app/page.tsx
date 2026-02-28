@@ -361,13 +361,18 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
 </div>
                     {/* Manage subscription button - only for paid plans */}
                     {hasActivePlan && (
-                      <button
-                        onClick={handleCustomerPortal}
-                        disabled={portalLoading}
-                        className="btn-hover px-4 py-2 bg-purple-100 text-purple-700 text-sm font-semibold rounded-full disabled:opacity-50"
-                      >
-                        {portalLoading ? '⏳' : 'Subskrypcja'}
-                      </button>
+                      <div className="flex gap-2">
+  <Link href="/settings" className="btn-hover px-4 py-2 bg-purple-100 text-purple-700 text-sm font-semibold rounded-full">
+    ⚙️ Ustawienia
+  </Link>
+  <button
+    onClick={handleCustomerPortal}
+    disabled={portalLoading}
+    className="btn-hover px-4 py-2 bg-purple-100 text-purple-700 text-sm font-semibold rounded-full disabled:opacity-50"
+  >
+    {portalLoading ? '⏳...' : 'Subskrypcja'}
+  </button>
+</div>
                     )}
                   </>
                 )}
