@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 import Anthropic from '@anthropic-ai/sdk';
-import OpenAI from 'openai';
 import Replicate from 'replicate';
 
 const supabase = createClient(
@@ -11,10 +10,8 @@ const supabase = createClient(
 );
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
 
-// Soft limit — max obrazów dziennie na użytkownika
 const DAILY_IMAGE_LIMIT = 50;
 
 export async function POST(req: Request) {
@@ -24,7 +21,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Nie zalogowany' }, { status: 401 });
     }
 
-    // Pobierz użytkownika
     const { data: user, error: userError } = await supabase
       .from('users')
       .select('id, subscription_plan')
@@ -35,7 +31,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Nie znaleziono użytkownika' }, { status: 404 });
     }
 
-    // Tylko Starter i Pro mogą generować obrazy
     if (user.subscription_plan === 'free') {
       return NextResponse.json({ 
         error: 'Generowanie obrazów dostępne tylko w planie Starter i Pro' 
@@ -60,85 +55,86 @@ export async function POST(req: Request) {
 
     const { topic, platform, industry, imagePrompt } = await req.json();
 
-    // Claude wybiera narzędzie i generuje zoptymalizowany prompt
-    const routerResponse = await anthropic.messages.create({
+    // Claude dobiera styl Recraft V3 i generuje zoptymalizowany prompt
+    const styleResponse = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 500,
       messages: [{
         role: 'user',
-        content: `Jesteś ekspertem od reklam social media. Na podstawie poniższych danych wybierz najlepsze narzędzie do generowania obrazu i stwórz zoptymalizowany prompt po angielsku.
+        content: `Jesteś ekspertem od reklam social media. Na podstawie poniższych danych wybierz najlepszy styl Recraft V3 i stwórz zoptymalizowany prompt po angielsku.
 
 TEMAT: ${topic}
 PLATFORMA: ${platform}
 BRANŻA: ${industry || 'ogólna'}
 OPIS OBRAZU: ${imagePrompt}
 
-ZASADY WYBORU NARZĘDZIA:
-- "ideogram" → gdy post zawiera tekst, cenę, nazwę firmy, hasło reklamowe, promocję
-- "dalle" → gdy potrzebne jest realistyczne zdjęcie produktu, jedzenia, ludzi, miejsc
-- "stable_diffusion" → gdy potrzebny jest artystyczny, estetyczny lub lifestyle obraz
+DOSTĘPNE STYLE RECRAFT V3:
+- "realistic_image" → realistyczne zdjęcia produktów, jedzenia, miejsc
+- "realistic_image/natural_light" → jedzenie, restauracje, lifestyle
+- "realistic_image/studio_portrait" → produkty, moda, uroda
+- "realistic_image/hdr" → nieruchomości, motoryzacja, krajobraz
+- "realistic_image/enterprise" → B2B, usługi, budowlanka
+- "digital_illustration/2d_art_poster" → plakaty z tekstem, promocje, hasła
+- "digital_illustration/hand_drawn" → TikTok, młodzież, casual
+- "vector_illustration" → logo, ikony, branding
+
+ZASADY:
+- Gdy post zawiera cenę lub hasło reklamowe → "digital_illustration/2d_art_poster"
+- Gdy branża to restauracja/jedzenie → "realistic_image/natural_light"
+- Gdy branża to moda/uroda → "realistic_image/studio_portrait"
+- Gdy branża to budowlanka/nieruchomości → "realistic_image/enterprise"
+- Gdy platforma to TikTok → "digital_illustration/hand_drawn"
+- W pozostałych przypadkach → "realistic_image"
+- Prompt musi zawierać "Polish people" lub "European appearance" gdy są ludzie
+- Prompt musi być po angielsku, max 200 znaków
 
 Zwróć TYLKO JSON:
 {
-  "tool": "ideogram" | "dalle" | "stable_diffusion",
-  "prompt": "zoptymalizowany prompt po angielsku max 200 znaków",
-  "reason": "krótkie uzasadnienie wyboru"
+  "style": "wybrany styl",
+  "prompt": "zoptymalizowany prompt po angielsku",
+  "reason": "krótkie uzasadnienie"
 }`
       }]
     });
 
-    const routerText = routerResponse.content[0].type === 'text' 
-      ? routerResponse.content[0].text 
+    const styleText = styleResponse.content[0].type === 'text' 
+      ? styleResponse.content[0].text 
       : '';
     
-    const cleanedRouter = routerText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    const routerData = JSON.parse(cleanedRouter);
+    const cleanedStyle = styleText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const styleData = JSON.parse(cleanedStyle);
 
-    let imageUrl = '';
-    const tool = routerData.tool;
-    const optimizedPrompt = routerData.prompt;
+    const aspectRatio = platform === 'instagram' ? '1:1' : 
+                        platform === 'tiktok' ? '9:16' : '4:3';
 
-    // Generuj obraz wybranym narzędziem
-    if (tool === 'dalle') {
-      const response = await openai.images.generate({
-        model: 'dall-e-3',
-        prompt: optimizedPrompt,
-        n: 1,
-        size: platform === 'instagram' ? '1024x1024' : '1792x1024',
-        quality: 'standard',
-      });
-      imageUrl = response.data?.[0]?.url ?? '';
+    const output = await replicate.run(
+      'recraft-ai/recraft-v3',
+      {
+        input: {
+          prompt: styleData.prompt,
+          style: styleData.style,
+          aspect_ratio: aspectRatio,
+        }
+      }
+    ) as unknown as string;
 
-    } else if (tool === 'ideogram') {
-      const output = await replicate.run(
-  'ideogram-ai/ideogram-v2-turbo',
-  { input: { prompt: optimizedPrompt, aspect_ratio: platform === 'instagram' ? '1:1' : '16:9' } }
-) as unknown as string;
-imageUrl = output;
+    const imageUrl = output;
 
-    } else {
-      const output = await replicate.run(
-        'stability-ai/sdxl:39ed52f2319f9b6d963e92a3b90e0f38765c98b9ad5b82c7af2f3f78fd0ee3e2',
-        { input: { prompt: optimizedPrompt, width: platform === 'instagram' ? 1024 : 1344, height: platform === 'instagram' ? 1024 : 768 } }
-      ) as string[];
-      imageUrl = output[0];
-    }
-
-    // Zapisz w bazie
     await supabase.from('image_generations').insert({
       user_id: user.id,
       topic,
       platform,
-      tool_used: tool,
-      prompt_used: optimizedPrompt,
+      tool_used: 'recraft_v3',
+      prompt_used: styleData.prompt,
       image_url: imageUrl,
-      cost_usd: tool === 'ideogram' ? 0.08 : tool === 'dalle' ? 0.04 : 0.002,
+      cost_usd: 0.04,
     });
 
     return NextResponse.json({ 
-      imageUrl, 
-      tool, 
-      reason: routerData.reason,
+      imageUrl,
+      tool: 'recraft_v3',
+      style: styleData.style,
+      reason: styleData.reason,
     });
 
   } catch (error: any) {
