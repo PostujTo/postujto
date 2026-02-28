@@ -60,7 +60,6 @@ export async function POST(req: Request) {
 let credits = 999999;
 if (priceId === process.env.STRIPE_PRICE_ID_PREMIUM) {
   plan = 'premium';
-  credits = 999999;
 }
 
       console.log('📝 Updating user:', { clerkUserId, plan, credits });

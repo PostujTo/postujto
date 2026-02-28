@@ -57,8 +57,8 @@ type Plan = 'free' | 'standard' | 'premium';
 
 const PLAN_LABELS: Record<Plan, string> = {
   free: 'FREE',
-  standard: 'STANDARD',
-  premium: 'PREMIUM',
+  standard: 'STARTER',
+  premium: 'PRO',
 };
 
 const PLAN_COLORS: Record<Plan, string> = {
