@@ -664,8 +664,8 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
       />
       <div className="flex items-center justify-between">
         <span className="text-xs text-gray-400">
-          Wygenerowano przez: {result.imageTool === 'dalle' ? 'DALL-E 3' : result.imageTool === 'ideogram' ? 'Ideogram' : 'Stable Diffusion'}
-        </span>
+  Wygenerowano przez: Recraft V3
+</span>
         <a 
           href={result.generatedImage} 
           download 
