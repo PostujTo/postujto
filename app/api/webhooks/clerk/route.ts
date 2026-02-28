@@ -61,8 +61,8 @@ export async function POST(req: Request) {
           email: email_addresses[0].email_address,
           full_name: `${first_name || ''} ${last_name || ''}`.trim() || null,
           subscription_plan: 'free',
-          credits_total: 10,
-          credits_remaining: 10,
+          credits_total: 5,
+          credits_remaining: 5,
         })
         .select()
         .single();
