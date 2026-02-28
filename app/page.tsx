@@ -101,10 +101,17 @@ const upcomingOccasions = getUpcomingOccasions();
   const [portalLoading, setPortalLoading] = useState(false);
 
   useEffect(() => {
-    if (isLoaded && user) {
-      fetchUserCredits();
-    }
-  }, [isLoaded, user]);
+  if (isLoaded && user) {
+    fetchUserCredits();
+  }
+  if (isLoaded && !user) {
+    setCredits(null);
+    setLoadingCredits(false);
+    setResults(null);
+    sessionStorage.removeItem('lastResults');
+    sessionStorage.removeItem('lastGenerationId');
+  }
+}, [isLoaded, user]);
 
   const fetchUserCredits = async () => {
     if (!user) return;
@@ -295,21 +302,18 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
                   <>
                     {/* Plan badge */}
                     <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${PLAN_COLORS[credits.plan]}`}>
-                      {PLAN_LABELS[credits.plan]}
-                    </span>
+  {credits.plan === 'free' ? 'FREE' : credits.plan === 'standard' ? 'STARTER • Unlimited' : 'PRO • Unlimited'}
+</span>
                     {/* Credits */}
                     <div className="px-4 py-2 bg-purple-100 rounded-full flex items-center gap-2">
   {credits.plan === 'free' ? (
-    <>
-      <span className="text-sm font-bold text-purple-900">{credits.remaining}/{credits.total}</span>
-      <span className="text-xs text-purple-700">kredytów</span>
-    </>
-  ) : (
-    <>
-      <span className="text-sm font-bold text-purple-900">∞</span>
-      <span className="text-xs text-purple-700">unlimited</span>
-    </>
-  )}
+  <>
+    <span className="text-sm font-bold text-purple-900">{credits.remaining}/{credits.total}</span>
+    <span className="text-xs text-purple-700">kredytów</span>
+  </>
+) : (
+  <span className="text-sm font-bold text-purple-900">Unlimited</span>
+)}
 </div>
                     {/* Manage subscription button - only for paid plans */}
                     {hasActivePlan && (
@@ -630,8 +634,8 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
                     <div className="text-gray-500 font-semibold mt-2">/ miesiąc</div>
                   </div>
                   <div className="text-center mb-6">
-                    <div className="text-3xl font-bold text-purple-600">10</div>
-                    <div className="text-sm text-gray-600 font-medium">postów miesięcznie</div>
+                    <div className="text-3xl font-bold text-purple-600">5</div>
+                    <div className="text-sm text-gray-600 font-medium">generacji jednorazowo</div>
                   </div>
                   <button className="btn-hover w-full py-3 bg-gray-100 text-gray-700 font-bold rounded-xl">
                     Twój obecny plan
@@ -650,7 +654,7 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
                     <div className="text-cyan-100 font-semibold mt-2">/ miesiąc</div>
                   </div>
                   <div className="text-center mb-6">
-                    <div className="text-3xl font-bold text-white">100</div>
+                    <div className="text-3xl font-bold text-white">Unlimited</div>
                     <div className="text-sm text-cyan-100 font-medium">postów miesięcznie</div>
                   </div>
                   <button
@@ -668,7 +672,7 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
                     <div className="text-gray-500 font-semibold mt-2">/ miesiąc</div>
                   </div>
                   <div className="text-center mb-6">
-                    <div className="text-3xl font-bold text-purple-600">500</div>
+                    <div className="text-3xl font-bold text-purple-600">Unlimited</div>
                     <div className="text-sm text-gray-600 font-medium">postów miesięcznie</div>
                   </div>
                   <button
