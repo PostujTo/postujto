@@ -33,7 +33,7 @@ export default function SettingsPage() {
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [brandKit, setBrandKit] = useState({
     company_name: '',
-    colors: [] as string[],
+    colors: ['', '', '', '', ''] as string[],
     style: 'realistic',
     tone: 'professional',
     slogan: '',
@@ -48,7 +48,7 @@ export default function SettingsPage() {
         if (data.brandKit) {
           setBrandKit({
             company_name: data.brandKit.company_name || '',
-            colors: data.brandKit.colors || [],
+            colors: Array(5).fill('').map((_, i) => (data.brandKit.colors || [])[i] || ''),
             style: data.brandKit.style || 'realistic',
             tone: data.brandKit.tone || 'professional',
             slogan: data.brandKit.slogan || '',
@@ -169,10 +169,10 @@ export default function SettingsPage() {
           type="text"
           value={brandKit.colors[idx] || ''}
           onChange={e => {
-            const newColors = [...brandKit.colors];
+            const newColors = Array(5).fill('').map((_, i) => brandKit.colors[i] || '');
             newColors[idx] = e.target.value;
-            setBrandKit(prev => ({ ...prev, colors: newColors.filter(c => c !== '') }));
-          }}
+            setBrandKit(prev => ({ ...prev, colors: newColors }));
+        }}
           placeholder={`Kolor ${idx + 1} — np. #E31E24, rgb(227,30,36), cmyk(0,87,84,11)`}
           spellCheck={false}
           className="flex-1 px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl text-sm font-mono text-gray-900 placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-all"
