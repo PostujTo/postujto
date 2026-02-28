@@ -14,8 +14,10 @@
     "@stripe/stripe-js": "^8.7.0",
     "@supabase/supabase-js": "^2.95.3",
     "next": "16.1.6",
+    "openai": "^6.25.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "replicate": "^1.4.0",
     "stripe": "^20.3.1",
     "svix": "^1.85.0"
   },

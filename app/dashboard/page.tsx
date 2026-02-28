@@ -178,7 +178,7 @@ tiktok: updated.filter(g => g.platform === 'tiktok').length,
           <Link href="/" className="text-2xl font-bold text-gray-900">
             PostujTo.pl
           </Link>
-          <span className="text-gray-500 font-medium">📊 Dashboard</span>
+          <span className="text-gray-500 font-medium">Panel użytkownika</span>
         </div>
       </header>
 
