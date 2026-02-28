@@ -108,17 +108,20 @@ Zwróć TYLKO JSON:
                         platform === 'tiktok' ? '9:16' : '4:3';
 
     const output = await replicate.run(
-      'recraft-ai/recraft-v3',
-      {
-        input: {
-          prompt: styleData.prompt,
-          style: styleData.style,
-          aspect_ratio: aspectRatio,
-        }
-      }
-    ) as unknown as string;
+  'recraft-ai/recraft-v3',
+  {
+    input: {
+      prompt: styleData.prompt,
+      style: styleData.style,
+      aspect_ratio: aspectRatio,
+    }
+  }
+);
 
-    const imageUrl = output;
+// Recraft V3 zwraca obiekt URL - konwertujemy na string
+const imageUrl = Array.isArray(output) 
+  ? String(output[0]) 
+  : String(output);
 
     await supabase.from('image_generations').insert({
       user_id: user.id,
