@@ -154,50 +154,34 @@ export default function SettingsPage() {
           </div>
 
           {/* Kolory marki */}
-          <div>
-            <label className="block text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">
-              Kolory marki <span className="text-gray-400 font-normal normal-case">(max 5 kolorów)</span>
-            </label>
-            
-            {/* Wybrane kolory */}
-            {brandKit.colors.length > 0 && (
-              <div className="flex flex-wrap gap-3 mb-4">
-                {brandKit.colors.map(color => (
-                  <div key={color} className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-full">
-                    <div className="w-5 h-5 rounded-full border border-gray-300" style={{ backgroundColor: color }} />
-                    <span className="text-xs font-mono text-gray-700">{color}</span>
-                    <button onClick={() => removeColor(color)} className="text-gray-400 hover:text-red-500 text-xs font-bold">✕</button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Predefiniowane kolory */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {PRESET_COLORS.map(color => (
-                <button
-                  key={color}
-                  onClick={() => addColor(color)}
-                  disabled={brandKit.colors.length >= 5}
-                  className="w-8 h-8 rounded-full border-2 border-gray-200 hover:scale-110 transition-transform disabled:opacity-30"
-                  style={{ backgroundColor: color }}
-                  title={color}
-                />
-              ))}
-            </div>
-
-            {/* Custom kolor */}
-            <div className="flex items-center gap-3">
-              <input
-                type="color"
-                onChange={e => addColor(e.target.value)}
-                disabled={brandKit.colors.length >= 5}
-                className="w-12 h-12 rounded-xl cursor-pointer border-2 border-gray-200 disabled:opacity-30"
-                title="Wybierz własny kolor"
-              />
-              <span className="text-sm text-gray-500">lub wybierz własny kolor</span>
-            </div>
-          </div>
+<div>
+  <label className="block text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">
+    Kolory marki <span className="text-gray-400 font-normal normal-case">(max 5 — wklej HEX, RGB lub CMYK)</span>
+  </label>
+  <div className="space-y-3">
+    {[0, 1, 2, 3, 4].map(idx => (
+      <div key={idx} className="flex items-center gap-3">
+        <div
+          className="w-10 h-10 rounded-xl border-2 border-gray-200 shrink-0"
+          style={{ backgroundColor: brandKit.colors[idx] || '#f9fafb' }}
+        />
+        <input
+          type="text"
+          value={brandKit.colors[idx] || ''}
+          onChange={e => {
+            const newColors = [...brandKit.colors];
+            newColors[idx] = e.target.value;
+            setBrandKit(prev => ({ ...prev, colors: newColors.filter(c => c !== '') }));
+          }}
+          placeholder={`Kolor ${idx + 1} — np. #E31E24, rgb(227,30,36), cmyk(0,87,84,11)`}
+          spellCheck={false}
+          className="flex-1 px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl text-sm font-mono text-gray-900 placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-all"
+        />
+      </div>
+    ))}
+  </div>
+  <p className="text-xs text-gray-400 mt-2">Podgląd koloru pojawi się automatycznie po wpisaniu prawidłowej wartości HEX</p>
+</div>
 
           {/* Styl marki */}
           <div>
