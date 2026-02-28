@@ -141,7 +141,7 @@ export default function SettingsPage() {
           {/* Slogan */}
           <div>
             <label className="block text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">
-              Slogan / Tagline <span className="text-gray-400 font-normal normal-case">(opcjonalnie)</span>
+              Slogan <span className="text-gray-400 font-normal normal-case">(opcjonalnie)</span>
             </label>
             <input
               type="text"
@@ -284,7 +284,7 @@ export default function SettingsPage() {
             disabled={saving}
             className="w-full py-4 bg-gradient-to-r from-purple-600 to-cyan-500 text-white font-bold rounded-2xl shadow-lg shadow-purple-500/30 hover:shadow-xl transition-all disabled:opacity-50 text-lg"
           >
-            {saving ? '⏳ Zapisuję...' : saved ? '✅ Zapisano!' : '💾 Zapisz Brand Kit'}
+            {saving ? '⏳ Zapisuję...' : saved ? '✅ Zapisano!' : 'Zapisz Brand Kit'}
           </button>
 
         </div>

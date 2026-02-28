@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 import Anthropic from '@anthropic-ai/sdk';
 import Replicate from 'replicate';
+import { detectBrand } from '@/lib/polish-brands';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -55,6 +56,24 @@ export async function POST(req: Request) {
 
     const { topic, platform, industry, imagePrompt } = await req.json();
 
+// Pobierz Brand Kit użytkownika
+const { data: brandKit } = await supabase
+  .from('brand_kits')
+  .select('*')
+  .eq('user_id', user.id)
+  .single();
+
+// Wykryj znany brand z bazy polskich marek
+
+const detectedBrand = detectBrand(topic);
+
+// Zbuduj brand context
+const brandContext = detectedBrand
+  ? `BRAND: ${detectedBrand.brand}, COLORS: ${detectedBrand.data.colors}, STYLE: ${detectedBrand.data.description}`
+  : brandKit
+  ? `COMPANY: ${brandKit.company_name || ''}, COLORS: ${(brandKit.colors || []).join(', ')}, STYLE: ${brandKit.style || 'realistic'}, SLOGAN: ${brandKit.slogan || ''}`
+  : '';
+
     // Claude dobiera styl Recraft V3 i generuje zoptymalizowany prompt
     const styleResponse = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
@@ -62,6 +81,12 @@ export async function POST(req: Request) {
       messages: [{
         role: 'user',
         content: `Jesteś ekspertem od reklam social media. Na podstawie poniższych danych wybierz najlepszy styl Recraft V3 i stwórz zoptymalizowany prompt po angielsku.
+
+TEMAT: ${topic}
+PLATFORMA: ${platform}
+BRANŻA: ${industry || 'ogólna'}
+OPIS OBRAZU: ${imagePrompt}
+${brandContext ? `IDENTYFIKACJA WIZUALNA MARKI: ${brandContext}` : ''}
 
 TEMAT: ${topic}
 PLATFORMA: ${platform}

@@ -363,7 +363,7 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
                     {hasActivePlan && (
                       <div className="flex gap-2">
   <Link href="/settings" className="btn-hover px-4 py-2 bg-purple-100 text-purple-700 text-sm font-semibold rounded-full">
-    ⚙️ Ustawienia
+   Ustawienia
   </Link>
   <button
     onClick={handleCustomerPortal}
