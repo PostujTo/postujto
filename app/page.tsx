@@ -78,6 +78,9 @@ export default function Home() {
   text: string;
   hashtags: string[];
   imagePrompt: string;
+  generatedImage?: string;
+  imageLoading?: boolean;
+  imageTool?: string;
 }> | null>(() => {
   if (typeof window === 'undefined') return null;
   const saved = sessionStorage.getItem('lastResults');
@@ -174,7 +177,50 @@ const upcomingOccasions = getUpcomingOccasions();
       setPortalLoading(false);
     }
   };
+const generateImage = async (idx: number) => {
+  if (!results) return;
+  if (!credits || credits.plan === 'free') {
+    alert('Generowanie obrazów dostępne tylko w planie Starter i Pro!');
+    return;
+  }
 
+  setResults(prev => prev ? prev.map((r, i) => 
+    i === idx ? { ...r, imageLoading: true } : r
+  ) : null);
+
+  try {
+    const response = await fetch('/api/image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        topic,
+        platform,
+        industry: selectedIndustry 
+          ? INDUSTRIES.find(i => i.id === selectedIndustry)?.label 
+          : null,
+        imagePrompt: results[idx].imagePrompt,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.error || 'Błąd generowania obrazu');
+      return;
+    }
+
+    setResults(prev => prev ? prev.map((r, i) => 
+      i === idx ? { ...r, generatedImage: data.imageUrl, imageTool: data.tool, imageLoading: false } : r
+    ) : null);
+
+  } catch (err) {
+    alert('Wystąpił błąd. Spróbuj ponownie.');
+  } finally {
+    setResults(prev => prev ? prev.map((r, i) => 
+      i === idx ? { ...r, imageLoading: false } : r
+    ) : null);
+  }
+};
   const generatePost = async () => {
     if (!topic.trim()) {
       alert('Wpisz temat postu!');
@@ -604,11 +650,48 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
                       </div>
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">Sugestia grafiki AI</p>
-                      <div className="p-4 bg-cyan-50 border-2 border-cyan-200 rounded-xl">
-                        <p className="text-cyan-900 text-sm font-medium italic">{result.imagePrompt}</p>
-                      </div>
-                    </div>
+  <p className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">Grafika AI</p>
+  <div className="p-4 bg-cyan-50 border-2 border-cyan-200 rounded-xl mb-3">
+    <p className="text-cyan-900 text-sm font-medium italic">{result.imagePrompt}</p>
+  </div>
+  
+  {result.generatedImage ? (
+    <div className="space-y-2">
+      <img 
+        src={result.generatedImage} 
+        alt="Wygenerowana grafika" 
+        className="w-full rounded-xl shadow-lg"
+      />
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-gray-400">
+          Wygenerowano przez: {result.imageTool === 'dalle' ? 'DALL-E 3' : result.imageTool === 'ideogram' ? 'Ideogram' : 'Stable Diffusion'}
+        </span>
+        <a 
+          href={result.generatedImage} 
+          download 
+          target="_blank"
+          className="btn-hover px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-semibold"
+        >
+          Pobierz obraz
+        </a>
+      </div>
+    </div>
+  ) : (
+    <button
+      onClick={() => generateImage(idx)}
+      disabled={result.imageLoading || !credits || credits.plan === 'free'}
+      className={`btn-hover w-full py-3 rounded-xl text-sm font-semibold transition-all ${
+        !credits || credits.plan === 'free'
+          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+          : 'bg-gradient-to-r from-purple-500 to-cyan-500 text-white shadow-lg'
+      }`}
+    >
+      {result.imageLoading ? '⏳ Generuję obraz...' : 
+       !credits || credits.plan === 'free' ? '🔒 Dostępne w planie Starter i Pro' : 
+       '🎨 Wygeneruj obraz'}
+    </button>
+  )}
+</div>
                   </div>
                 </div>
               ))}
