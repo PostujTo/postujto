@@ -301,18 +301,16 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
                 {!loadingCredits && credits && (
                   <>
                     {/* Plan badge */}
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${PLAN_COLORS[credits.plan]}`}>
-  {credits.plan === 'free' ? 'FREE' : credits.plan === 'standard' ? 'STARTER • Unlimited' : 'PRO • Unlimited'}
-</span>
+                    <span className={`px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wide ${PLAN_COLORS[credits.plan]}`}>
+                    {credits.plan === 'free' ? 'FREE' : credits.plan === 'standard' ? 'STARTER • Unlimited' : 'PRO • Unlimited'}
+                    </span>
                     {/* Credits */}
                     <div className="px-4 py-2 bg-purple-100 rounded-full flex items-center gap-2">
-  {credits.plan === 'free' ? (
-  <>
+  {credits.plan === 'free' && (
+  <div className="px-4 py-2 bg-purple-100 rounded-full flex items-center gap-2">
     <span className="text-sm font-bold text-purple-900">{credits.remaining}/{credits.total}</span>
     <span className="text-xs text-purple-700">kredytów</span>
-  </>
-) : (
-  <span className="text-sm font-bold text-purple-900">Unlimited</span>
+  </div>
 )}
 </div>
                     {/* Manage subscription button - only for paid plans */}

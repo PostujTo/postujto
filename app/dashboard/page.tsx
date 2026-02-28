@@ -284,49 +284,52 @@ tiktok: updated.filter(g => g.platform === 'tiktok').length,
             {filtered.map((gen) => (
               <div key={gen.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                 {/* Nagłówek generacji */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg font-bold text-gray-900">{gen.topic}</span>
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
-  gen.platform === 'facebook'
-    ? 'bg-blue-100 text-blue-700'
-    : gen.platform === 'instagram'
-    ? 'bg-pink-100 text-pink-700'
-    : 'bg-black text-white'
-}`}>
-  {gen.platform === 'tiktok' ? '🎵 TikTok' : gen.platform}
-</span>
-                    <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
-                      {toneLabel[gen.tone]}
-                    </span>
-                    <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
-                      {lengthLabel[gen.length]}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-400">
-                      {new Date(gen.created_at).toLocaleDateString('pl-PL', {
-  day: 'numeric', month: 'short', year: 'numeric'
-})} {new Date(gen.created_at).toLocaleTimeString('pl-PL', {
-  hour: '2-digit', minute: '2-digit'
-})}
-                    </span>
-                    <button
-  onClick={() => toggleFavorite(gen.id, gen.is_favorite)}
-  className="text-2xl transition-transform hover:scale-110"
-  title={gen.is_favorite ? 'Usuń z ulubionych' : 'Dodaj do ulubionych'}
->
-  {gen.is_favorite ? '⭐' : '☆'}
-</button>
-<button
-  onClick={() => deleteGeneration(gen.id)}
-  className="px-3 py-1 bg-red-100 text-red-600 rounded-full text-xs font-semibold hover:bg-red-200 transition-colors"
-  title="Usuń cały post"
->
-  🗑️ Usuń post
-</button>
-                  </div>
-                </div>
+                <div className="flex flex-col gap-3 px-6 py-4 border-b border-gray-100">
+  {/* Temat */}
+  <div className="flex items-start justify-between gap-4">
+    <span className="text-lg font-bold text-gray-900 flex-1">{gen.topic}</span>
+    <div className="flex items-center gap-2 shrink-0">
+      <span className="text-xs text-gray-400 whitespace-nowrap">
+        {new Date(gen.created_at).toLocaleDateString('pl-PL', {
+          day: 'numeric', month: 'short', year: 'numeric'
+        })} {new Date(gen.created_at).toLocaleTimeString('pl-PL', {
+          hour: '2-digit', minute: '2-digit'
+        })}
+      </span>
+      <button
+        onClick={() => toggleFavorite(gen.id, gen.is_favorite)}
+        className="text-2xl transition-transform hover:scale-110"
+        title={gen.is_favorite ? 'Usuń z ulubionych' : 'Dodaj do ulubionych'}
+      >
+        {gen.is_favorite ? '⭐' : '☆'}
+      </button>
+      <button
+        onClick={() => deleteGeneration(gen.id)}
+        className="px-3 py-1 bg-red-100 text-red-600 rounded-full text-xs font-semibold hover:bg-red-200 transition-colors"
+      >
+        🗑️ Usuń post
+      </button>
+    </div>
+  </div>
+  {/* Tagi */}
+  <div className="flex flex-wrap items-center gap-2">
+    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
+      gen.platform === 'facebook'
+        ? 'bg-blue-100 text-blue-700'
+        : gen.platform === 'instagram'
+        ? 'bg-pink-100 text-pink-700'
+        : 'bg-black text-white'
+    }`}>
+      {gen.platform === 'tiktok' ? '🎵 TikTok' : gen.platform}
+    </span>
+    <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
+      {toneLabel[gen.tone]}
+    </span>
+    <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
+      {lengthLabel[gen.length]}
+    </span>
+  </div>
+</div>
 
                 {/* Posty */}
                 <div className="divide-y divide-gray-50">
@@ -334,12 +337,12 @@ tiktok: updated.filter(g => g.platform === 'tiktok').length,
                     <div key={idx} className="px-6 py-4">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
-                          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-  Wersja {idx + 1}
-  {gen.liked_versions?.includes(idx) && (
-    <span className="text-yellow-400">⭐ Polubiona</span>
-  )}
-</p>
+                          <p className="text-xs font-bold text-purple-600 uppercase tracking-wider mb-2 flex items-center gap-2">
+                            Wersja {idx + 1}
+                            {gen.liked_versions?.includes(idx) && (
+                            <span className="text-yellow-400">⭐ Polubiona</span>
+                            )}
+                          </p>
                           <p className="text-gray-800 leading-relaxed">{post.text}</p>
                           <div className="flex flex-wrap gap-1 mt-3">
                             {post.hashtags.map((tag, i) => (
