@@ -57,12 +57,11 @@ export async function POST(req: Request) {
 
       // Determine plan
       let plan: 'standard' | 'premium' = 'standard';
-      let credits = 100;
-
-      if (priceId === process.env.STRIPE_PRICE_ID_PREMIUM) {
-        plan = 'premium';
-        credits = 500;
-      }
+let credits = 999999;
+if (priceId === process.env.STRIPE_PRICE_ID_PREMIUM) {
+  plan = 'premium';
+  credits = 999999;
+}
 
       console.log('📝 Updating user:', { clerkUserId, plan, credits });
 
@@ -94,8 +93,7 @@ if (event.type === 'invoice.payment_succeeded') {
   const subscription: any = await stripe.subscriptions.retrieve(subscriptionId);
   const priceId = subscription.items.data[0].price.id;
 
-  let credits = 100;
-  if (priceId === process.env.STRIPE_PRICE_ID_PREMIUM) credits = 500;
+  let credits = 999999;
 
   await supabaseAdmin
     .from('users')

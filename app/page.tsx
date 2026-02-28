@@ -299,9 +299,18 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
                     </span>
                     {/* Credits */}
                     <div className="px-4 py-2 bg-purple-100 rounded-full flex items-center gap-2">
-                      <span className="text-sm font-bold text-purple-900">{credits.remaining}/{credits.total}</span>
-                      <span className="text-xs text-purple-700">kredytów</span>
-                    </div>
+  {credits.plan === 'free' ? (
+    <>
+      <span className="text-sm font-bold text-purple-900">{credits.remaining}/{credits.total}</span>
+      <span className="text-xs text-purple-700">kredytów</span>
+    </>
+  ) : (
+    <>
+      <span className="text-sm font-bold text-purple-900">∞</span>
+      <span className="text-xs text-purple-700">unlimited</span>
+    </>
+  )}
+</div>
                     {/* Manage subscription button - only for paid plans */}
                     {hasActivePlan && (
                       <button
@@ -329,17 +338,17 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
           <div className="text-center mb-16 animate-fade-in-up">
             <div className="inline-block mb-4">
               <span className="px-4 py-2 bg-cyan-100 text-cyan-700 rounded-full text-sm font-semibold">
-                🚀 Nowa generacja content marketingu
-              </span>
+  Używany przez właścicieli firm w Polsce
+</span>
             </div>
             <h2 className="text-6xl font-extrabold text-gray-900 mb-6 leading-tight">
-              Generuj posty<br />
-              <span className="text-purple-600">w sekundę</span>
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              AI stworzy dla Ciebie profesjonalne treści na Facebook, Instagram i TikTok.<br />
-              <span className="text-cyan-600 font-semibold">Zaoszczędź godziny pracy każdego dnia.</span>
-            </p>
+  Zaoszczędź 10 godzin<br />
+  <span className="text-purple-600">tygodniowo</span>
+</h2>
+<p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+  Profesjonalne posty na Facebook, Instagram i TikTok w sekundę.<br />
+  <span className="text-cyan-600 font-semibold">Bez stresu, bez pustej kartki, bez przepłacania.</span>
+</p>
           </div>
 
           {/* Generator Form */}
