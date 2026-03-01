@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import Anthropic from '@anthropic-ai/sdk';
 import Replicate from 'replicate';
 import { detectBrand } from '@/lib/polish-brands';
+import sharp from 'sharp';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -55,7 +56,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-const { topic, platform, industry, imagePrompt } = body;
+const { topic, platform, industry, imagePrompt, addWatermark, useBrandColors } = body;
 
 // Walidacja
 if (!topic || !platform || !imagePrompt) {
@@ -87,7 +88,7 @@ const detectedBrand = detectBrand(topic);
 // Zbuduj brand context
 const brandContext = detectedBrand
   ? `BRAND: ${detectedBrand.brand}, COLORS: ${detectedBrand.data.colors}, STYLE: ${detectedBrand.data.description}`
-  : brandKit
+  : (brandKit && useBrandColors !== false)
   ? `COMPANY: ${brandKit.company_name || ''}, COLORS: ${(brandKit.colors || []).join(', ')}, STYLE: ${brandKit.style || 'realistic'}, SLOGAN: ${brandKit.slogan || ''}`
   : '';
 
@@ -164,19 +165,73 @@ Zwróć TYLKO JSON:
 const imageUrl = Array.isArray(output) 
   ? String(output[0]) 
   : String(output);
+// Nakładanie logo (watermark) — tylko Pro + logo w Brand Kit
+    let finalImageUrl = imageUrl;
+    
+    if (addWatermark && brandKit?.logo_url && user.subscription_plan === 'premium') {
+      try {
+        // Pobierz obraz z Recraft
+        const imageResponse = await fetch(imageUrl);
+        const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
 
+        // Pobierz logo z Brand Kit
+        const logoResponse = await fetch(brandKit.logo_url);
+        const logoBuffer = Buffer.from(await logoResponse.arrayBuffer());
+
+        // Oblicz rozmiar logo (15% szerokości obrazu)
+        const imageMeta = await sharp(imageBuffer).metadata();
+        const imageWidth = imageMeta.width || 1000;
+        const logoSize = Math.round(imageWidth * 0.15);
+
+        // Skaluj logo z zachowaniem proporcji
+        const resizedLogo = await sharp(logoBuffer)
+          .resize(logoSize, logoSize, { fit: 'inside' })
+          .toBuffer();
+
+        // Nałóż logo w prawym dolnym rogu
+        const processedImageBuffer = await sharp(imageBuffer)
+          .composite([{
+            input: resizedLogo,
+            gravity: 'southeast',
+          }])
+          .jpeg({ quality: 90 })
+          .toBuffer();
+
+        // Wgraj do Supabase Storage
+        const fileName = `watermarked_${Date.now()}_${user.id}.jpg`;
+        const { error: uploadError } = await supabase.storage
+          .from('processed-images')
+          .upload(fileName, processedImageBuffer, {
+            contentType: 'image/jpeg',
+            upsert: true,
+          });
+
+        if (!uploadError) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('processed-images')
+            .getPublicUrl(fileName);
+          finalImageUrl = publicUrl;
+        } else {
+          console.error('Błąd uploadu watermark:', uploadError);
+          // Fallback — zwróć oryginalny obraz bez logo
+        }
+      } catch (watermarkError) {
+        console.error('Błąd nakładania logo:', watermarkError);
+        // Fallback — zwróć oryginalny obraz
+      }
+    }
     await supabase.from('image_generations').insert({
       user_id: user.id,
       topic: sanitizedTopic,
-platform,
-tool_used: 'recraft_v3',
+      platform,
+      tool_used: 'recraft_v3',
       prompt_used: styleData.prompt,
-      image_url: imageUrl,
+      image_url: finalImageUrl,
       cost_usd: 0.04,
     });
 
     return NextResponse.json({ 
-      imageUrl,
+      imageUrl: finalImageUrl,
       tool: 'recraft_v3',
       style: styleData.style,
       reason: styleData.reason,

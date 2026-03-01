@@ -93,6 +93,8 @@ const [generationId, setGenerationId] = useState<string | null>(() => {
 const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
 const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
 const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
+const [addWatermark, setAddWatermark] = useState(false);
+const [useBrandColors, setUseBrandColors] = useState(true);
 const upcomingOccasions = getUpcomingOccasions();
 
   const [credits, setCredits] = useState<{
@@ -199,6 +201,8 @@ const generateImage = async (idx: number) => {
           ? INDUSTRIES.find(i => i.id === selectedIndustry)?.label 
           : null,
         imagePrompt: results[idx].imagePrompt,
+        addWatermark,
+        useBrandColors,
       }),
     });
 
@@ -467,6 +471,35 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
   spellCheck={false}
   className="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:bg-white transition-all duration-300 font-medium resize-none"
 />
+                {/* Checkboxy Brand Kit */}
+                <div className="mt-3 space-y-2">
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={useBrandColors}
+                      onChange={(e) => setUseBrandColors(e.target.checked)}
+                      className="w-4 h-4 accent-purple-600"
+                    />
+                    <span className="text-sm text-gray-700 font-medium group-hover:text-purple-700 transition-colors">
+                      🎨 Użyj kolorów i stylu marki z Brand Kit
+                    </span>
+                  </label>
+                  <label className={`flex items-center gap-3 ${credits?.plan === 'premium' ? 'cursor-pointer group' : 'cursor-not-allowed opacity-50'}`}>
+                    <input
+                      type="checkbox"
+                      checked={addWatermark}
+                      onChange={(e) => setAddWatermark(e.target.checked)}
+                      disabled={credits?.plan !== 'premium'}
+                      className="w-4 h-4 accent-purple-600"
+                    />
+                    <span className="text-sm text-gray-700 font-medium group-hover:text-purple-700 transition-colors">
+                      🏷️ Dodaj logo marki w prawym dolnym rogu obrazu
+                      {credits?.plan !== 'premium' && (
+                        <span className="ml-2 text-xs text-purple-500 font-semibold">(tylko plan PRO)</span>
+                      )}
+                    </span>
+                  </label>
+                </div>
               </div>
 
               {/* Platform */}
