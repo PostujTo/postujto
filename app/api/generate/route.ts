@@ -51,15 +51,48 @@ export async function POST(request: Request) {
       );
     }
 
-    const { topic, platform, tone, length, industry } = await request.json();
+    const body = await request.json();
+const { topic, platform, tone, length, industry } = body;
 
-    // Walidacja
-    if (!topic || !platform || !tone || !length) {
-      return NextResponse.json(
-        { error: 'Brakuje wymaganych parametrów' },
-        { status: 400 }
-      );
-    }
+// Walidacja obecności
+if (!topic || !platform || !tone || !length) {
+  return NextResponse.json(
+    { error: 'Brakuje wymaganych parametrów' },
+    { status: 400 }
+  );
+}
+
+// Walidacja długości i typów
+if (typeof topic !== 'string' || topic.length > 500) {
+  return NextResponse.json(
+    { error: 'Temat posta jest za długi (max 500 znaków)' },
+    { status: 400 }
+  );
+}
+
+if (!['facebook', 'instagram', 'tiktok'].includes(platform)) {
+  return NextResponse.json(
+    { error: 'Nieprawidłowa platforma' },
+    { status: 400 }
+  );
+}
+
+if (!['professional', 'casual', 'humorous', 'sales'].includes(tone)) {
+  return NextResponse.json(
+    { error: 'Nieprawidłowy ton' },
+    { status: 400 }
+  );
+}
+
+if (!['short', 'medium', 'long'].includes(length)) {
+  return NextResponse.json(
+    { error: 'Nieprawidłowa długość' },
+    { status: 400 }
+  );
+}
+
+// Sanityzacja — usuń potencjalnie złośliwe znaki
+const sanitizedTopic = topic.replace(/<[^>]*>/g, '').trim();
 
     // Mapowanie długości na liczbę znaków
     const lengthMap = {
@@ -107,7 +140,7 @@ POLSKIE PRAWO REKLAMOWE - przestrzegaj tych zasad:
 
 const prompt = `Jesteś ekspertem od social media marketingu w Polsce. Wygeneruj 3 różne wersje postu na ${platformDescription}.${industryHint}${polishLawHint}
 
-TEMAT: ${topic}
+TEMAT: ${sanitizedTopic}
 
 WYMAGANIA:
 - Długość: około ${targetLength} znaków

@@ -54,7 +54,24 @@ export async function POST(req: Request) {
       }, { status: 429 });
     }
 
-    const { topic, platform, industry, imagePrompt } = await req.json();
+    const body = await req.json();
+const { topic, platform, industry, imagePrompt } = body;
+
+// Walidacja
+if (!topic || !platform || !imagePrompt) {
+  return NextResponse.json({ error: 'Brakuje wymaganych parametrów' }, { status: 400 });
+}
+
+if (typeof topic !== 'string' || topic.length > 500) {
+  return NextResponse.json({ error: 'Temat jest za długi' }, { status: 400 });
+}
+
+if (!['facebook', 'instagram', 'tiktok'].includes(platform)) {
+  return NextResponse.json({ error: 'Nieprawidłowa platforma' }, { status: 400 });
+}
+
+const sanitizedTopic = topic.replace(/<[^>]*>/g, '').trim();
+const sanitizedImagePrompt = imagePrompt.replace(/<[^>]*>/g, '').trim();
 
 // Pobierz Brand Kit użytkownika
 const { data: brandKit } = await supabase
@@ -150,9 +167,9 @@ const imageUrl = Array.isArray(output)
 
     await supabase.from('image_generations').insert({
       user_id: user.id,
-      topic,
-      platform,
-      tool_used: 'recraft_v3',
+      topic: sanitizedTopic,
+platform,
+tool_used: 'recraft_v3',
       prompt_used: styleData.prompt,
       image_url: imageUrl,
       cost_usd: 0.04,
