@@ -69,7 +69,10 @@ const PLAN_COLORS: Record<Plan, string> = {
 
 export default function Home() {
   const { user, isLoaded } = useUser();
-  const [topic, setTopic] = useState('');
+  const [topic, setTopic] = useState(() => {
+  if (typeof window === 'undefined') return '';
+  return sessionStorage.getItem('lastTopic') || '';
+});
   const [platform, setPlatform] = useState<'facebook' | 'instagram' | 'tiktok'>('facebook');
   const [tone, setTone] = useState<'professional' | 'casual' | 'humorous' | 'sales'>('professional');
   const [length, setLength] = useState<'short' | 'medium' | 'long'>('medium');
@@ -93,10 +96,25 @@ const [generationId, setGenerationId] = useState<string | null>(() => {
 const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
 const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
 const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
-const [addWatermark, setAddWatermark] = useState(false);
-const [useBrandColors, setUseBrandColors] = useState(true);
+const [addWatermark, setAddWatermark] = useState(() => {
+  if (typeof window === 'undefined') return false;
+  return sessionStorage.getItem('lastAddWatermark') === 'true';
+});
+const [useBrandColors, setUseBrandColors] = useState(() => {
+  if (typeof window === 'undefined') return true;
+  return sessionStorage.getItem('lastUseBrandColors') !== 'false';
+});
 const upcomingOccasions = getUpcomingOccasions();
+// Zapisuj temat do sessionStorage
+useEffect(() => {
+  sessionStorage.setItem('lastTopic', topic);
+}, [topic]);
 
+// Zapisuj checkboxy do sessionStorage
+useEffect(() => {
+  sessionStorage.setItem('lastAddWatermark', String(addWatermark));
+  sessionStorage.setItem('lastUseBrandColors', String(useBrandColors));
+}, [addWatermark, useBrandColors]);
   const [credits, setCredits] = useState<{
     remaining: number;
     total: number;
@@ -186,9 +204,13 @@ const generateImage = async (idx: number) => {
     return;
   }
 
-  setResults(prev => prev ? prev.map((r, i) => 
-    i === idx ? { ...r, imageLoading: true } : r
-  ) : null);
+  setResults(prev => {
+      const updated = prev ? prev.map((r, i) => 
+        i === idx ? { ...r, generatedImage: data.imageUrl, imageTool: data.tool, imageLoading: false } : r
+      ) : null;
+      if (updated) sessionStorage.setItem('lastResults', JSON.stringify(updated));
+      return updated;
+    });
 
   try {
     const response = await fetch('/api/image', {
