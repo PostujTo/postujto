@@ -204,15 +204,7 @@ const generateImage = async (idx: number) => {
     return;
   }
 
-  setResults(prev => {
-      const updated = prev ? prev.map((r, i) => 
-        i === idx ? { ...r, generatedImage: data.imageUrl, imageTool: data.tool, imageLoading: false } : r
-      ) : null;
-      if (updated) sessionStorage.setItem('lastResults', JSON.stringify(updated));
-      return updated;
-    });
-
-  try {
+    try {
     const response = await fetch('/api/image', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -235,9 +227,13 @@ const generateImage = async (idx: number) => {
       return;
     }
 
-    setResults(prev => prev ? prev.map((r, i) => 
-      i === idx ? { ...r, generatedImage: data.imageUrl, imageTool: data.tool, imageLoading: false } : r
-    ) : null);
+    setResults(prev => {
+      const updated = prev ? prev.map((r, i) => 
+        i === idx ? { ...r, generatedImage: data.imageUrl, imageTool: data.tool, imageLoading: false } : r
+      ) : null;
+      if (updated) sessionStorage.setItem('lastResults', JSON.stringify(updated));
+      return updated;
+    });
 
   } catch (err) {
     alert('Wystąpił błąd. Spróbuj ponownie.');
