@@ -3,7 +3,8 @@
 ## Stack
 - Next.js 16, Supabase, Clerk, Stripe (Test Mode), Claude API, Vercel
 - Replicate (Recraft V3), OpenAI (backup)
-- URL: https://postujto.vercel.app
+- URL produkcyjny: https://postujto.com
+- URL tymczasowy: https://postujto.vercel.app
 
 ## Plany
 - Free: 5 generacji jednorazowo (nie odnawia się)
@@ -53,7 +54,7 @@
 
 ### ✅ Bezpieczeństwo (9.5/10)
 - RLS włączone na wszystkich tabelach Supabase
-- Rate limiting w middleware/proxy.ts
+- Rate limiting w proxy.ts (dawniej middleware.ts)
 - Walidacja i sanityzacja inputów we wszystkich API
 - Usunięta tabela usage_stats (nieużywana)
 
@@ -78,45 +79,53 @@
 - sessionStorage: temat, wyniki, obrazy, checkboxy
 - Stan przywracany po powrocie z /dashboard, /settings
 
-## Roadmapa (4-6 tygodni)
+## Roadmapa
 
-### Tydzień 1 — Gotowe do produkcji (czeka na domenę)
-- [ ] Zakup domeny postujto.pl
+### Tydzień 1 — Gotowe do produkcji (W TRAKCIE)
+- ✅ Zakup domeny postujto.com (Cloudflare Registrar)
+- ✅ Nazwa "PostujTo" wolna w UPRP (znak towarowy do rejestracji później)
+- [ ] Podpięcie domeny postujto.com do Vercel
 - [ ] Clerk production keys
 - [ ] Stripe Live Mode (checkout, webhooki, test pełnej ścieżki)
 - [ ] Mini landing page v0.5 (hero + jak to działa + pricing)
 - [ ] Dopieszczenie komunikatów błędów
+- [ ] Integracja z inFakt lub Fakturownia (KSeF, faktury VAT)
+- [ ] Alerty/powiadomienia (Vercel, Supabase, Stripe, Anthropic)
 
 ### Tydzień 2 — Kalendarz + "30 dni jednym kliknięciem"
 - [ ] Widok kalendarza miesięcznego (/calendar lub rozwinięcie /dashboard)
-- [ ] Bulk generation: "Wygeneruj 30 postów na 30 dni" dla branży i platform
+- [ ] Bulk generation: "Wygeneruj 30 postów na 30 dni"
 - [ ] Zapis generacji z powiązaniem do daty
 - [ ] Eksport do CSV/Markdown (data, platforma, treść)
 - [ ] Przycisk "Kopiuj serię na tydzień"
 
 ### Tydzień 3 — Głos marki i Brand Kit 2.0
 - [ ] Sekcja "Przykładowe posty" w Brand Kit (wklej 3-10 swoich postów)
-- [ ] Zapis sample_posts do brand_kits (JSON)
-- [ ] Wstrzykiwanie stylu do promptów Claude ("pisz w stylu tych przykładów")
-- [ ] Przełącznik "Generuj w moim stylu" (domyślnie ON)
+- [ ] Wstrzykiwanie stylu do promptów Claude
+- [ ] Przełącznik "Generuj w moim stylu"
 - [ ] Presety stylów graficznych (Lokalny biznes / Korporacja / Eko / Premium)
 - [ ] Lepszy empty state dashboardu + mini-tutorial
-- [ ] Wizard przy pierwszym logowaniu (branża → platformy → cel → generuj)
+- [ ] Wizard przy pierwszym logowaniu
 
 ### Tydzień 4 — Landing page sprzedażowy (Hormozi)
 - [ ] Hero: "PostujTo – Twój dział social media z AI po polsku"
 - [ ] Sekcje: Jak to działa, Dla kogo, Co wyróżnia, Pricing
-- [ ] Social proof / use-case'y (salon kosmetyczny, sklep online)
+- [ ] Social proof / use-case'y
 - [ ] Tabela porównania Starter vs Pro
 - [ ] Onboarding e-mail po rejestracji
-- [ ] CTA z UTM-ami do TikTok/IG/YouTube
+- [ ] CTA z UTM-ami
 
 ### Tydzień 5-6 — Analytics i smart kalendarz (opcjonalne)
-- [ ] Oceny wersji (gwiazdki) → feedback do Claude
-- [ ] "Best time to post" — predefiniowane rekomendacje PL
-- [ ] Pole "sugerowana godzina publikacji" w kalendarzu
-- [ ] Manualne wprowadzanie wyników (lajki, zasięg, komentarze)
-- [ ] Raport miesięczny generowany przez Claude (PDF/HTML)
+- [ ] Oceny wersji → feedback do Claude
+- [ ] "Best time to post" — rekomendacje PL
+- [ ] Manualne wprowadzanie wyników (lajki, zasięg)
+- [ ] Raport miesięczny generowany przez Claude
+
+## Do zrobienia poza kodem
+- [ ] Rejestracja JDG (przed Stripe Live — konsultacja z prawnikiem/księgowym)
+- [ ] Rejestracja znaku towarowego "PostujTo" w UPRP (gdy będzie przychód)
+- [ ] Profile social media: @postujto na IG, TikTok, FB, X
+- [ ] Konto inFakt / Fakturownia (faktury VAT + KSeF)
 
 ## Kluczowe pliki
 - app/page.tsx — strona główna
@@ -134,7 +143,7 @@
 - app/api/credits/route.ts — pobieranie kredytów
 - app/api/webhooks/clerk/route.ts — tworzenie użytkownika
 - lib/polish-brands.ts — baza 70+ polskich marek
-- proxy.ts — rate limiting + ochrona tras (dawniej middleware.ts)
+- proxy.ts — rate limiting + ochrona tras
 
 ## Zmienne środowiskowe (Vercel + .env.local)
 - ANTHROPIC_API_KEY
@@ -150,7 +159,7 @@
 - STRIPE_PRICE_ID_PREMIUM (Pro 199 zł)
 - NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD
 - NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM
-- NEXT_PUBLIC_APP_URL
+- NEXT_PUBLIC_APP_URL (zmienić na https://postujto.com)
 - OPENAI_API_KEY
 - REPLICATE_API_TOKEN
 
@@ -167,8 +176,9 @@
 
 ## Ważne uwagi
 - Supabase constraint: platform IN ('facebook', 'instagram', 'tiktok')
-- Clerk: development keys — zmienić przy zakupie domeny (Tydzień 1)
-- Stripe: Test Mode — zmienić na Live przy domenie (Tydzień 1)
+- Clerk: NADAL development keys — zmienić na production przy domenie (Tydzień 1)
+- Stripe: NADAL Test Mode — zmienić na Live przy domenie (Tydzień 1)
+- NEXT_PUBLIC_APP_URL: zmienić na https://postujto.com w Vercel
 - Free users: credits_total=5, credits_remaining=5, nie odnawia się
 - Paid users: credits_total=999999, credits_remaining=999999
 - Guest mode: 1 post, brak zapisu, brak kredytów
