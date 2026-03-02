@@ -49,7 +49,7 @@
 - Upload logo (Supabase Storage bucket: brand-logos, max 2MB)
 - Auto-integracja z generowaniem obrazów (Recraft używa kolorów i stylu)
 - Dostępny dla wszystkich planów (Free, Starter, Pro)
-- Link "⚙️ Ustawienia" w nagłówku
+- Link "Ustawienia" w nagłówku
 
 ### ✅ Bezpieczeństwo
 - RLS (Row Level Security) włączone na wszystkich tabelach Supabase
@@ -58,42 +58,56 @@
   - /api/image: 5 req/min
   - /api/brand-kit: 20 req/min
   - /api/dashboard: 30 req/min
-- Walidacja i sanityzacja inputów w /api/generate i /api/image
-- Ocena bezpieczeństwa: ~8.5/10
+- Walidacja i sanityzacja inputów we wszystkich API (generate, image, brand-kit, dashboard)
+- Ocena bezpieczeństwa: ~9/10
+
+### ✅ E — Watermark / Podpis marki
+- Checkbox "Dodaj logo marki w prawym dolnym rogu" — tylko plan Pro
+- Checkbox "Użyj kolorów i stylu marki" — domyślnie zaznaczony, wszyscy
+- Nakładanie logo przez sharp (15% szerokości obrazu, prawy dolny róg)
+- Przetworzone obrazy zapisywane w Supabase Storage bucket: processed-images
+- Bucket processed-images: publiczny, RLS policy: INSERT tylko dla service_role
+- sharp@0.34.5 zainstalowany
+
+### ✅ F — Automatyczne generowanie 3 obrazów (Pro)
+- Po kliknięciu "Wygeneruj posty" plan Pro automatycznie generuje 3 obrazy
+- Starter generuje obrazy ręcznie (przycisk per karta)
+- Funkcja generateImageAuto w page.tsx
+
+### ✅ G — Generowanie bez logowania (Guest mode)
+- Niezalogowany użytkownik dostaje 1 wersję posta (zamiast 3)
+- Nie zapisywane do bazy, nie odejmuje kredytów
+- Po wygenerowaniu pojawia się banner: "Zaloguj się i dostań 3 wersje + 5 kredytów"
+- API zwraca flagę isGuest: true
+
+### ✅ H — Persistencja sesji
+- sessionStorage zapamiętuje: temat, wyniki, wygenerowane obrazy, checkboxy
+- Stan przywracany po powrocie ze stron /dashboard, /settings itp.
 
 ## Do zrobienia (następna sesja)
 
-### Priorytet 1 — W trakcie
-1. `npm install sharp @types/sharp` — instalacja biblioteki do watermarku
-2. Checkboxy pod polem tematu w app/page.tsx:
-   - "Dodaj znak wodny logo w prawym dolnym rogu" (wymaga logo w Brand Kit)
-   - "Użyj kolorów i stylu marki" (domyślnie zaznaczony)
-3. Nakładanie logo watermark przez sharp w app/api/image/route.ts
-4. Automatyczne generowanie 3 obrazów po kliknięciu "Wygeneruj post"
-
-### Priorytet 2
+### Priorytet 1
 - Clerk production keys (przy zakupie domeny)
-- Walidacja inputów w pozostałych API (brand-kit, dashboard)
-- Generowanie bez logowania (1-2 posty dla niezalogowanych)
+- Stripe Live Mode (przy uruchomieniu produkcyjnym)
 
-### Priorytet 3 — Przyszłe plany
-- F — Marketing i landing page
-- E — Generowanie głosu
-- G — Generowanie wideo (RunwayML/Kling)
+### Priorytet 2 — Przyszłe plany
+- Marketing i landing page (social proof, FAQ, testimonials)
+- Generowanie głosu
+- Generowanie wideo (RunwayML/Kling)
 - Claude Vision — analiza logo i auto-wyciąganie kolorów
-- Middleware deprecated warning
+- Middleware deprecated warning fix
 
 ## Kluczowe pliki
 - app/page.tsx — strona główna
 - app/dashboard/page.tsx — dashboard
 - app/settings/page.tsx — Brand Kit
 - app/pricing/page.tsx — cennik
-- app/api/generate/route.ts — generowanie postów (Claude)
-- app/api/image/route.ts — generowanie obrazów (Recraft V3)
-- app/api/brand-kit/route.ts — Brand Kit CRUD
+- app/api/generate/route.ts — generowanie postów (Claude) + guest mode
+- app/api/image/route.ts — generowanie obrazów (Recraft V3) + watermark sharp
+- app/api/brand-kit/route.ts — Brand Kit CRUD + walidacja
 - app/api/brand-kit/upload-logo/route.ts — upload logo
 - app/api/stripe/webhooks/route.ts — webhooks Stripe
-- app/api/dashboard/route.ts — dane dashboardu
+- app/api/dashboard/route.ts — dane dashboardu + fix duplicate return
 - app/api/dashboard/favorite/route.ts — ulubione
 - app/api/dashboard/delete/route.ts — usuwanie
 - app/api/credits/route.ts — pobieranie kredytów
@@ -126,7 +140,8 @@
 - brand_kits (user_id, company_name, colors jsonb, style, tone, slogan, logo_url)
 
 ## Supabase Storage
-- bucket: brand-logos (publiczny)
+- bucket: brand-logos (publiczny, 3 policies)
+- bucket: processed-images (publiczny, INSERT tylko service_role)
 
 ## Ważne uwagi
 - Supabase constraint: platform IN ('facebook', 'instagram', 'tiktok')
@@ -134,3 +149,6 @@
 - Stripe: Test Mode — zmienić na Live przy uruchomieniu produkcyjnym
 - Free users: credits_total=5, credits_remaining=5, nie odnawia się
 - Paid users: credits_total=999999, credits_remaining=999999
+- Guest mode: 1 post, brak zapisu, brak kredytów
+- Pro plan: auto-generowanie 3 obrazów po wygenerowaniu postów
+- Watermark dostępny tylko dla Pro (subscription_plan === 'premium')
