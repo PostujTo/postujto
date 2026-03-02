@@ -204,7 +204,11 @@ const generateImage = async (idx: number) => {
     return;
   }
 
-    try {
+  setResults(prev => prev ? prev.map((r, i) => 
+    i === idx ? { ...r, imageLoading: true } : r
+  ) : null);
+
+  try {
     const response = await fetch('/api/image', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
