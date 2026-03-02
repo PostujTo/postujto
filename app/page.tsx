@@ -247,6 +247,46 @@ const generateImage = async (idx: number) => {
     ) : null);
   }
 };
+const generateImageAuto = async (idx: number, imagePrompt: string) => {
+  setResults(prev => prev ? prev.map((r, i) => 
+    i === idx ? { ...r, imageLoading: true } : r
+  ) : null);
+
+  try {
+    const response = await fetch('/api/image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        topic,
+        platform,
+        industry: selectedIndustry 
+          ? INDUSTRIES.find(i => i.id === selectedIndustry)?.label 
+          : null,
+        imagePrompt,
+        addWatermark,
+        useBrandColors,
+      }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) return;
+
+    setResults(prev => {
+      const updated = prev ? prev.map((r, i) => 
+        i === idx ? { ...r, generatedImage: data.imageUrl, imageTool: data.tool, imageLoading: false } : r
+      ) : null;
+      if (updated) sessionStorage.setItem('lastResults', JSON.stringify(updated));
+      return updated;
+    });
+
+  } catch (err) {
+    console.error('Błąd auto-generowania obrazu:', err);
+  } finally {
+    setResults(prev => prev ? prev.map((r, i) => 
+      i === idx ? { ...r, imageLoading: false } : r
+    ) : null);
+  }
+};
   const generatePost = async () => {
     if (!topic.trim()) {
       alert('Wpisz temat postu!');
@@ -290,6 +330,13 @@ const generateImage = async (idx: number) => {
 }));
 setResults(newResults);
 sessionStorage.setItem('lastResults', JSON.stringify(newResults));
+
+// Auto-generuj obrazy dla planu Pro
+if (credits?.plan === 'premium') {
+  newResults.forEach((post: any, idx: number) => {
+    generateImageAuto(idx, post.imagePrompt);
+  });
+}
       if (data.creditsRemaining !== undefined) {
         setCredits(prev => prev ? {
           ...prev,
@@ -746,9 +793,9 @@ sessionStorage.setItem('lastResults', JSON.stringify(newResults));
           : 'bg-gradient-to-r from-purple-500 to-cyan-500 text-white shadow-lg'
       }`}
     >
-      {result.imageLoading ? '⏳ Generuję obraz...' : 
-       !credits || credits.plan === 'free' ? '🔒 Dostępne w planie Starter i Pro' : 
-       '🎨 Wygeneruj obraz'}
+      {result.imageLoading ? 'Generuję obraz...' : 
+       !credits || credits.plan === 'free' ? 'Dostępne w planie Starter i Pro' : 
+       'Wygeneruj obraz'}
     </button>
   )}
 </div>
