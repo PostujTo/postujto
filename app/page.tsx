@@ -96,6 +96,7 @@ const [generationId, setGenerationId] = useState<string | null>(() => {
 const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
 const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
 const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
+const [isGuestResult, setIsGuestResult] = useState(false);
 const [addWatermark, setAddWatermark] = useState(() => {
   if (typeof window === 'undefined') return false;
   return sessionStorage.getItem('lastAddWatermark') === 'true';
@@ -292,7 +293,7 @@ const generateImageAuto = async (idx: number, imagePrompt: string) => {
       alert('Wpisz temat postu!');
       return;
     }
-    if (credits && credits.remaining <= 0) {
+    if (user && credits && credits.remaining <= 0) {
       alert('Brak kredytów! Przejdź na plan Standard lub Premium aby kontynuować.');
       return;
     }
@@ -321,6 +322,7 @@ const generateImageAuto = async (idx: number, imagePrompt: string) => {
         throw new Error(data.error || 'Błąd podczas generowania postów');
       }
       setGenerationId(data.generationId || null);
+      setIsGuestResult(data.isGuest || false);
       setLikedPosts(new Set());
       sessionStorage.setItem('lastGenerationId', data.generationId || '');
       const newResults = data.posts.map((post: any) => ({
@@ -690,6 +692,21 @@ if (credits?.plan === 'premium') {
               <div className="flex items-center justify-between">
                 <h3 className="text-3xl font-bold text-gray-900">Wygenerowane posty</h3>
                 <span className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-semibold">✓ Gotowe!</span>
+                {isGuestResult && (
+                <div className="w-full mt-4 p-5 bg-gradient-to-r from-purple-50 to-cyan-50 border-2 border-purple-200 rounded-2xl">
+                  <p className="text-gray-900 font-bold text-lg mb-1">
+                    Podoba Ci się? To tylko 1 z 3 wersji!
+                  </p>
+                  <p className="text-gray-600 text-sm mb-3">
+                    Zaloguj się za darmo i dostań 3 wersje posta, historię generacji i 5 kredytów na start.
+                  </p>
+                  <SignInButton mode="modal">
+                    <button className="px-6 py-2.5 bg-purple-600 text-white rounded-full font-bold text-sm shadow-lg shadow-purple-500/30 hover:bg-purple-700 transition-colors">
+                      Załóż konto za darmo →
+                    </button>
+                  </SignInButton>
+                </div>
+              )}
               </div>
               {results.map((result, idx) => (
                 <div key={idx} className="bg-white rounded-2xl p-8 border-2 border-gray-200 shadow-lg">

@@ -17,38 +17,37 @@ export async function POST(request: Request) {
   try {
     // Pobierz ID zalogowanego użytkownika z Clerk
     const { userId } = await auth();
-    
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'Musisz być zalogowany' },
-        { status: 401 }
-      );
-    }
+    const isGuest = !userId;
 
-    // Pobierz użytkownika z Supabase
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('clerk_user_id', userId)
-      .single();
+    // Pobierz użytkownika z Supabase (tylko dla zalogowanych)
+    let user = null;
+    if (!isGuest) {
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('clerk_user_id', userId)
+        .single();
 
-    if (userError || !user) {
-      return NextResponse.json(
-        { error: 'Nie znaleziono użytkownika' },
-        { status: 404 }
-      );
-    }
+      if (userError || !userData) {
+        return NextResponse.json(
+          { error: 'Nie znaleziono użytkownika' },
+          { status: 404 }
+        );
+      }
 
-    // Sprawdź czy ma kredyty
-    if (user.credits_remaining <= 0) {
-      return NextResponse.json(
-        { 
-          error: 'Brak kredytów',
-          message: 'Wykorzystałeś wszystkie kredyty w tym miesiącu. Przejdź na plan Standard lub Premium!',
-          creditsRemaining: 0
-        },
-        { status: 403 }
-      );
+      user = userData;
+
+      // Sprawdź czy ma kredyty
+      if (user.credits_remaining <= 0) {
+        return NextResponse.json(
+          { 
+            error: 'Brak kredytów',
+            message: 'Wykorzystałeś wszystkie kredyty w tym miesiącu. Przejdź na plan Standard lub Premium!',
+            creditsRemaining: 0
+          },
+          { status: 403 }
+        );
+      }
     }
 
     const body = await request.json();
@@ -138,7 +137,8 @@ POLSKIE PRAWO REKLAMOWE - przestrzegaj tych zasad:
 - NIE używaj emoji ani emotikon w tekście postu - tylko czysty tekst
 `;
 
-const prompt = `Jesteś ekspertem od social media marketingu w Polsce. Wygeneruj 3 różne wersje postu na ${platformDescription}.${industryHint}${polishLawHint}
+const postCount = isGuest ? 1 : 3;
+const prompt = `Jesteś ekspertem od social media marketingu w Polsce. Wygeneruj ${postCount} ${isGuest ? 'wersję' : 'różne wersje'} postu na ${platformDescription}.${industryHint}${polishLawHint}
 
 TEMAT: ${sanitizedTopic}
 
@@ -209,28 +209,35 @@ WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy c
       };
     }
 
+    // Goście — nie zapisujemy, nie odejmujemy kredytów
+    if (isGuest) {
+      return NextResponse.json({
+        ...jsonData,
+        generationId: null,
+        isGuest: true,
+      });
+    }
+
     // ============================================
     // ODEJMIJ KREDYT I ZAPISZ GENERACJĘ
     // ============================================
     
-    // Odejmij kredyt
     const { error: creditError } = await supabase
       .from('users')
       .update({ 
-        credits_remaining: user.credits_remaining - 1,
+        credits_remaining: user!.credits_remaining - 1,
         updated_at: new Date().toISOString()
       })
-      .eq('id', user.id);
+      .eq('id', user!.id);
 
     if (creditError) {
       console.error('Błąd odejmowania kredytu:', creditError);
     }
 
-    // Zapisz generację w historii
     const { error: historyError } = await supabase
       .from('generations')
       .insert({
-        user_id: user.id,
+        user_id: user!.id,
         topic,
         platform,
         tone,
@@ -239,28 +246,27 @@ WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy c
         quality_tier: 'standard',
         has_image: false,
         has_audio: false,
-        cost_usd: 0.015, // Koszt Claude
+        cost_usd: 0.015,
       });
 
     if (historyError) {
       console.error('Błąd zapisywania generacji:', historyError);
     }
 
-    // Pobierz ID nowo zapisanej generacji
-const { data: newGen } = await supabase
-  .from('generations')
-  .select('id')
-  .eq('user_id', user.id)
-  .order('created_at', { ascending: false })
-  .limit(1)
-  .single();
+    const { data: newGen } = await supabase
+      .from('generations')
+      .select('id')
+      .eq('user_id', user!.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
 
-return NextResponse.json({
-  ...jsonData,
-  generationId: newGen?.id || null,
-  creditsRemaining: user.credits_remaining - 1,
-  creditsTotal: user.credits_total,
-});
+    return NextResponse.json({
+      ...jsonData,
+      generationId: newGen?.id || null,
+      creditsRemaining: user!.credits_remaining - 1,
+      creditsTotal: user!.credits_total,
+    });
   } catch (error: any) {
     console.error('Błąd API:', error);
     return NextResponse.json(
