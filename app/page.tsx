@@ -552,7 +552,7 @@ if (credits?.plan === 'premium') {
                       className="w-4 h-4 accent-purple-600"
                     />
                     <span className="text-sm text-gray-700 font-medium group-hover:text-purple-700 transition-colors">
-                      🎨 Użyj kolorów i stylu marki z Brand Kit
+                      Użyj kolorów i stylu marki z Brand Kit
                     </span>
                   </label>
                   <label className={`flex items-center gap-3 ${credits?.plan === 'premium' ? 'cursor-pointer group' : 'cursor-not-allowed opacity-50'}`}>
@@ -564,7 +564,7 @@ if (credits?.plan === 'premium') {
                       className="w-4 h-4 accent-purple-600"
                     />
                     <span className="text-sm text-gray-700 font-medium group-hover:text-purple-700 transition-colors">
-                      🏷️ Dodaj logo marki w prawym dolnym rogu obrazu
+                      Dodaj logo marki w prawym dolnym rogu obrazu
                       {credits?.plan !== 'premium' && (
                         <span className="ml-2 text-xs text-purple-500 font-semibold">(tylko plan PRO)</span>
                       )}

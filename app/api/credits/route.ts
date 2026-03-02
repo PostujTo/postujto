@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 // Server-side Supabase client z service role (pełny dostęp)
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 export async function GET() {
@@ -20,7 +20,6 @@ export async function GET() {
       );
     }
 
-    console.log('🔍 Szukam użytkownika z Clerk ID:', userId);
 
     // Pobierz użytkownika z Supabase
     const { data: user, error } = await supabaseAdmin
@@ -29,7 +28,6 @@ export async function GET() {
       .eq('clerk_user_id', userId)
       .single();
 
-    console.log('📊 Wynik z Supabase:', { user, error });
 
     if (error) {
       console.error('Błąd pobierania użytkownika:', error);

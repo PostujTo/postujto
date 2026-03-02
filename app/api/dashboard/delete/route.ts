@@ -14,7 +14,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Nie zalogowany' }, { status: 401 });
     }
 
-    const { id, version_index } = await req.json();
+    const body = await req.json();
+    const { id, version_index } = body;
+
+    if (!id || typeof id !== 'string') {
+      return NextResponse.json({ error: 'Nieprawidłowe ID' }, { status: 400 });
+    }
+    if (version_index !== undefined && (typeof version_index !== 'number' || version_index < 0)) {
+      return NextResponse.json({ error: 'Nieprawidłowy version_index' }, { status: 400 });
+    }
 
     const { data: user, error: userError } = await supabase
       .from('users')

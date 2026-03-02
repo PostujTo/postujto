@@ -14,7 +14,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Nie zalogowany' }, { status: 401 });
     }
 
-    const { id, is_favorite, liked_versions } = await req.json();
+    const body = await req.json();
+    const { id, is_favorite, liked_versions } = body;
+
+    if (!id || typeof id !== 'string') {
+      return NextResponse.json({ error: 'Nieprawidłowe ID' }, { status: 400 });
+    }
+    if (typeof is_favorite !== 'boolean') {
+      return NextResponse.json({ error: 'Nieprawidłowa wartość is_favorite' }, { status: 400 });
+    }
+    if (liked_versions !== undefined && !Array.isArray(liked_versions)) {
+      return NextResponse.json({ error: 'Nieprawidłowe liked_versions' }, { status: 400 });
+    }
 
     // Pobierz user_id z Supabase
     const { data: user, error: userError } = await supabase

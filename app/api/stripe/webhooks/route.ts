@@ -112,8 +112,8 @@ if (event.type === 'customer.subscription.deleted') {
       subscription_plan: 'free',
       subscription_status: 'canceled',
       stripe_subscription_id: null,
-      credits_total: 10,
-      credits_remaining: 10,
+      credits_total: 5,
+      credits_remaining: 5,
     })
     .eq('stripe_subscription_id', subscription.id);
 
