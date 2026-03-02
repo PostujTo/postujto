@@ -14,8 +14,9 @@
 - Alex Hormozi — sprzedajemy wynik ("zaoszczędź 10h tygodniowo"), nie narzędzie
 - Gwarancja 7 dni zwrotu
 - Polski rynek — kalendarz okazji, branże, prawo reklamowe
+- Ocena produktu: 7/10 rynkowo, 9/10 jako MVP
 
-## Zrealizowane plany
+## Zrealizowane funkcje
 
 ### ✅ A — Limity generacji
 - Odejmowanie kredytów, blokada przy 0, licznik w nagłówku
@@ -35,7 +36,7 @@
 - Kalendarz polskich okazji (30 dni naprzód)
 - 12 branż z wskazówkami branżowymi
 - Polskie prawo reklamowe w promptach
-- TikTok jako platforma (constraint Supabase zaktualizowany)
+- TikTok jako platforma
 
 ### ✅ D — Generowanie obrazów
 - Recraft V3 przez Replicate ($0.04/obraz)
@@ -48,54 +49,74 @@
 - Nazwa firmy, slogan, kolory (HEX/RGB/CMYK — 5 pól), styl graficzny, ton
 - Upload logo (Supabase Storage bucket: brand-logos, max 2MB)
 - Auto-integracja z generowaniem obrazów (Recraft używa kolorów i stylu)
-- Dostępny dla wszystkich planów (Free, Starter, Pro)
-- Link "Ustawienia" w nagłówku
+- Dostępny dla wszystkich planów
 
-### ✅ Bezpieczeństwo
-- RLS (Row Level Security) włączone na wszystkich tabelach Supabase
-- Rate limiting w middleware.ts:
-  - /api/generate: 10 req/min
-  - /api/image: 5 req/min
-  - /api/brand-kit: 20 req/min
-  - /api/dashboard: 30 req/min
-- Walidacja i sanityzacja inputów we wszystkich API (generate, image, brand-kit, dashboard)
-- Ocena bezpieczeństwa: ~9/10
+### ✅ Bezpieczeństwo (9.5/10)
+- RLS włączone na wszystkich tabelach Supabase
+- Rate limiting w middleware/proxy.ts
+- Walidacja i sanityzacja inputów we wszystkich API
+- Usunięta tabela usage_stats (nieużywana)
 
 ### ✅ E — Watermark / Podpis marki
-- Checkbox "Dodaj logo marki w prawym dolnym rogu" — tylko plan Pro
-- Checkbox "Użyj kolorów i stylu marki" — domyślnie zaznaczony, wszyscy
-- Nakładanie logo przez sharp (15% szerokości obrazu, prawy dolny róg)
-- Przetworzone obrazy zapisywane w Supabase Storage bucket: processed-images
-- Bucket processed-images: publiczny, RLS policy: INSERT tylko dla service_role
-- sharp@0.34.5 zainstalowany
+- Checkbox "Dodaj logo marki w prawym dolnym rogu" — tylko Pro
+- Checkbox "Użyj kolorów i stylu marki" — wszyscy
+- Nakładanie logo przez sharp (15% szerokości, prawy dolny róg)
+- Bucket processed-images w Supabase Storage
 
 ### ✅ F — Automatyczne generowanie 3 obrazów (Pro)
-- Po kliknięciu "Wygeneruj posty" plan Pro automatycznie generuje 3 obrazy
-- Starter generuje obrazy ręcznie (przycisk per karta)
+- Po kliknięciu "Wygeneruj posty" Pro auto-generuje 3 obrazy
+- Starter generuje ręcznie
 - Funkcja generateImageAuto w page.tsx
 
-### ✅ G — Generowanie bez logowania (Guest mode)
-- Niezalogowany użytkownik dostaje 1 wersję posta (zamiast 3)
+### ✅ G — Guest mode (generowanie bez logowania)
+- Niezalogowany dostaje 1 wersję posta
 - Nie zapisywane do bazy, nie odejmuje kredytów
-- Po wygenerowaniu pojawia się banner: "Zaloguj się i dostań 3 wersje + 5 kredytów"
+- Banner "Zaloguj się po 3 wersje + 5 kredytów"
 - API zwraca flagę isGuest: true
 
 ### ✅ H — Persistencja sesji
-- sessionStorage zapamiętuje: temat, wyniki, wygenerowane obrazy, checkboxy
-- Stan przywracany po powrocie ze stron /dashboard, /settings itp.
+- sessionStorage: temat, wyniki, obrazy, checkboxy
+- Stan przywracany po powrocie z /dashboard, /settings
 
-## Do zrobienia (następna sesja)
+## Roadmapa (4-6 tygodni)
 
-### Priorytet 1
-- Clerk production keys (przy zakupie domeny)
-- Stripe Live Mode (przy uruchomieniu produkcyjnym)
+### Tydzień 1 — Gotowe do produkcji (czeka na domenę)
+- [ ] Zakup domeny postujto.pl
+- [ ] Clerk production keys
+- [ ] Stripe Live Mode (checkout, webhooki, test pełnej ścieżki)
+- [ ] Mini landing page v0.5 (hero + jak to działa + pricing)
+- [ ] Dopieszczenie komunikatów błędów
 
-### Priorytet 2 — Przyszłe plany
-- Marketing i landing page (social proof, FAQ, testimonials)
-- Generowanie głosu
-- Generowanie wideo (RunwayML/Kling)
-- Claude Vision — analiza logo i auto-wyciąganie kolorów
-- Middleware deprecated warning fix
+### Tydzień 2 — Kalendarz + "30 dni jednym kliknięciem"
+- [ ] Widok kalendarza miesięcznego (/calendar lub rozwinięcie /dashboard)
+- [ ] Bulk generation: "Wygeneruj 30 postów na 30 dni" dla branży i platform
+- [ ] Zapis generacji z powiązaniem do daty
+- [ ] Eksport do CSV/Markdown (data, platforma, treść)
+- [ ] Przycisk "Kopiuj serię na tydzień"
+
+### Tydzień 3 — Głos marki i Brand Kit 2.0
+- [ ] Sekcja "Przykładowe posty" w Brand Kit (wklej 3-10 swoich postów)
+- [ ] Zapis sample_posts do brand_kits (JSON)
+- [ ] Wstrzykiwanie stylu do promptów Claude ("pisz w stylu tych przykładów")
+- [ ] Przełącznik "Generuj w moim stylu" (domyślnie ON)
+- [ ] Presety stylów graficznych (Lokalny biznes / Korporacja / Eko / Premium)
+- [ ] Lepszy empty state dashboardu + mini-tutorial
+- [ ] Wizard przy pierwszym logowaniu (branża → platformy → cel → generuj)
+
+### Tydzień 4 — Landing page sprzedażowy (Hormozi)
+- [ ] Hero: "PostujTo – Twój dział social media z AI po polsku"
+- [ ] Sekcje: Jak to działa, Dla kogo, Co wyróżnia, Pricing
+- [ ] Social proof / use-case'y (salon kosmetyczny, sklep online)
+- [ ] Tabela porównania Starter vs Pro
+- [ ] Onboarding e-mail po rejestracji
+- [ ] CTA z UTM-ami do TikTok/IG/YouTube
+
+### Tydzień 5-6 — Analytics i smart kalendarz (opcjonalne)
+- [ ] Oceny wersji (gwiazdki) → feedback do Claude
+- [ ] "Best time to post" — predefiniowane rekomendacje PL
+- [ ] Pole "sugerowana godzina publikacji" w kalendarzu
+- [ ] Manualne wprowadzanie wyników (lajki, zasięg, komentarze)
+- [ ] Raport miesięczny generowany przez Claude (PDF/HTML)
 
 ## Kluczowe pliki
 - app/page.tsx — strona główna
@@ -107,13 +128,13 @@
 - app/api/brand-kit/route.ts — Brand Kit CRUD + walidacja
 - app/api/brand-kit/upload-logo/route.ts — upload logo
 - app/api/stripe/webhooks/route.ts — webhooks Stripe
-- app/api/dashboard/route.ts — dane dashboardu + fix duplicate return
+- app/api/dashboard/route.ts — dane dashboardu
 - app/api/dashboard/favorite/route.ts — ulubione
 - app/api/dashboard/delete/route.ts — usuwanie
 - app/api/credits/route.ts — pobieranie kredytów
 - app/api/webhooks/clerk/route.ts — tworzenie użytkownika
 - lib/polish-brands.ts — baza 70+ polskich marek
-- middleware.ts — rate limiting + ochrona tras
+- proxy.ts — rate limiting + ochrona tras (dawniej middleware.ts)
 
 ## Zmienne środowiskowe (Vercel + .env.local)
 - ANTHROPIC_API_KEY
@@ -138,6 +159,7 @@
 - generations (user_id, topic, platform, tone, length, generated_posts jsonb, is_favorite, liked_versions jsonb, quality_tier, has_image, has_audio, cost_usd)
 - image_generations (user_id, topic, platform, tool_used, prompt_used, image_url, cost_usd)
 - brand_kits (user_id, company_name, colors jsonb, style, tone, slogan, logo_url)
+- subscription_history (nieużywana, zostawiona na przyszłość)
 
 ## Supabase Storage
 - bucket: brand-logos (publiczny, 3 policies)
@@ -145,10 +167,10 @@
 
 ## Ważne uwagi
 - Supabase constraint: platform IN ('facebook', 'instagram', 'tiktok')
-- Clerk: nadal development keys — zmienić przy zakupie domeny
-- Stripe: Test Mode — zmienić na Live przy uruchomieniu produkcyjnym
+- Clerk: development keys — zmienić przy zakupie domeny (Tydzień 1)
+- Stripe: Test Mode — zmienić na Live przy domenie (Tydzień 1)
 - Free users: credits_total=5, credits_remaining=5, nie odnawia się
 - Paid users: credits_total=999999, credits_remaining=999999
 - Guest mode: 1 post, brak zapisu, brak kredytów
-- Pro plan: auto-generowanie 3 obrazów po wygenerowaniu postów
-- Watermark dostępny tylko dla Pro (subscription_plan === 'premium')
+- Pro: auto-generowanie 3 obrazów, watermark (subscription_plan === 'premium')
+- sharp@0.34.5 zainstalowany
