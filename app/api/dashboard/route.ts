@@ -50,8 +50,8 @@ return NextResponse.json({
 
     return NextResponse.json({
       generations: generations || [],
-      stats: { total, favorites, facebook, instagram },
-    });
+      stats: { total, favorites, facebook, instagram, tiktok },
+  });
   } catch (error: any) {
     return NextResponse.json({ error: 'Błąd serwera', details: error.message }, { status: 500 });
   }

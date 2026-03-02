@@ -45,18 +45,61 @@ export async function POST(req: Request) {
 
     if (!user) return NextResponse.json({ error: 'Nie znaleziono użytkownika' }, { status: 404 });
 
-    const { company_name, colors, style, tone, slogan, logo_url } = await req.json();
+    const body = await req.json();
+    const { company_name, colors, style, tone, slogan, logo_url } = body;
+
+    // Walidacja
+    if (company_name !== undefined && (typeof company_name !== 'string' || company_name.length > 100)) {
+      return NextResponse.json({ error: 'Nazwa firmy jest za długa (max 100 znaków)' }, { status: 400 });
+    }
+
+    if (slogan !== undefined && (typeof slogan !== 'string' || slogan.length > 150)) {
+      return NextResponse.json({ error: 'Slogan jest za długi (max 150 znaków)' }, { status: 400 });
+    }
+
+    if (colors !== undefined) {
+      if (!Array.isArray(colors) || colors.length > 5) {
+        return NextResponse.json({ error: 'Maksymalnie 5 kolorów' }, { status: 400 });
+      }
+      if (colors.some((c: any) => typeof c !== 'string' || c.length > 50)) {
+        return NextResponse.json({ error: 'Nieprawidłowy format koloru' }, { status: 400 });
+      }
+    }
+
+    const ALLOWED_STYLES = ['realistic', 'illustration', 'minimalist', 'bold', 'elegant', 'playful'];
+    if (style !== undefined && !ALLOWED_STYLES.includes(style)) {
+      return NextResponse.json({ error: 'Nieprawidłowy styl graficzny' }, { status: 400 });
+    }
+
+    const ALLOWED_TONES = ['professional', 'casual', 'humorous', 'sales'];
+    if (tone !== undefined && !ALLOWED_TONES.includes(tone)) {
+      return NextResponse.json({ error: 'Nieprawidłowy ton' }, { status: 400 });
+    }
+
+    if (logo_url !== undefined && typeof logo_url === 'string' && logo_url.length > 500) {
+      return NextResponse.json({ error: 'Nieprawidłowy URL logo' }, { status: 400 });
+    }
+
+    // Sanityzacja
+    const sanitized = {
+      company_name: company_name?.replace(/<[^>]*>/g, '').trim(),
+      slogan: slogan?.replace(/<[^>]*>/g, '').trim(),
+      colors,
+      style,
+      tone,
+      logo_url,
+    };
 
     const { data, error } = await supabase
       .from('brand_kits')
       .upsert({
         user_id: user.id,
-        company_name,
-        colors,
-        style,
-        tone,
-        slogan,
-        logo_url,
+        company_name: sanitized.company_name,
+        colors: sanitized.colors,
+        style: sanitized.style,
+        tone: sanitized.tone,
+        slogan: sanitized.slogan,
+        logo_url: sanitized.logo_url,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' })
       .select()
