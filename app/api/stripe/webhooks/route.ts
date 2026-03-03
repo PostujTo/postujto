@@ -149,7 +149,7 @@ export async function POST(req: Request) {
         await sendCancellationAlert({
           email: customer.email || 'nieznany',
           plan: (subscription.metadata?.plan) || 'unknown',
-          endsAt: new Date(subscription.current_period_end * 1000).toLocaleDateString('pl-PL'),
+          endsAt: new Date((subscription as any).current_period_end * 1000).toLocaleDateString('pl-PL'),
         });
       } catch (emailErr) {
         console.error('Alert email error:', emailErr);
