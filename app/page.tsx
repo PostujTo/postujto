@@ -49,17 +49,19 @@ const INDUSTRIES = [
   { id: 'tourism', label: 'Turystyka/hotel', emoji: '✈️', hint: 'Podkreśl wyjątkowość miejsca, atrakcje i relaks. Zachęć do rezerwacji i podaj dostępne terminy.' },
   { id: 'food', label: 'Sklep spożywczy', emoji: '🛍️', hint: 'Podkreśl świeżość, lokalność produktów i atrakcyjne ceny. Zachęć do odwiedzin lub zamówienia online.' },
 ];
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 
 type Plan = 'free' | 'standard' | 'premium';
+type ToastType = 'error' | 'success' | 'info' | 'warning';
 
-const PLAN_LABELS: Record<Plan, string> = {
-  free: 'FREE',
-  standard: 'STARTER',
-  premium: 'PRO',
-};
+interface Toast {
+  message: string;
+  type: ToastType;
+  id: number;
+}
 
 const PLAN_COLORS: Record<Plan, string> = {
   free: 'bg-gray-100 text-gray-600',
@@ -67,55 +69,87 @@ const PLAN_COLORS: Record<Plan, string> = {
   premium: 'bg-purple-100 text-purple-700',
 };
 
+const TOAST_STYLES: Record<ToastType, string> = {
+  error: 'bg-red-500 text-white',
+  success: 'bg-green-500 text-white',
+  info: 'bg-blue-500 text-white',
+  warning: 'bg-yellow-500 text-white',
+};
+
+const TOAST_ICONS: Record<ToastType, string> = {
+  error: '❌',
+  success: '✅',
+  info: 'ℹ️',
+  warning: '⚠️',
+};
+
 export default function Home() {
   const { user, isLoaded } = useUser();
   const [topic, setTopic] = useState(() => {
-  if (typeof window === 'undefined') return '';
-  return sessionStorage.getItem('lastTopic') || '';
-});
+    if (typeof window === 'undefined') return '';
+    return sessionStorage.getItem('lastTopic') || '';
+  });
   const [platform, setPlatform] = useState<'facebook' | 'instagram' | 'tiktok'>('facebook');
   const [tone, setTone] = useState<'professional' | 'casual' | 'humorous' | 'sales'>('professional');
   const [length, setLength] = useState<'short' | 'medium' | 'long'>('medium');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<Array<{
-  text: string;
-  hashtags: string[];
-  imagePrompt: string;
-  generatedImage?: string;
-  imageLoading?: boolean;
-  imageTool?: string;
-}> | null>(() => {
-  if (typeof window === 'undefined') return null;
-  const saved = sessionStorage.getItem('lastResults');
-  return saved ? JSON.parse(saved) : null;
-});
-const [generationId, setGenerationId] = useState<string | null>(() => {
-  if (typeof window === 'undefined') return null;
-  return sessionStorage.getItem('lastGenerationId');
-});
-const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
-const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
-const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
-const [isGuestResult, setIsGuestResult] = useState(false);
-const [addWatermark, setAddWatermark] = useState(() => {
-  if (typeof window === 'undefined') return false;
-  return sessionStorage.getItem('lastAddWatermark') === 'true';
-});
-const [useBrandColors, setUseBrandColors] = useState(() => {
-  if (typeof window === 'undefined') return true;
-  return sessionStorage.getItem('lastUseBrandColors') !== 'false';
-});
-const upcomingOccasions = getUpcomingOccasions();
-// Zapisuj temat do sessionStorage
-useEffect(() => {
-  sessionStorage.setItem('lastTopic', topic);
-}, [topic]);
+    text: string;
+    hashtags: string[];
+    imagePrompt: string;
+    generatedImage?: string;
+    imageLoading?: boolean;
+    imageTool?: string;
+  }> | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const saved = sessionStorage.getItem('lastResults');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [generationId, setGenerationId] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    return sessionStorage.getItem('lastGenerationId');
+  });
+  const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+  const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
+  const [isGuestResult, setIsGuestResult] = useState(false);
+  const [addWatermark, setAddWatermark] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return sessionStorage.getItem('lastAddWatermark') === 'true';
+  });
+  const [useBrandColors, setUseBrandColors] = useState(() => {
+    if (typeof window === 'undefined') return true;
+    return sessionStorage.getItem('lastUseBrandColors') !== 'false';
+  });
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  const [toastCounter, setToastCounter] = useState(0);
 
-// Zapisuj checkboxy do sessionStorage
-useEffect(() => {
-  sessionStorage.setItem('lastAddWatermark', String(addWatermark));
-  sessionStorage.setItem('lastUseBrandColors', String(useBrandColors));
-}, [addWatermark, useBrandColors]);
+  const upcomingOccasions = getUpcomingOccasions();
+
+  // Toast system
+  const showToast = useCallback((message: string, type: ToastType = 'info') => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { message, type, id }]);
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 4000);
+  }, []);
+
+  const removeToast = useCallback((id: number) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
+  }, []);
+
+  // Zapisuj temat do sessionStorage
+  useEffect(() => {
+    sessionStorage.setItem('lastTopic', topic);
+  }, [topic]);
+
+  // Zapisuj checkboxy do sessionStorage
+  useEffect(() => {
+    sessionStorage.setItem('lastAddWatermark', String(addWatermark));
+    sessionStorage.setItem('lastUseBrandColors', String(useBrandColors));
+  }, [addWatermark, useBrandColors]);
+
   const [credits, setCredits] = useState<{
     remaining: number;
     total: number;
@@ -125,17 +159,17 @@ useEffect(() => {
   const [portalLoading, setPortalLoading] = useState(false);
 
   useEffect(() => {
-  if (isLoaded && user) {
-    fetchUserCredits();
-  }
-  if (isLoaded && !user) {
-    setCredits(null);
-    setLoadingCredits(false);
-    setResults(null);
-    sessionStorage.removeItem('lastResults');
-    sessionStorage.removeItem('lastGenerationId');
-  }
-}, [isLoaded, user]);
+    if (isLoaded && user) {
+      fetchUserCredits();
+    }
+    if (isLoaded && !user) {
+      setCredits(null);
+      setLoadingCredits(false);
+      setResults(null);
+      sessionStorage.removeItem('lastResults');
+      sessionStorage.removeItem('lastGenerationId');
+    }
+  }, [isLoaded, user]);
 
   const fetchUserCredits = async () => {
     if (!user) return;
@@ -158,7 +192,7 @@ useEffect(() => {
 
   const handleCheckout = async (priceId: string) => {
     if (!user) {
-      alert('Zaloguj się aby kupić subskrypcję!');
+      showToast('Zaloguj się aby kupić subskrypcję!', 'warning');
       return;
     }
     try {
@@ -169,13 +203,13 @@ useEffect(() => {
       });
       const data = await response.json();
       if (!response.ok) {
-        alert(data.error || 'Błąd podczas tworzenia sesji płatności');
+        showToast(data.error || 'Błąd podczas tworzenia sesji płatności', 'error');
         return;
       }
       if (data.url) window.location.href = data.url;
     } catch (err) {
       console.error('Błąd checkout:', err);
-      alert('Wystąpił błąd. Spróbuj ponownie.');
+      showToast('Wystąpił błąd. Spróbuj ponownie.', 'error');
     }
   };
 
@@ -187,114 +221,117 @@ useEffect(() => {
       });
       const data = await response.json();
       if (!response.ok) {
-        alert(data.error || 'Błąd podczas otwierania portalu');
+        showToast(data.error || 'Błąd podczas otwierania portalu', 'error');
         return;
       }
       if (data.url) window.location.href = data.url;
     } catch (err) {
       console.error('Błąd portalu:', err);
-      alert('Wystąpił błąd. Spróbuj ponownie.');
+      showToast('Wystąpił błąd. Spróbuj ponownie.', 'error');
     } finally {
       setPortalLoading(false);
     }
   };
-const generateImage = async (idx: number) => {
-  if (!results) return;
-  if (!credits || credits.plan === 'free') {
-    alert('Generowanie obrazów dostępne tylko w planie Starter i Pro!');
-    return;
-  }
 
-  setResults(prev => prev ? prev.map((r, i) => 
-    i === idx ? { ...r, imageLoading: true } : r
-  ) : null);
-
-  try {
-    const response = await fetch('/api/image', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        topic,
-        platform,
-        industry: selectedIndustry 
-          ? INDUSTRIES.find(i => i.id === selectedIndustry)?.label 
-          : null,
-        imagePrompt: results[idx].imagePrompt,
-        addWatermark,
-        useBrandColors,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      alert(data.error || 'Błąd generowania obrazu');
+  const generateImage = async (idx: number) => {
+    if (!results) return;
+    if (!credits || credits.plan === 'free') {
+      showToast('Generowanie obrazów dostępne tylko w planie Starter i Pro!', 'warning');
       return;
     }
 
-    setResults(prev => {
-      const updated = prev ? prev.map((r, i) => 
-        i === idx ? { ...r, generatedImage: data.imageUrl, imageTool: data.tool, imageLoading: false } : r
-      ) : null;
-      if (updated) sessionStorage.setItem('lastResults', JSON.stringify(updated));
-      return updated;
-    });
-
-  } catch (err) {
-    alert('Wystąpił błąd. Spróbuj ponownie.');
-  } finally {
-    setResults(prev => prev ? prev.map((r, i) => 
-      i === idx ? { ...r, imageLoading: false } : r
+    setResults(prev => prev ? prev.map((r, i) =>
+      i === idx ? { ...r, imageLoading: true } : r
     ) : null);
-  }
-};
-const generateImageAuto = async (idx: number, imagePrompt: string) => {
-  setResults(prev => prev ? prev.map((r, i) => 
-    i === idx ? { ...r, imageLoading: true } : r
-  ) : null);
 
-  try {
-    const response = await fetch('/api/image', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        topic,
-        platform,
-        industry: selectedIndustry 
-          ? INDUSTRIES.find(i => i.id === selectedIndustry)?.label 
-          : null,
-        imagePrompt,
-        addWatermark,
-        useBrandColors,
-      }),
-    });
+    try {
+      const response = await fetch('/api/image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          topic,
+          platform,
+          industry: selectedIndustry
+            ? INDUSTRIES.find(i => i.id === selectedIndustry)?.label
+            : null,
+          imagePrompt: results[idx].imagePrompt,
+          addWatermark,
+          useBrandColors,
+        }),
+      });
 
-    const data = await response.json();
-    if (!response.ok) return;
+      const data = await response.json();
 
-    setResults(prev => {
-      const updated = prev ? prev.map((r, i) => 
-        i === idx ? { ...r, generatedImage: data.imageUrl, imageTool: data.tool, imageLoading: false } : r
-      ) : null;
-      if (updated) sessionStorage.setItem('lastResults', JSON.stringify(updated));
-      return updated;
-    });
+      if (!response.ok) {
+        showToast(data.error || 'Błąd generowania obrazu', 'error');
+        return;
+      }
 
-  } catch (err) {
-    console.error('Błąd auto-generowania obrazu:', err);
-  } finally {
-    setResults(prev => prev ? prev.map((r, i) => 
-      i === idx ? { ...r, imageLoading: false } : r
+      setResults(prev => {
+        const updated = prev ? prev.map((r, i) =>
+          i === idx ? { ...r, generatedImage: data.imageUrl, imageTool: data.tool, imageLoading: false } : r
+        ) : null;
+        if (updated) sessionStorage.setItem('lastResults', JSON.stringify(updated));
+        return updated;
+      });
+
+    } catch (err) {
+      showToast('Wystąpił błąd. Spróbuj ponownie.', 'error');
+    } finally {
+      setResults(prev => prev ? prev.map((r, i) =>
+        i === idx ? { ...r, imageLoading: false } : r
+      ) : null);
+    }
+  };
+
+  const generateImageAuto = async (idx: number, imagePrompt: string) => {
+    setResults(prev => prev ? prev.map((r, i) =>
+      i === idx ? { ...r, imageLoading: true } : r
     ) : null);
-  }
-};
+
+    try {
+      const response = await fetch('/api/image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          topic,
+          platform,
+          industry: selectedIndustry
+            ? INDUSTRIES.find(i => i.id === selectedIndustry)?.label
+            : null,
+          imagePrompt,
+          addWatermark,
+          useBrandColors,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) return;
+
+      setResults(prev => {
+        const updated = prev ? prev.map((r, i) =>
+          i === idx ? { ...r, generatedImage: data.imageUrl, imageTool: data.tool, imageLoading: false } : r
+        ) : null;
+        if (updated) sessionStorage.setItem('lastResults', JSON.stringify(updated));
+        return updated;
+      });
+
+    } catch (err) {
+      console.error('Błąd auto-generowania obrazu:', err);
+    } finally {
+      setResults(prev => prev ? prev.map((r, i) =>
+        i === idx ? { ...r, imageLoading: false } : r
+      ) : null);
+    }
+  };
+
   const generatePost = async () => {
     if (!topic.trim()) {
-      alert('Wpisz temat postu!');
+      showToast('Wpisz temat postu!', 'warning');
       return;
     }
     if (user && credits && credits.remaining <= 0) {
-      alert('Brak kredytów! Przejdź na plan Standard lub Premium aby kontynuować.');
+      showToast('Brak kredytów! Przejdź na plan Starter lub Pro aby kontynuować.', 'warning');
       return;
     }
     setLoading(true);
@@ -303,20 +340,20 @@ const generateImageAuto = async (idx: number, imagePrompt: string) => {
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-  topic, 
-  platform, 
-  tone, 
-  length,
-  industry: selectedIndustry 
-    ? INDUSTRIES.find(i => i.id === selectedIndustry)?.hint 
-    : null,
-}),
+        body: JSON.stringify({
+          topic,
+          platform,
+          tone,
+          length,
+          industry: selectedIndustry
+            ? INDUSTRIES.find(i => i.id === selectedIndustry)?.hint
+            : null,
+        }),
       });
       const data = await response.json();
       if (!response.ok) {
         if (response.status === 403) {
-          alert(data.message || 'Brak kredytów!');
+          showToast(data.message || 'Brak kredytów!', 'warning');
           return;
         }
         throw new Error(data.error || 'Błąd podczas generowania postów');
@@ -326,19 +363,20 @@ const generateImageAuto = async (idx: number, imagePrompt: string) => {
       setLikedPosts(new Set());
       sessionStorage.setItem('lastGenerationId', data.generationId || '');
       const newResults = data.posts.map((post: any) => ({
-  text: post.text,
-  hashtags: post.hashtags,
-  imagePrompt: post.imagePrompt,
-}));
-setResults(newResults);
-sessionStorage.setItem('lastResults', JSON.stringify(newResults));
+        text: post.text,
+        hashtags: post.hashtags,
+        imagePrompt: post.imagePrompt,
+      }));
+      setResults(newResults);
+      sessionStorage.setItem('lastResults', JSON.stringify(newResults));
+      showToast('Posty wygenerowane pomyślnie!', 'success');
 
-// Auto-generuj obrazy dla planu Pro
-if (credits?.plan === 'premium') {
-  newResults.forEach((post: any, idx: number) => {
-    generateImageAuto(idx, post.imagePrompt);
-  });
-}
+      // Auto-generuj obrazy dla planu Pro
+      if (credits?.plan === 'premium') {
+        newResults.forEach((post: any, idx: number) => {
+          generateImageAuto(idx, post.imagePrompt);
+        });
+      }
       if (data.creditsRemaining !== undefined) {
         setCredits(prev => prev ? {
           ...prev,
@@ -348,7 +386,7 @@ if (credits?.plan === 'premium') {
       }
     } catch (error) {
       console.error('Błąd:', error);
-      alert('Wystąpił błąd podczas generowania postów. Spróbuj ponownie.');
+      showToast('Wystąpił błąd podczas generowania postów. Spróbuj ponownie.', 'error');
     } finally {
       setLoading(false);
     }
@@ -368,31 +406,50 @@ if (credits?.plan === 'premium') {
         }
         .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
 
+        @keyframes slideInRight {
+          from { opacity: 0; transform: translateX(100px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        .toast-enter { animation: slideInRight 0.3s ease-out forwards; }
+
         @keyframes pulse-glow {
           0%, 100% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); }
           50% { box-shadow: 0 0 30px rgba(6, 182, 212, 0.6); }
         }
         .pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
 
-        .card-hover {
-          transition: all 0.3s ease;
-        }
+        .card-hover { transition: all 0.3s ease; }
         .card-hover:hover {
           transform: translateY(-6px);
           box-shadow: 0 20px 40px rgba(0,0,0,0.12);
         }
 
-        .btn-hover {
-          transition: all 0.25s ease;
-        }
+        .btn-hover { transition: all 0.25s ease; }
         .btn-hover:hover {
           transform: scale(1.08);
           filter: brightness(1.08);
         }
-        .btn-hover:active {
-          transform: scale(0.97);
-        }
+        .btn-hover:active { transform: scale(0.97); }
       `}</style>
+
+      {/* Toast Container */}
+      <div className="fixed top-6 right-6 z-50 flex flex-col gap-3 pointer-events-none">
+        {toasts.map(toast => (
+          <div
+            key={toast.id}
+            className={`toast-enter flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl pointer-events-auto max-w-sm ${TOAST_STYLES[toast.type]}`}
+          >
+            <span className="text-xl flex-shrink-0">{TOAST_ICONS[toast.type]}</span>
+            <p className="text-sm font-semibold flex-1">{toast.message}</p>
+            <button
+              onClick={() => removeToast(toast.id)}
+              className="text-white/70 hover:text-white transition-colors flex-shrink-0 text-lg leading-none"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
 
       <div className="min-h-screen bg-white">
         {/* Decorative Background */}
@@ -421,40 +478,37 @@ if (credits?.plan === 'premium') {
               <div className="flex items-center gap-3">
                 {!loadingCredits && credits && (
                   <>
-                    {/* Plan badge */}
                     <span className={`px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wide ${PLAN_COLORS[credits.plan]}`}>
-                    {credits.plan === 'free' ? 'FREE' : credits.plan === 'standard' ? 'STARTER • Unlimited' : 'PRO • Unlimited'}
+                      {credits.plan === 'free' ? 'FREE' : credits.plan === 'standard' ? 'STARTER • Unlimited' : 'PRO • Unlimited'}
                     </span>
-                    {/* Credits */}
                     <div className="px-4 py-2 bg-purple-100 rounded-full flex items-center gap-2">
-  {credits.plan === 'free' && (
-  <div className="px-4 py-2 bg-purple-100 rounded-full flex items-center gap-2">
-    <span className="text-sm font-bold text-purple-900">{credits.remaining}/{credits.total}</span>
-    <span className="text-xs text-purple-700">kredytów</span>
-  </div>
-)}
-</div>
-                    {/* Manage subscription button - only for paid plans */}
+                      {credits.plan === 'free' && (
+                        <div className="px-4 py-2 bg-purple-100 rounded-full flex items-center gap-2">
+                          <span className="text-sm font-bold text-purple-900">{credits.remaining}/{credits.total}</span>
+                          <span className="text-xs text-purple-700">kredytów</span>
+                        </div>
+                      )}
+                    </div>
                     {hasActivePlan && (
                       <div className="flex gap-2">
-  <Link href="/settings" className="btn-hover px-4 py-2 bg-purple-100 text-purple-700 text-sm font-semibold rounded-full">
-   Ustawienia
-  </Link>
-  <button
-    onClick={handleCustomerPortal}
-    disabled={portalLoading}
-    className="btn-hover px-4 py-2 bg-purple-100 text-purple-700 text-sm font-semibold rounded-full disabled:opacity-50"
-  >
-    {portalLoading ? '⏳...' : 'Subskrypcja'}
-  </button>
-</div>
+                        <Link href="/settings" className="btn-hover px-4 py-2 bg-purple-100 text-purple-700 text-sm font-semibold rounded-full">
+                          Ustawienia
+                        </Link>
+                        <button
+                          onClick={handleCustomerPortal}
+                          disabled={portalLoading}
+                          className="btn-hover px-4 py-2 bg-purple-100 text-purple-700 text-sm font-semibold rounded-full disabled:opacity-50"
+                        >
+                          {portalLoading ? '⏳...' : 'Subskrypcja'}
+                        </button>
+                      </div>
                     )}
                   </>
                 )}
                 <Link href="/dashboard" className="btn-hover px-4 py-2 bg-purple-100 text-purple-700 text-sm font-semibold rounded-full">
-   Panel użytkownika
-</Link>
-<UserButton afterSignOutUrl="/" />
+                  Panel użytkownika
+                </Link>
+                <UserButton afterSignOutUrl="/" />
               </div>
             </SignedIn>
           </div>
@@ -466,67 +520,67 @@ if (credits?.plan === 'premium') {
           <div className="text-center mb-16 animate-fade-in-up">
             <div className="inline-block mb-4">
               <span className="px-4 py-2 bg-cyan-100 text-cyan-700 rounded-full text-sm font-semibold">
-  Używany przez właścicieli firm w Polsce
-</span>
+                Używany przez właścicieli firm w Polsce
+              </span>
             </div>
             <h2 className="text-6xl font-extrabold text-gray-900 mb-6 leading-tight">
-  Zaoszczędź 10 godzin<br />
-  <span className="text-purple-600">tygodniowo</span>
-</h2>
-<p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-  Profesjonalne posty na Facebook, Instagram i TikTok w sekundę.<br />
-  <span className="text-cyan-600 font-semibold">Bez stresu, bez pustej kartki, bez przepłacania.</span>
-</p>
+              Zaoszczędź 10 godzin<br />
+              <span className="text-purple-600">tygodniowo</span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+              Profesjonalne posty na Facebook, Instagram i TikTok w sekundę.<br />
+              <span className="text-cyan-600 font-semibold">Bez stresu, bez pustej kartki, bez przepłacania.</span>
+            </p>
           </div>
 
-          {/* Generator Form */}
           {/* Kalendarz okazji */}
-{upcomingOccasions.length > 0 && (
-  <div className="max-w-3xl mx-auto mb-6 animate-fade-in-up">
-    <div className="flex flex-wrap gap-3">
-      {upcomingOccasions.map((occasion) => (
-        <button
-          key={occasion.date}
-          onClick={() => setTopic(`Post z okazji ${occasion.name}`)}
-          className="btn-hover flex items-center gap-2 px-4 py-2 bg-white border-2 border-purple-200 rounded-full shadow-sm hover:border-purple-500 transition-all"
-        >
-          <span className="text-xl">{occasion.emoji}</span>
-          <div className="text-left">
-            <div className="text-sm font-bold text-gray-900">{occasion.name}</div>
-            <div className="text-xs text-purple-600 font-medium">
-              {occasion.days === 0 ? 'Dziś!' : occasion.days === 1 ? 'Jutro!' : `Za ${occasion.days} dni`}
+          {upcomingOccasions.length > 0 && (
+            <div className="max-w-3xl mx-auto mb-6 animate-fade-in-up">
+              <div className="flex flex-wrap gap-3">
+                {upcomingOccasions.map((occasion) => (
+                  <button
+                    key={occasion.date}
+                    onClick={() => setTopic(`Post z okazji ${occasion.name}`)}
+                    className="btn-hover flex items-center gap-2 px-4 py-2 bg-white border-2 border-purple-200 rounded-full shadow-sm hover:border-purple-500 transition-all"
+                  >
+                    <span className="text-xl">{occasion.emoji}</span>
+                    <div className="text-left">
+                      <div className="text-sm font-bold text-gray-900">{occasion.name}</div>
+                      <div className="text-xs text-purple-600 font-medium">
+                        {occasion.days === 0 ? 'Dziś!' : occasion.days === 1 ? 'Jutro!' : `Za ${occasion.days} dni`}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Kafelki branż */}
+          <div className="max-w-3xl mx-auto mb-6 animate-fade-in-up">
+            <p className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">
+              Wybierz branżę (opcjonalnie)
+            </p>
+            <div className="flex flex-wrap gap-3">
+              {INDUSTRIES.map((industry) => (
+                <button
+                  key={industry.id}
+                  onClick={() => setSelectedIndustry(
+                    selectedIndustry === industry.id ? null : industry.id
+                  )}
+                  className={`btn-hover flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm transition-all ${
+                    selectedIndustry === industry.id
+                      ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
+                      : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-purple-300'
+                  }`}
+                >
+                  <span>{industry.emoji}</span>
+                  {industry.label}
+                </button>
+              ))}
             </div>
           </div>
-        </button>
-      ))}
-    </div>
-  </div>
-)}
 
-{/* Kafelki branż */}
-<div className="max-w-3xl mx-auto mb-6 animate-fade-in-up">
-  <p className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">
-    Wybierz branżę (opcjonalnie)
-  </p>
-  <div className="flex flex-wrap gap-3">
-    {INDUSTRIES.map((industry) => (
-      <button
-        key={industry.id}
-        onClick={() => setSelectedIndustry(
-          selectedIndustry === industry.id ? null : industry.id
-        )}
-        className={`btn-hover flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm transition-all ${
-          selectedIndustry === industry.id
-            ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
-            : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-purple-300'
-        }`}
-      >
-        <span>{industry.emoji}</span>
-        {industry.label}
-      </button>
-    ))}
-  </div>
-</div>
           <div className="max-w-3xl mx-auto bg-white rounded-3xl p-10 shadow-2xl border border-gray-200 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             <div className="space-y-8">
               {/* Topic */}
@@ -535,13 +589,13 @@ if (credits?.plan === 'premium') {
                   O czym ma być post?
                 </label>
                 <textarea
-  value={topic}
-  onChange={(e) => setTopic(e.target.value)}
-  placeholder="np. nowa kolekcja butów sportowych, przepis na ciasto czekoladowe..."
-  rows={3}
-  spellCheck={false}
-  className="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:bg-white transition-all duration-300 font-medium resize-none"
-/>
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  placeholder="np. nowa kolekcja butów sportowych, przepis na ciasto czekoladowe..."
+                  rows={3}
+                  spellCheck={false}
+                  className="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:bg-white transition-all duration-300 font-medium resize-none"
+                />
                 {/* Checkboxy Brand Kit */}
                 <div className="mt-3 space-y-2">
                   <label className="flex items-center gap-3 cursor-pointer group">
@@ -592,15 +646,15 @@ if (credits?.plan === 'premium') {
                           <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                         </svg>
                       ) : p === 'instagram' ? (
-  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-  </svg>
-) : (
-  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-    <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/>
-  </svg>
-)}
-{p === 'facebook' ? 'Facebook' : p === 'instagram' ? 'Instagram' : 'TikTok'}
+                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                      ) : (
+                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/>
+                        </svg>
+                      )}
+                      {p === 'facebook' ? 'Facebook' : p === 'instagram' ? 'Instagram' : 'TikTok'}
                     </button>
                   ))}
                 </div>
@@ -693,72 +747,72 @@ if (credits?.plan === 'premium') {
                 <h3 className="text-3xl font-bold text-gray-900">Wygenerowane posty</h3>
                 <span className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-semibold">✓ Gotowe!</span>
                 {isGuestResult && (
-                <div className="w-full mt-4 p-5 bg-gradient-to-r from-purple-50 to-cyan-50 border-2 border-purple-200 rounded-2xl">
-                  <p className="text-gray-900 font-bold text-lg mb-1">
-                    Podoba Ci się? To tylko 1 z 3 wersji!
-                  </p>
-                  <p className="text-gray-600 text-sm mb-3">
-                    Zaloguj się za darmo i dostań 3 wersje posta, historię generacji i 5 kredytów na start.
-                  </p>
-                  <SignInButton mode="modal">
-                    <button className="px-6 py-2.5 bg-purple-600 text-white rounded-full font-bold text-sm shadow-lg shadow-purple-500/30 hover:bg-purple-700 transition-colors">
-                      Załóż konto za darmo →
-                    </button>
-                  </SignInButton>
-                </div>
-              )}
+                  <div className="w-full mt-4 p-5 bg-gradient-to-r from-purple-50 to-cyan-50 border-2 border-purple-200 rounded-2xl">
+                    <p className="text-gray-900 font-bold text-lg mb-1">
+                      Podoba Ci się? To tylko 1 z 3 wersji!
+                    </p>
+                    <p className="text-gray-600 text-sm mb-3">
+                      Zaloguj się za darmo i dostań 3 wersje posta, historię generacji i 5 kredytów na start.
+                    </p>
+                    <SignInButton mode="modal">
+                      <button className="px-6 py-2.5 bg-purple-600 text-white rounded-full font-bold text-sm shadow-lg shadow-purple-500/30 hover:bg-purple-700 transition-colors">
+                        Załóż konto za darmo →
+                      </button>
+                    </SignInButton>
+                  </div>
+                )}
               </div>
               {results.map((result, idx) => (
                 <div key={idx} className="bg-white rounded-2xl p-8 border-2 border-gray-200 shadow-lg">
                   <div className="flex items-start justify-between mb-6">
-                    
                     <div className="flex items-center gap-6 mb-6">
-  <span className="px-4 py-2 bg-purple-600 text-white text-sm font-bold rounded-full shadow-lg shadow-purple-500/30">
-    Wersja {idx + 1}
-  </span>
-  <div className="flex gap-6 ml-auto">
-    <button
-      onClick={() => {
-        const full = `${result.text}\n\n${result.hashtags.join(' ')}`;
-        navigator.clipboard.writeText(full);
-        setCopiedIdx(idx);
-        setTimeout(() => setCopiedIdx(null), 2000);
-      }}
-      className="btn-hover px-5 py-2 bg-cyan-500 text-white rounded-xl text-sm font-semibold shadow-md"
-    >
-      {copiedIdx === idx ? '✅ Skopiowano!' : '📋 Kopiuj'}
-    </button>
-    <button
-      onClick={async () => {
-        if (!generationId) return;
-        const isLiked = likedPosts.has(idx);
-        const newLiked = new Set(likedPosts);
-        if (isLiked) {
-          newLiked.delete(idx);
-        } else {
-          newLiked.add(idx);
-        }
-        setLikedPosts(newLiked);
-        await fetch('/api/dashboard/favorite', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ 
-    id: generationId, 
-    is_favorite: newLiked.size > 0,
-    liked_versions: Array.from(newLiked),
-  }),
-});
-      }}
-      className={`btn-hover px-5 py-2 rounded-xl text-sm font-semibold shadow-md transition-all ${
-        likedPosts.has(idx)
-          ? 'bg-yellow-400 text-yellow-900'
-          : 'bg-gray-100 text-gray-600'
-      }`}
-    >
-      {likedPosts.has(idx) ? '⭐ Lubię to!' : '☆ Lubię to'}
-    </button>
-  </div>
-</div>
+                      <span className="px-4 py-2 bg-purple-600 text-white text-sm font-bold rounded-full shadow-lg shadow-purple-500/30">
+                        Wersja {idx + 1}
+                      </span>
+                      <div className="flex gap-6 ml-auto">
+                        <button
+                          onClick={() => {
+                            const full = `${result.text}\n\n${result.hashtags.join(' ')}`;
+                            navigator.clipboard.writeText(full);
+                            setCopiedIdx(idx);
+                            setTimeout(() => setCopiedIdx(null), 2000);
+                            showToast('Post skopiowany do schowka!', 'success');
+                          }}
+                          className="btn-hover px-5 py-2 bg-cyan-500 text-white rounded-xl text-sm font-semibold shadow-md"
+                        >
+                          {copiedIdx === idx ? '✅ Skopiowano!' : '📋 Kopiuj'}
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (!generationId) return;
+                            const isLiked = likedPosts.has(idx);
+                            const newLiked = new Set(likedPosts);
+                            if (isLiked) {
+                              newLiked.delete(idx);
+                            } else {
+                              newLiked.add(idx);
+                            }
+                            setLikedPosts(newLiked);
+                            await fetch('/api/dashboard/favorite', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                id: generationId,
+                                is_favorite: newLiked.size > 0,
+                                liked_versions: Array.from(newLiked),
+                              }),
+                            });
+                          }}
+                          className={`btn-hover px-5 py-2 rounded-xl text-sm font-semibold shadow-md transition-all ${
+                            likedPosts.has(idx)
+                              ? 'bg-yellow-400 text-yellow-900'
+                              : 'bg-gray-100 text-gray-600'
+                          }`}
+                        >
+                          {likedPosts.has(idx) ? '⭐ Lubię to!' : '☆ Lubię to'}
+                        </button>
+                      </div>
+                    </div>
                   </div>
                   <div className="space-y-6">
                     <div>
@@ -774,48 +828,46 @@ if (credits?.plan === 'premium') {
                       </div>
                     </div>
                     <div>
-  <p className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">Grafika AI</p>
-  <div className="p-4 bg-cyan-50 border-2 border-cyan-200 rounded-xl mb-3">
-    <p className="text-cyan-900 text-sm font-medium italic">{result.imagePrompt}</p>
-  </div>
-  
-  {result.generatedImage ? (
-    <div className="space-y-2">
-      <img 
-        src={result.generatedImage} 
-        alt="Wygenerowana grafika" 
-        className="w-full rounded-xl shadow-lg"
-      />
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-gray-400">
-  Wygenerowano przez: Recraft V3
-</span>
-        <a 
-          href={result.generatedImage} 
-          download 
-          target="_blank"
-          className="btn-hover px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-semibold"
-        >
-          Pobierz obraz
-        </a>
-      </div>
-    </div>
-  ) : (
-    <button
-      onClick={() => generateImage(idx)}
-      disabled={result.imageLoading || !credits || credits.plan === 'free'}
-      className={`btn-hover w-full py-3 rounded-xl text-sm font-semibold transition-all ${
-        !credits || credits.plan === 'free'
-          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-          : 'bg-gradient-to-r from-purple-500 to-cyan-500 text-white shadow-lg'
-      }`}
-    >
-      {result.imageLoading ? 'Generuję obraz...' : 
-       !credits || credits.plan === 'free' ? 'Dostępne w planie Starter i Pro' : 
-       'Wygeneruj obraz'}
-    </button>
-  )}
-</div>
+                      <p className="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">Grafika AI</p>
+                      <div className="p-4 bg-cyan-50 border-2 border-cyan-200 rounded-xl mb-3">
+                        <p className="text-cyan-900 text-sm font-medium italic">{result.imagePrompt}</p>
+                      </div>
+
+                      {result.generatedImage ? (
+                        <div className="space-y-2">
+                          <img
+                            src={result.generatedImage}
+                            alt="Wygenerowana grafika"
+                            className="w-full rounded-xl shadow-lg"
+                          />
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-gray-400">Wygenerowano przez: Recraft V3</span>
+                            <a
+                              href={result.generatedImage}
+                              download
+                              target="_blank"
+                              className="btn-hover px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-semibold"
+                            >
+                              Pobierz obraz
+                            </a>
+                          </div>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => generateImage(idx)}
+                          disabled={result.imageLoading || !credits || credits.plan === 'free'}
+                          className={`btn-hover w-full py-3 rounded-xl text-sm font-semibold transition-all ${
+                            !credits || credits.plan === 'free'
+                              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                              : 'bg-gradient-to-r from-purple-500 to-cyan-500 text-white shadow-lg'
+                          }`}
+                        >
+                          {result.imageLoading ? 'Generuję obraz...' :
+                            !credits || credits.plan === 'free' ? 'Dostępne w planie Starter i Pro' :
+                            'Wygeneruj obraz'}
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
