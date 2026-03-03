@@ -132,6 +132,7 @@ export default function CalendarPage() {
   const [defaultPlatform, setDefaultPlatform] = useState<'facebook' | 'instagram' | 'tiktok'>('facebook');
   const [defaultTone, setDefaultTone] = useState<'professional' | 'casual' | 'humorous' | 'sales'>('professional');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [copiedWeek, setCopiedWeek] = useState<number | null>(null);
   const [view, setView] = useState<'calendar' | 'list'>('calendar');
 
   const currentDays = days.filter(d => d.isCurrentMonth);
@@ -550,6 +551,30 @@ export default function CalendarPage() {
                   style={{ padding: '11px', borderRadius: 12, fontSize: 14, opacity: generatedCount === 0 ? 0.4 : 1 }}>
                   📥 Eksportuj CSV ({generatedCount})
                 </button>
+
+                {/* Kopiuj serie na tydzien */}
+                {[0, 1, 2, 3].map(weekIdx => {
+                  const weekDays = currentDays.slice(weekIdx * 7, weekIdx * 7 + 7);
+                  const weekGenerated = weekDays.filter(d => d.generated);
+                  if (weekGenerated.length === 0) return null;
+                  const weekLabel = `${weekDays[0].dayOfMonth}–${weekDays[weekDays.length - 1].dayOfMonth} ${MONTH_NAMES_PL[currentMonth]}`;
+                  return (
+                    <button key={weekIdx}
+                      onClick={() => {
+                        const text = weekGenerated.map(d =>
+                          `📅 ${d.fullKey} [${d.platform.toUpperCase()}]\n${d.postText}\n${(d.hashtags || []).join(' ')}`
+                        ).join('\n\n---\n\n');
+                        navigator.clipboard.writeText(text);
+                        setCopiedWeek(weekIdx);
+                        setTimeout(() => setCopiedWeek(null), 2000);
+                      }}
+                      className="btn-ghost"
+                      style={{ padding: '11px', borderRadius: 12, fontSize: 13 }}
+                    >
+                      {copiedWeek === weekIdx ? '✅ Skopiowano!' : `📋 Kopiuj tydzień ${weekIdx + 1} (${weekGenerated.length} postów)`}
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Progress */}
