@@ -412,6 +412,9 @@ export default function GeneratorPage() {
                         </button>
                       </>
                     )}
+                    <Link href="/calendar">
+                      <button className="btn-ghost" style={{ padding: '7px 16px', borderRadius: 10, fontSize: 13 }}>📅 Kalendarz</button>
+                    </Link>
                     <Link href="/dashboard">
                       <button className="btn-ghost" style={{ padding: '7px 16px', borderRadius: 10, fontSize: 13 }}>Panel</button>
                     </Link>

@@ -184,3 +184,8 @@
 - Guest mode: 1 post, brak zapisu, brak kredytów
 - Pro: auto-generowanie 3 obrazów, watermark (subscription_plan === 'premium')
 - sharp@0.34.5 zainstalowany
+Stack techniczny i domena
+Routing + design system (kolory, fonty)
+Plany i cennik
+Wszystkie ukończone funkcje z Tygodnia 1
+Plan na Tydzień 2
