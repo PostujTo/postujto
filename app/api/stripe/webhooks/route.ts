@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { sendNewSubscriptionAlert, sendCancellationAlert, sendPaymentFailedAlert } from '@/lib/email'; // NOWE
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -37,7 +38,7 @@ export async function POST(req: Request) {
     // Handle checkout.session.completed
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
-      
+
       console.log('💳 Processing checkout.session.completed');
       console.log('Session ID:', session.id);
       console.log('Customer:', session.customer);
@@ -51,20 +52,17 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Missing metadata' }, { status: 400 });
       }
 
-      // Get subscription details
       const subscription: any = await stripe.subscriptions.retrieve(subscriptionId);
       const priceId = subscription.items.data[0].price.id;
 
-      // Determine plan
       let plan: 'standard' | 'premium' = 'standard';
-let credits = 999999;
-if (priceId === process.env.STRIPE_PRICE_ID_PREMIUM) {
-  plan = 'premium';
-}
+      let credits = 999999;
+      if (priceId === process.env.STRIPE_PRICE_ID_PREMIUM) {
+        plan = 'premium';
+      }
 
       console.log('📝 Updating user:', { clerkUserId, plan, credits });
 
-      // Update user in Supabase
       const { error } = await supabaseAdmin
         .from('users')
         .update({
@@ -81,44 +79,85 @@ if (priceId === process.env.STRIPE_PRICE_ID_PREMIUM) {
         return NextResponse.json({ error: 'Database error' }, { status: 500 });
       }
 
+      // NOWE: alert email o nowej subskrypcji
+      try {
+        await sendNewSubscriptionAlert({
+          email: session.customer_email || 'nieznany',
+          plan: plan === 'standard' ? 'Starter' : 'Pro',
+          amount: session.amount_total || 0,
+          currency: session.currency || 'pln',
+        });
+      } catch (emailErr) {
+        console.error('Alert email error:', emailErr);
+      }
+
       console.log('✅ User updated successfully');
     }
-// Odnowienie subskrypcji co miesiąc
-if (event.type === 'invoice.payment_succeeded') {
-  const invoice = event.data.object as Stripe.Invoice;
-  const subscriptionId = (invoice as any).subscription as string;
-  if (!subscriptionId) return NextResponse.json({ received: true });
 
-  const subscription: any = await stripe.subscriptions.retrieve(subscriptionId);
-  const priceId = subscription.items.data[0].price.id;
+    // Odnowienie subskrypcji co miesiąc
+    if (event.type === 'invoice.payment_succeeded') {
+      const invoice = event.data.object as Stripe.Invoice;
+      const subscriptionId = (invoice as any).subscription as string;
+      if (!subscriptionId) return NextResponse.json({ received: true });
 
-  let credits = 999999;
+      const subscription: any = await stripe.subscriptions.retrieve(subscriptionId);
+      const priceId = subscription.items.data[0].price.id;
+      let credits = 999999;
 
-  await supabaseAdmin
-    .from('users')
-    .update({ credits_remaining: credits, credits_total: credits })
-    .eq('stripe_subscription_id', subscriptionId);
+      await supabaseAdmin
+        .from('users')
+        .update({ credits_remaining: credits, credits_total: credits })
+        .eq('stripe_subscription_id', subscriptionId);
 
-  console.log('✅ Kredyty odnowione dla subskrypcji:', subscriptionId);
-}
+      console.log('✅ Kredyty odnowione dla subskrypcji:', subscriptionId);
+    }
 
-// Anulowanie subskrypcji
-if (event.type === 'customer.subscription.deleted') {
-  const subscription = event.data.object as Stripe.Subscription;
+    // NOWE: błąd płatności
+    if (event.type === 'invoice.payment_failed') {
+      const invoice = event.data.object as Stripe.Invoice;
+      try {
+        const customer = await stripe.customers.retrieve(invoice.customer as string) as Stripe.Customer;
+        await sendPaymentFailedAlert({
+          email: customer.email || 'nieznany',
+          amount: invoice.amount_due || 0,
+          currency: invoice.currency || 'pln',
+          reason: (invoice as any).last_finalization_error?.message || 'nieznany powód',
+        });
+      } catch (emailErr) {
+        console.error('Alert email error:', emailErr);
+      }
+    }
 
-  await supabaseAdmin
-    .from('users')
-    .update({
-      subscription_plan: 'free',
-      subscription_status: 'canceled',
-      stripe_subscription_id: null,
-      credits_total: 5,
-      credits_remaining: 5,
-    })
-    .eq('stripe_subscription_id', subscription.id);
+    // Anulowanie subskrypcji
+    if (event.type === 'customer.subscription.deleted') {
+      const subscription = event.data.object as Stripe.Subscription;
 
-  console.log('✅ Subskrypcja anulowana:', subscription.id);
-}
+      await supabaseAdmin
+        .from('users')
+        .update({
+          subscription_plan: 'free',
+          subscription_status: 'canceled',
+          stripe_subscription_id: null,
+          credits_total: 5,
+          credits_remaining: 5,
+        })
+        .eq('stripe_subscription_id', subscription.id);
+
+      // NOWE: alert email o anulowaniu
+      try {
+        const customer = await stripe.customers.retrieve(subscription.customer as string) as Stripe.Customer;
+        await sendCancellationAlert({
+          email: customer.email || 'nieznany',
+          plan: (subscription.metadata?.plan) || 'unknown',
+          endsAt: new Date(subscription.current_period_end * 1000).toLocaleDateString('pl-PL'),
+        });
+      } catch (emailErr) {
+        console.error('Alert email error:', emailErr);
+      }
+
+      console.log('✅ Subskrypcja anulowana:', subscription.id);
+    }
+
     return NextResponse.json({ received: true }, { status: 200 });
 
   } catch (error: any) {
@@ -130,6 +169,5 @@ if (event.type === 'customer.subscription.deleted') {
   }
 }
 
-// Vercel config
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
