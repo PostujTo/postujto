@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import { sendNewSubscriptionAlert, sendCancellationAlert, sendPaymentFailedAlert } from '@/lib/email'; // NOWE
+import { createInvoice, sendInvoiceByEmail } from '@/lib/infakt';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -92,6 +93,27 @@ export async function POST(req: Request) {
       }
 
       console.log('✅ User updated successfully');
+      // Wystaw fakturę w inFakt
+try {
+  let clientEmail = session.customer_email || '';
+  let clientName = '';
+  if (session.customer) {
+    const stripeCustomer = await stripe.customers.retrieve(session.customer as string) as Stripe.Customer;
+    clientEmail = clientEmail || stripeCustomer.email || '';
+    clientName = stripeCustomer.name || '';
+  }
+  if (clientEmail) {
+    const invoice = await createInvoice({
+      clientEmail, clientName, plan,
+      paidAt: new Date().toISOString(),
+    });
+    if (invoice?.invoice?.id) {
+      await sendInvoiceByEmail(invoice.invoice.id);
+    }
+  }
+} catch (invoiceErr) {
+  console.error('❌ inFakt invoice error:', invoiceErr);
+}
     }
 
     // Odnowienie subskrypcji co miesiąc
