@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-const { topic, platform, tone, length, industry } = body;
+const { topic, platform, tone, length, industry, scheduled_date } = body;
 
 // Walidacja obecności
 if (!topic || !platform || !tone || !length) {
@@ -247,6 +247,7 @@ WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy c
         has_image: false,
         has_audio: false,
         cost_usd: 0.015,
+        scheduled_date: scheduled_date || null,
       });
 
     if (historyError) {

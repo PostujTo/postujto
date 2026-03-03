@@ -221,6 +221,7 @@ export default function CalendarPage() {
             platform: day.platform,
             tone: defaultTone,
             length: 'medium',
+            scheduled_date: day.fullKey,
           }),
         });
         const data = await res.json();
@@ -621,7 +622,7 @@ export default function CalendarPage() {
                     try {
                       const res = await fetch('/api/generate', {
                         method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ topic: selectedDayData.topic, platform: selectedDayData.platform, tone: defaultTone, length: 'medium' }),
+                        body: JSON.stringify({ topic: selectedDayData.topic, platform: selectedDayData.platform, tone: defaultTone, length: 'medium', scheduled_date: selectedDayData.fullKey }),
                       });
                       const data = await res.json();
                       if (res.ok && data.posts?.[0]) {
