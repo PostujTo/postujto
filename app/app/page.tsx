@@ -105,6 +105,7 @@ export default function GeneratorPage() {
   const [isGuestResult, setIsGuestResult] = useState(false);
   const [addWatermark, setAddWatermark] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('lastAddWatermark') === 'true' : false);
   const [useBrandColors, setUseBrandColors] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('lastUseBrandColors') !== 'false' : true);
+  const [useBrandVoice, setUseBrandVoice] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('lastUseBrandVoice') !== 'false' : true);
   const [credits, setCredits] = useState<{ remaining: number; total: number; plan: Plan } | null>(null);
   const [loadingCredits, setLoadingCredits] = useState(true);
   const [portalLoading, setPortalLoading] = useState(false);
@@ -122,7 +123,8 @@ export default function GeneratorPage() {
   useEffect(() => {
     sessionStorage.setItem('lastAddWatermark', String(addWatermark));
     sessionStorage.setItem('lastUseBrandColors', String(useBrandColors));
-  }, [addWatermark, useBrandColors]);
+    sessionStorage.setItem('lastUseBrandVoice', String(useBrandVoice));
+  }, [addWatermark, useBrandColors, useBrandVoice]);
 
   useEffect(() => {
     if (isLoaded && user) fetchUserCredits();
@@ -215,7 +217,7 @@ export default function GeneratorPage() {
     try {
       const res = await fetch('/api/generate', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic, platform, tone, length, industry: selectedIndustry ? INDUSTRIES.find(i => i.id === selectedIndustry)?.hint : null }),
+        body: JSON.stringify({ topic, platform, tone, length, industry: selectedIndustry ? INDUSTRIES.find(i => i.id === selectedIndustry)?.hint : null, use_brand_voice: useBrandVoice }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -503,6 +505,13 @@ export default function GeneratorPage() {
                     <span style={{ fontSize: 13, color: 'rgba(240,240,245,0.6)' }}>
                       Dodaj logo na obraz
                       {credits?.plan !== 'premium' && <span style={{ marginLeft: 6, fontSize: 11, color: '#6366f1' }}>(tylko PRO)</span>}
+                    </span>
+                  </label>
+                  <label className="checkbox-label" style={{ opacity: user ? 1 : 0.4, cursor: user ? 'pointer' : 'not-allowed' }}>
+                    <input type="checkbox" checked={useBrandVoice} onChange={e => setUseBrandVoice(e.target.checked)} disabled={!user} />
+                    <span style={{ fontSize: 13, color: 'rgba(240,240,245,0.6)' }}>
+                      Generuj w moim stylu
+                      {!user && <span style={{ marginLeft: 6, fontSize: 11, color: '#6366f1' }}>(wymaga logowania)</span>}
                     </span>
                   </label>
                 </div>
