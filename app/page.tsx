@@ -4,6 +4,33 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 
+function FaqAccordion() {
+  const [open, setOpen] = useState<number | null>(null);
+  const items = [
+    { q: 'Czy mogę przetestować PostujTo za darmo?', a: 'Tak! Po rejestracji otrzymujesz 5 darmowych kredytów — bez karty kredytowej. Każdy kredyt to jedno generowanie 3 wersji posta.' },
+    { q: 'Czy posty są generowane po polsku?', a: 'Tak, wszystkie posty są generowane naturalną polszczyzną, z uwzględnieniem polskich zwrotów marketingowych i prawa reklamowego.' },
+    { q: 'Czym różni się Starter od Pro?', a: 'Starter (79 zł/msc) zawiera unlimited posty, obrazy AI i Brand Kit. Pro (199 zł/msc) dodaje automatyczne 3 obrazy do każdego posta i logo na obrazach.' },
+    { q: 'Czy mogę anulować subskrypcję?', a: 'Tak, w dowolnym momencie przez Panel → Subskrypcja. Zachowujesz dostęp do końca opłaconego okresu. Odnowienia są bezzwrotne.' },
+    { q: 'Czy moje dane są bezpieczne?', a: 'Dane przechowujemy na serwerach w Niemczech (UE). Płatności obsługuje Stripe. Treści generowane przez AI nie są używane do trenowania modeli.' },
+  ];
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {items.map((item, i) => (
+        <div key={i} style={{ border: `1px solid ${open === i ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.07)'}`, borderRadius: 14, overflow: 'hidden', transition: 'border-color 0.2s' }}>
+          <button onClick={() => setOpen(open === i ? null : i)}
+            style={{ width: '100%', textAlign: 'left', background: open === i ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)', border: 'none', cursor: 'pointer', padding: '18px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, fontFamily: "'DM Sans', sans-serif" }}>
+            <span style={{ fontSize: 15, fontWeight: 600, color: '#f0f0f5', lineHeight: 1.5 }}>{item.q}</span>
+            <span style={{ fontSize: 20, color: open === i ? '#a5b4fc' : 'rgba(240,240,245,0.3)', transition: 'transform 0.2s', transform: open === i ? 'rotate(45deg)' : 'none', flexShrink: 0 }}>+</span>
+          </button>
+          {open === i && (
+            <div style={{ padding: '0 22px 18px', fontSize: 14, color: 'rgba(240,240,245,0.6)', lineHeight: 1.8 }}>{item.a}</div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function LandingPage() {
   const [scrollY, setScrollY] = useState(0);
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
@@ -719,6 +746,24 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+{/* FAQ */}
+      <section style={{ padding: '80px 24px', background: 'rgba(255,255,255,0.01)' }} id="faq" data-animate>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <div className={`section-reveal ${isVisible('faq') ? 'visible' : ''}`} style={{ textAlign: 'center', marginBottom: 48 }}>
+            <p style={{ fontSize: 12, fontWeight: 600, color: '#6366f1', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 12 }}>Pytania i odpowiedzi</p>
+            <h2 className="font-display" style={{ fontSize: 'clamp(1.8rem, 3vw, 2.6rem)', fontWeight: 800, letterSpacing: '-0.02em' }}>
+              Często zadawane <span className="gradient-text">pytania</span>
+            </h2>
+          </div>
+          <FaqAccordion />
+          <div style={{ textAlign: 'center', marginTop: 32 }}>
+            <Link href="/faq" style={{ fontSize: 14, color: '#a5b4fc', textDecoration: 'none' }}>
+              Zobacz wszystkie pytania →
+            </Link>
           </div>
         </div>
       </section>
