@@ -188,3 +188,13 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 Odpisz szablonem powołując się na §5 Regulaminu:
 
 > Dziękujemy za kontakt. Zgodnie z §5 naszego Regulaminu, który zaakceptowałeś przy rejestracji, prawo odstąpienia od umowy nie przysługuje w przypadku gdy usługa cyfrowa została uruchomiona i wykorzystana przed upływem 14 dni (art. 38 pkt 13 ustawy o prawach konsumenta). W Twoim przypadku usługa była aktywnie używana, dlatego nie możemy zrealizować zwrotu. W razie pytań jesteśmy do dyspozycji pod hello@postujto.com.
+
+## Optymalizacje wydajności (marzec 2025)
+
+### Zrealizowane
+- **Fonty:** Zastąpiono Lato + Google Fonts `@import` przez `next/font/google` (Poppins + DM Sans) w `layout.tsx`. Usunięto `@import url(googleapis...)` ze wszystkich stron. Fonty używają CSS variables (`--font-poppins`, `--font-dm-sans`) i `display: swap`.
+- **next.config.ts:** Dodano `compress: true`, `poweredByHeader: false`, `images.formats: ['image/avif', 'image/webp']`.
+- **Footer landing page:** Naprawiono zagnieżdżone `<Link>` w footerze (błąd hydration). Linki do Regulamin/Prywatność/FAQ dodane do istniejącej tablicy linków.
+
+### Zrezygnowano
+- **Server Component dla landing page:** W Next.js App Router nawet `'use client'` komponenty są server-side renderowane przy pierwszym ładowaniu — Google widzi pełną treść. Różnica dla SEO minimalna. `isVisible` i `scrollY` są używane w dziesiątkach miejsc w JSX, przepisanie niesie duże ryzyko błędów przy małym zysku.
