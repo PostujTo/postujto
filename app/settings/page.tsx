@@ -26,6 +26,63 @@ const PRESET_COLORS = [
   '#6A0DAD', '#E91E8C', '#000000', '#FFFFFF', '#808080',
 ];
 
+const STYLE_PRESETS = [
+  {
+    id: 'local',
+    label: 'Lokalny biznes',
+    emoji: '🏪',
+    desc: 'Ciepły, swojski klimat. Dla restauracji, sklepów, rzemiosła.',
+    style: 'rustic',
+    tone: 'casual',
+    colors: ['#8B4513', '#D2691E', '#F4A460', '#FFEFD5', '#228B22'],
+  },
+  {
+    id: 'corporate',
+    label: 'Korporacja',
+    emoji: '🏢',
+    desc: 'Poważny, profesjonalny wygląd. Dla B2B, finansów, prawa.',
+    style: 'modern',
+    tone: 'professional',
+    colors: ['#003087', '#0052CC', '#1A73E8', '#E8F0FE', '#FFFFFF'],
+  },
+  {
+    id: 'eco',
+    label: 'Eko / Natura',
+    emoji: '🌿',
+    desc: 'Zielony, naturalny klimat. Dla produktów organic, wellness.',
+    style: 'realistic',
+    tone: 'casual',
+    colors: ['#2D6A4F', '#40916C', '#74C69D', '#D8F3DC', '#F8F9FA'],
+  },
+  {
+    id: 'premium',
+    label: 'Premium / Luksus',
+    emoji: '✨',
+    desc: 'Elegancki, ekskluzywny styl. Dla biżuterii, mody, hoteli.',
+    style: 'elegant',
+    tone: 'professional',
+    colors: ['#1A1A1A', '#C9A84C', '#F5E6C8', '#FFFFFF', '#8B7355'],
+  },
+  {
+    id: 'youth',
+    label: 'Młodzieżowy',
+    emoji: '🎉',
+    desc: 'Energiczny, kolorowy. Dla marek skierowanych do Gen Z.',
+    style: 'playful',
+    tone: 'humorous',
+    colors: ['#FF006E', '#FB5607', '#FFBE0B', '#8338EC', '#3A86FF'],
+  },
+  {
+    id: 'minimal',
+    label: 'Minimalizm',
+    emoji: '◻️',
+    desc: 'Czysty, prosty design. Dla technologii, architektury, designu.',
+    style: 'minimalist',
+    tone: 'professional',
+    colors: ['#000000', '#333333', '#666666', '#CCCCCC', '#FFFFFF'],
+  },
+];
+
 export default function SettingsPage() {
   const { user } = useUser();
   const [saving, setSaving] = useState(false);
@@ -184,7 +241,40 @@ export default function SettingsPage() {
   </div>
   <p className="text-xs text-gray-400 mt-2">Podgląd koloru pojawi się automatycznie po wpisaniu prawidłowej wartości HEX</p>
 </div>
-
+{/* Presety stylów */}
+          <div>
+            <label className="block text-sm font-bold text-gray-900 uppercase tracking-wide mb-1">
+              Szybki start — wybierz preset
+            </label>
+            <p className="text-xs text-gray-500 mb-3">
+              Kliknij aby automatycznie ustawić styl, ton i kolory. Możesz je później zmienić.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {STYLE_PRESETS.map(preset => (
+                <button
+                  key={preset.id}
+                  onClick={() => setBrandKit(prev => ({
+                    ...prev,
+                    style: preset.style,
+                    tone: preset.tone,
+                    colors: preset.colors,
+                  }))}
+                  className="p-4 rounded-2xl border-2 border-gray-200 hover:border-purple-300 text-left transition-all hover:bg-purple-50 group"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-lg">{preset.emoji}</span>
+                    <span className="font-bold text-gray-900 text-sm">{preset.label}</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mb-2">{preset.desc}</p>
+                  <div className="flex gap-1">
+                    {preset.colors.map((c, i) => (
+                      <div key={i} className="w-4 h-4 rounded-full border border-gray-200" style={{ backgroundColor: c }} />
+                    ))}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
           {/* Styl marki */}
           <div>
             <label className="block text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">
