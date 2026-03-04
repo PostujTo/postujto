@@ -493,6 +493,91 @@ export default function LandingPage() {
         </div>
       </section>
 
+{/* DLA KOGO */}
+      <section style={{ padding: '80px 24px 100px' }} id="usecases" data-animate>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div className={`section-reveal from-up ${isVisible('usecases') ? 'visible' : ''}`} style={{ textAlign: 'center', marginBottom: 72 }}>
+            <div style={{ display: 'inline-block', fontSize: 12, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#6366f1', marginBottom: 16 }}>Dla kogo?</div>
+            <h2 className="font-display" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 800, letterSpacing: '-0.02em' }}>
+              Działa dla każdej<br /><span className="gradient-text">polskiej firmy</span>
+            </h2>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+            {[
+              {
+                emoji: '💅',
+                type: 'Salon kosmetyczny',
+                owner: 'Magda, właścicielka salonu urody',
+                problem: 'Codziennie po 10h pracy nie mam siły pisać postów. Przez miesiąc nie opublikowałam nic.',
+                result: 'Teraz planuję cały miesiąc w niedzielę. 30 postów w 10 minut.',
+                delay: 0,
+              },
+              {
+                emoji: '🛒',
+                type: 'Sklep internetowy',
+                owner: 'Tomek, sklep z elektroniką',
+                problem: 'Copywriter kosztował 2000 zł miesięcznie. Za dużo jak na mały sklep.',
+                result: 'PostujTo kosztuje ułamek tego. Posty są lepsze bo zna mój asortyment.',
+                delay: 0.1,
+              },
+              {
+                emoji: '🍽️',
+                type: 'Restauracja',
+                owner: 'Kasia, restauracja włoska w Krakowie',
+                problem: 'Nikt w ekipie nie chciał zajmować się social media. Profil stał martwy.',
+                result: 'Chef wpisuje danie dnia, AI robi resztę. Mamy teraz 3x więcej rezerwacji przez Instagram.',
+                delay: 0.2,
+              },
+              {
+                emoji: '🔨',
+                type: 'Firma budowlana',
+                owner: 'Marek, ekipa remontowa',
+                problem: 'Nie wiedziałem jak pisać o remontach żeby brzmiało profesjonalnie, nie jak ogłoszenie.',
+                result: 'Teraz pokazuję realizacje z profesjonalnymi opisami. Klienci sami piszą po zobaczyeniu postów.',
+                delay: 0.3,
+              },
+              {
+                emoji: '🏠',
+                type: 'Agencja nieruchomości',
+                owner: 'Piotr, pośrednik w Warszawie',
+                problem: 'Każde ogłoszenie musiałem opisywać osobno. Straciłem na to setki godzin.',
+                result: 'Wpisuję adres i cechy mieszkania — post z hashtagami gotowy w 8 sekund.',
+                delay: 0.4,
+              },
+              {
+                emoji: '📚',
+                type: 'Szkoła językowa',
+                owner: 'Ania, szkoła angielskiego online',
+                problem: 'Prowadziłam kursy i blog, nie miałam głowy do wymyślania postów co drugi dzień.',
+                result: 'Kalendarz treści na cały miesiąc wygenerowałam w 5 minut. Mam temat na każdy dzień.',
+                delay: 0.5,
+              },
+            ].map((item, i) => (
+              <div
+                key={i}
+                className={`section-reveal from-up card-glass ${isVisible('usecases') ? 'visible' : ''}`}
+                style={{ borderRadius: 18, padding: 28, transitionDelay: `${item.delay}s` }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>{item.emoji}</div>
+                  <div>
+                    <p className="font-display" style={{ fontSize: 14, fontWeight: 700, color: '#f0f0f5', marginBottom: 2 }}>{item.type}</p>
+                    <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)' }}>{item.owner}</p>
+                  </div>
+                </div>
+                <div style={{ padding: '14px 16px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', borderRadius: 10, marginBottom: 12 }}>
+                  <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.55)', lineHeight: 1.6, fontStyle: 'italic' }}>"{item.problem}"</p>
+                </div>
+                <div style={{ padding: '14px 16px', background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 10 }}>
+                  <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.75)', lineHeight: 1.6 }}>✅ {item.result}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* PRICING */}
       <section style={{ padding: '100px 24px' }} id="pricing" data-animate>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
@@ -578,6 +663,66 @@ export default function LandingPage() {
         </div>
       </section>
 
+{/* COMPARISON TABLE */}
+      <section style={{ padding: '0 24px 100px' }} id="compare" data-animate>
+        <div style={{ maxWidth: 860, margin: '0 auto' }}>
+          <div className={`section-reveal from-up ${isVisible('compare') ? 'visible' : ''}`} style={{ textAlign: 'center', marginBottom: 48 }}>
+            <h2 className="font-display" style={{ fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: 800, letterSpacing: '-0.02em' }}>
+              Starter vs <span className="gradient-text">Pro</span>
+            </h2>
+          </div>
+
+          <div className={`section-reveal from-up ${isVisible('compare') ? 'visible' : ''}`} style={{ transitionDelay: '0.1s', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, overflow: 'hidden' }}>
+            {/* Header */}
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+              <div style={{ padding: '20px 28px' }} />
+              {['Starter', 'Pro'].map((plan, i) => (
+                <div key={i} style={{ padding: '20px 24px', textAlign: 'center', background: i === 1 ? 'rgba(99,102,241,0.1)' : 'transparent', borderLeft: '1px solid rgba(255,255,255,0.07)' }}>
+                  <p className="font-display" style={{ fontSize: 13, fontWeight: 700, color: '#6366f1', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>{plan}</p>
+                  <p className="font-display" style={{ fontSize: 26, fontWeight: 800, color: '#f0f0f5' }}>{i === 0 ? '79' : '199'} <span style={{ fontSize: 14, fontWeight: 500, color: 'rgba(240,240,245,0.4)' }}>zł/msc</span></p>
+                </div>
+              ))}
+            </div>
+
+            {/* Rows */}
+            {[
+              { feature: 'Generowanie postów', starter: 'Unlimited', pro: 'Unlimited' },
+              { feature: 'Platformy', starter: 'FB / IG / TikTok', pro: 'FB / IG / TikTok' },
+              { feature: 'Brand Kit (kolory, ton)', starter: '✓', pro: '✓' },
+              { feature: 'Głos marki (przykładowe posty)', starter: '✓', pro: '✓' },
+              { feature: 'Kalendarz treści', starter: '✓', pro: '✓' },
+              { feature: 'Historia postów', starter: '✓', pro: '✓' },
+              { feature: 'Generowanie obrazów AI', starter: 'Ręcznie (1 obraz)', pro: 'Auto 3 obrazy' },
+              { feature: 'Podpis marki na obrazach', starter: '✗', pro: '✓' },
+              { feature: 'Priorytetowe generowanie', starter: '✗', pro: '✓' },
+            ].map((row, i) => (
+              <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', borderBottom: i < 8 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                <div style={{ padding: '16px 28px', fontSize: 14, color: 'rgba(240,240,245,0.65)' }}>{row.feature}</div>
+                {[row.starter, row.pro].map((val, j) => (
+                  <div key={j} style={{ padding: '16px 24px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.06)', background: j === 1 ? 'rgba(99,102,241,0.05)' : 'transparent', fontSize: 14, fontWeight: val === '✓' ? 700 : 400, color: val === '✓' ? '#4ade80' : val === '✗' ? 'rgba(240,240,245,0.2)' : 'rgba(240,240,245,0.7)' }}>
+                    {val}
+                  </div>
+                ))}
+              </div>
+            ))}
+
+            {/* CTA row */}
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', padding: '20px 0' }}>
+              <div />
+              {['/app', '/app'].map((href, i) => (
+                <div key={i} style={{ padding: '0 24px', borderLeft: '1px solid rgba(255,255,255,0.06)', background: i === 1 ? 'rgba(99,102,241,0.05)' : 'transparent' }}>
+                  <Link href={href}>
+                    <button className={i === 1 ? 'btn-primary' : 'btn-secondary'} style={{ width: '100%', padding: '11px', borderRadius: 10, fontSize: 13, cursor: 'pointer', fontWeight: 600 }}>
+                      <span>{i === 0 ? 'Wybierz Starter' : 'Wybierz Pro'}</span>
+                    </button>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+      
       {/* CTA */}
       <section style={{ padding: '80px 24px 120px' }} id="cta" data-animate>
         <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
