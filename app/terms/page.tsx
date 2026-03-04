@@ -11,15 +11,14 @@ export default function TermsPage() {
   return (
     <>
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'DM Sans', sans-serif; background: #0a0a0f; color: #f0f0f5; }
-        .font-display { font-family: 'Poppins', sans-serif; }
+        body { font-family: var(--font-dm-sans), sans-serif; background: #0a0a0f; color: #f0f0f5; }
+        .font-family: var(--font-poppins), sans-serif;
         .gradient-text { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(240,240,245,0.7); cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; transition: all 0.2s ease; text-decoration: none; display: inline-flex; align-items: center; }
+        .btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(240,240,245,0.7); cursor: pointer; font-family: var(--font-dm-sans), sans-serif; font-weight: 500; transition: all 0.2s ease; text-decoration: none; display: inline-flex; align-items: center; }
         .btn-ghost:hover { background: rgba(255,255,255,0.09); color: #f0f0f5; }
         .legal-section { margin-bottom: 40px; }
-        .legal-section h2 { font-family: 'Poppins', sans-serif; font-size: 18px; font-weight: 700; color: #f0f0f5; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .legal-section h2 { font-family: var(--font-poppins), sans-serif; font-size: 18px; font-weight: 700; color: #f0f0f5; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.06); }
         .legal-section p { font-size: 14px; color: rgba(240,240,245,0.65); line-height: 1.85; margin-bottom: 12px; }
         .legal-section ul { padding-left: 20px; margin-bottom: 12px; }
         .legal-section ul li { font-size: 14px; color: rgba(240,240,245,0.65); line-height: 1.85; margin-bottom: 6px; }

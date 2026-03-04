@@ -93,10 +93,9 @@ export default function OnboardingPage() {
   return (
     <>
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'DM Sans', sans-serif; background: #0a0a0f; color: #f0f0f5; min-height: 100vh; }
-        .font-display { font-family: 'Poppins', sans-serif; }
+        body { font-family: var(--font-dm-sans), sans-serif; background: #0a0a0f; color: #f0f0f5; min-height: 100vh; }
+        .font-family: var(--font-poppins), sans-serif;
 
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -114,10 +113,10 @@ export default function OnboardingPage() {
         .btn-primary { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; border: none; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600; transition: all 0.25s ease; }
         .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
         .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; filter: none; }
-        .btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(240,240,245,0.7); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+        .btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(240,240,245,0.7); cursor: pointer; font-family: var(--font-dm-sans), sans-serif; transition: all 0.2s; }
         .btn-ghost:hover { background: rgba(255,255,255,0.09); color: #f0f0f5; }
 
-        input.input-dark { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: #f0f0f5; outline: none; font-family: 'DM Sans', sans-serif; transition: all 0.25s; }
+        input.input-dark { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: #f0f0f5; outline: none; font-family: var(--font-dm-sans), sans-serif; transition: all 0.25s; }
         input.input-dark::placeholder { color: rgba(240,240,245,0.25); }
         input.input-dark:focus { background: rgba(255,255,255,0.07); border-color: rgba(99,102,241,0.5); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
 

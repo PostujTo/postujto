@@ -137,7 +137,6 @@ export default function DashboardPage() {
   if (!isLoaded || loading) {
     return (
       <div style={{ minHeight: '100vh', background: '#0a0a0f', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'DM Sans', sans-serif" }}>
-        <style>{`@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:wght@400;500&display=swap');`}</style>
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>⏳</div>
           <p style={{ color: 'rgba(240,240,245,0.5)', fontSize: 16 }}>Ładowanie dashboardu...</p>
@@ -160,19 +159,18 @@ export default function DashboardPage() {
   return (
     <>
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'DM Sans', sans-serif; background: #0a0a0f; color: #f0f0f5; }
-        .font-display { font-family: 'Poppins', sans-serif; }
+        body { font-family: var(--font-dm-sans), sans-serif; background: #0a0a0f; color: #f0f0f5; }
+        .font-family: var(--font-poppins), sans-serif;
         .gradient-text { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .glass-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 18px; }
-        .btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(240,240,245,0.7); cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; transition: all 0.2s ease; }
+        .btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(240,240,245,0.7); cursor: pointer; font-family: var(--font-dm-sans), sans-serif; font-weight: 500; transition: all 0.2s ease; }
         .btn-ghost:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.2); color: #f0f0f5; }
-        .btn-primary { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; transition: all 0.2s ease; }
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; border: none; cursor: pointer; font-family: var(--font-dm-sans), sans-serif; font-weight: 600; transition: all 0.2s ease; }
         .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
-        .btn-danger { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.2); color: #f87171; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s ease; }
+        .btn-danger { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.2); color: #f87171; cursor: pointer; font-family: var(--font-dm-sans), sans-serif; transition: all 0.2s ease; }
         .btn-danger:hover { background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.4); }
-        .filter-btn { cursor: pointer; border: 1px solid rgba(255,255,255,0.08); font-family: 'DM Sans', sans-serif; font-weight: 500; transition: all 0.2s ease; background: rgba(255,255,255,0.04); color: rgba(240,240,245,0.55); }
+        .filter-btn { cursor: pointer; border: 1px solid rgba(255,255,255,0.08); font-family: var(--font-dm-sans), sans-serif; font-weight: 500; transition: all 0.2s ease; background: rgba(255,255,255,0.04); color: rgba(240,240,245,0.55); }
         .filter-btn:hover { background: rgba(255,255,255,0.08); color: #f0f0f5; }
         .filter-btn.active { background: rgba(99,102,241,0.2); border-color: rgba(99,102,241,0.5); color: #a5b4fc; }
         .gen-card { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 18px; transition: border-color 0.25s ease; overflow: hidden; }

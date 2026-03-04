@@ -300,18 +300,17 @@ export default function CalendarPage() {
   return (
     <>
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'DM Sans', sans-serif; background: #0a0a0f; color: #f0f0f5; }
-        .font-display { font-family: 'Poppins', sans-serif; }
+        body { font-family: var(--font-dm-sans), sans-serif; background: #0a0a0f; color: #f0f0f5; }
+        .font-family: var(--font-poppins), sans-serif;
         .gradient-text { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .glass-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 18px; }
         .btn-primary { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; border: none; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600; transition: all 0.25s ease; }
         .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; filter: none; }
-        .btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(240,240,245,0.7); cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; transition: all 0.2s ease; }
+        .btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(240,240,245,0.7); cursor: pointer; font-family: var(--font-dm-sans), sans-serif; font-weight: 500; transition: all 0.2s ease; }
         .btn-ghost:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.2); color: #f0f0f5; }
-        .option-btn { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(240,240,245,0.55); cursor: pointer; transition: all 0.2s ease; font-family: 'DM Sans', sans-serif; }
+        .option-btn { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(240,240,245,0.55); cursor: pointer; transition: all 0.2s ease; font-family: var(--font-dm-sans), sans-serif; }
         .option-btn:hover { background: rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.3); color: #f0f0f5; }
         .option-btn.active { background: rgba(99,102,241,0.2); border-color: rgba(99,102,241,0.6); color: #a5b4fc; }
         .cal-day { transition: all 0.2s ease; cursor: pointer; border-radius: 12px; border: 1px solid transparent; }
@@ -320,7 +319,7 @@ export default function CalendarPage() {
         .cal-day.today { border-color: rgba(99,102,241,0.4); }
         .cal-day.has-topic { background: rgba(34,197,94,0.06); }
         .cal-day.has-topic.generated { background: rgba(34,197,94,0.12); }
-        textarea.input-dark { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); color: #f0f0f5; font-family: 'DM Sans', sans-serif; outline: none; resize: none; transition: all 0.25s ease; }
+        textarea.input-dark { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); color: #f0f0f5; font-family: var(--font-dm-sans), sans-serif; outline: none; resize: none; transition: all 0.25s ease; }
         textarea.input-dark:focus { background: rgba(255,255,255,0.06); border-color: rgba(99,102,241,0.5); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
         textarea.input-dark::placeholder { color: rgba(240,240,245,0.2); }
         .progress-bar { height: 6px; background: rgba(255,255,255,0.07); border-radius: 100px; overflow: hidden; }

@@ -61,13 +61,12 @@ export default function LandingPage() {
   return (
     <>
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
-        body { font-family: 'DM Sans', sans-serif; background: #0a0a0f; color: #f0f0f5; overflow-x: hidden; }
+        body { font-family: var(--font-dm-sans), sans-serif; background: #0a0a0f; color: #f0f0f5; overflow-x: hidden; }
 
-        .font-display { font-family: 'Poppins', sans-serif; }
+        font-family: var(--font-poppins), sans-serif;
 
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
@@ -806,13 +805,14 @@ export default function LandingPage() {
                 { label: 'Generator', href: '/app' },
                 { label: 'Cennik', href: '#pricing' },
                 { label: 'Dashboard', href: '/dashboard' },
+                { label: 'Regulamin', href: '/terms' },
+                { label: 'Prywatność', href: '/privacy' },
+                { label: 'FAQ', href: '/faq' },
               ].map(link => (
                 <Link key={link.label} href={link.href} style={{ fontSize: 14, color: 'rgba(240,240,245,0.4)', textDecoration: 'none', transition: 'color 0.2s' }}
                   onMouseEnter={e => (e.target as HTMLElement).style.color = '#a5b4fc'}
                   onMouseLeave={e => (e.target as HTMLElement).style.color = 'rgba(240,240,245,0.4)'}
-                ><Link href="/terms" style={{ fontSize: 14, color: 'rgba(240,240,245,0.4)', textDecoration: 'none' }}>Regulamin</Link>
-                <Link href="/privacy" style={{ fontSize: 14, color: 'rgba(240,240,245,0.4)', textDecoration: 'none' }}>Prywatność</Link>
-                <Link href="/faq" style={{ fontSize: 14, color: 'rgba(240,240,245,0.4)', textDecoration: 'none' }}>FAQ</Link>
+                >
                   {link.label}
                 </Link>
               ))}

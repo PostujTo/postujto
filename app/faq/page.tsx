@@ -98,19 +98,18 @@ export default function FAQPage() {
   return (
     <>
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'DM Sans', sans-serif; background: #0a0a0f; color: #f0f0f5; }
-        .font-display { font-family: 'Poppins', sans-serif; }
+        body { font-family: var(--font-dm-sans), sans-serif; background: #0a0a0f; color: #f0f0f5; }
+        .font-family: var(--font-poppins), sans-serif;
         .gradient-text { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(240,240,245,0.7); cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; transition: all 0.2s ease; text-decoration: none; display: inline-flex; align-items: center; }
+        .btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(240,240,245,0.7); cursor: pointer; font-family: var(--font-dm-sans), sans-serif; font-weight: 500; transition: all 0.2s ease; text-decoration: none; display: inline-flex; align-items: center; }
         .btn-ghost:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.2); color: #f0f0f5; }
         .btn-primary { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; border: none; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600; transition: all 0.25s ease; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
         .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
         .faq-item { border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; overflow: hidden; transition: border-color 0.2s; }
         .faq-item:hover { border-color: rgba(99,102,241,0.25); }
         .faq-item.open { border-color: rgba(99,102,241,0.4); }
-        .faq-btn { width: 100%; text-align: left; background: rgba(255,255,255,0.02); border: none; cursor: pointer; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16; font-family: 'DM Sans', sans-serif; color: #f0f0f5; transition: background 0.2s; }
+        .faq-btn { width: 100%; text-align: left; background: rgba(255,255,255,0.02); border: none; cursor: pointer; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16; font-family: var(--font-dm-sans), sans-serif; color: #f0f0f5; transition: background 0.2s; }
         .faq-btn:hover { background: rgba(255,255,255,0.04); }
         .faq-btn.open { background: rgba(99,102,241,0.08); }
         .faq-answer { padding: 0 24px 20px; color: rgba(240,240,245,0.65); font-size: 14px; line-height: 1.8; }
