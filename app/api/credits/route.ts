@@ -24,7 +24,7 @@ export async function GET() {
     // Pobierz użytkownika z Supabase
     const { data: user, error } = await supabaseAdmin
       .from('users')
-      .select('credits_remaining, credits_total, subscription_plan')
+      .select('credits_remaining, credits_total, subscription_plan, onboarding_completed')
       .eq('clerk_user_id', userId)
       .single();
 
@@ -41,6 +41,7 @@ export async function GET() {
       remaining: user.credits_remaining,
       total: user.credits_total,
       plan: user.subscription_plan,
+      onboarding_completed: user.onboarding_completed ?? false,
     });
   } catch (error: any) {
     console.error('Błąd API:', error);

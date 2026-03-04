@@ -48,6 +48,7 @@ const INDUSTRIES = [
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 
 type Plan = 'free' | 'standard' | 'premium';
@@ -85,6 +86,7 @@ const TikTokIcon = () => (
 
 export default function GeneratorPage() {
   const { user, isLoaded } = useUser();
+  const router = useRouter();
   const [topic, setTopic] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('lastTopic') || '' : '');
   const [platform, setPlatform] = useState<'facebook' | 'instagram' | 'tiktok'>('facebook');
   const [tone, setTone] = useState<'professional' | 'casual' | 'humorous' | 'sales'>('professional');
@@ -127,7 +129,15 @@ export default function GeneratorPage() {
   }, [addWatermark, useBrandColors, useBrandVoice]);
 
   useEffect(() => {
-    if (isLoaded && user) fetchUserCredits();
+    if (isLoaded && user) {
+      fetchUserCredits();
+      // Redirect nowych użytkowników do onboardingu
+      fetch('/api/credits').then(r => r.json()).then(data => {
+        if (data.onboarding_completed === false) {
+          router.push('/onboarding');
+        }
+      });
+    }
     if (isLoaded && !user) {
       setCredits(null); setLoadingCredits(false); setResults(null);
       sessionStorage.removeItem('lastResults'); sessionStorage.removeItem('lastGenerationId');
