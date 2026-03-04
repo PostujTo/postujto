@@ -161,3 +161,30 @@ GET  /api/cron/daily        — dzienny cron (Vercel)
 - [ ] Stripe — włączyć płatności po konsultacji prawnej
 - [ ] Cloudflare cache dla Vercel (0% Percent Cached — każde żądanie idzie do Vercel)
 - [ ] KSeF — zawieszone (brak JDG/VAT)
+
+## Proces zwrotu
+
+### Kiedy zwrot przysługuje
+Jedyny przypadek: pierwsze zamówienie + użytkownik nie wygenerował żadnego posta + wniosek w ciągu 14 dni od zakupu.
+
+### Kiedy zwrot NIE przysługuje
+- Użytkownik wygenerował choćby jeden post
+- Odnowienie subskrypcji (kolejny miesiąc)
+- Po 14 dniach od pierwszego zakupu
+
+### Weryfikacja w Supabase
+```sql
+SELECT COUNT(*) FROM generations 
+WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
+```
+
+### Jeśli COUNT = 0 (zwrot przysługuje)
+1. Stripe Dashboard → Customers → znajdź klienta
+2. Kliknij ostatnią płatność → Refund (pełna kwota)
+3. Anuluj subskrypcję (Cancel subscription)
+4. Odpisz klientowi — zwrot 3-5 dni roboczych
+
+### Jeśli COUNT > 0 (zwrot NIE przysługuje)
+Odpisz szablonem powołując się na §5 Regulaminu:
+
+> Dziękujemy za kontakt. Zgodnie z §5 naszego Regulaminu, który zaakceptowałeś przy rejestracji, prawo odstąpienia od umowy nie przysługuje w przypadku gdy usługa cyfrowa została uruchomiona i wykorzystana przed upływem 14 dni (art. 38 pkt 13 ustawy o prawach konsumenta). W Twoim przypadku usługa była aktywnie używana, dlatego nie możemy zrealizować zwrotu. W razie pytań jesteśmy do dyspozycji pod hello@postujto.com.
