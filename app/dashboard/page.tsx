@@ -34,6 +34,21 @@ export default function DashboardPage() {
   const [perfOpen, setPerfOpen] = useState<string | null>(null);
   const [perfDraft, setPerfDraft] = useState<Performance>({});
   const [perfSaving, setPerfSaving] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportData, setReportData] = useState<any>(null);
+  const [reportLoading, setReportLoading] = useState(false);
+
+  const generateReport = async () => {
+    setReportLoading(true);
+    setReportOpen(true);
+    try {
+      const res = await fetch('/api/dashboard/report', { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) { setReportData({ error: data.error }); return; }
+      setReportData(data);
+    } catch { setReportData({ error: 'Błąd połączenia' }); }
+    finally { setReportLoading(false); }
+  };
 
   const savePerformance = async (id: string) => {
     setPerfSaving(true);
@@ -221,6 +236,91 @@ export default function DashboardPage() {
                   <div style={{ fontSize: 12, color: 'rgba(240,240,245,0.45)', marginTop: 6 }}>{stat.label}</div>
                 </div>
               ))}
+            </div>
+          )}
+
+{/* REPORT BUTTON */}
+          <div className="fade-up" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16, animationDelay: '0.08s' }}>
+            <button onClick={generateReport} disabled={reportLoading} className="btn-ghost"
+              style={{ padding: '9px 20px', borderRadius: 12, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
+              {reportLoading ? '⏳ Generuję...' : '📊 Raport miesięczny'}
+            </button>
+          </div>
+
+          {/* REPORT MODAL */}
+          {reportOpen && (
+            <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
+              onClick={e => e.target === e.currentTarget && setReportOpen(false)}>
+              <div style={{ width: '100%', maxWidth: 640, background: '#13131a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 24, padding: 36, maxHeight: '85vh', overflowY: 'auto' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
+                  <h2 className="font-display" style={{ fontSize: 22, fontWeight: 800 }}>📊 Raport miesięczny</h2>
+                  <button onClick={() => setReportOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'rgba(240,240,245,0.4)' }}>✕</button>
+                </div>
+
+                {reportLoading && (
+                  <div style={{ textAlign: 'center', padding: '48px 0' }}>
+                    <div style={{ fontSize: 40, marginBottom: 16 }}>🤖</div>
+                    <p style={{ color: 'rgba(240,240,245,0.5)' }}>Claude analizuje Twoje posty...</p>
+                  </div>
+                )}
+
+                {!reportLoading && reportData?.error && (
+                  <div style={{ padding: 20, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 12 }}>
+                    <p style={{ color: '#f87171', fontSize: 14 }}>❌ {reportData.error}</p>
+                  </div>
+                )}
+
+                {!reportLoading && reportData?.report && (() => {
+                  const r = reportData.report;
+                  return (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                      {/* Summary */}
+                      <div style={{ padding: '18px 20px', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 14 }}>
+                        <p style={{ fontSize: 11, fontWeight: 600, color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Podsumowanie • {reportData.postsCount} postów</p>
+                        <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.75)', lineHeight: 1.7 }}>{r.summary}</p>
+                      </div>
+
+                      {/* Top insights */}
+                      <div>
+                        <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>💡 Kluczowe obserwacje</p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          {r.topInsights?.map((insight: string, i: number) => (
+                            <div key={i} style={{ display: 'flex', gap: 10, padding: '10px 14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 10 }}>
+                              <span style={{ color: '#a5b4fc', flexShrink: 0 }}>→</span>
+                              <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.7)', lineHeight: 1.6 }}>{insight}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Best platform */}
+                      <div style={{ padding: '16px 20px', background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 14 }}>
+                        <p style={{ fontSize: 11, fontWeight: 600, color: '#4ade80', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>🏆 Najlepsza platforma</p>
+                        <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.75)', lineHeight: 1.7 }}>{r.bestPlatform}</p>
+                      </div>
+
+                      {/* Recommendations */}
+                      <div>
+                        <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>🎯 Rekomendacje</p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          {r.recommendations?.map((rec: string, i: number) => (
+                            <div key={i} style={{ display: 'flex', gap: 10, padding: '10px 14px', background: 'rgba(168,85,247,0.07)', border: '1px solid rgba(168,85,247,0.15)', borderRadius: 10 }}>
+                              <span style={{ color: '#a855f7', flexShrink: 0, fontWeight: 700 }}>{i + 1}.</span>
+                              <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.7)', lineHeight: 1.6 }}>{rec}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Next month */}
+                      <div style={{ padding: '16px 20px', background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 14 }}>
+                        <p style={{ fontSize: 11, fontWeight: 600, color: '#fbbf24', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>📅 Następny miesiąc</p>
+                        <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.75)', lineHeight: 1.7 }}>{r.nextMonthTips}</p>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
             </div>
           )}
 
