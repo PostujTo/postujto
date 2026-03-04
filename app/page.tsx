@@ -722,7 +722,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-      
+
       {/* CTA */}
       <section style={{ padding: '80px 24px 120px' }} id="cta" data-animate>
         <div style={{ maxWidth: 800, margin: '0 auto', textAlign: 'center' }}>
@@ -756,20 +756,34 @@ export default function LandingPage() {
               © 2025 PostujTo.com · Wykonane z ❤️ w Polsce
             </p>
           </div>
-          <div style={{ display: 'flex', gap: 32 }}>
-            {[
-              { label: 'Generator', href: '/app' },
-              { label: 'Cennik', href: '#pricing' },
-              { label: 'Dashboard', href: '/dashboard' },
-            ].map(link => (
-              <Link key={link.label} href={link.href} style={{ fontSize: 14, color: 'rgba(240,240,245,0.4)', textDecoration: 'none', transition: 'color 0.2s' }}
-                onMouseEnter={e => (e.target as HTMLElement).style.color = '#a5b4fc'}
-                onMouseLeave={e => (e.target as HTMLElement).style.color = 'rgba(240,240,245,0.4)'}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
+          <div style={{ display: 'flex', gap: 32, alignItems: 'center', flexWrap: 'wrap' }}>
+              {[
+                { label: 'Generator', href: '/app' },
+                { label: 'Cennik', href: '#pricing' },
+                { label: 'Dashboard', href: '/dashboard' },
+              ].map(link => (
+                <Link key={link.label} href={link.href} style={{ fontSize: 14, color: 'rgba(240,240,245,0.4)', textDecoration: 'none', transition: 'color 0.2s' }}
+                  onMouseEnter={e => (e.target as HTMLElement).style.color = '#a5b4fc'}
+                  onMouseLeave={e => (e.target as HTMLElement).style.color = 'rgba(240,240,245,0.4)'}
+                >
+                  {link.label}
+                </Link>
+              ))}
+              <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.1)' }} />
+              {[
+                { label: 'TikTok', href: 'https://www.tiktok.com/@reklamyzpostujto?utm_source=postujto_landing&utm_medium=footer&utm_campaign=social', emoji: '🎵' },
+                { label: 'Instagram', href: 'https://www.instagram.com/reklamyzpostujto?utm_source=postujto_landing&utm_medium=footer&utm_campaign=social', emoji: '📸' },
+                { label: 'Facebook', href: 'https://www.facebook.com/reklamyzpostujto?utm_source=postujto_landing&utm_medium=footer&utm_campaign=social', emoji: '📘' },
+              ].map(social => (
+                <a key={social.label} href={social.href} target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'rgba(240,240,245,0.35)', textDecoration: 'none', transition: 'color 0.2s' }}
+                  onMouseEnter={e => (e.currentTarget.style.color = '#a5b4fc')}
+                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(240,240,245,0.35)')}
+                >
+                  <span>{social.emoji}</span>{social.label}
+                </a>
+              ))}
+            </div>
         </div>
       </footer>
     </>
