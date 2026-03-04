@@ -2,6 +2,7 @@ import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
 import type { Metadata } from 'next';
 import { Lato } from 'next/font/google';
+import { CookieBanner } from '@/components/CookieBanner';
 
 const lato = Lato({
   weight: ['400', '700', '900'],
@@ -21,7 +22,10 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="pl">
-        <body className={lato.className}>{children}</body>
+        <body className={lato.className}>
+  {children}
+  <CookieBanner />
+</body>
       </html>
     </ClerkProvider>
   );

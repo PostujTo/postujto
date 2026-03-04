@@ -1,191 +1,163 @@
 # PostujTo.pl — Kontekst projektu
 
-## Stack
-- Next.js 16, Supabase, Clerk, Stripe (Test Mode), Claude API, Vercel
-- Replicate (Recraft V3), OpenAI (backup)
-- URL produkcyjny: https://postujto.com
-- URL tymczasowy: https://postujto.vercel.app
+## Stack techniczny
+- **Frontend/Backend:** Next.js 16 (App Router)
+- **Baza danych:** Supabase (PostgreSQL)
+- **Auth:** Clerk
+- **Płatności:** Stripe (Live Mode aktywny, włączenie po konsultacji prawnej)
+- **AI tekst:** Anthropic Claude API (claude-sonnet-4-20250514)
+- **AI obrazy:** Recraft V3
+- **Email:** Resend (domena postujto.com zweryfikowana)
+- **Faktury:** inFakt (auto-faktura przy nowej subskrypcji)
+- **Deploy:** Vercel
+- **Domena:** postujto.com (Cloudflare)
 
-## Plany
-- Free: 5 generacji jednorazowo (nie odnawia się)
-- Starter: 79 zł/msc, Unlimited
-- Pro: 199 zł/msc, Unlimited + obrazy AI
+## Plany i ceny
+- **Free:** 5 kredytów po rejestracji
+- **Starter:** 79 zł/msc — unlimited posty, obrazy AI, Brand Kit
+- **Pro:** 199 zł/msc — auto 3 obrazy, logo watermark, priorytetowe generowanie
 
-## Filozofia biznesu
-- Alex Hormozi — sprzedajemy wynik ("zaoszczędź 10h tygodniowo"), nie narzędzie
-- Gwarancja 7 dni zwrotu
-- Polski rynek — kalendarz okazji, branże, prawo reklamowe
-- Ocena produktu: 7/10 rynkowo, 9/10 jako MVP
+## Routing
+- `/` — landing page
+- `/app` — generator postów
+- `/dashboard` — historia postów
+- `/settings` — Brand Kit
+- `/calendar` — kalendarz treści (auth tymczasowo wyłączony — Clerk DNS w toku)
+- `/onboarding` — wizard przy pierwszym logowaniu
 
-## Zrealizowane funkcje
+## Design
+- Ciemny motyw: `#0a0a0f`
+- Fonty: Poppins (nagłówki) + DM Sans (UI)
+- Kolory akcentu: `#6366f1` (indigo), `#a855f7` (fiolet), `#ec4899` (róż)
 
-### ✅ A — Limity generacji
-- Odejmowanie kredytów, blokada przy 0, licznik w nagłówku
-- Free = 5 jednorazowo, Starter/Pro = 999999 (unlimited)
+## Ukończone funkcje
 
-### ✅ B — Stripe / Płatności
-- Starter (79 zł), Pro (199 zł)
-- Checkout, Customer Portal, Webhook (zakup, odnowienie, anulowanie)
-- Etykiety: STARTER • Unlimited, PRO • Unlimited
+### Infrastruktura
+- Toast notifications
+- Email alerty przez Resend (Stripe/Anthropic/Supabase/weekly report)
+- inFakt auto-faktura przy nowej subskrypcji
+- Vercel cron job (codziennie 8:00 UTC)
+- Onboarding email po rejestracji (Clerk webhook)
 
-### ✅ C — Dashboard (/dashboard)
-- Statystyki, historia postów, filtry (wszystkie/ulubione/FB/IG/TT)
-- Ulubione per wersja, usuwanie postów i wersji
-- Godzina generacji, sessionStorage
+### Generator (/app)
+- Generowanie 3 wersji postów (1 dla gości)
+- Facebook / Instagram / TikTok
+- Tony: Profesjonalny, Swobodny, Humorystyczny, Sprzedażowy
+- Długości: Krótki (~100), Średni (~250), Długi (~500)
+- Polskie prawo reklamowe w prompcie
+- Generowanie obrazów AI (Recraft V3) — Starter+
+- Logo watermark na obrazach — tylko Pro
+- Brand Voice — "Generuj w moim stylu" (sample_posts)
+- Best time to post — rekomendacje dla PL rynku
+- Kalendarz polskich okazji (nadchodzące 30 dni)
+- Branże z hintem do Claude (12 branż)
+- Oceny wersji (1-5★) z feedbackiem do Claude
 
-### ✅ Polska optymalizacja
-- Kalendarz polskich okazji (30 dni naprzód)
-- 12 branż z wskazówkami branżowymi
-- Polskie prawo reklamowe w promptach
-- TikTok jako platforma
+### Brand Kit (/settings)
+- Nazwa firmy, slogan
+- Kolory marki (max 5, HEX/RGB/CMYK)
+- Styl graficzny (7 opcji)
+- Ton komunikacji (4 opcje)
+- Logo (upload do Supabase Storage)
+- Przykładowe posty (sample_posts — nauka stylu przez Claude)
+- Presety stylów: Lokalny biznes, Korporacja, Eko, Premium, Młodzieżowy, Minimalizm
 
-### ✅ D — Generowanie obrazów
-- Recraft V3 przez Replicate ($0.04/obraz)
-- Smart Style Router (Claude dobiera styl Recraft)
-- Baza 70+ polskich brandów (lib/polish-brands.ts)
-- Soft limit 50 obrazów/dzień per użytkownik
-- Tabela image_generations w Supabase
+### Dashboard (/dashboard)
+- Historia wszystkich postów
+- Filtry: wszystkie, ulubione, Facebook, Instagram, TikTok
+- Statystyki (total, ulubione, per platforma)
+- Ulubione (gwiazdka)
+- Kopiuj post do schowka
+- Usuń post / wersję
+- Oceny wersji 1-5★
+- Manualne wyniki postów (lajki, zasięg, komentarze, udostępnienia)
+- Raport miesięczny generowany przez Claude
+- Empty state z mini-tutorialem i Brand Kit tipem
 
-### ✅ Brand Kit (/settings)
-- Nazwa firmy, slogan, kolory (HEX/RGB/CMYK — 5 pól), styl graficzny, ton
-- Upload logo (Supabase Storage bucket: brand-logos, max 2MB)
-- Auto-integracja z generowaniem obrazów (Recraft używa kolorów i stylu)
-- Dostępny dla wszystkich planów
+### Kalendarz treści (/calendar)
+- Widok miesięczny (siatka) + widok listy
+- Polskie okazje handlowe (28 okazji)
+- Planowanie 30 tematów przez Claude
+- Bulk generation wszystkich postów
+- Generowanie pojedynczego posta z panelu bocznego
+- Eksport CSV z BOM (UTF-8)
+- Kopiuj serię na tydzień (4 przyciski)
+- Zapis z datą (scheduled_date) do Supabase
+- Best time to post w panelu dnia
+- Edycja tematu i platformy per dzień
 
-### ✅ Bezpieczeństwo (9.5/10)
-- RLS włączone na wszystkich tabelach Supabase
-- Rate limiting w proxy.ts (dawniej middleware.ts)
-- Walidacja i sanityzacja inputów we wszystkich API
-- Usunięta tabela usage_stats (nieużywana)
+### Onboarding (/onboarding)
+- Wizard 5 kroków: Witaj → Firma → Platformy → Ton → Start
+- Zapis do Brand Kit po zakończeniu
+- Redirect do generatora z pre-wypełnionym tematem
+- Kolumna `onboarding_completed` w Supabase
 
-### ✅ E — Watermark / Podpis marki
-- Checkbox "Dodaj logo marki w prawym dolnym rogu" — tylko Pro
-- Checkbox "Użyj kolorów i stylu marki" — wszyscy
-- Nakładanie logo przez sharp (15% szerokości, prawy dolny róg)
-- Bucket processed-images w Supabase Storage
+### Landing page (/)
+- Hero z demo card
+- Ticker z funkcjami
+- Statystyki (10h, 30 postów, 3 platformy, 12 branż)
+- Jak to działa (3 kroki)
+- Co wyróżnia PostujTo (6 cech)
+- Dla kogo (6 use-case'ów z cytatami)
+- Cennik (3 plany)
+- Tabela porównania Starter vs Pro
+- CTA section
+- Footer z linkami social media + UTM-y
 
-### ✅ F — Automatyczne generowanie 3 obrazów (Pro)
-- Po kliknięciu "Wygeneruj posty" Pro auto-generuje 3 obrazy
-- Starter generuje ręcznie
-- Funkcja generateImageAuto w page.tsx
+## Supabase — tabele i ważne kolumny
+```
+users:
+  - clerk_user_id, email, full_name
+  - subscription_plan (free/standard/premium)
+  - credits_remaining, credits_total
+  - onboarding_completed (boolean)
 
-### ✅ G — Guest mode (generowanie bez logowania)
-- Niezalogowany dostaje 1 wersję posta
-- Nie zapisywane do bazy, nie odejmuje kredytów
-- Banner "Zaloguj się po 3 wersje + 5 kredytów"
-- API zwraca flagę isGuest: true
+generations:
+  - user_id, topic, platform, tone, length
+  - generated_posts (jsonb)
+  - is_favorite, liked_versions
+  - ratings (jsonb) — oceny wersji {0: 4, 1: 5}
+  - performance (jsonb) — {likes, reach, comments, shares}
+  - scheduled_date (date)
+  - has_image, cost_usd
 
-### ✅ H — Persistencja sesji
-- sessionStorage: temat, wyniki, obrazy, checkboxy
-- Stan przywracany po powrocie z /dashboard, /settings
+brand_kits:
+  - user_id, company_name, slogan
+  - colors (jsonb), style, tone
+  - logo_url
+  - sample_posts (text, max 10k znaków)
+```
 
-## Roadmapa
+## API endpoints
+```
+POST /api/generate          — generowanie postów
+POST /api/image             — generowanie obrazów
+POST /api/brand-kit         — zapis Brand Kit
+POST /api/brand-kit/upload-logo — upload logo
+GET  /api/credits           — kredyty i plan użytkownika
+GET  /api/dashboard         — historia postów
+POST /api/dashboard/delete  — usuń post/wersję
+POST /api/dashboard/favorite — ulubione
+POST /api/dashboard/rating  — ocena wersji
+POST /api/dashboard/performance — wyniki posta
+POST /api/dashboard/report  — raport miesięczny Claude
+POST /api/calendar/plan     — planowanie tematów na miesiąc
+POST /api/onboarding-complete — oznacz onboarding jako ukończony
+POST /api/stripe/create-checkout-session
+POST /api/stripe/customer-portal
+POST /api/stripe/webhook
+POST /api/webhooks/clerk    — tworzenie użytkownika w Supabase + onboarding email
+GET  /api/cron/daily        — dzienny cron (Vercel)
+```
 
-### Tydzień 1 — Gotowe do produkcji (W TRAKCIE)
-- ✅ Zakup domeny postujto.com (Cloudflare Registrar)
-- ✅ Nazwa "PostujTo" wolna w UPRP (znak towarowy do rejestracji później)
-- [ ] Podpięcie domeny postujto.com do Vercel
-- [ ] Clerk production keys
-- [ ] Stripe Live Mode (checkout, webhooki, test pełnej ścieżki)
-- [ ] Mini landing page v0.5 (hero + jak to działa + pricing)
-- [ ] Dopieszczenie komunikatów błędów
-- [ ] Integracja z inFakt lub Fakturownia (KSeF, faktury VAT)
-- [ ] Alerty/powiadomienia (Vercel, Supabase, Stripe, Anthropic)
+## Social media PostujTo
+- TikTok: @reklamyzpostujto
+- Instagram: @reklamyzpostujto
+- Facebook: @reklamyzpostujto
+- UTM bio links: `?utm_source=tiktok/instagram/facebook&utm_medium=social&utm_campaign=bio`
 
-### Tydzień 2 — Kalendarz + "30 dni jednym kliknięciem"
-- [ ] Widok kalendarza miesięcznego (/calendar lub rozwinięcie /dashboard)
-- [ ] Bulk generation: "Wygeneruj 30 postów na 30 dni"
-- [ ] Zapis generacji z powiązaniem do daty
-- [ ] Eksport do CSV/Markdown (data, platforma, treść)
-- [ ] Przycisk "Kopiuj serię na tydzień"
-
-### Tydzień 3 — Głos marki i Brand Kit 2.0
-- [ ] Sekcja "Przykładowe posty" w Brand Kit (wklej 3-10 swoich postów)
-- [ ] Wstrzykiwanie stylu do promptów Claude
-- [ ] Przełącznik "Generuj w moim stylu"
-- [ ] Presety stylów graficznych (Lokalny biznes / Korporacja / Eko / Premium)
-- [ ] Lepszy empty state dashboardu + mini-tutorial
-- [ ] Wizard przy pierwszym logowaniu
-
-### Tydzień 4 — Landing page sprzedażowy (Hormozi)
-- [ ] Hero: "PostujTo – Twój dział social media z AI po polsku"
-- [ ] Sekcje: Jak to działa, Dla kogo, Co wyróżnia, Pricing
-- [ ] Social proof / use-case'y
-- [ ] Tabela porównania Starter vs Pro
-- [ ] Onboarding e-mail po rejestracji
-- [ ] CTA z UTM-ami
-
-### Tydzień 5-6 — Analytics i smart kalendarz (opcjonalne)
-- [ ] Oceny wersji → feedback do Claude
-- [ ] "Best time to post" — rekomendacje PL
-- [ ] Manualne wprowadzanie wyników (lajki, zasięg)
-- [ ] Raport miesięczny generowany przez Claude
-
-## Do zrobienia poza kodem
-- [ ] Rejestracja JDG (przed Stripe Live — konsultacja z prawnikiem/księgowym)
-- [ ] Rejestracja znaku towarowego "PostujTo" w UPRP (gdy będzie przychód)
-- [ ] Profile social media: @postujto na IG, TikTok, FB, X
-- [ ] Konto inFakt / Fakturownia (faktury VAT + KSeF)
-
-## Kluczowe pliki
-- app/page.tsx — strona główna
-- app/dashboard/page.tsx — dashboard
-- app/settings/page.tsx — Brand Kit
-- app/pricing/page.tsx — cennik
-- app/api/generate/route.ts — generowanie postów (Claude) + guest mode
-- app/api/image/route.ts — generowanie obrazów (Recraft V3) + watermark sharp
-- app/api/brand-kit/route.ts — Brand Kit CRUD + walidacja
-- app/api/brand-kit/upload-logo/route.ts — upload logo
-- app/api/stripe/webhooks/route.ts — webhooks Stripe
-- app/api/dashboard/route.ts — dane dashboardu
-- app/api/dashboard/favorite/route.ts — ulubione
-- app/api/dashboard/delete/route.ts — usuwanie
-- app/api/credits/route.ts — pobieranie kredytów
-- app/api/webhooks/clerk/route.ts — tworzenie użytkownika
-- lib/polish-brands.ts — baza 70+ polskich marek
-- proxy.ts — rate limiting + ochrona tras
-
-## Zmienne środowiskowe (Vercel + .env.local)
-- ANTHROPIC_API_KEY
-- NEXT_PUBLIC_SUPABASE_URL
-- SUPABASE_SERVICE_ROLE_KEY
-- CLERK_SECRET_KEY
-- NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
-- CLERK_WEBHOOK_SECRET
-- STRIPE_SECRET_KEY
-- STRIPE_WEBHOOK_SECRET
-- NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-- STRIPE_PRICE_ID_STANDARD (Starter 79 zł)
-- STRIPE_PRICE_ID_PREMIUM (Pro 199 zł)
-- NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD
-- NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM
-- NEXT_PUBLIC_APP_URL (zmienić na https://postujto.com)
-- OPENAI_API_KEY
-- REPLICATE_API_TOKEN
-
-## Supabase tabele
-- users (clerk_user_id, credits_remaining, credits_total, subscription_plan, stripe_customer_id, stripe_subscription_id)
-- generations (user_id, topic, platform, tone, length, generated_posts jsonb, is_favorite, liked_versions jsonb, quality_tier, has_image, has_audio, cost_usd)
-- image_generations (user_id, topic, platform, tool_used, prompt_used, image_url, cost_usd)
-- brand_kits (user_id, company_name, colors jsonb, style, tone, slogan, logo_url)
-- subscription_history (nieużywana, zostawiona na przyszłość)
-
-## Supabase Storage
-- bucket: brand-logos (publiczny, 3 policies)
-- bucket: processed-images (publiczny, INSERT tylko service_role)
-
-## Ważne uwagi
-- Supabase constraint: platform IN ('facebook', 'instagram', 'tiktok')
-- Clerk: NADAL development keys — zmienić na production przy domenie (Tydzień 1)
-- Stripe: NADAL Test Mode — zmienić na Live przy domenie (Tydzień 1)
-- NEXT_PUBLIC_APP_URL: zmienić na https://postujto.com w Vercel
-- Free users: credits_total=5, credits_remaining=5, nie odnawia się
-- Paid users: credits_total=999999, credits_remaining=999999
-- Guest mode: 1 post, brak zapisu, brak kredytów
-- Pro: auto-generowanie 3 obrazów, watermark (subscription_plan === 'premium')
-- sharp@0.34.5 zainstalowany
-Stack techniczny i domena
-Routing + design system (kolory, fonty)
-Plany i cennik
-Wszystkie ukończone funkcje z Tygodnia 1
-Plan na Tydzień 2
+## Do zrobienia / otwarte tematy
+- [ ] Clerk email DNS — zweryfikować i przywrócić auth w `/calendar`
+- [ ] Stripe — włączyć płatności po konsultacji prawnej
+- [ ] Cloudflare cache dla Vercel (0% Percent Cached — każde żądanie idzie do Vercel)
+- [ ] KSeF — zawieszone (brak JDG/VAT)

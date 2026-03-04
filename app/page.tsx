@@ -765,7 +765,9 @@ export default function LandingPage() {
                 <Link key={link.label} href={link.href} style={{ fontSize: 14, color: 'rgba(240,240,245,0.4)', textDecoration: 'none', transition: 'color 0.2s' }}
                   onMouseEnter={e => (e.target as HTMLElement).style.color = '#a5b4fc'}
                   onMouseLeave={e => (e.target as HTMLElement).style.color = 'rgba(240,240,245,0.4)'}
-                >
+                ><Link href="/terms" style={{ fontSize: 14, color: 'rgba(240,240,245,0.4)', textDecoration: 'none' }}>Regulamin</Link>
+                <Link href="/privacy" style={{ fontSize: 14, color: 'rgba(240,240,245,0.4)', textDecoration: 'none' }}>Prywatność</Link>
+                <Link href="/faq" style={{ fontSize: 14, color: 'rgba(240,240,245,0.4)', textDecoration: 'none' }}>FAQ</Link>
                   {link.label}
                 </Link>
               ))}

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
+import { TermsCheckbox } from '@/components/TermsCheckbox';
 
 const INDUSTRIES = [
   { id: 'restaurant', label: 'Restauracja', emoji: '🍽️' },
@@ -44,6 +45,8 @@ export default function OnboardingPage() {
   const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['facebook']);
   const [selectedTone, setSelectedTone] = useState<string>('professional');
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  
 
   const togglePlatform = (id: string) => {
     setSelectedPlatforms(prev =>
@@ -181,7 +184,8 @@ export default function OnboardingPage() {
                   </div>
                 ))}
               </div>
-              <button onClick={() => setStep(1)} className="btn-primary" style={{ width: '100%', padding: '15px', borderRadius: 14, fontSize: 16 }}>
+              <TermsCheckbox accepted={termsAccepted} onAccept={setTermsAccepted} />
+              <button onClick={() => setStep(1)} disabled={!termsAccepted} className="btn-primary" style={{ width: '100%', padding: '15px', borderRadius: 14, fontSize: 16, marginTop: 16 }}>
                 Zaczynamy! →
               </button>
               <button onClick={() => router.push('/app')} style={{ marginTop: 14, background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: 'rgba(240,240,245,0.3)', fontFamily: "'DM Sans', sans-serif" }}>
