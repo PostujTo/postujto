@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     if (!user) return NextResponse.json({ error: 'Nie znaleziono użytkownika' }, { status: 404 });
 
     const body = await req.json();
-    const { company_name, colors, style, tone, slogan, logo_url } = body;
+    const { company_name, colors, style, tone, slogan, logo_url, sample_posts } = body;
 
     // Walidacja
     if (company_name !== undefined && (typeof company_name !== 'string' || company_name.length > 100)) {
@@ -78,6 +78,9 @@ export async function POST(req: Request) {
 
     if (logo_url !== undefined && typeof logo_url === 'string' && logo_url.length > 500) {
       return NextResponse.json({ error: 'Nieprawidłowy URL logo' }, { status: 400 });
+      if (sample_posts !== undefined && (typeof sample_posts !== 'string' || sample_posts.length > 10000)) {
+      return NextResponse.json({ error: 'Przykładowe posty są za długie (max 10000 znaków)' }, { status: 400 });
+    }
     }
 
     // Sanityzacja
@@ -88,6 +91,7 @@ export async function POST(req: Request) {
       style,
       tone,
       logo_url,
+      sample_posts: sample_posts?.replace(/<[^>]*>/g, '').trim(),
     };
 
     const { data, error } = await supabase
@@ -100,6 +104,7 @@ export async function POST(req: Request) {
         tone: sanitized.tone,
         slogan: sanitized.slogan,
         logo_url: sanitized.logo_url,
+        sample_posts: sanitized.sample_posts,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' })
       .select()

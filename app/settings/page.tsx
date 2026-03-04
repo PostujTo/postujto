@@ -38,6 +38,7 @@ export default function SettingsPage() {
     tone: 'professional',
     slogan: '',
     logo_url: '',
+    sample_posts: '',
   });
 
   useEffect(() => {
@@ -53,6 +54,7 @@ export default function SettingsPage() {
             tone: data.brandKit.tone || 'professional',
             slogan: data.brandKit.slogan || '',
             logo_url: data.brandKit.logo_url || '',
+            sample_posts: data.brandKit.sample_posts || '',
           });
         }
       });
@@ -261,7 +263,27 @@ export default function SettingsPage() {
               </div>
             </div>
           </div>
-
+{/* Przykładowe posty */}
+          <div>
+            <label className="block text-sm font-bold text-gray-900 uppercase tracking-wide mb-1">
+              Przykładowe posty <span className="text-gray-400 font-normal normal-case">(opcjonalnie)</span>
+            </label>
+            <p className="text-xs text-gray-500 mb-3">
+              Wklej 3–10 swoich najlepszych postów. Claude nauczy się Twojego stylu i będzie pisał podobnie.
+            </p>
+            <textarea
+              value={brandKit.sample_posts}
+              onChange={e => setBrandKit(prev => ({ ...prev, sample_posts: e.target.value }))}
+              placeholder={"Wklej tutaj swoje posty, oddzielone pustą linią:\n\nNp.:\nDziś w naszym sklepie nowa dostawa! 🎉 Sprawdź co przywieźliśmy...\n\nKażdy piątek to u nas dzień promocji. Tym razem -20% na...\n\nZa kulisami: tak wygląda nasz poranek przed otwarciem..."}
+              rows={10}
+              className="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-all font-medium text-sm resize-y"
+            />
+            <p className="text-xs text-gray-400 mt-2">
+              {brandKit.sample_posts.length > 0
+                ? `✅ ${brandKit.sample_posts.split('\n\n').filter(p => p.trim()).length} postów — Claude będzie pisał w Twoim stylu`
+                : 'Brak przykładów — Claude użyje domyślnego stylu'}
+            </p>
+          </div>
           {/* Zapisz */}
           <button
             onClick={handleSave}
