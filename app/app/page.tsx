@@ -31,6 +31,21 @@ function getUpcomingOccasions() {
   }).filter(o => o.days <= 30).sort((a, b) => a.days - b.days).slice(0, 3);
 }
 
+const BEST_TIMES: Record<string, { times: string[]; tip: string }> = {
+  facebook: {
+    times: ['Wt–Czw 9:00–12:00', 'Śr 13:00–15:00', 'Pt 10:00–11:00'],
+    tip: 'Polacy najaktywniej scrollują Facebook w środy przed południem i wieczorami 19–21.',
+  },
+  instagram: {
+    times: ['Pn–Pt 8:00–9:00', 'Wt–Pt 11:00–13:00', 'Pn/Czw 19:00–21:00'],
+    tip: 'Najlepszy zasięg w tygodniu rano (dojazd do pracy) i wieczorami. Unikaj weekendowych poranków.',
+  },
+  tiktok: {
+    times: ['Wt–Czw 19:00–21:00', 'Pt 17:00–19:00', 'Sob 10:00–12:00'],
+    tip: 'TikTok PL żyje wieczorami. Wrzucaj między 19 a 21 — wtedy algorytm daje największe zasięgi.',
+  },
+};
+
 const INDUSTRIES = [
   { id: 'restaurant', label: 'Restauracja', emoji: '🍽️', hint: 'Użyj apetycznych opisów, podkreśl atmosferę i smak, zachęć do rezerwacji lub wizyty. Wspomnij o polskich smakach i lokalnych składnikach.' },
   { id: 'fashion', label: 'Sklep odzieżowy', emoji: '👗', hint: 'Podkreśl styl, trendy sezonu, zachęć do przymierzenia i wizyty w sklepie. Używaj modnych polskich określeń.' },
@@ -543,6 +558,16 @@ export default function GeneratorPage() {
                       <Icon />{label}
                     </button>
                   ))}
+                </div>
+                {/* Best time to post */}
+                <div style={{ marginTop: 10, padding: '12px 14px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 12 }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', width: '100%', marginBottom: 2 }}>⏰ Najlepsze godziny publikacji (PL)</span>
+                    {BEST_TIMES[platform].times.map((t, i) => (
+                      <span key={i} style={{ fontSize: 11, padding: '3px 9px', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: 6, color: '#a5b4fc', fontWeight: 500 }}>{t}</span>
+                    ))}
+                  </div>
+                  <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', lineHeight: 1.5, margin: 0 }}>{BEST_TIMES[platform].tip}</p>
                 </div>
               </div>
 
