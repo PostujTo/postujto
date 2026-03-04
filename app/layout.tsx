@@ -1,12 +1,21 @@
 import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
 import type { Metadata } from 'next';
-import { Lato } from 'next/font/google';
+import { Poppins, DM_Sans } from 'next/font/google';
 import { CookieBanner } from '@/components/CookieBanner';
 
-const lato = Lato({
-  weight: ['400', '700', '900'],
+const poppins = Poppins({
+  weight: ['600', '700', '800'],
   subsets: ['latin'],
+  variable: '--font-poppins',
+  display: 'swap',
+});
+
+const dmSans = DM_Sans({
+  weight: ['400', '500', '600'],
+  subsets: ['latin'],
+  variable: '--font-dm-sans',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -22,10 +31,10 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="pl">
-        <body className={lato.className}>
-  {children}
-  <CookieBanner />
-</body>
+        <body className={`${poppins.variable} ${dmSans.variable}`}>
+          {children}
+          <CookieBanner />
+        </body>
       </html>
     </ClerkProvider>
   );
