@@ -8,6 +8,7 @@ type Post = { text: string; hashtags: string[]; imagePrompt: string; };
 type Generation = {
   id: string; topic: string; platform: string; tone: string; length: string;
   generated_posts: Post[]; is_favorite: boolean; liked_versions: number[]; created_at: string;
+  ratings: Record<number, number>;
 };
 type Stats = { total: number; favorites: number; facebook: number; instagram: number; tiktok: number; };
 
@@ -28,6 +29,21 @@ export default function DashboardPage() {
   const [filter, setFilter] = useState<'all' | 'favorites' | 'facebook' | 'instagram' | 'tiktok'>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [pendingRating, setPendingRating] = useState<string | null>(null);
+
+  const rateVersion = async (id: string, version_index: number, rating: number) => {
+    setPendingRating(`${id}-${version_index}`);
+    await fetch('/api/dashboard/rating', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, version_index, rating }),
+    });
+    setGenerations(prev => prev.map(g => g.id !== id ? g : {
+      ...g,
+      ratings: { ...(g.ratings || {}), [version_index]: rating },
+    }));
+    setPendingRating(null);
+  };
 
   useEffect(() => { if (isLoaded && user) fetchData(); }, [isLoaded, user]);
 
@@ -353,6 +369,29 @@ export default function DashboardPage() {
                               {post.hashtags.map((tag, i) => (
                                 <span key={i} style={{ fontSize: 12, padding: '4px 10px', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.18)', borderRadius: 8, color: '#818cf8' }}>{tag}</span>
                               ))}
+                            </div>
+                            {/* Ocena wersji */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 14, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                              <span style={{ fontSize: 12, color: 'rgba(240,240,245,0.3)' }}>Oceń:</span>
+                              <div style={{ display: 'flex', gap: 4 }}>
+                                {[1, 2, 3, 4, 5].map(star => {
+                                  const currentRating = gen.ratings?.[idx] || 0;
+                                  const isLoading = pendingRating === `${gen.id}-${idx}`;
+                                  return (
+                                    <button key={star} onClick={() => rateVersion(gen.id, idx, star)}
+                                      disabled={isLoading}
+                                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, padding: '2px', transition: 'transform 0.15s', opacity: isLoading ? 0.5 : 1, transform: 'scale(1)', color: star <= currentRating ? '#fbbf24' : 'rgba(240,240,245,0.2)' }}
+                                      onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.2)')}
+                                      onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
+                                    >★</button>
+                                  );
+                                })}
+                              </div>
+                              {gen.ratings?.[idx] && (
+                                <span style={{ fontSize: 11, color: gen.ratings[idx] >= 4 ? '#4ade80' : gen.ratings[idx] >= 3 ? '#fbbf24' : 'rgba(240,240,245,0.3)' }}>
+                                  {gen.ratings[idx] === 5 ? 'Świetny!' : gen.ratings[idx] === 4 ? 'Dobry' : gen.ratings[idx] === 3 ? 'Przeciętny' : gen.ratings[idx] === 2 ? 'Słaby' : 'Zły'}
+                                </span>
+                              )}
                             </div>
                           </div>
                         ))}

@@ -156,9 +156,41 @@ ${brandKit.sample_posts.slice(0, 3000)}
 `;
       }
     }
+// Pobierz wysoko oceniane posty jako dodatkowy feedback dla Claude
+    let ratingsHint = '';
+    if (!isGuest) {
+      const { data: ratedGens } = await supabase
+        .from('generations')
+        .select('generated_posts, ratings, platform')
+        .eq('user_id', user!.id)
+        .eq('platform', platform)
+        .not('ratings', 'eq', '{}')
+        .order('created_at', { ascending: false })
+        .limit(10);
 
+      if (ratedGens && ratedGens.length > 0) {
+        const highRated: string[] = [];
+        const lowRated: string[] = [];
+        ratedGens.forEach(gen => {
+          if (!gen.ratings) return;
+          Object.entries(gen.ratings).forEach(([idx, rating]) => {
+            const post = gen.generated_posts?.[Number(idx)];
+            if (!post) return;
+            if ((rating as number) >= 4) highRated.push(post.text);
+            if ((rating as number) <= 2) lowRated.push(post.text);
+          });
+        });
+        if (highRated.length > 0 || lowRated.length > 0) {
+          ratingsHint = `
+FEEDBACK UŻYTKOWNIKA — uwzględnij przy generowaniu:
+${highRated.length > 0 ? `\nPOSTY KTÓRE SIĘ PODOBAŁY (ocena 4-5★) — pisz podobnie:\n${highRated.slice(0, 3).map(t => `"${t.slice(0, 200)}"`).join('\n')}` : ''}
+${lowRated.length > 0 ? `\nPOSTY KTÓRE SIĘ NIE PODOBAŁY (ocena 1-2★) — unikaj takiego stylu:\n${lowRated.slice(0, 2).map(t => `"${t.slice(0, 200)}"`).join('\n')}` : ''}
+`;
+        }
+      }
+    }
     const postCount = isGuest ? 1 : 3;
-    const prompt = `Jesteś ekspertem od social media marketingu w Polsce. Wygeneruj ${postCount} ${isGuest ? 'wersję' : 'różne wersje'} postu na ${platformDescription}.${industryHint}${polishLawHint}${samplePostsHint}
+    const prompt = `Jesteś ekspertem od social media marketingu w Polsce. Wygeneruj ${postCount} ${isGuest ? 'wersję' : 'różne wersje'} postu na ${platformDescription}.${industryHint}${polishLawHint}${samplePostsHint}${ratingsHint}
 
 TEMAT: ${sanitizedTopic}
 
