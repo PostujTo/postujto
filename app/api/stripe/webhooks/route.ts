@@ -150,6 +150,31 @@ try {
       }
     }
 
+// Zmiana planu (upgrade/downgrade przez Customer Portal)
+    if (event.type === 'customer.subscription.updated') {
+      const subscription = event.data.object as Stripe.Subscription;
+      const priceId = subscription.items.data[0].price.id;
+
+      let plan: 'standard' | 'premium' | 'free' = 'standard';
+      if (priceId === process.env.STRIPE_PRICE_ID_PREMIUM) {
+        plan = 'premium';
+      } else if (priceId === process.env.STRIPE_PRICE_ID_STANDARD) {
+        plan = 'standard';
+      }
+
+      await supabaseAdmin
+        .from('users')
+        .update({
+          subscription_plan: plan,
+          subscription_status: subscription.status === 'active' ? 'active' : subscription.status,
+          credits_total: 999999,
+          credits_remaining: 999999,
+        })
+        .eq('stripe_subscription_id', subscription.id);
+
+      console.log('✅ Plan zaktualizowany:', { subscriptionId: subscription.id, plan });
+    }
+
     // Anulowanie subskrypcji
     if (event.type === 'customer.subscription.deleted') {
       const subscription = event.data.object as Stripe.Subscription;
