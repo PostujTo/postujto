@@ -5,10 +5,11 @@ import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 
 type Post = { text: string; hashtags: string[]; imagePrompt: string; };
+type Performance = { likes?: number; reach?: number; comments?: number; shares?: number; };
 type Generation = {
   id: string; topic: string; platform: string; tone: string; length: string;
   generated_posts: Post[]; is_favorite: boolean; liked_versions: number[]; created_at: string;
-  ratings: Record<number, number>;
+  ratings: Record<number, number>; performance?: Performance;
 };
 type Stats = { total: number; favorites: number; facebook: number; instagram: number; tiktok: number; };
 
@@ -30,6 +31,21 @@ export default function DashboardPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [pendingRating, setPendingRating] = useState<string | null>(null);
+  const [perfOpen, setPerfOpen] = useState<string | null>(null);
+  const [perfDraft, setPerfDraft] = useState<Performance>({});
+  const [perfSaving, setPerfSaving] = useState(false);
+
+  const savePerformance = async (id: string) => {
+    setPerfSaving(true);
+    await fetch('/api/dashboard/performance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, performance: perfDraft }),
+    });
+    setGenerations(prev => prev.map(g => g.id !== id ? g : { ...g, performance: perfDraft }));
+    setPerfSaving(false);
+    setPerfOpen(null);
+  };
 
   const rateVersion = async (id: string, version_index: number, rating: number) => {
     setPendingRating(`${id}-${version_index}`);
@@ -393,6 +409,63 @@ export default function DashboardPage() {
                                 </span>
                               )}
                             </div>
+                            {/* Wyniki posta */}
+                            {idx === 0 && (
+                              <div style={{ marginTop: 10 }}>
+                                {perfOpen === gen.id ? (
+                                  <div style={{ padding: '14px 16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12 }}>
+                                    <p style={{ fontSize: 12, fontWeight: 600, color: 'rgba(240,240,245,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>📊 Wyniki posta</p>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
+                                      {([
+                                        { key: 'likes', label: '❤️ Lajki', placeholder: 'np. 124' },
+                                        { key: 'reach', label: '👁️ Zasięg', placeholder: 'np. 2400' },
+                                        { key: 'comments', label: '💬 Komentarze', placeholder: 'np. 18' },
+                                        { key: 'shares', label: '🔁 Udostępnienia', placeholder: 'np. 7' },
+                                      ] as const).map(field => (
+                                        <div key={field.key}>
+                                          <label style={{ fontSize: 11, color: 'rgba(240,240,245,0.35)', display: 'block', marginBottom: 4 }}>{field.label}</label>
+                                          <input
+                                            type="number"
+                                            min={0}
+                                            placeholder={field.placeholder}
+                                            value={perfDraft[field.key] ?? gen.performance?.[field.key] ?? ''}
+                                            onChange={e => setPerfDraft(prev => ({ ...prev, [field.key]: e.target.value ? Number(e.target.value) : undefined }))}
+                                            style={{ width: '100%', padding: '8px 10px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, color: '#f0f0f5', fontSize: 13, fontFamily: "'DM Sans', sans-serif", outline: 'none' }}
+                                          />
+                                        </div>
+                                      ))}
+                                    </div>
+                                    <div style={{ display: 'flex', gap: 8 }}>
+                                      <button onClick={() => savePerformance(gen.id)} disabled={perfSaving}
+                                        className="btn-primary" style={{ flex: 1, padding: '8px', borderRadius: 9, fontSize: 13 }}>
+                                        {perfSaving ? '⏳ Zapisuję...' : '✅ Zapisz wyniki'}
+                                      </button>
+                                      <button onClick={() => setPerfOpen(null)} className="btn-ghost"
+                                        style={{ padding: '8px 14px', borderRadius: 9, fontSize: 13 }}>
+                                        Anuluj
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                    {gen.performance && Object.keys(gen.performance).length > 0 ? (
+                                      <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+                                        {gen.performance.likes !== undefined && <span style={{ fontSize: 12, color: 'rgba(240,240,245,0.5)' }}>❤️ {gen.performance.likes}</span>}
+                                        {gen.performance.reach !== undefined && <span style={{ fontSize: 12, color: 'rgba(240,240,245,0.5)' }}>👁️ {gen.performance.reach}</span>}
+                                        {gen.performance.comments !== undefined && <span style={{ fontSize: 12, color: 'rgba(240,240,245,0.5)' }}>💬 {gen.performance.comments}</span>}
+                                        {gen.performance.shares !== undefined && <span style={{ fontSize: 12, color: 'rgba(240,240,245,0.5)' }}>🔁 {gen.performance.shares}</span>}
+                                      </div>
+                                    ) : (
+                                      <span style={{ fontSize: 12, color: 'rgba(240,240,245,0.2)' }}>Brak wyników</span>
+                                    )}
+                                    <button onClick={() => { setPerfOpen(gen.id); setPerfDraft(gen.performance || {}); }}
+                                      className="btn-ghost" style={{ padding: '5px 12px', borderRadius: 8, fontSize: 12 }}>
+                                      📊 {gen.performance && Object.keys(gen.performance).length > 0 ? 'Edytuj wyniki' : 'Dodaj wyniki'}
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
