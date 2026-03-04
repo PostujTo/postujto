@@ -119,6 +119,21 @@ function getDaysInMonth(year: number, month: number): CalendarDay[] {
 const MONTH_NAMES_PL = ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
 const DAY_NAMES_PL = ['Pon','Wto','Śro','Czw','Pią','Sob','Nie'];
 
+const BEST_TIMES: Record<string, { times: string[]; tip: string }> = {
+  facebook: {
+    times: ['Wt–Czw 9:00–12:00', 'Śr 13:00–15:00', 'Pt 10:00–11:00'],
+    tip: 'Najaktywniej w środy przed południem i wieczorami 19–21.',
+  },
+  instagram: {
+    times: ['Pn–Pt 8:00–9:00', 'Wt–Pt 11:00–13:00', 'Pn/Czw 19:00–21:00'],
+    tip: 'Najlepiej rano (dojazd do pracy) i wieczorami.',
+  },
+  tiktok: {
+    times: ['Wt–Czw 19:00–21:00', 'Pt 17:00–19:00', 'Sob 10:00–12:00'],
+    tip: 'Algorytm daje największe zasięgi między 19 a 21.',
+  },
+};
+
 export default function CalendarPage() {
   const { user } = useUser();
   const today = new Date();
@@ -614,7 +629,7 @@ export default function CalendarPage() {
 
                 {/* Platform for this day */}
                 <label style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', display: 'block', marginBottom: 6 }}>Platforma</label>
-                <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
+                <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
                   {PLATFORMS.map(p => (
                     <button key={p} onClick={() => setDays(prev => prev.map(d => d.fullKey === selectedDayData.fullKey ? { ...d, platform: p } : d))}
                       className={`option-btn ${selectedDayData.platform === p ? 'active' : ''}`}
@@ -622,6 +637,17 @@ export default function CalendarPage() {
                       {p === 'facebook' ? '📘' : p === 'instagram' ? '📸' : '🎵'}
                     </button>
                   ))}
+                </div>
+
+                {/* Best time to post */}
+                <div style={{ padding: '10px 12px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 10, marginBottom: 16 }}>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>⏰ Najlepsza godzina publikacji</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
+                    {BEST_TIMES[selectedDayData.platform].times.map((t, i) => (
+                      <span key={i} style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: 6, color: '#a5b4fc', fontWeight: 500 }}>{t}</span>
+                    ))}
+                  </div>
+                  <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.35)', lineHeight: 1.5, margin: 0 }}>{BEST_TIMES[selectedDayData.platform].tip}</p>
                 </div>
 
                 {selectedDayData.generated && selectedDayData.postText ? (
