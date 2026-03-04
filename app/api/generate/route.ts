@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-const { topic, platform, tone, length, industry, scheduled_date } = body;
+const { topic, platform, tone, length, industry, scheduled_date, use_brand_voice } = body;
 
 // Walidacja obecności
 if (!topic || !platform || !tone || !length) {
@@ -137,8 +137,28 @@ POLSKIE PRAWO REKLAMOWE - przestrzegaj tych zasad:
 - NIE używaj emoji ani emotikon w tekście postu - tylko czysty tekst
 `;
 
-const postCount = isGuest ? 1 : 3;
-const prompt = `Jesteś ekspertem od social media marketingu w Polsce. Wygeneruj ${postCount} ${isGuest ? 'wersję' : 'różne wersje'} postu na ${platformDescription}.${industryHint}${polishLawHint}
+// Pobierz sample_posts z Brand Kit (tylko dla zalogowanych z włączonym głosem marki)
+    let samplePostsHint = '';
+    if (!isGuest && use_brand_voice) {
+      const { data: brandKit } = await supabase
+        .from('brand_kits')
+        .select('sample_posts, company_name, tone')
+        .eq('user_id', user!.id)
+        .single();
+      if (brandKit?.sample_posts && brandKit.sample_posts.trim().length > 0) {
+        samplePostsHint = `
+GŁOS MARKI — BARDZO WAŻNE:
+Poniżej przykładowe posty tej firmy. Przeanalizuj ich styl, długość zdań, sposób zwracania się do odbiorcy, użycie emoji, interpunkcję i słownictwo. Pisz DOKŁADNIE w tym samym stylu:
+
+---
+${brandKit.sample_posts.slice(0, 3000)}
+---
+`;
+      }
+    }
+
+    const postCount = isGuest ? 1 : 3;
+    const prompt = `Jesteś ekspertem od social media marketingu w Polsce. Wygeneruj ${postCount} ${isGuest ? 'wersję' : 'różne wersje'} postu na ${platformDescription}.${industryHint}${polishLawHint}${samplePostsHint}
 
 TEMAT: ${sanitizedTopic}
 
