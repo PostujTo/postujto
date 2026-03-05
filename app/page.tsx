@@ -445,33 +445,11 @@ export default function LandingPage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 32 }}>
             {[
-              {
-                step: '01',
-                title: 'Ustaw markę',
-                desc: 'Wpisz nazwę firmy, wybierz branżę i ustaw kolory w Brand Kit. Zrób to raz — AI zawsze będzie pisać w Twoim stylu.',
-                icon: '🎨',
-                delay: 0,
-              },
-              {
-                step: '02',
-                title: 'Wpisz temat',
-                desc: 'Podaj o czym ma być post lub wybierz z kalendarza polskich okazji. AI dobiera ton, długość i platformę.',
-                icon: '✍️',
-                delay: 0.15,
-              },
-              {
-                step: '03',
-                title: 'Publikuj',
-                desc: 'Dostaniesz 3 gotowe wersje tekstu z hashtagami i grafiką AI. Kopiuj i wrzucaj bezpośrednio na platformy.',
-                icon: '🚀',
-                delay: 0.3,
-              },
+              { step: '01', title: 'Ustaw markę', desc: 'Wpisz nazwę firmy, wybierz branżę i ustaw kolory w Brand Kit. Zrób to raz — AI zawsze będzie pisać w Twoim stylu.', icon: '🎨', delay: 0 },
+              { step: '02', title: 'Wpisz temat', desc: 'Podaj o czym ma być post lub wybierz z kalendarza polskich okazji. AI dobiera ton, długość i platformę.', icon: '✍️', delay: 0.15 },
+              { step: '03', title: 'Publikuj', desc: 'Dostaniesz 3 gotowe wersje tekstu z hashtagami i grafiką AI. Kopiuj i wrzucaj bezpośrednio na platformy.', icon: '🚀', delay: 0.3 },
             ].map((item, i) => (
-              <div
-                key={i}
-                className={`section-reveal from-up ${isVisible('how') ? 'visible' : ''}`}
-                style={{ transitionDelay: `${item.delay}s` }}
-              >
+              <div key={i} className={`section-reveal from-up ${isVisible('how') ? 'visible' : ''}`} style={{ transitionDelay: `${item.delay}s` }}>
                 <div className="card-glass" style={{ borderRadius: 20, padding: 36, height: '100%' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
                     <div className="step-number">{item.step}</div>
@@ -483,6 +461,17 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
+
+          {/* CTA po "Jak to działa" */}
+          <div className={`section-reveal from-up ${isVisible('how') ? 'visible' : ''}`} style={{ textAlign: 'center', marginTop: 64, transitionDelay: '0.4s' }}>
+            <Link href="/app">
+              <button className="btn-primary" style={{ padding: '16px 36px', borderRadius: 12, fontSize: 16, cursor: 'pointer' }}>
+                <span>✨ Zacznij za darmo — bez karty kredytowej</span>
+              </button>
+            </Link>
+            <p style={{ marginTop: 12, fontSize: 13, color: 'rgba(240,240,245,0.35)' }}>5 postów gratis • Bez zobowiązań</p>
+          </div>
+
         </div>
       </section>
 
@@ -746,6 +735,16 @@ export default function LandingPage() {
               ))}
             </div>
           </div>
+        {/* CTA po tabeli porównania */}
+          <div className={`section-reveal from-up ${isVisible('compare') ? 'visible' : ''}`} style={{ textAlign: 'center', marginTop: 48, transitionDelay: '0.2s' }}>
+            <Link href="/app">
+              <button className="btn-primary" style={{ padding: '16px 36px', borderRadius: 12, fontSize: 16, cursor: 'pointer' }}>
+                <span>🚀 Wypróbuj PostujTo za darmo</span>
+              </button>
+            </Link>
+            <p style={{ marginTop: 12, fontSize: 13, color: 'rgba(240,240,245,0.35)' }}>Bez karty kredytowej • Anulujesz kiedy chcesz</p>
+          </div>
+
         </div>
       </section>
 
