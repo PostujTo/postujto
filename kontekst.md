@@ -198,3 +198,126 @@ Odpisz szablonem powołując się na §5 Regulaminu:
 
 ### Zrezygnowano
 - **Server Component dla landing page:** W Next.js App Router nawet `'use client'` komponenty są server-side renderowane przy pierwszym ładowaniu — Google widzi pełną treść. Różnica dla SEO minimalna. `isVisible` i `scrollY` są używane w dziesiątkach miejsc w JSX, przepisanie niesie duże ryzyko błędów przy małym zysku.
+
+## Sesja 5 marca 2026 — bezpieczeństwo, DNS, Google OAuth, audyt
+
+### Zrealizowane
+
+**Clerk DNS — w pełni zweryfikowany**
+- Wszystkie 5/5 rekordów Verified (Frontend API, Account Portal, Email DKIM)
+- SSL certificates issued
+- Błędy CORS z clerk.postujto.com zniknęły
+
+**Google OAuth — skonfigurowane**
+- Utworzono projekt w Google Cloud Console
+- Skonfigurowano OAuth 2.0 Client ID (typ: Aplikacja internetowa)
+- Authorized redirect URI: `https://clerk.postujto.com/v1/oauth_callback`
+- Authorized JS origins: `https://clerk.postujto.com`
+- Client ID i Secret wklejone w Clerk Dashboard → Production → Google OAuth
+- "Use custom credentials" włączone
+
+**Security headers** dodane do `next.config.ts`:
+- X-Content-Type-Options: nosniff
+- X-Frame-Options: DENY
+- Referrer-Policy: strict-origin-when-cross-origin
+- X-XSS-Protection: 1; mode=block
+
+**Rate limiting** — nowy plik `lib/rateLimit.ts`:
+- Map-based in-memory rate limiter
+- `/api/generate` — max 10 requestów/minutę per userId
+- `/api/image` — max 5 requestów/minutę per userId
+- Goście limitowani po IP (x-forwarded-for)
+
+**Walidacja inputów** — już była w `/api/generate`:
+- Sprawdzanie platform, tone, length, długości topic
+- Sanityzacja HTML z topic
+- Ukryto `error.message` w odpowiedziach 500
+
+**globals.css** — wyczyszczony z Geist font references
+
+**robots.txt + sitemap.ts** — dodane:
+- robots.txt w /public, pozwala PerplexityBot i wszystkim crawlerom
+- sitemap.ts generuje /sitemap.xml dla: /, /faq, /terms, /privacy
+
+**Regulamin §1** — zaktualizowany:
+- "PostujTo" zastąpione danymi osoby fizycznej: Jarosław Cisło + adres + hello@postujto.com
+- Do zaktualizowania po rejestracji JDG (pełna nazwa firmy, NIP, REGON)
+
+### Do zrobienia
+
+**Google OAuth — weryfikacja**
+- Przetestować logowanie przez Google po propagacji zmian (może trwać do kilku godzin)
+- Jeśli nadal błąd — sprawdzić czy w Google Cloud ekran zgody OAuth ma status "In production"
+
+**Audyt Perplexity — pozostałe punkty**
+- [ ] Screenshoty z apki na landing page (dashboard, kreator posta, kalendarz)
+- [ ] Więcej CTA "Zacznij za darmo" po kluczowych sekcjach (po hero, po "Jak to działa", po cenniku)
+- [ ] Sekcja "Jak dbamy o dane" na landing page
+- [ ] Doprecyzowanie "standardowych klauzul umownych" w polityce prywatności
+- [ ] Plan Starter jako "najpopularniejszy" w cenniku — wyróżnienie wizualne
+
+**Prawne**
+- [ ] Po rejestracji JDG: zaktualizować §1 regulaminu (nazwa firmy, NIP, REGON, adres)
+- [ ] Limit kredytów Free — doprecyzować w regulaminie czy wygasają
+
+**Stripe**
+- [ ] Włączyć płatności po konsultacji prawnej
+
+**Cloudflare cache**
+- [ ] Konfiguracja cache dla Vercel (0% Percent Cached)
+
+## Aktualizacja — 5 marca 2026 (popołudnie)
+
+### Zrealizowane w tej sesji
+
+**Landing page — nowe sekcje i CTA:**
+- Dodano sekcję "Jak dbamy o dane" (6 kafli: TLS 1.3, serwery DE, Stripe PCI DSS, AI nie trenuje, ograniczony dostęp, RODO) między tabelą porównania a FAQ
+- Dodano CTA "Zacznij za darmo" po sekcji "Jak to działa"
+- Dodano CTA "Wypróbuj PostujTo za darmo" po tabeli porównania Starter vs Pro
+
+**Cloudflare cache — decyzja:**
+- Zostawiono DNS only (szara chmurka) — Cloudflare nie jest proxy dla Vercel
+- Vercel edge cache wystarczy na tym etapie
+- Cloudflare cache ma sens dopiero przy dużym ruchu (1000+ użytkowników dziennie)
+
+**Google OAuth — częściowo naprawione:**
+- Skonfigurowano OAuth 2.0 Client ID w Google Cloud Console
+- Authorized JS origins: `https://clerk.postujto.com`
+- Authorized redirect URI: `https://clerk.postujto.com/v1/oauth_callback`
+- Status aplikacji zmieniony z "Testowanie" na "In production"
+- Client ID i Secret wklejone w Clerk Production
+- ⚠️ Błąd `invalid_client` nadal się pojawia — może wymagać propagacji lub dalszej diagnostyki
+
+### Do zrobienia
+
+**🔴 Pilne**
+
+- [ ] **Google OAuth** — sprawdzić po kilku godzinach czy błąd `invalid_client` zniknął po propagacji. Jeśli nie — usunąć credentials i skonfigurować od nowa.
+
+- [ ] **Konta testowe — wyczyścić i sprawdzić rejestrację:**
+  - Usunąć z Supabase i Clerk: `premium@example.com`, `test@example.com`
+  - Sprawdzić `j.st4rtup@gmail.com` — czy logowanie działa i czy strona go rozpoznaje
+  - SQL już przygotowany (patrz wyżej w historii)
+  - ⚠️ Wątpliwość: czy rejestracja nowego użytkownika działa poprawnie (czy webhook/endpoint tworzy rekord w Supabase przy nowej rejestracji przez Clerk)
+
+- [ ] **Screenshoty z apki na landing page** — po naprawieniu logowania:
+  - Uzupełnić Brand Kit w `/settings`
+  - Wygenerować 3-4 posty w `/app`
+  - Dodać posty do kalendarza w `/calendar`
+  - Zrobić screenshoty i wstawić na landing page
+
+**🟡 Ważne**
+
+- [ ] Stripe — włączyć płatności po konsultacji prawnej
+- [ ] Regulamin §1 — zaktualizować po rejestracji JDG (nazwa firmy, NIP, REGON)
+- [ ] Doprecyzowanie "standardowych klauzul umownych" w polityce prywatności
+
+### Stan kont testowych w Supabase (5 marca 2026)
+
+| email | plan | kredyty |
+|-------|------|---------|
+| premium@example.com | standard | 100/100 — DO USUNIĘCIA |
+| test@example.com | free | 5/5 — DO USUNIĘCIA |
+| j.st4rtup@gmail.com | free | 5/5 — sprawdzić |
+| psychoproductivity@gmail.com | premium→pro | naprawiono na 999999 |
+| exct22@gmail.com | premium→pro | naprawiono na 999999 |
