@@ -749,6 +749,44 @@ export default function LandingPage() {
         </div>
       </section>
 
+{/* BEZPIECZEŃSTWO DANYCH */}
+      <section style={{ padding: '80px 24px' }} id="security" data-animate>
+        <div style={{ maxWidth: 960, margin: '0 auto' }}>
+          <div className={`section-reveal from-up ${isVisible('security') ? 'visible' : ''}`} style={{ textAlign: 'center', marginBottom: 56 }}>
+            <div style={{ display: 'inline-block', fontSize: 12, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#6366f1', marginBottom: 16 }}>Bezpieczeństwo</div>
+            <h2 className="font-display" style={{ fontSize: 'clamp(1.8rem, 3vw, 2.6rem)', fontWeight: 800, letterSpacing: '-0.02em' }}>
+              Jak dbamy o <span className="gradient-text">Twoje dane</span>
+            </h2>
+            <p style={{ marginTop: 16, color: 'rgba(240,240,245,0.5)', fontSize: 16, maxWidth: 560, margin: '16px auto 0' }}>
+              Twoje dane są bezpieczne. Stosujemy najwyższe standardy ochrony.
+            </p>
+          </div>
+
+          <div className={`section-reveal from-up ${isVisible('security') ? 'visible' : ''}`} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, transitionDelay: '0.1s' }}>
+            {[
+              { icon: '🔒', title: 'Szyfrowanie TLS 1.3', desc: 'Każde połączenie z serwisem jest szyfrowane. Twoje dane są bezpieczne w transmisji.' },
+              { icon: '🇩🇪', title: 'Serwery w Niemczech', desc: 'Dane przechowujemy na serwerach Supabase we Frankfurcie — w sercu Unii Europejskiej.' },
+              { icon: '💳', title: 'Stripe PCI DSS Level 1', desc: 'Dane kart płatniczych nigdy nie trafiają na nasze serwery. Obsługuje je Stripe.' },
+              { icon: '🤖', title: 'AI nie uczy się na Twoich danych', desc: 'Treści które generujesz nie są używane do trenowania modeli AI przez Anthropic.' },
+              { icon: '👁️', title: 'Ograniczony dostęp', desc: 'Dostęp do danych produkcyjnych mają tylko niezbędne systemy. Żadnych osób trzecich.' },
+              { icon: '🛡️', title: 'RODO / GDPR', desc: 'W pełni zgodni z RODO. Możesz pobrać, poprawić lub usunąć swoje dane w każdej chwili.' },
+            ].map((item, i) => (
+              <div key={i} style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
+                <div style={{ fontSize: 28, marginBottom: 12 }}>{item.icon}</div>
+                <h3 className="font-display" style={{ fontSize: 15, fontWeight: 700, color: '#f0f0f5', marginBottom: 8 }}>{item.title}</h3>
+                <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.5)', lineHeight: 1.7 }}>{item.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className={`section-reveal from-up ${isVisible('security') ? 'visible' : ''}`} style={{ textAlign: 'center', marginTop: 32, transitionDelay: '0.2s' }}>
+            <Link href="/privacy" style={{ fontSize: 14, color: '#a5b4fc', textDecoration: 'none' }}>
+              Przeczytaj pełną Politykę prywatności →
+            </Link>
+          </div>
+        </div>
+      </section>
+
 {/* FAQ */}
       <section style={{ padding: '80px 24px', background: 'rgba(255,255,255,0.01)' }} id="faq" data-animate>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
