@@ -327,7 +327,7 @@ export default function GeneratorPage() {
         .btn-primary {
           background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
           color: white; border: none; cursor: pointer;
-          font-family: 'Poppins', sans-serif; font-weight: 600;
+          var(--font-poppins), sans-serif; font-weight: 600;
           transition: all 0.25s ease; position: relative; overflow: hidden;
         }
         .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
@@ -338,7 +338,7 @@ export default function GeneratorPage() {
           background: rgba(255,255,255,0.05);
           border: 1px solid rgba(255,255,255,0.1);
           color: rgba(240,240,245,0.8); cursor: pointer;
-          font-family: 'DM Sans', sans-serif; font-weight: 500;
+          var(--font-dm-sans), sans-serif; font-weight: 500;
           transition: all 0.25s ease;
         }
         .btn-ghost:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.2); }
@@ -348,7 +348,7 @@ export default function GeneratorPage() {
           border: 1px solid rgba(255,255,255,0.08);
           color: rgba(240,240,245,0.65); cursor: pointer;
           transition: all 0.2s ease;
-          font-family: 'DM Sans', sans-serif;
+          var(--font-dm-sans), sans-serif;
         }
         .option-btn:hover { background: rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.3); color: #f0f0f5; }
         .option-btn.active {
@@ -361,7 +361,7 @@ export default function GeneratorPage() {
           background: rgba(255,255,255,0.04);
           border: 1px solid rgba(255,255,255,0.09);
           color: #f0f0f5;
-          font-family: 'DM Sans', sans-serif;
+          var(--font-dm-sans), sans-serif;
           transition: all 0.25s ease;
           outline: none; resize: none;
         }

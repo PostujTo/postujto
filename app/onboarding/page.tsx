@@ -110,7 +110,7 @@ export default function OnboardingPage() {
         .option-card:hover { background: rgba(99,102,241,0.08); border-color: rgba(99,102,241,0.3); transform: translateY(-2px); }
         .option-card.selected { background: rgba(99,102,241,0.15); border-color: rgba(99,102,241,0.6); }
 
-        .btn-primary { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; border: none; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600; transition: all 0.25s ease; }
+        .btn-primary { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; border: none; cursor: pointer; var(--font-poppins), sans-serif; font-weight: 600; transition: all 0.25s ease; }
         .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
         .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; filter: none; }
         .btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(240,240,245,0.7); cursor: pointer; font-family: var(--font-dm-sans), sans-serif; transition: all 0.2s; }
