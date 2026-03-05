@@ -5,6 +5,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import Replicate from 'replicate';
 import { detectBrand } from '@/lib/polish-brands';
 import sharp from 'sharp';
+import { rateLimit } from '@/lib/rateLimit';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,6 +20,14 @@ const DAILY_IMAGE_LIMIT = 50;
 export async function POST(req: Request) {
   try {
     const { userId } = await auth();
+    const rateLimitKey = userId || 'guest';
+const allowed = rateLimit(rateLimitKey, 5, 60000); // max 5 obrazów na minutę
+if (!allowed) {
+  return NextResponse.json(
+    { error: 'Zbyt wiele żądań. Spróbuj za chwilę.' },
+    { status: 429 }
+  );
+}
     if (!userId) {
       return NextResponse.json({ error: 'Nie zalogowany' }, { status: 401 });
     }
@@ -239,6 +248,6 @@ const imageUrl = Array.isArray(output)
 
   } catch (error: any) {
     console.error('Błąd generowania obrazu:', error);
-    return NextResponse.json({ error: 'Błąd serwera', details: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Błąd serwera' }, { status: 500 });
   }
 }

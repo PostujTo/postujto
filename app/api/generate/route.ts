@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
+import { rateLimit } from '@/lib/rateLimit';
 
 // Server-side Supabase client z service role
 const supabase = createClient(
@@ -17,7 +18,17 @@ export async function POST(request: Request) {
   try {
     // Pobierz ID zalogowanego użytkownika z Clerk
     const { userId } = await auth();
-    const isGuest = !userId;
+const isGuest = !userId;
+
+// Rate limiting
+const rateLimitKey = userId || request.headers.get('x-forwarded-for') || 'guest';
+const allowed = rateLimit(rateLimitKey, 10, 60000);
+if (!allowed) {
+  return NextResponse.json(
+    { error: 'Zbyt wiele żądań. Spróbuj za chwilę.' },
+    { status: 429 }
+  );
+}
 
     // Pobierz użytkownika z Supabase (tylko dla zalogowanych)
     let user = null;
@@ -323,10 +334,7 @@ WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy c
   } catch (error: any) {
     console.error('Błąd API:', error);
     return NextResponse.json(
-      { 
-        error: 'Wystąpił błąd podczas generowania postów',
-        details: error.message 
-      },
+      { error: 'Wystąpił błąd podczas generowania postów' },
       { status: 500 }
     );
   }
