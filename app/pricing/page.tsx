@@ -10,6 +10,7 @@ export default function PricingPage() {
   const [currentPlan, setCurrentPlan] = useState<string>('free');
   const [planLoading, setPlanLoading] = useState(true);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [showTermsAlert, setShowTermsAlert] = useState(false);
 
   useEffect(() => {
     if (!user) { setPlanLoading(false); return; }
@@ -22,7 +23,7 @@ export default function PricingPage() {
   const handleSubscribe = async (priceId: string, planName: string) => {
     if (!user) { window.location.href = '/app'; return; }
     if (!termsAccepted) {
-      alert('Zaakceptuj regulamin i politykę prywatności aby kontynuować.');
+      setShowTermsAlert(true);
       return;
     }
     setLoading(planName);
@@ -90,6 +91,28 @@ export default function PricingPage() {
         .pricing-card.featured { background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(168,85,247,0.15)); border-color: rgba(99,102,241,0.5) !important; }
         .gradient-text { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
       `}</style>
+
+      {/* TERMS ALERT MODAL */}
+      {showTermsAlert && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
+          onClick={() => setShowTermsAlert(false)}>
+          <div style={{ background: '#13131a', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 20, padding: 36, maxWidth: 400, width: '100%', textAlign: 'center' }}
+            onClick={e => e.stopPropagation()}>
+            <div style={{ fontSize: 40, marginBottom: 16 }}>📋</div>
+            <h3 style={{ fontSize: 20, fontWeight: 800, color: '#f0f0f5', marginBottom: 12, letterSpacing: '-0.01em' }}>Wymagana akceptacja</h3>
+            <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.55)', lineHeight: 1.7, marginBottom: 28 }}>
+              Zanim przejdziesz do płatności, zaakceptuj{' '}
+              <Link href="/terms" target="_blank" style={{ color: '#a5b4fc' }}>Regulamin</Link>
+              {' '}i{' '}
+              <Link href="/privacy" target="_blank" style={{ color: '#a5b4fc' }}>Politykę prywatności</Link>.
+            </p>
+            <button onClick={() => setShowTermsAlert(false)} className="btn-primary"
+              style={{ width: '100%', padding: '13px', borderRadius: 12, fontSize: 15 }}>
+              Rozumiem
+            </button>
+          </div>
+        </div>
+      )} 
 
       {/* NAV */}
       <nav style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '0 24px' }}>
