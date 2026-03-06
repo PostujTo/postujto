@@ -37,6 +37,39 @@ export default function DashboardPage() {
   const [reportOpen, setReportOpen] = useState(false);
   const [reportData, setReportData] = useState<any>(null);
   const [reportLoading, setReportLoading] = useState(false);
+  const [gdprLoading, setGdprLoading] = useState(false);
+const [deleteLoading, setDeleteLoading] = useState(false);
+
+const downloadGdprData = async () => {
+  setGdprLoading(true);
+  try {
+    const res = await fetch('/api/user/gdpr-export');
+    const data = await res.json();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `postujto-dane-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch { alert('Błąd podczas pobierania danych. Spróbuj ponownie.'); }
+  finally { setGdprLoading(false); }
+};
+
+const deleteAccount = async () => {
+  if (!confirm('Czy na pewno chcesz usunąć konto? Ta operacja jest nieodwracalna — wszystkie Twoje posty i dane zostaną trwale usunięte.')) return;
+  if (!confirm('Ostatnie potwierdzenie: usunąć konto bezpowrotnie?')) return;
+  setDeleteLoading(true);
+  try {
+    const res = await fetch('/api/user/delete-account', { method: 'DELETE' });
+    if (res.ok) {
+      window.location.href = '/';
+    } else {
+      alert('Błąd podczas usuwania konta. Skontaktuj się z hello@postujto.com');
+    }
+  } catch { alert('Błąd połączenia. Spróbuj ponownie.'); }
+  finally { setDeleteLoading(false); }
+};
 
   const generateReport = async () => {
     setReportLoading(true);
@@ -322,6 +355,24 @@ export default function DashboardPage() {
             </div>
           )}
 
+{/* RODO */}
+<div className="fade-up" style={{ marginBottom: 28, padding: '20px 24px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, animationDelay: '0.09s' }}>
+  <div>
+    <p style={{ fontSize: 14, fontWeight: 600, color: 'rgba(240,240,245,0.7)', marginBottom: 4 }}>Twoje dane osobowe</p>
+    <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.3)', lineHeight: 1.5 }}>Zgodnie z RODO możesz pobrać kopię swoich danych lub trwale usunąć konto.</p>
+  </div>
+  <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
+    <button onClick={downloadGdprData} disabled={gdprLoading} className="btn-ghost"
+      style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+      {gdprLoading ? '⏳ Pobieranie...' : '📥 Pobierz moje dane'}
+    </button>
+    <button onClick={deleteAccount} disabled={deleteLoading}
+      className="btn-danger" style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+      {deleteLoading ? '⏳ Usuwanie...' : '🗑️ Usuń konto'}
+    </button>
+  </div>
+</div>
+
           {/* FILTERS */}
           <div className="fade-up" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28, animationDelay: '0.1s' }}>
             {[
@@ -578,7 +629,7 @@ export default function DashboardPage() {
         {/* FOOTER */}
         <footer style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: '24px', textAlign: 'center' }}>
           <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.2)' }}>
-            <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>PostujTo.com</Link> · © 2025 · Wykonane z ❤️ w Polsce
+            <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>PostujTo.com</Link> · © 2026 · Wykonane z ❤️ w Polsce
           </p>
         </footer>
       </div>

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-const LAST_UPDATED = '1 marca 2025';
+const LAST_UPDATED = '1 marca 2026';
 const EMAIL = 'hello@postujto.com';
 
 export default function PrivacyPage() {
@@ -153,7 +153,7 @@ export default function PrivacyPage() {
 
         <footer style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: '28px 24px' }}>
           <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-            <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.2)' }}>© 2025 PostujTo.com</p>
+            <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.2)' }}>© 2026 PostujTo.com</p>
             <div style={{ display: 'flex', gap: 20 }}>
               {[['Regulamin', '/terms'], ['Polityka prywatności', '/privacy'], ['FAQ', '/faq']].map(([label, href]) => (
                 <Link key={href} href={href} style={{ fontSize: 13, color: 'rgba(240,240,245,0.3)', textDecoration: 'none' }}>{label}</Link>
