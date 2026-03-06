@@ -19,7 +19,7 @@ const lengthLabel: Record<string, string> = { short: 'Krótki', medium: 'Średni
 const PLATFORM_STYLES: Record<string, { bg: string; color: string; label: string }> = {
   facebook: { bg: 'rgba(59,130,246,0.15)', color: '#60a5fa', label: 'Facebook' },
   instagram: { bg: 'rgba(236,72,153,0.15)', color: '#f472b6', label: 'Instagram' },
-  tiktok: { bg: 'rgba(255,255,255,0.08)', color: '#e2e8f0', label: '🎵 TikTok' },
+  tiktok: { bg: 'rgba(255,255,255,0.08)', color: '#e2e8f0', label: 'TikTok' },
 };
 
 export default function DashboardPage() {
@@ -241,7 +241,7 @@ export default function DashboardPage() {
           <div className="fade-up" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16, animationDelay: '0.08s' }}>
             <button onClick={generateReport} disabled={reportLoading} className="btn-ghost"
               style={{ padding: '9px 20px', borderRadius: 12, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
-              {reportLoading ? '⏳ Generuję...' : '📊 Raport miesięczny'}
+              {reportLoading ? 'Generuję...' : 'Raport miesięczny'}
             </button>
           </div>
 
@@ -251,7 +251,7 @@ export default function DashboardPage() {
               onClick={e => e.target === e.currentTarget && setReportOpen(false)}>
               <div style={{ width: '100%', maxWidth: 640, background: '#13131a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 24, padding: 36, maxHeight: '85vh', overflowY: 'auto' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28 }}>
-                  <h2 className="font-display" style={{ fontSize: 22, fontWeight: 800 }}>📊 Raport miesięczny</h2>
+                  <h2 className="font-display" style={{ fontSize: 22, fontWeight: 800 }}>Raport miesięczny</h2>
                   <button onClick={() => setReportOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'rgba(240,240,245,0.4)' }}>✕</button>
                 </div>
 
