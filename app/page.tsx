@@ -274,7 +274,10 @@ export default function LandingPage() {
               Postuj<span className="gradient-text">To</span>
             </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+            <Link href="/pricing" style={{ fontSize: 14, color: 'rgba(240,240,245,0.6)', textDecoration: 'none' }}>
+              Cennik
+            </Link>
             <SignedOut>
               <SignInButton mode="modal">
                 <button className="btn-secondary" style={{ padding: '10px 20px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
@@ -445,20 +448,20 @@ export default function LandingPage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 32 }}>
             {[
-  { step: '01', title: 'Ustaw markę', desc: 'Wpisz nazwę firmy, wybierz branżę i ustaw kolory w Brand Kit. Zrób to raz — AI zawsze będzie pisać w Twoim stylu.', delay: 0 },
-  { step: '02', title: 'Wpisz temat', desc: 'Podaj o czym ma być post lub wybierz z kalendarza polskich okazji. AI dobiera ton, długość i platformę.', delay: 0.15 },
-  { step: '03', title: 'Publikuj', desc: 'Dostaniesz 3 gotowe wersje tekstu z hashtagami i grafiką AI. Kopiuj i wrzucaj bezpośrednio na platformy.', delay: 0.3 },
-].map((item, i) => (
-  <div key={i} className={`section-reveal from-up ${isVisible('how') ? 'visible' : ''}`} style={{ transitionDelay: `${item.delay}s` }}>
-    <div className="card-glass" style={{ borderRadius: 20, padding: 36, height: '100%' }}>
-      <div style={{ marginBottom: 24 }}>
-        <div className="step-number">{item.step}</div>
-      </div>
-      <h3 className="font-display" style={{ fontSize: 22, fontWeight: 700, marginBottom: 12, letterSpacing: '-0.01em' }}>{item.title}</h3>
-      <p style={{ fontSize: 15, color: 'rgba(240,240,245,0.55)', lineHeight: 1.7 }}>{item.desc}</p>
-    </div>
-  </div>
-))}
+                  { step: '01', title: 'Ustaw markę', desc: 'Wpisz nazwę firmy, wybierz branżę i ustaw kolory w Brand Kit. Zrób to raz — AI zawsze będzie pisać w Twoim stylu.', delay: 0 },
+                  { step: '02', title: 'Wpisz temat', desc: 'Podaj o czym ma być post lub wybierz z kalendarza polskich okazji. AI dobiera ton, długość i platformę.', delay: 0.15 },
+                  { step: '03', title: 'Publikuj', desc: 'Dostaniesz 3 gotowe wersje tekstu z hashtagami i grafiką AI. Kopiuj i wrzucaj bezpośrednio na platformy.', delay: 0.3 },
+                  ].map((item, i) => (
+              <div key={i} className={`section-reveal from-up ${isVisible('how') ? 'visible' : ''}`} style={{ transitionDelay: `${item.delay}s` }}>
+            <div className="card-glass" style={{ borderRadius: 20, padding: 36, height: '100%' }}>
+              <div style={{ marginBottom: 24 }}>
+               <div className="step-number">{item.step}</div>
+              </div>
+              <h3 className="font-display" style={{ fontSize: 22, fontWeight: 700, marginBottom: 12, letterSpacing: '-0.01em' }}>{item.title}</h3>
+              <p style={{ fontSize: 15, color: 'rgba(240,240,245,0.55)', lineHeight: 1.7 }}>{item.desc}</p>
+            </div>
+          </div>
+          ))}
           </div>
 
           {/* CTA po "Jak to działa" */}
@@ -591,162 +594,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* PRICING */}
-      <section style={{ padding: '100px 24px' }} id="pricing" data-animate>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div className={`section-reveal from-up ${isVisible('pricing') ? 'visible' : ''}`} style={{ textAlign: 'center', marginBottom: 72 }}>
-            <div style={{ display: 'inline-block', fontSize: 12, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#6366f1', marginBottom: 16 }}>Cennik</div>
-            <h2 className="font-display" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 800, letterSpacing: '-0.02em' }}>
-              Proste ceny,<br /><span className="gradient-text">bez ukrytych kosztów</span>
-            </h2>
-            <p style={{ marginTop: 16, color: 'rgba(240,240,245,0.5)', fontSize: 16 }}>7-dniowa gwarancja zwrotu. Anulujesz jednym kliknięciem.</p>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, maxWidth: 960, margin: '0 auto' }}>
-            {[
-              {
-                name: 'Free',
-                price: '0',
-                period: 'jednorazowo',
-                desc: 'Wypróbuj bez rejestracji',
-                features: ['1 post bez logowania', '5 postów po rejestracji', 'Facebook, Instagram, TikTok', 'Wszystkie branże'],
-                cta: 'Zacznij za darmo',
-                href: '/app',
-                featured: false,
-              },
-              {
-                name: 'Starter',
-                price: '79',
-                period: '/ miesiąc',
-                desc: 'Dla aktywnych firm',
-                features: ['Unlimited postów', 'Generowanie obrazów AI', 'Brand Kit', 'Historia i ulubione', 'Kalendarz polskich okazji'],
-                cta: 'Wybierz Starter',
-                href: '/app',
-                featured: true,
-                badge: 'NAJPOPULARNIEJSZY',
-              },
-              {
-                name: 'Pro',
-                price: '199',
-                period: '/ miesiąc',
-                desc: 'Dla agencji i power userów',
-                features: ['Wszystko ze Starter', 'Auto 3 obrazy przy każdym poście', 'Podpis marki na obrazach', 'Priorytetowe generowanie'],
-                cta: 'Wybierz Pro',
-                href: '/app',
-                featured: false,
-              },
-            ].map((plan, i) => (
-              <div
-                key={i}
-                className={`pricing-card section-reveal from-up card-glass ${plan.featured ? 'featured' : ''} ${isVisible('pricing') ? 'visible' : ''}`}
-                style={{ borderRadius: 20, padding: 36, border: '1px solid rgba(255,255,255,0.08)', transitionDelay: `${i * 0.1}s`, position: 'relative' }}
-              >
-                {plan.badge && (
-                  <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg, #6366f1, #a855f7)', padding: '5px 16px', borderRadius: 100, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', color: 'white', whiteSpace: 'nowrap' }}>
-                    {plan.badge}
-                  </div>
-                )}
-                <div style={{ marginBottom: 8 }}>
-                  <span className="font-display" style={{ fontSize: 13, fontWeight: 700, color: '#6366f1', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{plan.name}</span>
-                </div>
-                <div style={{ marginBottom: 4 }}>
-                  <span className="font-display" style={{ fontSize: 48, fontWeight: 800, letterSpacing: '-0.03em', color: '#f0f0f5' }}>{plan.price} <span style={{ fontSize: 18 }}>zł</span></span>
-                </div>
-                <div style={{ fontSize: 13, color: 'rgba(240,240,245,0.4)', marginBottom: 8 }}>{plan.period}</div>
-                <div style={{ fontSize: 14, color: 'rgba(240,240,245,0.55)', marginBottom: 28, paddingBottom: 28, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>{plan.desc}</div>
-                <ul style={{ listStyle: 'none', marginBottom: 32 }}>
-                  {plan.features.map((f, fi) => (
-                    <li key={fi} style={{ display: 'flex', gap: 10, marginBottom: 12, fontSize: 14, color: 'rgba(240,240,245,0.7)' }}>
-                      <span style={{ color: '#6366f1', flexShrink: 0, marginTop: 1 }}>✓</span>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link href={plan.href}>
-                  <button
-                    className={plan.featured ? 'btn-primary' : 'btn-secondary'}
-                    style={{ width: '100%', padding: '14px', borderRadius: 12, fontSize: 15, cursor: 'pointer', fontWeight: 600 }}
-                  >
-                    <span>{plan.cta}</span>
-                  </button>
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-{/* COMPARISON TABLE */}
-      <section style={{ padding: '0 24px 100px' }} id="compare" data-animate>
-        <div style={{ maxWidth: 860, margin: '0 auto' }}>
-          <div className={`section-reveal from-up ${isVisible('compare') ? 'visible' : ''}`} style={{ textAlign: 'center', marginBottom: 48 }}>
-            <h2 className="font-display" style={{ fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: 800, letterSpacing: '-0.02em' }}>
-              Starter vs <span className="gradient-text">Pro</span>
-            </h2>
-          </div>
-
-          <div className={`section-reveal from-up ${isVisible('compare') ? 'visible' : ''}`} style={{ transitionDelay: '0.1s', background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, overflow: 'hidden' }}>
-            {/* Header */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-              <div style={{ padding: '20px 28px' }} />
-              {['Starter', 'Pro'].map((plan, i) => (
-                <div key={i} style={{ padding: '20px 24px', textAlign: 'center', background: i === 1 ? 'rgba(99,102,241,0.1)' : 'transparent', borderLeft: '1px solid rgba(255,255,255,0.07)' }}>
-                  <p className="font-display" style={{ fontSize: 13, fontWeight: 700, color: '#6366f1', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>{plan}</p>
-                  <p className="font-display" style={{ fontSize: 26, fontWeight: 800, color: '#f0f0f5' }}>{i === 0 ? '79' : '199'} <span style={{ fontSize: 14, fontWeight: 500, color: 'rgba(240,240,245,0.4)' }}>zł/msc</span></p>
-                </div>
-              ))}
-            </div>
-
-            {/* Rows */}
-            {[
-              { feature: 'Generowanie postów', starter: 'Unlimited', pro: 'Unlimited' },
-              { feature: 'Platformy', starter: 'FB / IG / TikTok', pro: 'FB / IG / TikTok' },
-              { feature: 'Brand Kit (kolory, ton)', starter: '✓', pro: '✓' },
-              { feature: 'Głos marki (przykładowe posty)', starter: '✓', pro: '✓' },
-              { feature: 'Kalendarz treści', starter: '✓', pro: '✓' },
-              { feature: 'Historia postów', starter: '✓', pro: '✓' },
-              { feature: 'Generowanie obrazów AI', starter: 'Ręcznie (1 obraz)', pro: 'Auto 3 obrazy' },
-              { feature: 'Podpis marki na obrazach', starter: '✗', pro: '✓' },
-              { feature: 'Priorytetowe generowanie', starter: '✗', pro: '✓' },
-            ].map((row, i) => (
-              <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', borderBottom: i < 8 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
-                <div style={{ padding: '16px 28px', fontSize: 14, color: 'rgba(240,240,245,0.65)' }}>{row.feature}</div>
-                {[row.starter, row.pro].map((val, j) => (
-                  <div key={j} style={{ padding: '16px 24px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.06)', background: j === 1 ? 'rgba(99,102,241,0.05)' : 'transparent', fontSize: 14, fontWeight: val === '✓' ? 700 : 400, color: val === '✓' ? '#4ade80' : val === '✗' ? 'rgba(240,240,245,0.2)' : 'rgba(240,240,245,0.7)' }}>
-                    {val}
-                  </div>
-                ))}
-              </div>
-            ))}
-
-            {/* CTA row */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', padding: '20px 0' }}>
-              <div />
-              {['/app', '/app'].map((href, i) => (
-                <div key={i} style={{ padding: '0 24px', borderLeft: '1px solid rgba(255,255,255,0.06)', background: i === 1 ? 'rgba(99,102,241,0.05)' : 'transparent' }}>
-                  <Link href={href}>
-                    <button className={i === 1 ? 'btn-primary' : 'btn-secondary'} style={{ width: '100%', padding: '11px', borderRadius: 10, fontSize: 13, cursor: 'pointer', fontWeight: 600 }}>
-                      <span>{i === 0 ? 'Wybierz Starter' : 'Wybierz Pro'}</span>
-                    </button>
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </div>
-        {/* CTA po tabeli porównania */}
-          <div className={`section-reveal from-up ${isVisible('compare') ? 'visible' : ''}`} style={{ textAlign: 'center', marginTop: 48, transitionDelay: '0.2s' }}>
-            <Link href="/app">
-              <button className="btn-primary" style={{ padding: '16px 36px', borderRadius: 12, fontSize: 16, cursor: 'pointer' }}>
-                <span>🚀 Wypróbuj PostujTo za darmo</span>
-              </button>
-            </Link>
-            <p style={{ marginTop: 12, fontSize: 13, color: 'rgba(240,240,245,0.35)' }}>Bez karty kredytowej • Anulujesz kiedy chcesz</p>
-          </div>
-
-        </div>
-      </section>
-
+ 
 {/* BEZPIECZEŃSTWO DANYCH */}
       <section style={{ padding: '80px 24px' }} id="security" data-animate>
         <div style={{ maxWidth: 960, margin: '0 auto' }}>
@@ -839,7 +687,7 @@ export default function LandingPage() {
           <div style={{ display: 'flex', gap: 32, alignItems: 'center', flexWrap: 'wrap' }}>
             {[
               { label: 'Generator', href: '/app' },
-              { label: 'Cennik', href: '#pricing' },
+              { label: 'Cennik', href: '/pricing' },
               { label: 'Regulamin', href: '/terms' },
               { label: 'Prywatność', href: '/privacy' },
               { label: 'FAQ', href: '/faq' },
