@@ -275,11 +275,12 @@ export default function LandingPage() {
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-            <Link href="/pricing" style={{ fontSize: 14, color: 'rgba(240,240,245,0.6)', textDecoration: 'none', transition: 'color 0.2s' }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#f0f0f5')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(240,240,245,0.6)')}>
-                Cennik
-              </Link>
+            <Link href="/pricing" 
+              style={{ fontSize: 14, color: 'rgba(240,240,245,0.6)', textDecoration: 'none', transition: 'color 0.2s' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#a5b4fc')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(240,240,245,0.6)')}>
+              Cennik
+            </Link>
             <SignedOut>
               <SignInButton mode="modal">
                 <button className="btn-secondary" style={{ padding: '10px 20px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
