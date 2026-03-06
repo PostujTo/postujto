@@ -12,116 +12,88 @@ export default function SuccessContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Symulujemy sprawdzenie sesji
     setTimeout(() => setLoading(false), 1000);
   }, []);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Przetwarzamy Twoją płatność...</p>
+      <div style={{ minHeight: '100vh', background: '#0a0a0f', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-dm-sans), sans-serif' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>⏳</div>
+          <p style={{ color: 'rgba(240,240,245,0.5)', fontSize: 16 }}>Przetwarzamy Twoją płatność...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-cyan-50 flex items-center justify-center px-6">
-      <div className="max-w-2xl w-full bg-white rounded-3xl shadow-2xl p-12 text-center">
-        
-        {/* Success Icon */}
-        <div className="mb-8">
-          <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg 
-              className="w-12 h-12 text-green-600" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M5 13l4 4L19 7" 
-              />
-            </svg>
-          </div>
-          
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Płatność zakończona sukcesem! 🎉
-          </h1>
-          
-          <p className="text-xl text-gray-600 mb-2">
-            Dziękujemy za subskrypcję!
-          </p>
-          
-          {user && (
-            <p className="text-gray-500">
-              Potwierdzenie zostało wysłane na: <strong>{user.primaryEmailAddress?.emailAddress}</strong>
-            </p>
-          )}
+    <div style={{ minHeight: '100vh', background: '#0a0a0f', color: '#f0f0f5', fontFamily: 'var(--font-dm-sans), sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+      <style>{`
+        .gradient-text { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; border: none; cursor: pointer; font-weight: 700; transition: all 0.2s; text-decoration: none; display: inline-block; }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: rgba(240,240,245,0.7); cursor: pointer; font-weight: 600; transition: all 0.2s; text-decoration: none; display: inline-block; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.09); color: #f0f0f5; }
+      `}</style>
+
+      <div style={{ maxWidth: 560, width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: '48px 40px', textAlign: 'center' }}>
+
+        {/* Icon */}
+        <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 28px', fontSize: 36 }}>
+          ✓
         </div>
 
-        {/* Info Box */}
-        <div className="bg-purple-50 border-2 border-purple-200 rounded-2xl p-6 mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-3">
-            Co dalej?
-          </h2>
-          <ul className="text-left space-y-2 text-gray-700">
-            <li className="flex items-start">
-              <span className="text-purple-600 mr-2">✓</span>
-              <span>Twoje kredyty zostały zaktualizowane</span>
-            </li>
-            <li className="flex items-start">
-              <span className="text-purple-600 mr-2">✓</span>
-              <span>Możesz już generować posty AI</span>
-            </li>
-            <li className="flex items-start">
-              <span className="text-purple-600 mr-2">✓</span>
-              <span>Kredyty odnawiają się automatycznie co miesiąc</span>
-            </li>
-            <li className="flex items-start">
-              <span className="text-purple-600 mr-2">✓</span>
-              <span>Anuluj w każdej chwili bez dodatkowych opłat</span>
-            </li>
-          </ul>
+        <h1 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 12 }}>
+          Płatność <span className="gradient-text">zakończona sukcesem!</span>
+        </h1>
+
+        <p style={{ fontSize: 16, color: 'rgba(240,240,245,0.55)', marginBottom: 8 }}>Dziękujemy za subskrypcję PostujTo.</p>
+
+        {user && (
+          <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.35)', marginBottom: 32 }}>
+            Potwierdzenie wysłano na: <strong style={{ color: 'rgba(240,240,245,0.6)' }}>{user.primaryEmailAddress?.emailAddress}</strong>
+          </p>
+        )}
+
+        {/* Info box */}
+        <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 16, padding: '24px', marginBottom: 32, textAlign: 'left' }}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: '#a5b4fc', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16 }}>Co dalej?</p>
+          {[
+            'Twoja subskrypcja jest już aktywna',
+            'Możesz generować unlimited postów AI',
+            'Subskrypcja odnawia się automatycznie co miesiąc',
+            'Anulujesz jednym kliknięciem w ustawieniach',
+          ].map((item, i) => (
+            <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
+              <span style={{ color: '#4ade80', flexShrink: 0 }}>✓</span>
+              <span style={{ fontSize: 14, color: 'rgba(240,240,245,0.65)' }}>{item}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 32 }}>
+          <Link href="/app" className="btn-primary" style={{ padding: '14px 28px', borderRadius: 12, fontSize: 15 }}>
+            ✨ Zacznij generować posty
+          </Link>
+          <Link href="/dashboard" className="btn-secondary" style={{ padding: '13px 28px', borderRadius: 12, fontSize: 14 }}>
+            Przejdź do dashboardu
+          </Link>
         </div>
 
         {/* Session ID */}
         {sessionId && (
-          <div className="mb-6">
-            <p className="text-xs text-gray-400">
-              ID sesji: {sessionId.substring(0, 30)}...
-            </p>
-          </div>
+          <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.2)', marginBottom: 24 }}>
+            ID transakcji: {sessionId.substring(0, 30)}...
+          </p>
         )}
 
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link
-            href="/"
-            className="px-8 py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-full font-semibold transition-all shadow-lg hover:shadow-xl"
-          >
-            Zacznij generować posty 🚀
-          </Link>
-          
-          <Link
-            href="/pricing"
-            className="px-8 py-4 bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-200 rounded-full font-semibold transition-all"
-          >
-            Zobacz plany
-          </Link>
+        {/* Footer links */}
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 20, display: 'flex', justifyContent: 'center', gap: 24, flexWrap: 'wrap' }}>
+          <a href="mailto:hello@postujto.com" style={{ fontSize: 13, color: 'rgba(240,240,245,0.35)', textDecoration: 'none' }}>Potrzebujesz pomocy?</a>
+          <Link href="/terms" style={{ fontSize: 13, color: 'rgba(240,240,245,0.35)', textDecoration: 'none' }}>Regulamin</Link>
+          <Link href="/privacy" style={{ fontSize: 13, color: 'rgba(240,240,245,0.35)', textDecoration: 'none' }}>Polityka prywatności</Link>
         </div>
-
-        {/* Footer */}
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <p className="text-sm text-gray-500">
-            Potrzebujesz pomocy? <a href="mailto:support@postujto.pl" className="text-purple-600 hover:underline">Skontaktuj się z nami</a>
-          </p>
-        </div>
-
       </div>
     </div>
   );
