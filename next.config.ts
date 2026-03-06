@@ -5,6 +5,20 @@ const securityHeaders = [
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'X-XSS-Protection', value: '1; mode=block' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+  {
+    key: 'Content-Security-Policy',
+    value: [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://clerk.postujto.com https://*.clerk.accounts.dev https://js.stripe.com https://challenges.cloudflare.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      "img-src 'self' data: blob: https://*.supabase.co https://*.clerk.com https://img.clerk.com https://*.googleusercontent.com https://replicate.delivery https://*.replicate.com",
+      "connect-src 'self' https://*.supabase.co https://clerk.postujto.com https://*.clerk.accounts.dev https://api.anthropic.com https://api.replicate.com https://api.stripe.com https://api.resend.com",
+      "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://challenges.cloudflare.com",
+      "worker-src 'self' blob:",
+    ].join('; '),
+  },
 ];
 
 const nextConfig: NextConfig = {
