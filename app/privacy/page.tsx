@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-const LAST_UPDATED = '1 marca 2026';
+const LAST_UPDATED = '6 marca 2026';
 const EMAIL = 'hello@postujto.com';
 
 export default function PrivacyPage() {
@@ -68,16 +68,17 @@ export default function PrivacyPage() {
                     <th>Dane</th>
                     <th>Cel</th>
                     <th>Podstawa prawna</th>
+                    <th>Odbiorcy</th>
                     <th>Okres przechowywania</th>
                   </tr>
                 </thead>
                 <tbody>
                   {[
-                    ['Adres email, imię', 'Rejestracja i obsługa konta', 'Art. 6 ust. 1 lit. b RODO (umowa)', 'Do usunięcia konta + 30 dni'],
-                    ['Dane płatnicze (obsługuje Stripe)', 'Przetwarzanie płatności', 'Art. 6 ust. 1 lit. b RODO (umowa)', 'Zgodnie z polityką Stripe'],
-                    ['Historia generowań, Brand Kit', 'Świadczenie usługi', 'Art. 6 ust. 1 lit. b RODO (umowa)', 'Do usunięcia konta'],
-                    ['Logi serwera, adres IP', 'Bezpieczeństwo i diagnostyka', 'Art. 6 ust. 1 lit. f RODO (prawnie uzasadniony interes)', '90 dni'],
-                    ['Cookies analityczne', 'Analiza ruchu (Cloudflare Analytics)', 'Art. 6 ust. 1 lit. a RODO (zgoda)', 'Do wycofania zgody'],
+                    ['Adres email, imię', 'Rejestracja i obsługa konta', 'Art. 6 ust. 1 lit. b RODO (umowa)', 'Clerk, Supabase', 'Do usunięcia konta + 30 dni'],
+                    ['Dane płatnicze (obsługuje Stripe)', 'Przetwarzanie płatności', 'Art. 6 ust. 1 lit. b RODO (umowa)', 'Stripe', 'Zgodnie z polityką Stripe'],
+                    ['Historia generowań, Brand Kit', 'Świadczenie usługi', 'Art. 6 ust. 1 lit. b RODO (umowa)', 'Supabase, Anthropic', 'Do usunięcia konta'],
+                    ['Logi serwera, adres IP', 'Bezpieczeństwo i diagnostyka', 'Art. 6 ust. 1 lit. f RODO (prawnie uzasadniony interes)', 'Vercel, Cloudflare', '90 dni'],
+                    ['Cookies analityczne', 'Analiza ruchu (Cloudflare Analytics)', 'Art. 6 ust. 1 lit. a RODO (zgoda)', 'Cloudflare', 'Do wycofania zgody'],
                   ].map((row, i) => (
                     <tr key={i}>
                       {row.map((cell, j) => <td key={j}>{cell}</td>)}
