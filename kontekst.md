@@ -321,3 +321,32 @@ Odpisz szablonem powołując się na §5 Regulaminu:
 | j.st4rtup@gmail.com | free | 5/5 — sprawdzić |
 | psychoproductivity@gmail.com | premium→pro | naprawiono na 999999 |
 | exct22@gmail.com | premium→pro | naprawiono na 999999 |
+
+## Aktualizacja — 6 marca 2026
+
+### Zrealizowane
+
+**Landing page — kolejne poprawki:**
+- Ticker (pasek TV) zastąpiony statycznymi pillsami z funkcjami
+- Usunięto ikony z kroków "Jak to działa"
+- Cennik przeniesiony na osobną stronę `/pricing` — przepisany w ciemnym motywie, równe przyciski i karty tej samej wysokości
+- Link "Cennik" dodany do nawa
+- Stopka: `#pricing` → `/pricing`, Dashboard ukryty dla niezalogowanych, prawdziwe SVG ikony social mediów, rok 2026
+- Sekcja bezpieczeństwa: Niemcy → Irlandia 🇮🇪
+- CTA "Zacznij za darmo" po sekcji "Jak to działa" i po tabeli porównania
+
+**Konta testowe — wyczyszczone:**
+- Usunięto z Supabase i Clerk: wszystkie stare konta testowe
+- Gotowe do świeżej rejestracji
+
+**Google OAuth — diagnoza:**
+- Znaleziono przyczynę błędu `invalid_client` — zduplikowana końcówka w Client ID wklejonym w Clerk (`...googleusercontent.comoogleusercontent.com ` + spacja)
+- Poprawiono Client ID w Clerk — czeka na weryfikację
+
+### Do zrobienia
+
+- [ ] **Google OAuth** — zweryfikować czy logowanie przez Google działa po poprawce Client ID
+- [ ] **Rejestracja** — sprawdzić czy nowy użytkownik poprawnie tworzony w Supabase
+- [ ] **Screenshoty z apki** na landing page (po naprawieniu logowania)
+- [ ] Stripe — włączyć po konsultacji prawnej
+- [ ] Regulamin §1 — zaktualizować po rejestracji JDG
