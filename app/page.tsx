@@ -445,21 +445,20 @@ export default function LandingPage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 32 }}>
             {[
-              { step: '01', title: 'Ustaw markę', desc: 'Wpisz nazwę firmy, wybierz branżę i ustaw kolory w Brand Kit. Zrób to raz — AI zawsze będzie pisać w Twoim stylu.', icon: '🎨', delay: 0 },
-              { step: '02', title: 'Wpisz temat', desc: 'Podaj o czym ma być post lub wybierz z kalendarza polskich okazji. AI dobiera ton, długość i platformę.', icon: '✍️', delay: 0.15 },
-              { step: '03', title: 'Publikuj', desc: 'Dostaniesz 3 gotowe wersje tekstu z hashtagami i grafiką AI. Kopiuj i wrzucaj bezpośrednio na platformy.', icon: '🚀', delay: 0.3 },
-            ].map((item, i) => (
-              <div key={i} className={`section-reveal from-up ${isVisible('how') ? 'visible' : ''}`} style={{ transitionDelay: `${item.delay}s` }}>
-                <div className="card-glass" style={{ borderRadius: 20, padding: 36, height: '100%' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
-                    <div className="step-number">{item.step}</div>
-                    <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{item.icon}</div>
-                  </div>
-                  <h3 className="font-display" style={{ fontSize: 22, fontWeight: 700, marginBottom: 12, letterSpacing: '-0.01em' }}>{item.title}</h3>
-                  <p style={{ fontSize: 15, color: 'rgba(240,240,245,0.55)', lineHeight: 1.7 }}>{item.desc}</p>
-                </div>
-              </div>
-            ))}
+  { step: '01', title: 'Ustaw markę', desc: 'Wpisz nazwę firmy, wybierz branżę i ustaw kolory w Brand Kit. Zrób to raz — AI zawsze będzie pisać w Twoim stylu.', delay: 0 },
+  { step: '02', title: 'Wpisz temat', desc: 'Podaj o czym ma być post lub wybierz z kalendarza polskich okazji. AI dobiera ton, długość i platformę.', delay: 0.15 },
+  { step: '03', title: 'Publikuj', desc: 'Dostaniesz 3 gotowe wersje tekstu z hashtagami i grafiką AI. Kopiuj i wrzucaj bezpośrednio na platformy.', delay: 0.3 },
+].map((item, i) => (
+  <div key={i} className={`section-reveal from-up ${isVisible('how') ? 'visible' : ''}`} style={{ transitionDelay: `${item.delay}s` }}>
+    <div className="card-glass" style={{ borderRadius: 20, padding: 36, height: '100%' }}>
+      <div style={{ marginBottom: 24 }}>
+        <div className="step-number">{item.step}</div>
+      </div>
+      <h3 className="font-display" style={{ fontSize: 22, fontWeight: 700, marginBottom: 12, letterSpacing: '-0.01em' }}>{item.title}</h3>
+      <p style={{ fontSize: 15, color: 'rgba(240,240,245,0.55)', lineHeight: 1.7 }}>{item.desc}</p>
+    </div>
+  </div>
+))}
           </div>
 
           {/* CTA po "Jak to działa" */}
@@ -764,7 +763,7 @@ export default function LandingPage() {
           <div className={`section-reveal from-up ${isVisible('security') ? 'visible' : ''}`} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, transitionDelay: '0.1s' }}>
             {[
               { icon: '🔒', title: 'Szyfrowanie TLS 1.3', desc: 'Każde połączenie z serwisem jest szyfrowane. Twoje dane są bezpieczne w transmisji.' },
-              { icon: '🇮🇪', title: 'Serwery w Irlandii', desc: 'Dane przechowujemy na serwerach Supabase w Irlandii — w centrum Unii Europejskiej.' },
+              { icon: '🇮🇪', title: 'Serwery w Irlandii', desc: 'Dane przechowujemy na serwerach Supabase w Irlandii.' },
               { icon: '💳', title: 'Stripe PCI DSS Level 1', desc: 'Dane kart płatniczych nigdy nie trafiają na nasze serwery. Obsługuje je Stripe.' },
               { icon: '🤖', title: 'AI nie uczy się na Twoich danych', desc: 'Treści które generujesz nie są używane do trenowania modeli AI przez Anthropic.' },
               { icon: '👁️', title: 'Ograniczony dostęp', desc: 'Dostęp do danych produkcyjnych mają tylko niezbędne systemy. Żadnych osób trzecich.' },
