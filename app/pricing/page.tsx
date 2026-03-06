@@ -9,6 +9,7 @@ export default function PricingPage() {
   const [loading, setLoading] = useState<string | null>(null);
   const [currentPlan, setCurrentPlan] = useState<string>('free');
   const [planLoading, setPlanLoading] = useState(true);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   useEffect(() => {
     if (!user) { setPlanLoading(false); return; }
@@ -20,6 +21,10 @@ export default function PricingPage() {
 
   const handleSubscribe = async (priceId: string, planName: string) => {
     if (!user) { window.location.href = '/app'; return; }
+    if (!termsAccepted) {
+      alert('Zaakceptuj regulamin i politykę prywatności aby kontynuować.');
+      return;
+    }
     setLoading(planName);
     try {
       const response = await fetch('/api/stripe/create-checkout-session', {
@@ -168,6 +173,25 @@ export default function PricingPage() {
             )}
           </div>
         ))}
+      </div>
+
+      {/* CHECKBOX REGULAMIN */}
+      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '0 24px 40px' }}>
+        <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer', padding: '16px 20px', background: termsAccepted ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)', border: `1px solid ${termsAccepted ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 14, transition: 'all 0.2s' }}>
+          <input
+            type="checkbox"
+            checked={termsAccepted}
+            onChange={e => setTermsAccepted(e.target.checked)}
+            style={{ width: 18, height: 18, marginTop: 2, accentColor: '#6366f1', flexShrink: 0, cursor: 'pointer' }}
+          />
+          <span style={{ fontSize: 14, color: 'rgba(240,240,245,0.65)', lineHeight: 1.6 }}>
+            Zapoznałem/am się z{' '}
+            <Link href="/terms" target="_blank" style={{ color: '#a5b4fc', textDecoration: 'underline' }}>Regulaminem</Link>
+            {' '}i{' '}
+            <Link href="/privacy" target="_blank" style={{ color: '#a5b4fc', textDecoration: 'underline' }}>Polityką prywatności</Link>
+            {' '}serwisu PostujTo i akceptuję ich treść. Wyrażam zgodę na natychmiastowe rozpoczęcie świadczenia usługi i przyjmuję do wiadomości, że po uruchomieniu subskrypcji tracę prawo do odstąpienia od umowy zgodnie z art. 38 pkt 13 ustawy o prawach konsumenta.
+          </span>
+        </label>
       </div>
 
       {/* COMPARISON TABLE */}
