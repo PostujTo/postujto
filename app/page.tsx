@@ -399,12 +399,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* TICKER */}
-      <div style={{ background: 'rgba(99,102,241,0.12)', borderTop: '1px solid rgba(99,102,241,0.2)', borderBottom: '1px solid rgba(99,102,241,0.2)', padding: '14px 0', overflow: 'hidden' }}>
-        <div className="animate-ticker" style={{ display: 'flex', gap: 48, whiteSpace: 'nowrap', width: 'max-content' }}>
-          {Array(2).fill(['Facebook', 'Instagram', 'TikTok', 'Brand Kit', 'AI Obrazy', 'Polskie Okazje', 'Kalendarz Treści', '30 postów w 5 minut', 'Podpis Marki', '12 Branż', 'Guest Mode']).flat().map((item, i) => (
-            <span key={i} style={{ fontSize: 13, color: 'rgba(165,180,252,0.8)', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 48 }}>
-              {item} <span style={{ color: 'rgba(99,102,241,0.4)' }}>◆</span>
+      {/* FEATURES PILLS */}
+      <div style={{ padding: '20px 24px', borderTop: '1px solid rgba(99,102,241,0.15)', borderBottom: '1px solid rgba(99,102,241,0.15)', background: 'rgba(99,102,241,0.06)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+          {['Facebook', 'Instagram', 'TikTok', 'Brand Kit', 'AI Obrazy', 'Polskie Okazje', 'Kalendarz Treści', '30 postów w 5 minut', 'Podpis Marki', '12 Branż', 'Guest Mode'].map((item, i) => (
+            <span key={i} style={{ fontSize: 13, color: 'rgba(165,180,252,0.8)', fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 100, padding: '6px 16px' }}>
+              {item}
             </span>
           ))}
         </div>
@@ -764,7 +764,7 @@ export default function LandingPage() {
           <div className={`section-reveal from-up ${isVisible('security') ? 'visible' : ''}`} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, transitionDelay: '0.1s' }}>
             {[
               { icon: '🔒', title: 'Szyfrowanie TLS 1.3', desc: 'Każde połączenie z serwisem jest szyfrowane. Twoje dane są bezpieczne w transmisji.' },
-              { icon: '🇩🇪', title: 'Serwery w Niemczech', desc: 'Dane przechowujemy na serwerach Supabase we Frankfurcie — w sercu Unii Europejskiej.' },
+              { icon: '🇮🇪', title: 'Serwery w Irlandii', desc: 'Dane przechowujemy na serwerach Supabase w Irlandii — w centrum Unii Europejskiej.' },
               { icon: '💳', title: 'Stripe PCI DSS Level 1', desc: 'Dane kart płatniczych nigdy nie trafiają na nasze serwery. Obsługuje je Stripe.' },
               { icon: '🤖', title: 'AI nie uczy się na Twoich danych', desc: 'Treści które generujesz nie są używane do trenowania modeli AI przez Anthropic.' },
               { icon: '👁️', title: 'Ograniczony dostęp', desc: 'Dostęp do danych produkcyjnych mają tylko niezbędne systemy. Żadnych osób trzecich.' },
@@ -834,42 +834,49 @@ export default function LandingPage() {
               Postuj<span className="gradient-text">To</span>
             </span>
             <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.3)', marginTop: 6 }}>
-              © 2025 PostujTo.com · Wykonane z ❤️ w Polsce
+              © 2026 PostujTo.com · Wykonane z ❤️ w Polsce
             </p>
           </div>
           <div style={{ display: 'flex', gap: 32, alignItems: 'center', flexWrap: 'wrap' }}>
-              {[
-                { label: 'Generator', href: '/app' },
-                { label: 'Cennik', href: '#pricing' },
-                { label: 'Dashboard', href: '/dashboard' },
-                { label: 'Regulamin', href: '/terms' },
-                { label: 'Prywatność', href: '/privacy' },
-                { label: 'FAQ', href: '/faq' },
-              ].map(link => (
-                <Link key={link.label} href={link.href} style={{ fontSize: 14, color: 'rgba(240,240,245,0.4)', textDecoration: 'none', transition: 'color 0.2s' }}
-                  onMouseEnter={e => (e.target as HTMLElement).style.color = '#a5b4fc'}
-                  onMouseLeave={e => (e.target as HTMLElement).style.color = 'rgba(240,240,245,0.4)'}
-                >
-                  {link.label}
-                </Link>
-              ))}
-              <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.1)' }} />
-              {[
-                { label: 'TikTok', href: 'https://www.tiktok.com/@reklamyzpostujto?utm_source=postujto_landing&utm_medium=footer&utm_campaign=social', emoji: '🎵' },
-                { label: 'Instagram', href: 'https://www.instagram.com/reklamyzpostujto?utm_source=postujto_landing&utm_medium=footer&utm_campaign=social', emoji: '📸' },
-                { label: 'Facebook', href: 'https://www.facebook.com/reklamyzpostujto?utm_source=postujto_landing&utm_medium=footer&utm_campaign=social', emoji: '📘' },
-              ].map(social => (
-                <a key={social.label} href={social.href} target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'rgba(240,240,245,0.35)', textDecoration: 'none', transition: 'color 0.2s' }}
-                  onMouseEnter={e => (e.currentTarget.style.color = '#a5b4fc')}
-                  onMouseLeave={e => (e.currentTarget.style.color = 'rgba(240,240,245,0.35)')}
-                >
-                  <span>{social.emoji}</span>{social.label}
-                </a>
-              ))}
-            </div>
+            {[
+              { label: 'Generator', href: '/app' },
+              { label: 'Cennik', href: '#pricing' },
+              { label: 'Regulamin', href: '/terms' },
+              { label: 'Prywatność', href: '/privacy' },
+              { label: 'FAQ', href: '/faq' },
+            ].map(link => (
+              <Link key={link.label} href={link.href} style={{ fontSize: 14, color: 'rgba(240,240,245,0.4)', textDecoration: 'none', transition: 'color 0.2s' }}
+                onMouseEnter={e => (e.target as HTMLElement).style.color = '#a5b4fc'}
+                onMouseLeave={e => (e.target as HTMLElement).style.color = 'rgba(240,240,245,0.4)'}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <SignedIn>
+              <Link href="/dashboard" style={{ fontSize: 14, color: 'rgba(240,240,245,0.4)', textDecoration: 'none', transition: 'color 0.2s' }}
+                onMouseEnter={e => (e.target as HTMLElement).style.color = '#a5b4fc'}
+                onMouseLeave={e => (e.target as HTMLElement).style.color = 'rgba(240,240,245,0.4)'}
+              >
+                Dashboard
+              </Link>
+            </SignedIn>
+            <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.1)' }} />
+            {[
+              { label: 'TikTok', href: 'https://www.tiktok.com/@reklamyzpostujto?utm_source=postujto_landing&utm_medium=footer&utm_campaign=social', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.73a8.19 8.19 0 004.79 1.54V6.82a4.85 4.85 0 01-1.02-.13z"/></svg> },
+              { label: 'Instagram', href: 'https://www.instagram.com/reklamyzpostujto?utm_source=postujto_landing&utm_medium=footer&utm_campaign=social', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162S8.597 18.163 12 18.163s6.162-2.759 6.162-6.162S15.403 5.838 12 5.838zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg> },
+              { label: 'Facebook', href: 'https://www.facebook.com/reklamyzpostujto?utm_source=postujto_landing&utm_medium=footer&utm_campaign=social', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> },
+            ].map(social => (
+              <a key={social.label} href={social.href} target="_blank" rel="noopener noreferrer"
+                style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'rgba(240,240,245,0.35)', textDecoration: 'none', transition: 'color 0.2s' }}
+                onMouseEnter={e => (e.currentTarget.style.color = '#a5b4fc')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(240,240,245,0.35)')}
+              >
+                {social.icon}{social.label}
+              </a>
+            ))}
+          </div>
         </div>
-      </footer>
-    </>
-  );
-}
+        </footer>
+      </>
+    );
+} 
