@@ -401,3 +401,86 @@ DELETE /api/user/delete-account — usunięcie konta (Supabase + Clerk)
 - [ ] Screenshoty z apki na landing page (dashboard, kreator, kalendarz)
 - [ ] Social proof (logotypy firm, licznik użytkowników)
 - [ ] CSP — monitoring czy coś blokuje po wdrożeniu
+- [ ] Cennik na landing page (`/` sekcja `#pricing`) — dodany, ale wymaga poprawek graficznych (niespójność z `/pricing` page) — poprawić w kolejnej sesji
+
+## Kod do użycia później — Social Proof
+
+⚠️ Wstawić dopiero gdy będą prawdziwi użytkownicy (min. 3 opinie). Fałszywy social proof narusza ustawę o nieuczciwych praktykach rynkowych.
+
+Wstawić w `app/page.tsx` między `{/* HOW IT WORKS */}` a `{/* FEATURES */}`. Dodać też `'social-proof'` do tablicy sekcji w `IntersectionObserver`.
+
+```tsx
+{/* SOCIAL PROOF */}
+      <section style={{ padding: '80px 24px', position: 'relative' }} id="social-proof" data-animate>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+
+          {/* Licznik + ocena */}
+          <div className={`section-reveal from-up ${isVisible('social-proof') ? 'visible' : ''}`} style={{ textAlign: 'center', marginBottom: 64 }}>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 48, flexWrap: 'wrap', marginBottom: 16 }}>
+              <div style={{ textAlign: 'center' }}>
+                <div className="font-display" style={{ fontSize: 48, fontWeight: 800, letterSpacing: '-0.03em', background: 'linear-gradient(135deg, #6366f1, #a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>500+</div>
+                <div style={{ fontSize: 14, color: 'rgba(240,240,245,0.45)', marginTop: 4 }}>firm w Polsce</div>
+              </div>
+              <div style={{ width: 1, height: 60, background: 'rgba(255,255,255,0.08)' }} />
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center', marginBottom: 4 }}>
+                  {[1,2,3,4,5].map(i => <span key={i} style={{ fontSize: 24, color: '#fbbf24' }}>★</span>)}
+                </div>
+                <div style={{ fontSize: 14, color: 'rgba(240,240,245,0.45)' }}>4.9/5 średnia ocena</div>
+              </div>
+              <div style={{ width: 1, height: 60, background: 'rgba(255,255,255,0.08)' }} />
+              <div style={{ textAlign: 'center' }}>
+                <div className="font-display" style={{ fontSize: 48, fontWeight: 800, letterSpacing: '-0.03em', background: 'linear-gradient(135deg, #6366f1, #a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>12k+</div>
+                <div style={{ fontSize: 14, color: 'rgba(240,240,245,0.45)', marginTop: 4 }}>postów wygenerowanych</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Logotypy */}
+          <div className={`section-reveal from-up ${isVisible('social-proof') ? 'visible' : ''}`} style={{ transitionDelay: '0.1s', marginBottom: 72 }}>
+            <p style={{ textAlign: 'center', fontSize: 12, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(240,240,245,0.25)', marginBottom: 28 }}>
+              Używane przez firmy z całej Polski
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 40, flexWrap: 'wrap' }}>
+              {['Salon Urody', 'Sklep Online', 'Restauracja', 'Agencja', 'Fitness Club', 'Szkoła Językowa'].map((name, i) => (
+                <div key={i} style={{ padding: '10px 24px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, fontSize: 13, fontWeight: 600, color: 'rgba(240,240,245,0.3)', letterSpacing: '0.03em' }}>
+                  {name}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Opinie */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+            {[
+              { name: 'Magda K.', role: 'Właścicielka salonu urody', avatar: '💅', rating: 5, text: 'Oszczędzam minimum 8 godzin tygodniowo. Posty są lepsze niż te które pisałam sama — a zajmuje mi to teraz 5 minut dziennie.' },
+              { name: 'Tomek W.', role: 'Sklep z elektroniką online', avatar: '🛒', rating: 5, text: 'Zrezygnowałem z copywritera za 1800 zł/msc. PostujTo robi to samo za ułamek ceny i nigdy nie ma "wolnych terminów".' },
+              { name: 'Kasia M.', role: 'Restauracja, Kraków', avatar: '🍽️', rating: 5, text: 'Kalendarz treści na cały miesiąc planuję w niedzielę w 10 minut. Wcześniej nie miałam postów przez 2 miesiące z rzędu.' },
+            ].map((review, i) => (
+              <div
+                key={i}
+                className={`section-reveal from-up card-glass ${isVisible('social-proof') ? 'visible' : ''}`}
+                style={{ borderRadius: 18, padding: 28, transitionDelay: `${0.2 + i * 0.1}s` }}
+              >
+                <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
+                  {Array(review.rating).fill(0).map((_, j) => <span key={j} style={{ fontSize: 14, color: '#fbbf24' }}>★</span>)}
+                </div>
+                <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.7)', lineHeight: 1.7, marginBottom: 20, fontStyle: 'italic' }}>
+                  "{review.text}"
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>
+                    {review.avatar}
+                  </div>
+                  <div>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: '#f0f0f5' }}>{review.name}</p>
+                    <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)' }}>{review.role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </section>
+```
