@@ -343,10 +343,61 @@ Odpisz szablonem powołując się na §5 Regulaminu:
 - Znaleziono przyczynę błędu `invalid_client` — zduplikowana końcówka w Client ID wklejonym w Clerk (`...googleusercontent.comoogleusercontent.com ` + spacja)
 - Poprawiono Client ID w Clerk — czeka na weryfikację
 
+## Aktualizacja — 6 marca 2026 (popołudnie)
+
+### Zrealizowane
+
+**Google OAuth — naprawiony ✅**
+- Przyczyna błędu `invalid_client`: zduplikowana końcówka w Client ID wklejonym w Clerk
+- Poprawiono Client ID, status aplikacji Google zmieniony na "In production"
+- Clerk webhook URL zmieniony na `https://www.postujto.com/api/webhooks/clerk` (fix HTTP 307)
+- Rejestracja nowych użytkowników działa — rekord w Supabase + email onboardingowy
+
+**Security — CSP headers dodane do `next.config.ts`:**
+- Content-Security-Policy (script-src, style-src, img-src, connect-src, frame-src, worker-src)
+- Permissions-Policy (camera, microphone, geolocation)
+- Whitelist: Clerk, Stripe, Supabase, Anthropic, Replicate, Resend, Google Fonts, Cloudflare
+
+**Cennik `/pricing` — ulepszenia:**
+- Checkbox akceptacji regulaminu przed przejściem do Stripe
+- Własny modal "Wymagana akceptacja" zamiast natywnego `alert()`
+- Linki do Regulaminu i Polityki prywatności w checkboxie i modalu
+- Tekst o zrzeczeniu prawa do odstąpienia (art. 38 pkt 13)
+
+**Stripe success/cancel flow — przepisane w ciemnym motywie:**
+- `app/success/SuccessContent.tsx` — ciemny motyw, linki do Regulaminu i Polityki prywatności w stopce
+- `app/cancel/page.tsx` — nowa strona (wcześniej nie istniała), ciemny motyw, linki prawne
+- `cancel_url` w checkout session zmieniony z `/pricing` na `/cancel`
+
+**Polityka prywatności `/privacy` — zaktualizowana:**
+- Dodana kolumna "Odbiorcy" do tabeli §2 (Clerk/Supabase, Stripe, Anthropic, Vercel/Cloudflare)
+- Data aktualizacji zmieniona na 6 marca 2026
+
+**Regulamin `/terms` — wcześniej w tej sesji:**
+- Dodano §5 Reklamacje (procedura, termin 14 dni roboczych)
+- Dodano §10 tabela podstaw prawnych RODO
+- Dodano §12 Rozstrzyganie sporów (ODR, SPSK, art. 34 KPC)
+- Spis treści z anchorami §1-§13
+
+**Dashboard `/dashboard` — przyciski RODO:**
+- "📥 Pobierz moje dane" — eksport JSON z danymi użytkownika
+- "🗑️ Usuń konto" — podwójne potwierdzenie, usuwa z Supabase + Clerk
+- Nowe endpointy: `GET /api/user/gdpr-export`, `DELETE /api/user/delete-account`
+
+**Landing page — drobne poprawki:**
+- Link "Cennik" w nav — dodany efekt hover (`#a5b4fc`) zgodny ze stopką
+- Sekcja bezpieczeństwa: 🇩🇪 Niemcy → 🇮🇪 Irlandia (serwer Supabase eu-west-1)
+
+### API endpoints — nowe
+```
+GET  /api/user/gdpr-export     — eksport danych użytkownika (JSON)
+DELETE /api/user/delete-account — usunięcie konta (Supabase + Clerk)
+```
+
 ### Do zrobienia
 
-- [ ] **Google OAuth** — zweryfikować czy logowanie przez Google działa po poprawce Client ID
-- [ ] **Rejestracja** — sprawdzić czy nowy użytkownik poprawnie tworzony w Supabase
-- [ ] **Screenshoty z apki** na landing page (po naprawieniu logowania)
 - [ ] Stripe — włączyć po konsultacji prawnej
-- [ ] Regulamin §1 — zaktualizować po rejestracji JDG
+- [ ] Regulamin §1 — zaktualizować po rejestracji JDG (nazwa firmy, NIP, REGON)
+- [ ] Screenshoty z apki na landing page (dashboard, kreator, kalendarz)
+- [ ] Social proof (logotypy firm, licznik użytkowników)
+- [ ] CSP — monitoring czy coś blokuje po wdrożeniu

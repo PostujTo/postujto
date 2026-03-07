@@ -636,6 +636,87 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* CENNIK */}
+      <section style={{ padding: '80px 24px' }} id="pricing" data-animate>
+        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+          <div className={`section-reveal from-up ${isVisible('pricing') ? 'visible' : ''}`} style={{ textAlign: 'center', marginBottom: 56 }}>
+            <div style={{ display: 'inline-block', fontSize: 12, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#6366f1', marginBottom: 16 }}>Cennik</div>
+            <h2 className="font-display" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 800, letterSpacing: '-0.02em' }}>
+              Proste ceny,<br /><span className="gradient-text">bez ukrytych kosztów</span>
+            </h2>
+            <p style={{ marginTop: 16, fontSize: 16, color: 'rgba(240,240,245,0.5)' }}>7-dniowa gwarancja zwrotu. Anulujesz jednym kliknięciem.</p>
+          </div>
+
+          <div className={`section-reveal from-up ${isVisible('pricing') ? 'visible' : ''}`} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, transitionDelay: '0.1s' }}>
+            {[
+              {
+                name: 'Free',
+                price: '0',
+                period: 'jednorazowo',
+                desc: 'Wypróbuj bez rejestracji',
+                features: ['1 post bez logowania', '5 postów po rejestracji', 'Facebook, Instagram, TikTok'],
+                featured: false,
+                href: '/app',
+                cta: 'Zacznij za darmo',
+              },
+              {
+                name: 'Starter',
+                price: '79',
+                period: '/ miesiąc',
+                desc: '2,60 zł dziennie',
+                features: ['Unlimited postów', 'Generowanie obrazów AI', 'Brand Kit', 'Kalendarz treści'],
+                featured: true,
+                badge: 'NAJPOPULARNIEJSZY',
+                href: '/pricing',
+                cta: 'Wybierz Starter',
+              },
+              {
+                name: 'Pro',
+                price: '199',
+                period: '/ miesiąc',
+                desc: '6,60 zł dziennie',
+                features: ['Wszystko ze Starter', 'Auto 3 obrazy przy każdym poście', 'Podpis marki na obrazach'],
+                featured: false,
+                href: '/pricing',
+                cta: 'Wybierz Pro',
+              },
+            ].map((plan, i) => (
+              <div key={i} style={{ borderRadius: 20, padding: 32, border: plan.featured ? '1px solid rgba(99,102,241,0.5)' : '1px solid rgba(255,255,255,0.08)', background: plan.featured ? 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(168,85,247,0.1))' : 'rgba(255,255,255,0.03)', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+                {plan.badge && (
+                  <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg, #6366f1, #a855f7)', padding: '5px 16px', borderRadius: 100, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', color: 'white', whiteSpace: 'nowrap' }}>
+                    {plan.badge}
+                  </div>
+                )}
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#6366f1', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>{plan.name}</div>
+                <div style={{ marginBottom: 4 }}>
+                  <span style={{ fontSize: 44, fontWeight: 800, letterSpacing: '-0.03em', color: '#f0f0f5' }}>{plan.price} <span style={{ fontSize: 16 }}>zł</span></span>
+                </div>
+                <div style={{ fontSize: 13, color: 'rgba(240,240,245,0.4)', marginBottom: 4 }}>{plan.period}</div>
+                <div style={{ fontSize: 13, color: 'rgba(240,240,245,0.45)', marginBottom: 24, paddingBottom: 24, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>{plan.desc}</div>
+                <ul style={{ listStyle: 'none', marginBottom: 28, flex: 1 }}>
+                  {plan.features.map((f, fi) => (
+                    <li key={fi} style={{ display: 'flex', gap: 8, marginBottom: 10, fontSize: 14, color: 'rgba(240,240,245,0.65)' }}>
+                      <span style={{ color: '#6366f1', flexShrink: 0 }}>✓</span>{f}
+                    </li>
+                  ))}
+                </ul>
+                <Link href={plan.href}>
+                  <button className={plan.featured ? 'btn-primary' : 'btn-secondary'} style={{ width: '100%', padding: '13px', borderRadius: 12, fontSize: 14, border: plan.featured ? 'none' : '1px solid rgba(255,255,255,0.15)' }}>
+                    {plan.cta}
+                  </button>
+                </Link>
+              </div>
+            ))}
+          </div>
+
+          <div className={`section-reveal from-up ${isVisible('pricing') ? 'visible' : ''}`} style={{ textAlign: 'center', marginTop: 32, transitionDelay: '0.2s' }}>
+            <Link href="/pricing" style={{ fontSize: 14, color: '#a5b4fc', textDecoration: 'none' }}>
+              Zobacz pełne porównanie planów →
+            </Link>
+          </div>
+        </div>
+      </section>
+
 {/* FAQ */}
       <section style={{ padding: '80px 24px', background: 'rgba(255,255,255,0.01)' }} id="faq" data-animate>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
