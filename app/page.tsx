@@ -356,11 +356,11 @@ const handleConfirmTerms = async () => {
               Cennik
             </Link>
             <SignedOut>
-              <SignInButton mode="modal">
-                <button className="btn-secondary" style={{ padding: '10px 20px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
-                  Zaloguj się
-                </button>
-              </SignInButton>
+              <SignInButton mode="modal" forceRedirectUrl="/app">
+              <button className="btn-secondary" style={{ padding: '10px 20px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
+                Zaloguj się
+              </button>
+            </SignInButton>
               <Link href="/app">
                 <button className="btn-primary" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
                   <span>Wypróbuj za darmo</span>
