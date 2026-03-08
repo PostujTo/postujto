@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 
 function FaqAccordion() {
   const [open, setOpen] = useState<number | null>(null);
@@ -34,6 +34,39 @@ function FaqAccordion() {
 export default function LandingPage() {
   const [scrollY, setScrollY] = useState(0);
   const [landingBilling, setLandingBilling] = useState<'monthly' | 'annual'>('monthly');
+const { user } = useUser();
+const [showTermsModal, setShowTermsModal] = useState(false);
+const [termsChecked, setTermsChecked] = useState(false);
+const [pendingPriceId, setPendingPriceId] = useState<string | null>(null);
+const [pendingPlan, setPendingPlan] = useState<string | null>(null);
+const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+const handleLandingSubscribe = (priceId: string, planName: string) => {
+  if (!user) { window.location.href = '/app'; return; }
+  setPendingPriceId(priceId);
+  setPendingPlan(planName);
+  setTermsChecked(false);
+  setShowTermsModal(true);
+};
+
+const handleConfirmTerms = async () => {
+  if (!pendingPriceId || !pendingPlan) return;
+  setCheckoutLoading(true);
+  await fetch('/api/user/accept-terms', { method: 'POST' });
+  try {
+    const response = await fetch('/api/stripe/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ priceId: pendingPriceId, userId: user!.id }),
+    });
+    const data = await response.json();
+    if (data.url) window.location.href = data.url;
+  } catch {
+    alert('Wystąpił błąd. Spróbuj ponownie.');
+  } finally {
+    setCheckoutLoading(false);
+  }
+};
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -257,6 +290,46 @@ export default function LandingPage() {
         ::-webkit-scrollbar-track { background: #0a0a0f; }
         ::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 3px; }
       `}</style>
+
+{showTermsModal && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div style={{ background: '#13131a', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 24, padding: 40, maxWidth: 480, width: '100%', textAlign: 'center' }}>
+            <div style={{ fontSize: 44, marginBottom: 16 }}>📋</div>
+            <h3 style={{ fontSize: 22, fontWeight: 800, color: '#f0f0f5', marginBottom: 12, letterSpacing: '-0.01em' }}>Zanim przejdziesz do płatności</h3>
+            <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.55)', lineHeight: 1.7, marginBottom: 28 }}>
+              Prosimy o zapoznanie się z dokumentami prawnymi serwisu PostujTo.
+            </p>
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer', padding: '16px 20px', background: termsChecked ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)', border: `1px solid ${termsChecked ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 14, marginBottom: 24, transition: 'all 0.2s', textAlign: 'left' }}>
+              <input
+                type="checkbox"
+                checked={termsChecked}
+                onChange={e => setTermsChecked(e.target.checked)}
+                style={{ width: 18, height: 18, marginTop: 2, accentColor: '#6366f1', flexShrink: 0, cursor: 'pointer' }}
+              />
+              <span style={{ fontSize: 13, color: 'rgba(240,240,245,0.65)', lineHeight: 1.6 }}>
+                Zapoznałem/am się z{' '}
+                <a href="/terms" target="_blank" style={{ color: '#a5b4fc', textDecoration: 'underline' }}>Regulaminem</a>
+                {' '}i{' '}
+                <a href="/privacy" target="_blank" style={{ color: '#a5b4fc', textDecoration: 'underline' }}>Polityką prywatności</a>
+                {' '}serwisu PostujTo i akceptuję ich treść. Wyrażam zgodę na natychmiastowe rozpoczęcie świadczenia usługi i przyjmuję do wiadomości, że po uruchomieniu subskrypcji tracę prawo do odstąpienia od umowy zgodnie z art. 38 pkt 13 ustawy o prawach konsumenta.
+              </span>
+            </label>
+            <button
+              onClick={handleConfirmTerms}
+              disabled={!termsChecked || checkoutLoading}
+              style={{ width: '100%', padding: '14px', borderRadius: 12, fontSize: 15, fontWeight: 700, border: 'none', cursor: termsChecked ? 'pointer' : 'not-allowed', background: termsChecked ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(255,255,255,0.05)', color: termsChecked ? '#fff' : 'rgba(240,240,245,0.3)', transition: 'all 0.2s', marginBottom: 12 }}
+            >
+              {checkoutLoading ? 'Ładowanie...' : 'Akceptuję — przejdź do płatności →'}
+            </button>
+            <button
+              onClick={() => setShowTermsModal(false)}
+              style={{ width: '100%', padding: '12px', borderRadius: 12, fontSize: 14, fontWeight: 600, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'rgba(240,240,245,0.4)', cursor: 'pointer' }}
+            >
+              Anuluj
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="noise-overlay" />
 
@@ -711,11 +784,26 @@ export default function LandingPage() {
           </li>
         ))}
       </ul>
-      <Link href={plan.href}>
-        <button className={plan.featured ? 'btn-primary' : 'btn-secondary'} style={{ width: '100%', padding: '14px', borderRadius: 12, fontSize: 15, border: plan.featured ? 'none' : '1px solid rgba(255,255,255,0.15)', cursor: 'pointer' }}>
-          {plan.cta}
-        </button>
-      </Link>
+      {plan.name === 'Free' ? (
+            <Link href="/app">
+              <button className="btn-secondary" style={{ width: '100%', padding: '14px', borderRadius: 12, fontSize: 15, border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer' }}>
+                {plan.cta}
+              </button>
+            </Link>
+          ) : (
+            <button
+              className={plan.featured ? 'btn-primary' : 'btn-secondary'}
+              style={{ width: '100%', padding: '14px', borderRadius: 12, fontSize: 15, border: plan.featured ? 'none' : '1px solid rgba(255,255,255,0.15)', cursor: 'pointer' }}
+              onClick={() => handleLandingSubscribe(
+                landingBilling === 'monthly'
+                  ? (plan.name === 'Starter' ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD! : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM!)
+                  : (plan.name === 'Starter' ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD_ANNUAL! : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM_ANNUAL!),
+                plan.name
+              )}
+            >
+              {plan.cta}
+            </button>
+          )}
     </div>
   ))}
 </div>
