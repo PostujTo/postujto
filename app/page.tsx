@@ -663,7 +663,7 @@ export default function LandingPage() {
     </div>
 
     <div className={`section-reveal from-up ${isVisible('pricing') ? 'visible' : ''}`} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, transitionDelay: '0.1s' }}>
-      {[
+     {[
   {
     name: 'Free',
     price: '0',
@@ -676,9 +676,9 @@ export default function LandingPage() {
   },
   {
     name: 'Starter',
-    price: '79',
-    period: '/ miesiąc',
-    desc: '2,60 zł dziennie',
+    price: landingBilling === 'monthly' ? '79' : '63',
+    period: landingBilling === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 756 zł/rok',
+    desc: landingBilling === 'monthly' ? '2,60 zł dziennie' : 'Oszczędzasz 192 zł rocznie',
     features: ['Unlimited postów', 'Generowanie obrazów AI', 'Brand Kit', 'Historia i ulubione', 'Kalendarz polskich okazji'],
     featured: true,
     badge: 'NAJPOPULARNIEJSZY',
@@ -687,40 +687,42 @@ export default function LandingPage() {
   },
   {
     name: 'Pro',
-    price: '199',
-    period: '/ miesiąc',
-    desc: '6,60 zł dziennie',
+    price: landingBilling === 'monthly' ? '199' : '159',
+    period: landingBilling === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 1908 zł/rok',
+    desc: landingBilling === 'monthly' ? '6,60 zł dziennie' : 'Oszczędzasz 480 zł rocznie',
     features: ['Wszystko ze Starter', 'Auto 3 obrazy przy każdym poście', 'Podpis marki na obrazach', 'Priorytetowe generowanie'],
     featured: false,
     href: '/pricing',
     cta: 'Wybierz Pro',
   },
-      ].map((plan, i) => (
-        <div key={i} style={{ borderRadius: 20, padding: 32, border: plan.featured ? '1px solid rgba(99,102,241,0.5)' : '1px solid rgba(255,255,255,0.08)', background: plan.featured ? 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(168,85,247,0.1))' : 'rgba(255,255,255,0.03)', position: 'relative', display: 'flex', flexDirection: 'column' }}>
-          {plan.badge && (
-            <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg, #6366f1, #a855f7)', padding: '5px 16px', borderRadius: 100, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', color: 'white', whiteSpace: 'nowrap' }}>
-              {plan.badge}
-            </div>
-          )}
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#6366f1', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>{plan.name}</div>
-          <div style={{ marginBottom: 4 }}>
-            <span style={{ fontSize: 44, fontWeight: 800, letterSpacing: '-0.03em', color: '#f0f0f5' }}>{plan.price} <span style={{ fontSize: 16 }}>zł</span></span>
-          </div>
-          <div style={{ fontSize: 13, color: 'rgba(240,240,245,0.4)', marginBottom: 4 }}>{plan.period}</div>
-          <div style={{ fontSize: 13, color: plan.featured && landingBilling === 'annual' ? '#4ade80' : 'rgba(240,240,245,0.45)', marginBottom: 24, paddingBottom: 24, borderBottom: '1px solid rgba(255,255,255,0.06)', fontWeight: plan.featured && landingBilling === 'annual' ? 600 : 400 }}>{plan.desc}</div>
-          <ul style={{ listStyle: 'none', marginBottom: 28, flex: 1 }}>
-            {plan.features.map((f, fi) => (
-              <li key={fi} style={{ display: 'flex', gap: 8, marginBottom: 10, fontSize: 14, color: 'rgba(240,240,245,0.65)' }}>
-                <span style={{ color: '#6366f1', flexShrink: 0 }}>✓</span>{f}
-              </li>
-            ))}
-          </ul>
-          <Link href={plan.href}>
-            <button className={plan.featured ? 'btn-primary' : 'btn-secondary'} style={{ width: '100%', padding: '13px', borderRadius: 12, fontSize: 14, border: plan.featured ? 'none' : '1px solid rgba(255,255,255,0.15)', cursor: 'pointer' }}>
-              {plan.cta}
-            </button>
-          </Link>
-        </div>
+].map((plan, i) => (
+        <div key={i} style={{ borderRadius: 20, padding: 36, border: plan.featured ? '1px solid rgba(99,102,241,0.5)' : '1px solid rgba(255,255,255,0.08)', background: plan.featured ? 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(168,85,247,0.15))' : 'rgba(255,255,255,0.03)', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+  {plan.badge && (
+    <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg, #6366f1, #a855f7)', padding: '5px 16px', borderRadius: 100, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', color: 'white', whiteSpace: 'nowrap' }}>
+      {plan.badge}
+    </div>
+  )}
+  <div style={{ marginBottom: 8 }}>
+    <span style={{ fontSize: 13, fontWeight: 700, color: '#6366f1', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{plan.name}</span>
+  </div>
+  <div style={{ marginBottom: 4 }}>
+    <span style={{ fontSize: 48, fontWeight: 800, letterSpacing: '-0.03em', color: '#f0f0f5' }}>{plan.price} <span style={{ fontSize: 18 }}>zł</span></span>
+  </div>
+  <div style={{ fontSize: 13, color: 'rgba(240,240,245,0.4)', marginBottom: 8 }}>{plan.period}</div>
+  <div style={{ fontSize: 14, color: plan.featured && landingBilling === 'annual' ? '#4ade80' : 'rgba(240,240,245,0.55)', marginBottom: 28, paddingBottom: 28, borderBottom: '1px solid rgba(255,255,255,0.06)', fontWeight: plan.featured && landingBilling === 'annual' ? 600 : 400 }}>{plan.desc}</div>
+  <ul style={{ listStyle: 'none', marginBottom: 32, flex: 1 }}>
+    {plan.features.map((f, fi) => (
+      <li key={fi} style={{ display: 'flex', gap: 10, marginBottom: 12, fontSize: 14, color: 'rgba(240,240,245,0.7)' }}>
+        <span style={{ color: '#6366f1', flexShrink: 0, marginTop: 1 }}>✓</span>{f}
+      </li>
+    ))}
+  </ul>
+  <Link href={plan.href}>
+    <button className={plan.featured ? 'btn-primary' : 'btn-secondary'} style={{ width: '100%', padding: '14px', borderRadius: 12, fontSize: 15, border: plan.featured ? 'none' : '1px solid rgba(255,255,255,0.15)', cursor: 'pointer' }}>
+      {plan.cta}
+    </button>
+  </Link>
+</div>
       ))}
     </div>
 
