@@ -444,11 +444,20 @@ export default function GeneratorPage() {
         {/* HEADER */}
         <header style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(10,10,15,0.8)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100 }}>
           <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Link href="/" style={{ textDecoration: 'none' }}>
-              <span className="font-display" style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em', color: '#f0f0f5' }}>
-                Postuj<span className="gradient-text">To</span>
-              </span>
-            </Link>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+  <Link href="/" style={{ textDecoration: 'none' }}>
+    <span className="font-display" style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em', color: '#f0f0f5' }}>
+      Postuj<span className="gradient-text">To</span>
+    </span>
+  </Link>
+  <SignedIn>
+    <Link href="/">
+      <button className="btn-ghost" style={{ padding: '7px 16px', borderRadius: 10, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+        ← Strona główna
+      </button>
+    </Link>
+  </SignedIn>
+</div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <SignedOut>

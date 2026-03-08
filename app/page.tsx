@@ -363,14 +363,14 @@ const handleConfirmTerms = async () => {
               </SignInButton>
               <Link href="/app">
                 <button className="btn-primary" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
-                  <span>Wypróbuj za darmo →</span>
+                  <span>Wypróbuj za darmo</span>
                 </button>
               </Link>
             </SignedOut>
             <SignedIn>
               <Link href="/app">
                 <button className="btn-primary" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
-                  <span>Otwórz generator →</span>
+                  <span>Otwórz generator</span>
                 </button>
               </Link>
               <UserButton afterSignOutUrl="/" />
@@ -874,7 +874,6 @@ const handleConfirmTerms = async () => {
           </div>
           <div style={{ display: 'flex', gap: 32, alignItems: 'center', flexWrap: 'wrap' }}>
             {[
-              { label: 'Generator', href: '/app' },
               { label: 'Cennik', href: '/pricing' },
               { label: 'Regulamin', href: '/terms' },
               { label: 'Prywatność', href: '/privacy' },
