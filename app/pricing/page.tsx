@@ -105,7 +105,7 @@ const plans = [
         .btn-primary:hover { filter: brightness(1.25); transform: translateY(-1px); }
         .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #f0f0f5; font-weight: 600; transition: all 0.3s ease; cursor: pointer; }
         .btn-secondary:hover { background: rgba(255,255,255,0.1); }
-        .pricing-card { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .pricing-card { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease; }
         .pricing-card:hover { transform: translateY(-8px); }
         .pricing-card.featured { background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(168,85,247,0.15)); border-color: rgba(99,102,241,0.5) !important; }
         .gradient-text { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
