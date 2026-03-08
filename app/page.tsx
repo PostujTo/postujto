@@ -664,27 +664,37 @@ export default function LandingPage() {
 
     <div className={`section-reveal from-up ${isVisible('pricing') ? 'visible' : ''}`} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, transitionDelay: '0.1s' }}>
       {[
-        {
-          name: 'Free', price: '0', period: 'jednorazowo', desc: 'Wypróbuj bez rejestracji',
-          features: ['1 post bez logowania', '5 postów po rejestracji', 'Facebook, Instagram, TikTok', 'Wszystkie branże'],
-          featured: false, href: '/app', cta: 'Zacznij za darmo',
-        },
-        {
-          name: 'Starter',
-          price: landingBilling === 'monthly' ? '79' : '63',
-          period: landingBilling === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 756 zł/rok',
-          desc: landingBilling === 'monthly' ? '2,60 zł dziennie' : 'Oszczędzasz 192 zł rocznie',
-          features: ['Unlimited postów', 'Generowanie obrazów AI', 'Brand Kit', 'Historia i ulubione', 'Kalendarz polskich okazji'],
-          featured: true, badge: 'NAJPOPULARNIEJSZY', href: '/pricing', cta: 'Wybierz Starter',
-        },
-        {
-          name: 'Pro',
-          price: landingBilling === 'monthly' ? '199' : '159',
-          period: landingBilling === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 1908 zł/rok',
-          desc: landingBilling === 'monthly' ? '6,60 zł dziennie' : 'Oszczędzasz 480 zł rocznie',
-          features: ['Wszystko ze Starter', 'Auto 3 obrazy przy każdym poście', 'Podpis marki na obrazach', 'Priorytetowe generowanie'],
-          featured: false, href: '/pricing', cta: 'Wybierz Pro',
-        },
+  {
+    name: 'Free',
+    price: '0',
+    period: 'jednorazowo',
+    desc: 'Wypróbuj bez rejestracji',
+    features: ['1 post bez logowania', '5 postów po rejestracji', 'Facebook, Instagram, TikTok', 'Wszystkie branże'],
+    featured: false,
+    href: '/app',
+    cta: 'Zacznij za darmo',
+  },
+  {
+    name: 'Starter',
+    price: '79',
+    period: '/ miesiąc',
+    desc: '2,60 zł dziennie',
+    features: ['Unlimited postów', 'Generowanie obrazów AI', 'Brand Kit', 'Historia i ulubione', 'Kalendarz polskich okazji'],
+    featured: true,
+    badge: 'NAJPOPULARNIEJSZY',
+    href: '/pricing',
+    cta: 'Wybierz Starter',
+  },
+  {
+    name: 'Pro',
+    price: '199',
+    period: '/ miesiąc',
+    desc: '6,60 zł dziennie',
+    features: ['Wszystko ze Starter', 'Auto 3 obrazy przy każdym poście', 'Podpis marki na obrazach', 'Priorytetowe generowanie'],
+    featured: false,
+    href: '/pricing',
+    cta: 'Wybierz Pro',
+  },
       ].map((plan, i) => (
         <div key={i} style={{ borderRadius: 20, padding: 32, border: plan.featured ? '1px solid rgba(99,102,241,0.5)' : '1px solid rgba(255,255,255,0.08)', background: plan.featured ? 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(168,85,247,0.1))' : 'rgba(255,255,255,0.03)', position: 'relative', display: 'flex', flexDirection: 'column' }}>
           {plan.badge && (

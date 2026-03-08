@@ -169,7 +169,7 @@ const plans = [
           <div
             key={i}
             className={`pricing-card ${plan.featured ? 'featured' : ''}`}
-            style={{ borderRadius: 20, padding: 36, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', position: 'relative', display: 'flex', flexDirection: 'column' }}
+            style={{ borderRadius: 20, padding: 36, border: plan.featured ? '1px solid rgba(99,102,241,0.5)' : '1px solid rgba(255,255,255,0.08)', background: plan.featured ? 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(168,85,247,0.15))' : 'rgba(255,255,255,0.03)', position: 'relative', display: 'flex', flexDirection: 'column' }}
           >
             {plan.badge && (
               <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg, #6366f1, #a855f7)', padding: '5px 16px', borderRadius: 100, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', color: 'white', whiteSpace: 'nowrap' }}>
