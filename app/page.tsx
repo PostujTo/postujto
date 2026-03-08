@@ -698,8 +698,8 @@ const handleConfirmTerms = async () => {
               { icon: '🛡️', title: 'RODO / GDPR', desc: 'W pełni zgodni z RODO. Możesz pobrać, poprawić lub usunąć swoje dane w każdej chwili.' },
             ].map((item, i) => (
               <div key={i} style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28, transition: 'all 0.2s ease', cursor: 'default' }}
-                    onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(255,255,255,0.05)'; el.style.borderColor = 'rgba(99,102,241,0.4)'; el.style.transform = 'translateY(-4px)'; }}
-                    onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(255,255,255,0.025)'; el.style.borderColor = 'rgba(255,255,255,0.07)'; el.style.transform = 'translateY(0)'; }}
+                    onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(255,255,255,0.05)'; el.style.borderColor = 'rgba(99,102,241,0.4)'; }}
+                    onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(255,255,255,0.025)'; el.style.borderColor = 'rgba(255,255,255,0.07)'; }}
                   >
                 <div style={{ fontSize: 28, marginBottom: 12 }}>{item.icon}</div>
                 <h3 className="font-display" style={{ fontSize: 15, fontWeight: 700, color: '#f0f0f5', marginBottom: 8 }}>{item.title}</h3>
