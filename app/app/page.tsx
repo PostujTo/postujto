@@ -127,7 +127,8 @@ export default function GeneratorPage() {
   const [loadingCredits, setLoadingCredits] = useState(true);
   const [portalLoading, setPortalLoading] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
-
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [termsChecked, setTermsChecked] = useState(false);
   const upcomingOccasions = getUpcomingOccasions();
 
   const showToast = useCallback((message: string, type: ToastType = 'info') => {
@@ -144,15 +145,18 @@ export default function GeneratorPage() {
   }, [addWatermark, useBrandColors, useBrandVoice]);
 
   useEffect(() => {
-    if (isLoaded && user) {
-      fetchUserCredits();
-      // Redirect nowych użytkowników do onboardingu
-      fetch('/api/credits').then(r => r.json()).then(data => {
-        if (data.onboarding_completed === false) {
-          router.push('/onboarding');
-        }
-      });
-    }
+  if (isLoaded && user) {
+    fetchUserCredits();
+    fetch('/api/credits').then(r => r.json()).then(data => {
+      if (data.onboarding_completed === false) {
+        router.push('/onboarding');
+        return;
+      }
+    });
+    fetch('/api/user/terms-status').then(r => r.json()).then(data => {
+      if (!data.terms_accepted_at) setShowTermsModal(true);
+    });
+  }
     if (isLoaded && !user) {
       setCredits(null); setLoadingCredits(false); setResults(null);
       sessionStorage.removeItem('lastResults'); sessionStorage.removeItem('lastGenerationId');
@@ -381,6 +385,43 @@ export default function GeneratorPage() {
         ::-webkit-scrollbar-track { background: #0a0a0f; }
         ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.4); border-radius: 3px; }
       `}</style>
+
+{showTermsModal && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div style={{ background: '#13131a', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 24, padding: 40, maxWidth: 480, width: '100%', textAlign: 'center' }}>
+            <div style={{ fontSize: 44, marginBottom: 16 }}>📋</div>
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: '#f0f0f5', marginBottom: 12, letterSpacing: '-0.01em' }}>Zanim zaczniesz</h2>
+            <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.55)', lineHeight: 1.7, marginBottom: 28 }}>
+              Prosimy o zapoznanie się z dokumentami prawnymi serwisu PostujTo.
+            </p>
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer', padding: '16px 20px', background: termsChecked ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)', border: `1px solid ${termsChecked ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 14, marginBottom: 24, transition: 'all 0.2s', textAlign: 'left' }}>
+              <input
+                type="checkbox"
+                checked={termsChecked}
+                onChange={e => setTermsChecked(e.target.checked)}
+                style={{ width: 18, height: 18, marginTop: 2, accentColor: '#6366f1', flexShrink: 0, cursor: 'pointer' }}
+              />
+              <span style={{ fontSize: 13, color: 'rgba(240,240,245,0.65)', lineHeight: 1.6 }}>
+                Zapoznałem/am się z{' '}
+                <a href="/terms" target="_blank" style={{ color: '#a5b4fc', textDecoration: 'underline' }}>Regulaminem</a>
+                {' '}i{' '}
+                <a href="/privacy" target="_blank" style={{ color: '#a5b4fc', textDecoration: 'underline' }}>Polityką prywatności</a>
+                {' '}serwisu PostujTo i akceptuję ich treść.
+              </span>
+            </label>
+            <button
+              onClick={async () => {
+                await fetch('/api/user/accept-terms', { method: 'POST' });
+                setShowTermsModal(false);
+              }}
+              disabled={!termsChecked}
+              style={{ width: '100%', padding: '14px', borderRadius: 12, fontSize: 15, fontWeight: 700, border: 'none', cursor: termsChecked ? 'pointer' : 'not-allowed', background: termsChecked ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(255,255,255,0.05)', color: termsChecked ? '#fff' : 'rgba(240,240,245,0.3)', transition: 'all 0.2s' }}
+            >
+              Akceptuję i zaczynam →
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Toast container */}
       <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 200, display: 'flex', flexDirection: 'column', gap: 10, pointerEvents: 'none' }}>

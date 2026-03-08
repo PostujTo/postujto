@@ -12,6 +12,10 @@ export default function PricingPage() {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
   const [showTermsAlert, setShowTermsAlert] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [termsChecked, setTermsChecked] = useState(false);
+  const [pendingPriceId, setPendingPriceId] = useState<string | null>(null);
+  const [pendingPlan, setPendingPlan] = useState<string | null>(null);
   
   useEffect(() => {
     if (!user) { setPlanLoading(false); return; }
@@ -22,27 +26,33 @@ export default function PricingPage() {
   }, [user]);
 
   const handleSubscribe = async (priceId: string, planName: string) => {
-    if (!user) { window.location.href = '/app'; return; }
-    if (!termsAccepted) {
-      setShowTermsAlert(true);
-      return;
-    }
-    setLoading(planName);
-    try {
-      const response = await fetch('/api/stripe/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ priceId, userId: user.id }),
-      });
-      const data = await response.json();
-      if (data.url) window.location.href = data.url;
-      else throw new Error('Brak URL');
-    } catch {
-      alert('Wystąpił błąd. Spróbuj ponownie.');
-    } finally {
-      setLoading(null);
-    }
-  };
+  if (!user) { window.location.href = '/app'; return; }
+  setPendingPriceId(priceId);
+  setPendingPlan(planName);
+  setTermsChecked(false);
+  setShowTermsModal(true);
+};
+
+const handleConfirmTerms = async () => {
+  if (!pendingPriceId || !pendingPlan) return;
+  await fetch('/api/user/accept-terms', { method: 'POST' });
+  setShowTermsModal(false);
+  setLoading(pendingPlan);
+  try {
+    const response = await fetch('/api/stripe/create-checkout-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ priceId: pendingPriceId, userId: user!.id }),
+    });
+    const data = await response.json();
+    if (data.url) window.location.href = data.url;
+    else throw new Error('Brak URL');
+  } catch {
+    alert('Wystąpił błąd. Spróbuj ponownie.');
+  } finally {
+    setLoading(null);
+  }
+};
 
   const monthlyPrices = { starter: '79', pro: '199' };
 const annualPrices  = { starter: '63', pro: '159' };
@@ -102,26 +112,45 @@ const plans = [
       `}</style>
 
       {/* TERMS ALERT MODAL */}
-      {showTermsAlert && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
-          onClick={() => setShowTermsAlert(false)}>
-          <div style={{ background: '#13131a', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 20, padding: 36, maxWidth: 400, width: '100%', textAlign: 'center' }}
-            onClick={e => e.stopPropagation()}>
-            <div style={{ fontSize: 40, marginBottom: 16 }}>📋</div>
-            <h3 style={{ fontSize: 20, fontWeight: 800, color: '#f0f0f5', marginBottom: 12, letterSpacing: '-0.01em' }}>Wymagana akceptacja</h3>
-            <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.55)', lineHeight: 1.7, marginBottom: 28 }}>
-              Zanim przejdziesz do płatności, zaakceptuj{' '}
-              <Link href="/terms" target="_blank" style={{ color: '#a5b4fc' }}>Regulamin</Link>
-              {' '}i{' '}
-              <Link href="/privacy" target="_blank" style={{ color: '#a5b4fc' }}>Politykę prywatności</Link>.
-            </p>
-            <button onClick={() => setShowTermsAlert(false)} className="btn-primary"
-              style={{ width: '100%', padding: '13px', borderRadius: 12, fontSize: 15 }}>
-              Rozumiem
-            </button>
-          </div>
-        </div>
-      )} 
+      {showTermsModal && (
+  <div style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+    <div style={{ background: '#13131a', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 24, padding: 40, maxWidth: 480, width: '100%', textAlign: 'center' }}>
+      <div style={{ fontSize: 44, marginBottom: 16 }}>📋</div>
+      <h3 style={{ fontSize: 22, fontWeight: 800, color: '#f0f0f5', marginBottom: 12, letterSpacing: '-0.01em' }}>Zanim przejdziesz do płatności</h3>
+      <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.55)', lineHeight: 1.7, marginBottom: 28 }}>
+        Prosimy o zapoznanie się z dokumentami prawnymi serwisu PostujTo.
+      </p>
+      <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer', padding: '16px 20px', background: termsChecked ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)', border: `1px solid ${termsChecked ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 14, marginBottom: 24, transition: 'all 0.2s', textAlign: 'left' }}>
+        <input
+          type="checkbox"
+          checked={termsChecked}
+          onChange={e => setTermsChecked(e.target.checked)}
+          style={{ width: 18, height: 18, marginTop: 2, accentColor: '#6366f1', flexShrink: 0, cursor: 'pointer' }}
+        />
+        <span style={{ fontSize: 13, color: 'rgba(240,240,245,0.65)', lineHeight: 1.6 }}>
+          Zapoznałem/am się z{' '}
+          <a href="/terms" target="_blank" style={{ color: '#a5b4fc', textDecoration: 'underline' }}>Regulaminem</a>
+          {' '}i{' '}
+          <a href="/privacy" target="_blank" style={{ color: '#a5b4fc', textDecoration: 'underline' }}>Polityką prywatności</a>
+          {' '}serwisu PostujTo i akceptuję ich treść. Wyrażam zgodę na natychmiastowe rozpoczęcie świadczenia usługi i przyjmuję do wiadomości, że po uruchomieniu subskrypcji tracę prawo do odstąpienia od umowy zgodnie z art. 38 pkt 13 ustawy o prawach konsumenta.
+        </span>
+      </label>
+      <button
+        onClick={handleConfirmTerms}
+        disabled={!termsChecked}
+        style={{ width: '100%', padding: '14px', borderRadius: 12, fontSize: 15, fontWeight: 700, border: 'none', cursor: termsChecked ? 'pointer' : 'not-allowed', background: termsChecked ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(255,255,255,0.05)', color: termsChecked ? '#fff' : 'rgba(240,240,245,0.3)', transition: 'all 0.2s', marginBottom: 12 }}
+      >
+        Akceptuję — przejdź do płatności →
+      </button>
+      <button
+        onClick={() => setShowTermsModal(false)}
+        style={{ width: '100%', padding: '12px', borderRadius: 12, fontSize: 14, fontWeight: 600, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'rgba(240,240,245,0.4)', cursor: 'pointer' }}
+      >
+        Anuluj
+      </button>
+    </div>
+  </div>
+)}
 
       {/* NAV */}
       <nav style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '0 24px' }}>
