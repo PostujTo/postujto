@@ -649,15 +649,18 @@ export default function LandingPage() {
     </div>
 
     {/* BILLING TOGGLE */}
-    <div className={`section-reveal from-up ${isVisible('pricing') ? 'visible' : ''}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 48, transitionDelay: '0.05s' }}>
-  <span style={{ fontSize: 14, color: landingBilling === 'monthly' ? '#f0f0f5' : 'rgba(240,240,245,0.4)', fontWeight: landingBilling === 'monthly' ? 600 : 400 }}>Miesięczny</span>
-  <button
-    onClick={() => setLandingBilling(b => b === 'monthly' ? 'annual' : 'monthly')}
-    style={{ width: 52, height: 28, borderRadius: 100, background: landingBilling === 'annual' ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 0.3s' }}
-  >
-    <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'white', position: 'absolute', top: 4, left: landingBilling === 'annual' ? 28 : 4, transition: 'left 0.3s' }} />
-  </button>
-  <span style={{ fontSize: 14, color: landingBilling === 'annual' ? '#f0f0f5' : 'rgba(240,240,245,0.4)', fontWeight: landingBilling === 'annual' ? 600 : 400 }}>Roczny</span>
+    <div className={`section-reveal from-up ${isVisible('pricing') ? 'visible' : ''}`} style={{ display: 'flex', justifyContent: 'center', marginBottom: 48, transitionDelay: '0.05s' }}>
+  <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: 4, gap: 4 }}>
+    {(['monthly', 'annual'] as const).map((option) => (
+      <button
+        key={option}
+        onClick={() => setLandingBilling(option)}
+        style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14, fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.2s', background: landingBilling === option ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'transparent', color: landingBilling === option ? '#fff' : 'rgba(240,240,245,0.45)' }}
+      >
+        {option === 'monthly' ? 'Miesięczny' : 'Roczny'}
+      </button>
+    ))}
+  </div>
 </div>
 
     <div className={`section-reveal from-up ${isVisible('pricing') ? 'visible' : ''}`} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, transitionDelay: '0.1s' }}>

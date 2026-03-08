@@ -149,16 +149,19 @@ const plans = [
           7-dniowa gwarancja zwrotu. Anulujesz jednym kliknięciem.
         </p>
         {/* BILLING TOGGLE */}
-<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginTop: 32 }}>
-  <span style={{ fontSize: 14, color: billing === 'monthly' ? '#f0f0f5' : 'rgba(240,240,245,0.4)', fontWeight: billing === 'monthly' ? 600 : 400 }}>Miesięczny</span>
-  <button
-    onClick={() => setBilling(b => b === 'monthly' ? 'annual' : 'monthly')}
-    style={{ width: 52, height: 28, borderRadius: 100, background: billing === 'annual' ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 0.3s' }}
-  >
-    <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'white', position: 'absolute', top: 4, left: billing === 'annual' ? 28 : 4, transition: 'left 0.3s' }} />
-  </button>
-  <span style={{ fontSize: 14, color: billing === 'annual' ? '#f0f0f5' : 'rgba(240,240,245,0.4)', fontWeight: billing === 'annual' ? 600 : 400 }}>Roczny</span>
-</div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>
+            <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: 4, gap: 4 }}>
+              {(['monthly', 'annual'] as const).map((option) => (
+                <button
+                  key={option}
+                  onClick={() => setBilling(option)}
+                  style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14, fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.2s', background: billing === option ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'transparent', color: billing === option ? '#fff' : 'rgba(240,240,245,0.45)' }}
+                >
+                  {option === 'monthly' ? 'Miesięczny' : 'Roczny'}
+                </button>
+              ))}
+            </div>
+          </div>
       </div>
 
       {/* PRICING CARDS */}
