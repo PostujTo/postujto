@@ -102,7 +102,7 @@ const plans = [
     <div style={{ minHeight: '100vh', background: '#0a0a0f', color: '#f0f0f5', fontFamily: 'var(--font-dm-sans), sans-serif' }}>
       <style>{`
         .btn-primary { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; font-weight: 700; transition: all 0.3s ease; position: relative; overflow: hidden; border: none; cursor: pointer; }
-        .btn-primary:hover { opacity: 0.9; }
+        .btn-primary:hover { filter: brightness(1.25); transform: translateY(-1px); }
         .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #f0f0f5; font-weight: 600; transition: all 0.3s ease; cursor: pointer; }
         .btn-secondary:hover { background: rgba(255,255,255,0.1); }
         .pricing-card { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
