@@ -10,8 +10,9 @@ export default function PricingPage() {
   const [currentPlan, setCurrentPlan] = useState<string>('free');
   const [planLoading, setPlanLoading] = useState(true);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
   const [showTermsAlert, setShowTermsAlert] = useState(false);
-
+  
   useEffect(() => {
     if (!user) { setPlanLoading(false); return; }
     fetch('/api/user/plan')
@@ -43,41 +44,49 @@ export default function PricingPage() {
     }
   };
 
-  const plans = [
-    {
-      name: 'Free',
-      price: '0',
-      period: 'jednorazowo',
-      desc: 'Wypróbuj bez rejestracji',
-      features: ['1 post bez logowania', '5 postów po rejestracji', 'Facebook, Instagram, TikTok', 'Wszystkie branże'],
-      featured: false,
-      badge: null,
-      planKey: 'free',
-      priceId: null,
-    },
-    {
-      name: 'Starter',
-      price: '79',
-      period: '/ miesiąc',
-      desc: 'Dla aktywnych firm • 2,60 zł dziennie',
-      features: ['Unlimited postów', 'Generowanie obrazów AI', 'Brand Kit', 'Historia i ulubione', 'Kalendarz polskich okazji'],
-      featured: true,
-      badge: 'NAJPOPULARNIEJSZY',
-      planKey: 'standard',
-      priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD,
-    },
-    {
-      name: 'Pro',
-      price: '199',
-      period: '/ miesiąc',
-      desc: 'Dla agencji i power userów • 6,60 zł dziennie',
-      features: ['Wszystko ze Starter', 'Auto 3 obrazy przy każdym poście', 'Podpis marki na obrazach', 'Priorytetowe generowanie'],
-      featured: false,
-      badge: null,
-      planKey: 'premium',
-      priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM,
-    },
-  ];
+  const monthlyPrices = { starter: '79', pro: '199' };
+const annualPrices  = { starter: '63', pro: '159' };
+const prices = billing === 'monthly' ? monthlyPrices : annualPrices;
+
+const plans = [
+  {
+    name: 'Free',
+    price: '0',
+    period: 'jednorazowo',
+    desc: 'Wypróbuj bez rejestracji',
+    features: ['1 post bez logowania', '5 postów po rejestracji', 'Facebook, Instagram, TikTok', 'Wszystkie branże'],
+    featured: false,
+    badge: null,
+    planKey: 'free',
+    priceId: null,
+  },
+  {
+    name: 'Starter',
+    price: prices.starter,
+    period: billing === 'monthly' ? '/ miesiąc' : '/ miesiąc (rozliczane rocznie)',
+    desc: billing === 'monthly' ? 'Dla aktywnych firm • 2,60 zł dziennie' : `Oszczędzasz ${(79 - 63) * 12} zł rocznie`,
+    features: ['Unlimited postów', 'Generowanie obrazów AI', 'Brand Kit', 'Historia i ulubione', 'Kalendarz polskich okazji'],
+    featured: true,
+    badge: 'NAJPOPULARNIEJSZY',
+    planKey: 'standard',
+    priceId: billing === 'monthly'
+      ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD
+      : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD_ANNUAL,
+  },
+  {
+    name: 'Pro',
+    price: prices.pro,
+    period: billing === 'monthly' ? '/ miesiąc' : '/ miesiąc (rozliczane rocznie)',
+    desc: billing === 'monthly' ? 'Dla agencji i power userów • 6,60 zł dziennie' : `Oszczędzasz ${(199 - 159) * 12} zł rocznie`,
+    features: ['Wszystko ze Starter', 'Auto 3 obrazy przy każdym poście', 'Podpis marki na obrazach', 'Priorytetowe generowanie'],
+    featured: false,
+    badge: null,
+    planKey: 'premium',
+    priceId: billing === 'monthly'
+      ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM
+      : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM_ANNUAL,
+  },
+];
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0f', color: '#f0f0f5', fontFamily: 'var(--font-dm-sans), sans-serif' }}>
@@ -139,6 +148,19 @@ export default function PricingPage() {
         <p style={{ fontSize: 18, color: 'rgba(240,240,245,0.5)', maxWidth: 480, margin: '0 auto' }}>
           7-dniowa gwarancja zwrotu. Anulujesz jednym kliknięciem.
         </p>
+        {/* BILLING TOGGLE */}
+<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginTop: 32 }}>
+  <span style={{ fontSize: 14, color: billing === 'monthly' ? '#f0f0f5' : 'rgba(240,240,245,0.4)', fontWeight: billing === 'monthly' ? 600 : 400 }}>Miesięcznie</span>
+  <button
+    onClick={() => setBilling(b => b === 'monthly' ? 'annual' : 'monthly')}
+    style={{ width: 52, height: 28, borderRadius: 100, background: billing === 'annual' ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 0.3s' }}
+  >
+    <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'white', position: 'absolute', top: 4, left: billing === 'annual' ? 28 : 4, transition: 'left 0.3s' }} />
+  </button>
+  <span style={{ fontSize: 14, color: billing === 'annual' ? '#f0f0f5' : 'rgba(240,240,245,0.4)', fontWeight: billing === 'annual' ? 600 : 400 }}>
+    Rocznie <span style={{ fontSize: 12, background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.4)', color: '#a5b4fc', padding: '2px 8px', borderRadius: 100, marginLeft: 4 }}>-20%</span>
+  </span>
+</div>
       </div>
 
       {/* PRICING CARDS */}
