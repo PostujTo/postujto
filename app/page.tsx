@@ -638,8 +638,8 @@ export default function LandingPage() {
       </section>
 
       {/* CENNIK */}
-      <section style={{ padding: '80px 24px' }} id="pricing" data-animate>
-  <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+      <section style={{ padding: '80px 0' }} id="pricing" data-animate>
+  <div style={{ maxWidth: 1000, margin: '0 auto', padding: '0 24px' }}>
     <div className={`section-reveal from-up ${isVisible('pricing') ? 'visible' : ''}`} style={{ textAlign: 'center', marginBottom: 40 }}>
       <div style={{ display: 'inline-block', fontSize: 12, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#6366f1', marginBottom: 16 }}>Cennik</div>
       <h2 className="font-display" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 800, letterSpacing: '-0.02em' }}>
@@ -650,81 +650,72 @@ export default function LandingPage() {
 
     {/* BILLING TOGGLE */}
     <div className={`section-reveal from-up ${isVisible('pricing') ? 'visible' : ''}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 48, transitionDelay: '0.05s' }}>
-      <span style={{ fontSize: 14, color: landingBilling === 'monthly' ? '#f0f0f5' : 'rgba(240,240,245,0.4)', fontWeight: landingBilling === 'monthly' ? 600 : 400 }}>Miesięcznie</span>
-      <button
-        onClick={() => setLandingBilling(b => b === 'monthly' ? 'annual' : 'monthly')}
-        style={{ width: 52, height: 28, borderRadius: 100, background: landingBilling === 'annual' ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 0.3s' }}
-      >
-        <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'white', position: 'absolute', top: 4, left: landingBilling === 'annual' ? 28 : 4, transition: 'left 0.3s' }} />
-      </button>
-      <span style={{ fontSize: 14, color: landingBilling === 'annual' ? '#f0f0f5' : 'rgba(240,240,245,0.4)', fontWeight: landingBilling === 'annual' ? 600 : 400 }}>
-        Rocznie <span style={{ fontSize: 12, background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.4)', color: '#a5b4fc', padding: '2px 8px', borderRadius: 100, marginLeft: 4 }}>-20%</span>
-      </span>
-    </div>
+  <span style={{ fontSize: 14, color: landingBilling === 'monthly' ? '#f0f0f5' : 'rgba(240,240,245,0.4)', fontWeight: landingBilling === 'monthly' ? 600 : 400 }}>Miesięczny</span>
+  <button
+    onClick={() => setLandingBilling(b => b === 'monthly' ? 'annual' : 'monthly')}
+    style={{ width: 52, height: 28, borderRadius: 100, background: landingBilling === 'annual' ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 0.3s' }}
+  >
+    <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'white', position: 'absolute', top: 4, left: landingBilling === 'annual' ? 28 : 4, transition: 'left 0.3s' }} />
+  </button>
+  <span style={{ fontSize: 14, color: landingBilling === 'annual' ? '#f0f0f5' : 'rgba(240,240,245,0.4)', fontWeight: landingBilling === 'annual' ? 600 : 400 }}>Roczny</span>
+</div>
 
     <div className={`section-reveal from-up ${isVisible('pricing') ? 'visible' : ''}`} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, transitionDelay: '0.1s' }}>
-     {[
-  {
-    name: 'Free',
-    price: '0',
-    period: 'jednorazowo',
-    desc: 'Wypróbuj bez rejestracji',
-    features: ['1 post bez logowania', '5 postów po rejestracji', 'Facebook, Instagram, TikTok', 'Wszystkie branże'],
-    featured: false,
-    href: '/app',
-    cta: 'Zacznij za darmo',
-  },
-  {
-    name: 'Starter',
-    price: landingBilling === 'monthly' ? '79' : '63',
-    period: landingBilling === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 756 zł/rok',
-    desc: landingBilling === 'monthly' ? '2,60 zł dziennie' : 'Oszczędzasz 192 zł rocznie',
-    features: ['Unlimited postów', 'Generowanie obrazów AI', 'Brand Kit', 'Historia i ulubione', 'Kalendarz polskich okazji'],
-    featured: true,
-    badge: 'NAJPOPULARNIEJSZY',
-    href: '/pricing',
-    cta: 'Wybierz Starter',
-  },
-  {
-    name: 'Pro',
-    price: landingBilling === 'monthly' ? '199' : '159',
-    period: landingBilling === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 1908 zł/rok',
-    desc: landingBilling === 'monthly' ? '6,60 zł dziennie' : 'Oszczędzasz 480 zł rocznie',
-    features: ['Wszystko ze Starter', 'Auto 3 obrazy przy każdym poście', 'Podpis marki na obrazach', 'Priorytetowe generowanie'],
-    featured: false,
-    href: '/pricing',
-    cta: 'Wybierz Pro',
-  },
-].map((plan, i) => (
-        <div key={i} style={{ borderRadius: 20, padding: 36, border: plan.featured ? '1px solid rgba(99,102,241,0.5)' : '1px solid rgba(255,255,255,0.08)', background: plan.featured ? 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(168,85,247,0.15))' : 'rgba(255,255,255,0.03)', position: 'relative', display: 'flex', flexDirection: 'column' }}>
-  {plan.badge && (
-    <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg, #6366f1, #a855f7)', padding: '5px 16px', borderRadius: 100, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', color: 'white', whiteSpace: 'nowrap' }}>
-      {plan.badge}
+  {[
+    {
+      name: 'Free', price: '0', period: 'jednorazowo', desc: 'Wypróbuj bez rejestracji',
+      features: ['1 post bez logowania', '5 postów po rejestracji', 'Facebook, Instagram, TikTok', 'Wszystkie branże'],
+      featured: false, href: '/app', cta: 'Zacznij za darmo',
+    },
+    {
+      name: 'Starter',
+      price: landingBilling === 'monthly' ? '79' : '63',
+      period: landingBilling === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 756 zł/rok',
+      desc: landingBilling === 'monthly' ? '2,60 zł dziennie' : 'Oszczędzasz 192 zł rocznie',
+      features: ['Unlimited postów', 'Generowanie obrazów AI', 'Brand Kit', 'Historia i ulubione', 'Kalendarz polskich okazji'],
+      featured: true, badge: 'NAJPOPULARNIEJSZY', href: '/pricing', cta: 'Wybierz Starter',
+    },
+    {
+      name: 'Pro',
+      price: landingBilling === 'monthly' ? '199' : '159',
+      period: landingBilling === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 1908 zł/rok',
+      desc: landingBilling === 'monthly' ? '6,60 zł dziennie' : 'Oszczędzasz 480 zł rocznie',
+      features: ['Wszystko ze Starter', 'Auto 3 obrazy przy każdym poście', 'Podpis marki na obrazach', 'Priorytetowe generowanie'],
+      featured: false, href: '/pricing', cta: 'Wybierz Pro',
+    },
+  ].map((plan, i) => (
+    <div key={i} style={{ borderRadius: 20, padding: 36, border: plan.featured ? '1px solid rgba(99,102,241,0.5)' : '1px solid rgba(255,255,255,0.08)', background: plan.featured ? 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(168,85,247,0.15))' : 'rgba(255,255,255,0.03)', position: 'relative', display: 'flex', flexDirection: 'column' }}>
+      {plan.badge && (
+        <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg, #6366f1, #a855f7)', padding: '5px 16px', borderRadius: 100, fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', color: 'white', whiteSpace: 'nowrap' }}>
+          {plan.badge}
+        </div>
+      )}
+      <div style={{ marginBottom: 8 }}>
+        <span style={{ fontSize: 13, fontWeight: 700, color: '#6366f1', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{plan.name}</span>
+      </div>
+      <div style={{ marginBottom: 4, display: 'flex', alignItems: 'baseline', gap: 10 }}>
+        <span style={{ fontSize: 48, fontWeight: 800, letterSpacing: '-0.03em', color: '#f0f0f5' }}>{plan.price} <span style={{ fontSize: 18 }}>zł</span></span>
+        {landingBilling === 'annual' && plan.name !== 'Free' && (
+          <span style={{ fontSize: 12, fontWeight: 700, color: '#4ade80', background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.25)', padding: '2px 8px', borderRadius: 100 }}>-20%</span>
+        )}
+      </div>
+      <div style={{ fontSize: 13, color: 'rgba(240,240,245,0.4)', marginBottom: 8 }}>{plan.period}</div>
+      <div style={{ fontSize: 14, color: landingBilling === 'annual' && plan.name !== 'Free' ? '#4ade80' : 'rgba(240,240,245,0.55)', marginBottom: 28, paddingBottom: 28, borderBottom: '1px solid rgba(255,255,255,0.06)', fontWeight: landingBilling === 'annual' && plan.name !== 'Free' ? 600 : 400 }}>{plan.desc}</div>
+      <ul style={{ listStyle: 'none', marginBottom: 32, flex: 1 }}>
+        {plan.features.map((f, fi) => (
+          <li key={fi} style={{ display: 'flex', gap: 10, marginBottom: 12, fontSize: 14, color: 'rgba(240,240,245,0.7)' }}>
+            <span style={{ color: '#6366f1', flexShrink: 0, marginTop: 1 }}>✓</span>{f}
+          </li>
+        ))}
+      </ul>
+      <Link href={plan.href}>
+        <button className={plan.featured ? 'btn-primary' : 'btn-secondary'} style={{ width: '100%', padding: '14px', borderRadius: 12, fontSize: 15, border: plan.featured ? 'none' : '1px solid rgba(255,255,255,0.15)', cursor: 'pointer' }}>
+          {plan.cta}
+        </button>
+      </Link>
     </div>
-  )}
-  <div style={{ marginBottom: 8 }}>
-    <span style={{ fontSize: 13, fontWeight: 700, color: '#6366f1', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{plan.name}</span>
-  </div>
-  <div style={{ marginBottom: 4 }}>
-    <span style={{ fontSize: 48, fontWeight: 800, letterSpacing: '-0.03em', color: '#f0f0f5' }}>{plan.price} <span style={{ fontSize: 18 }}>zł</span></span>
-  </div>
-  <div style={{ fontSize: 13, color: 'rgba(240,240,245,0.4)', marginBottom: 8 }}>{plan.period}</div>
-  <div style={{ fontSize: 14, color: plan.featured && landingBilling === 'annual' ? '#4ade80' : 'rgba(240,240,245,0.55)', marginBottom: 28, paddingBottom: 28, borderBottom: '1px solid rgba(255,255,255,0.06)', fontWeight: plan.featured && landingBilling === 'annual' ? 600 : 400 }}>{plan.desc}</div>
-  <ul style={{ listStyle: 'none', marginBottom: 32, flex: 1 }}>
-    {plan.features.map((f, fi) => (
-      <li key={fi} style={{ display: 'flex', gap: 10, marginBottom: 12, fontSize: 14, color: 'rgba(240,240,245,0.7)' }}>
-        <span style={{ color: '#6366f1', flexShrink: 0, marginTop: 1 }}>✓</span>{f}
-      </li>
-    ))}
-  </ul>
-  <Link href={plan.href}>
-    <button className={plan.featured ? 'btn-primary' : 'btn-secondary'} style={{ width: '100%', padding: '14px', borderRadius: 12, fontSize: 15, border: plan.featured ? 'none' : '1px solid rgba(255,255,255,0.15)', cursor: 'pointer' }}>
-      {plan.cta}
-    </button>
-  </Link>
+  ))}
 </div>
-      ))}
-    </div>
 
     <div className={`section-reveal from-up ${isVisible('pricing') ? 'visible' : ''}`} style={{ textAlign: 'center', marginTop: 32, transitionDelay: '0.2s' }}>
       <Link href="/pricing" style={{ fontSize: 14, color: '#a5b4fc', textDecoration: 'none' }}>

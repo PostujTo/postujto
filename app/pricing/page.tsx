@@ -63,8 +63,8 @@ const plans = [
   {
     name: 'Starter',
     price: prices.starter,
-    period: billing === 'monthly' ? '/ miesiąc' : '/ miesiąc (rozliczane rocznie)',
-    desc: billing === 'monthly' ? '2,60 zł dziennie' : `Oszczędzasz ${(79 - 63) * 12} zł rocznie`,
+    period: billing === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 756 zł/rok',
+    desc: billing === 'monthly' ? 'Dla aktywnych firm • 2,60 zł dziennie' : 'Oszczędzasz 192 zł rocznie',
     features: ['Unlimited postów', 'Generowanie obrazów AI', 'Brand Kit', 'Historia i ulubione', 'Kalendarz polskich okazji'],
     featured: true,
     badge: 'NAJPOPULARNIEJSZY',
@@ -76,8 +76,8 @@ const plans = [
   {
     name: 'Pro',
     price: prices.pro,
-    period: billing === 'monthly' ? '/ miesiąc' : '/ miesiąc (rozliczane rocznie)',
-    desc: billing === 'monthly' ? '6,60 zł dziennie' : `Oszczędzasz ${(199 - 159) * 12} zł rocznie`,
+    period: billing === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 1908 zł/rok',
+    desc: billing === 'monthly' ? 'Dla agencji i power userów • 6,60 zł dziennie' : 'Oszczędzasz 480 zł rocznie',
     features: ['Wszystko ze Starter', 'Auto 3 obrazy przy każdym poście', 'Podpis marki na obrazach', 'Priorytetowe generowanie'],
     featured: false,
     badge: null,
@@ -150,16 +150,14 @@ const plans = [
         </p>
         {/* BILLING TOGGLE */}
 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginTop: 32 }}>
-  <span style={{ fontSize: 14, color: billing === 'monthly' ? '#f0f0f5' : 'rgba(240,240,245,0.4)', fontWeight: billing === 'monthly' ? 600 : 400 }}>Miesięcznie</span>
+  <span style={{ fontSize: 14, color: billing === 'monthly' ? '#f0f0f5' : 'rgba(240,240,245,0.4)', fontWeight: billing === 'monthly' ? 600 : 400 }}>Miesięczny</span>
   <button
     onClick={() => setBilling(b => b === 'monthly' ? 'annual' : 'monthly')}
     style={{ width: 52, height: 28, borderRadius: 100, background: billing === 'annual' ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(255,255,255,0.1)', border: 'none', cursor: 'pointer', position: 'relative', transition: 'background 0.3s' }}
   >
     <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'white', position: 'absolute', top: 4, left: billing === 'annual' ? 28 : 4, transition: 'left 0.3s' }} />
   </button>
-  <span style={{ fontSize: 14, color: billing === 'annual' ? '#f0f0f5' : 'rgba(240,240,245,0.4)', fontWeight: billing === 'annual' ? 600 : 400 }}>
-    Rocznie <span style={{ fontSize: 12, background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.4)', color: '#a5b4fc', padding: '2px 8px', borderRadius: 100, marginLeft: 4 }}>-20%</span>
-  </span>
+  <span style={{ fontSize: 14, color: billing === 'annual' ? '#f0f0f5' : 'rgba(240,240,245,0.4)', fontWeight: billing === 'annual' ? 600 : 400 }}>Roczny</span>
 </div>
       </div>
 
@@ -179,11 +177,14 @@ const plans = [
             <div style={{ marginBottom: 8 }}>
               <span style={{ fontSize: 13, fontWeight: 700, color: '#6366f1', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{plan.name}</span>
             </div>
-            <div style={{ marginBottom: 4 }}>
+            <div style={{ marginBottom: 4, display: 'flex', alignItems: 'baseline', gap: 10 }}>
               <span style={{ fontSize: 48, fontWeight: 800, letterSpacing: '-0.03em', color: '#f0f0f5' }}>{plan.price} <span style={{ fontSize: 18 }}>zł</span></span>
+              {billing === 'annual' && plan.planKey !== 'free' && (
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#4ade80', background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.25)', padding: '2px 8px', borderRadius: 100 }}>-20%</span>
+              )}
             </div>
             <div style={{ fontSize: 13, color: 'rgba(240,240,245,0.4)', marginBottom: 8 }}>{plan.period}</div>
-            <div style={{ fontSize: 14, color: 'rgba(240,240,245,0.55)', marginBottom: 28, paddingBottom: 28, borderBottom: '1px solid rgba(255,255,255,0.06)' }}>{plan.desc}</div>
+            <div style={{ fontSize: 14, color: billing === 'annual' && plan.planKey !== 'free' ? '#4ade80' : 'rgba(240,240,245,0.55)', marginBottom: 28, paddingBottom: 28, borderBottom: '1px solid rgba(255,255,255,0.06)', fontWeight: billing === 'annual' && plan.planKey !== 'free' ? 600 : 400 }}>{plan.desc}</div>
             <ul style={{ listStyle: 'none', marginBottom: 32, flex: 1 }}>
               {plan.features.map((f, fi) => (
                 <li key={fi} style={{ display: 'flex', gap: 10, marginBottom: 12, fontSize: 14, color: 'rgba(240,240,245,0.7)' }}>
