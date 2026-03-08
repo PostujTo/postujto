@@ -11,21 +11,37 @@ function FaqAccordion() {
     { q: 'Czy posty są generowane po polsku?', a: 'Tak, wszystkie posty są generowane naturalną polszczyzną, z uwzględnieniem polskich zwrotów marketingowych i prawa reklamowego.' },
     { q: 'Czym różni się Starter od Pro?', a: 'Starter (79 zł/msc) zawiera unlimited posty, obrazy AI i Brand Kit. Pro (199 zł/msc) dodaje automatyczne 3 obrazy do każdego posta i logo na obrazach.' },
     { q: 'Czy mogę anulować subskrypcję?', a: 'Tak, w dowolnym momencie przez Panel → Subskrypcja. Zachowujesz dostęp do końca opłaconego okresu. Odnowienia są bezzwrotne.' },
-    { q: 'Czy moje dane są bezpieczne?', a: 'Dane przechowujemy na serwerach w Niemczech (UE). Płatności obsługuje Stripe. Treści generowane przez AI nie są używane do trenowania modeli.' },
+    { q: 'Czy moje dane są bezpieczne?', a: 'Dane przechowujemy na serwerach w Irlandii (UE). Płatności obsługuje Stripe. Treści generowane przez AI nie są używane do trenowania modeli.' },
   ];
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       {items.map((item, i) => (
-        <div key={i} style={{ border: `1px solid ${open === i ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.07)'}`, borderRadius: 14, overflow: 'hidden', transition: 'border-color 0.2s' }}>
-          <button onClick={() => setOpen(open === i ? null : i)}
-            style={{ width: '100%', textAlign: 'left', background: open === i ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)', border: 'none', cursor: 'pointer', padding: '18px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, fontFamily: "'DM Sans', sans-serif", transition: 'background 0.2s ease' }}
-onMouseEnter={e => { if (open !== i) (e.currentTarget as HTMLElement).style.background = 'rgba(99,102,241,0.05)'; }}
-onMouseLeave={e => { if (open !== i) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.02)'; }}>
-            <span style={{ fontSize: 15, fontWeight: 600, color: '#f0f0f5', lineHeight: 1.5 }}>{item.q}</span>
-            <span style={{ fontSize: 20, color: open === i ? '#a5b4fc' : 'rgba(240,240,245,0.3)', transition: 'transform 0.2s', transform: open === i ? 'rotate(45deg)' : 'none', flexShrink: 0 }}>+</span>
+        <div key={i} style={{
+          border: `1px solid ${open === i ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.07)'}`,
+          borderRadius: 14, overflow: 'hidden',
+          transition: 'border-color 0.2s'
+        }}
+          onMouseEnter={e => { if (open !== i) (e.currentTarget as HTMLElement).style.borderColor = 'rgba(99,102,241,0.25)'; }}
+          onMouseLeave={e => { if (open !== i) (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.07)'; }}
+        >
+          <button
+            onClick={() => setOpen(open === i ? null : i)}
+            style={{
+              width: '100%', textAlign: 'left',
+              background: open === i ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)',
+              border: 'none', cursor: 'pointer', padding: '20px 24px',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16,
+              fontFamily: "'DM Sans', sans-serif", color: '#f0f0f5',
+              transition: 'background 0.2s'
+            }}
+            onMouseEnter={e => { if (open !== i) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'; }}
+            onMouseLeave={e => { if (open !== i) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.02)'; }}
+          >
+            <span style={{ fontSize: 15, fontWeight: 600, lineHeight: 1.5 }}>{item.q}</span>
+            <span style={{ fontSize: 18, color: open === i ? '#a5b4fc' : 'rgba(240,240,245,0.3)', transition: 'all 0.2s', transform: open === i ? 'rotate(45deg)' : 'none', flexShrink: 0 }}>+</span>
           </button>
           {open === i && (
-            <div style={{ padding: '0 22px 18px', fontSize: 14, color: 'rgba(240,240,245,0.6)', lineHeight: 1.8 }}>{item.a}</div>
+            <div style={{ padding: '0 24px 20px', fontSize: 14, color: 'rgba(240,240,245,0.65)', lineHeight: 1.8 }}>{item.a}</div>
           )}
         </div>
       ))}
