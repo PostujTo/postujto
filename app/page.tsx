@@ -211,7 +211,7 @@ const handleConfirmTerms = async () => {
           border: 1px solid rgba(255,255,255,0.08);
           backdrop-filter: blur(20px);
           border-radius: 20px;
-          transition: all 0.2s ease;
+          transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
         }
         .card-glass:hover {
           background: rgba(255,255,255,0.06);
