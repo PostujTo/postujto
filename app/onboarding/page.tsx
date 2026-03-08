@@ -28,9 +28,9 @@ const TONES = [
 ];
 
 const PLATFORMS = [
-  { id: 'facebook', label: 'Facebook', emoji: '📘', desc: 'Dłuższe posty, społeczność, zasięg organiczny' },
-  { id: 'instagram', label: 'Instagram', emoji: '📸', desc: 'Wizualny, krótkie opisy, hashtagi, Stories' },
-  { id: 'tiktok', label: 'TikTok', emoji: '🎵', desc: 'Krótkie, chwytliwe opisy do wideo' },
+  { id: 'facebook', label: 'Facebook', desc: 'Dłuższe posty, społeczność, zasięg organiczny', icon: 'https://cdn.simpleicons.org/facebook/1877f2' },
+  { id: 'instagram', label: 'Instagram', desc: 'Wizualny, krótkie opisy, hashtagi, Stories', icon: 'https://cdn.simpleicons.org/instagram/e1306c' },
+  { id: 'tiktok', label: 'TikTok', desc: 'Krótkie, chwytliwe opisy do wideo', icon: 'https://cdn.simpleicons.org/tiktok/ffffff' },
 ];
 
 const STEPS = ['Witaj', 'Firma', 'Platformy', 'Ton', 'Start'];
@@ -234,20 +234,23 @@ export default function OnboardingPage() {
               <h2 className="font-display" style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Gdzie publikujesz?</h2>
               <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.45)', marginBottom: 28 }}>Wybierz platformy na których jesteś aktywny. Możesz wybrać kilka.</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {PLATFORMS.map(p => (
-                  <button key={p.id} onClick={() => togglePlatform(p.id)}
-                    className={`option-card ${selectedPlatforms.includes(p.id) ? 'selected' : ''}`}
-                    style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 16, textAlign: 'left' }}>
-                    <span style={{ fontSize: 32, flexShrink: 0 }}>{p.emoji}</span>
-                    <div style={{ flex: 1 }}>
-                      <p className="font-display" style={{ fontSize: 15, fontWeight: 700, marginBottom: 3, color: selectedPlatforms.includes(p.id) ? '#a5b4fc' : '#f0f0f5' }}>{p.label}</p>
-                      <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.4)' }}>{p.desc}</p>
-                    </div>
-                    <div style={{ width: 22, height: 22, borderRadius: '50%', flexShrink: 0, background: selectedPlatforms.includes(p.id) ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(255,255,255,0.06)', border: selectedPlatforms.includes(p.id) ? 'none' : '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'white', transition: 'all 0.2s' }}>
-                      {selectedPlatforms.includes(p.id) ? '✓' : ''}
-                    </div>
-                  </button>
-                ))}
+                {PLATFORMS.map(p => {
+                  const selected = selectedPlatforms.includes(p.id);
+                  return (
+                    <button key={p.id} onClick={() => togglePlatform(p.id)}
+                      className={`option-card ${selected ? 'selected' : ''}`}
+                      style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 16, textAlign: 'left' }}>
+                      <img src={p.icon} alt={p.label} style={{ width: 32, height: 32, flexShrink: 0, objectFit: 'contain' }} />
+                      <div style={{ flex: 1 }}>
+                        <p className="font-display" style={{ fontSize: 15, fontWeight: 700, marginBottom: 3, color: selected ? '#a5b4fc' : '#f0f0f5' }}>{p.label}</p>
+                        <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.4)' }}>{p.desc}</p>
+                      </div>
+                      <div style={{ width: 20, height: 20, borderRadius: 6, flexShrink: 0, background: selected ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(255,255,255,0.06)', border: selected ? 'none' : '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'white', transition: 'all 0.2s' }}>
+                        {selected ? '✓' : ''}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -283,33 +286,46 @@ export default function OnboardingPage() {
               <div style={{ fontSize: 64, marginBottom: 20 }}>🎉</div>
               <h2 className="font-display" style={{ fontSize: 26, fontWeight: 800, marginBottom: 14 }}>Gotowe!</h2>
               <p style={{ fontSize: 15, color: 'rgba(240,240,245,0.5)', lineHeight: 1.7, marginBottom: 28 }}>
-                Twój Brand Kit jest skonfigurowany. Claude wygeneruje teraz <strong style={{ color: '#a5b4fc' }}>pierwszy post</strong> dopasowany do Twojej firmy.
+                Twój Brand Kit jest skonfigurowany. Możesz teraz zacząć generować posty dopasowane do Twojej firmy.
               </p>
               <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 16, padding: '20px 24px', marginBottom: 32, textAlign: 'left' }}>
                 <p style={{ fontSize: 12, fontWeight: 600, color: 'rgba(240,240,245,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 14 }}>Twoja konfiguracja</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {companyName && <div style={{ display: 'flex', gap: 10, fontSize: 14 }}><span style={{ color: 'rgba(240,240,245,0.35)' }}>Firma:</span><span style={{ color: '#f0f0f5', fontWeight: 600 }}>{companyName}</span></div>}
                   {selectedIndustry && <div style={{ display: 'flex', gap: 10, fontSize: 14 }}><span style={{ color: 'rgba(240,240,245,0.35)' }}>Branża:</span><span style={{ color: '#f0f0f5', fontWeight: 600 }}>{INDUSTRIES.find(i => i.id === selectedIndustry)?.emoji} {INDUSTRIES.find(i => i.id === selectedIndustry)?.label}</span></div>}
-                  <div style={{ display: 'flex', gap: 10, fontSize: 14 }}><span style={{ color: 'rgba(240,240,245,0.35)' }}>Platformy:</span><span style={{ color: '#f0f0f5', fontWeight: 600 }}>{selectedPlatforms.map(p => PLATFORMS.find(pl => pl.id === p)?.emoji).join(' ')}</span></div>
+                  <div style={{ display: 'flex', gap: 10, fontSize: 14 }}>
+                    <span style={{ color: 'rgba(240,240,245,0.35)' }}>Platformy:</span>
+                    <span style={{ color: '#f0f0f5', fontWeight: 600, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      {selectedPlatforms.map(p => {
+                        const pl = PLATFORMS.find(pl => pl.id === p);
+                        return pl ? (
+                          <span key={p} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <img src={pl.icon} alt={pl.label} style={{ width: 16, height: 16, objectFit: 'contain' }} />
+                            {pl.label}
+                          </span>
+                        ) : null;
+                      })}
+                    </span>
+                  </div>
                   <div style={{ display: 'flex', gap: 10, fontSize: 14 }}><span style={{ color: 'rgba(240,240,245,0.35)' }}>Ton:</span><span style={{ color: '#f0f0f5', fontWeight: 600 }}>{TONES.find(t => t.id === selectedTone)?.emoji} {TONES.find(t => t.id === selectedTone)?.label}</span></div>
                 </div>
               </div>
-              <button onClick={handleFinish} disabled={saving} className="btn-primary" style={{ width: '100%', padding: '15px', borderRadius: 14, fontSize: 16 }}>
-                {saving ? '⏳ Zapisuję...' : '✨ Wygeneruj pierwszy post →'}
-              </button>
+              <button onClick={handleFinish} disabled={saving} className="btn-primary" style={{ width: '100%', padding: '15px', borderRadius: 14, fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <span>{saving ? '⏳ Zapisuję...' : '✨ Przejdź do generatora'}</span>
+            </button>
             </div>
           )}
 
           {/* Navigation buttons (steps 1-3) */}
           {step >= 1 && step <= 3 && (
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 32, gap: 12 }}>
-              <button onClick={() => setStep(s => s - 1)} className="btn-ghost" style={{ padding: '12px 24px', borderRadius: 12, fontSize: 14 }}>
-                ← Wróć
-              </button>
-              <button onClick={() => setStep(s => s + 1)} disabled={!canNext()} className="btn-primary" style={{ flex: 1, padding: '12px 24px', borderRadius: 12, fontSize: 14 }}>
-                {step === 3 ? 'Zakończ konfigurację →' : 'Dalej →'}
-              </button>
-            </div>
+            <button onClick={() => setStep(s => s - 1)} className="btn-ghost" style={{ padding: '12px 24px', borderRadius: 12, fontSize: 14 }}>
+              ← Wróć
+            </button>
+            <button onClick={() => setStep(s => s + 1)} disabled={!canNext()} className="btn-primary" style={{ padding: '12px 32px', borderRadius: 12, fontSize: 14 }}>
+              {step === 3 ? 'Zakończ konfigurację' : 'Dalej'}
+            </button>
+          </div>
           )}
         </div>
 
