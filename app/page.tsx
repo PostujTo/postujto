@@ -18,7 +18,9 @@ function FaqAccordion() {
       {items.map((item, i) => (
         <div key={i} style={{ border: `1px solid ${open === i ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.07)'}`, borderRadius: 14, overflow: 'hidden', transition: 'border-color 0.2s' }}>
           <button onClick={() => setOpen(open === i ? null : i)}
-            style={{ width: '100%', textAlign: 'left', background: open === i ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)', border: 'none', cursor: 'pointer', padding: '18px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, fontFamily: "'DM Sans', sans-serif" }}>
+            style={{ width: '100%', textAlign: 'left', background: open === i ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)', border: 'none', cursor: 'pointer', padding: '18px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, fontFamily: "'DM Sans', sans-serif", transition: 'background 0.2s ease' }}
+onMouseEnter={e => { if (open !== i) (e.currentTarget as HTMLElement).style.background = 'rgba(99,102,241,0.05)'; }}
+onMouseLeave={e => { if (open !== i) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.02)'; }}>
             <span style={{ fontSize: 15, fontWeight: 600, color: '#f0f0f5', lineHeight: 1.5 }}>{item.q}</span>
             <span style={{ fontSize: 20, color: open === i ? '#a5b4fc' : 'rgba(240,240,245,0.3)', transition: 'transform 0.2s', transform: open === i ? 'rotate(45deg)' : 'none', flexShrink: 0 }}>+</span>
           </button>
@@ -208,7 +210,8 @@ const handleConfirmTerms = async () => {
           background: rgba(255,255,255,0.03);
           border: 1px solid rgba(255,255,255,0.08);
           backdrop-filter: blur(20px);
-          transition: all 0.4s ease;
+          border-radius: 20px;
+          transition: all 0.2s ease;
         }
         .card-glass:hover {
           background: rgba(255,255,255,0.06);
@@ -694,7 +697,10 @@ const handleConfirmTerms = async () => {
               { icon: '👁️', title: 'Ograniczony dostęp', desc: 'Dostęp do danych produkcyjnych mają tylko niezbędne systemy. Żadnych osób trzecich.' },
               { icon: '🛡️', title: 'RODO / GDPR', desc: 'W pełni zgodni z RODO. Możesz pobrać, poprawić lub usunąć swoje dane w każdej chwili.' },
             ].map((item, i) => (
-              <div key={i} style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28 }}>
+              <div key={i} style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 28, transition: 'all 0.2s ease', cursor: 'default' }}
+                    onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(255,255,255,0.05)'; el.style.borderColor = 'rgba(99,102,241,0.4)'; el.style.transform = 'translateY(-4px)'; }}
+                    onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(255,255,255,0.025)'; el.style.borderColor = 'rgba(255,255,255,0.07)'; el.style.transform = 'translateY(0)'; }}
+                  >
                 <div style={{ fontSize: 28, marginBottom: 12 }}>{item.icon}</div>
                 <h3 className="font-display" style={{ fontSize: 15, fontWeight: 700, color: '#f0f0f5', marginBottom: 8 }}>{item.title}</h3>
                 <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.5)', lineHeight: 1.7 }}>{item.desc}</p>

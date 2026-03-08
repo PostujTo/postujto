@@ -163,7 +163,7 @@ const plans = [
           </Link>
           <Link href="/app">
             <button className="btn-primary" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14 }}>
-              Wypróbuj za darmo →
+              Wypróbuj za darmo
             </button>
           </Link>
         </div>
