@@ -484,3 +484,42 @@ Wstawić w `app/page.tsx` między `{/* HOW IT WORKS */}` a `{/* FEATURES */}`. D
         </div>
       </section>
 ```
+# PostujTo.pl — kontekst.md
+_Ostatnia aktualizacja: 2026-03-08_
+
+---
+
+## Do sprawdzenia po włączeniu płatności
+
+- Czy modal przed Stripe w `/pricing` poprawnie zapisuje `terms_accepted_at` przed przekierowaniem do Stripe
+- Czy checkbox blokuje przycisk „Akceptuję — przejdź do płatności →" dopóki niezaznaczony
+- Czy użytkownicy którzy zaakceptowali regulamin przez `/app` (free) lub onboarding nie widzą ponownie modala przy zakupie
+
+---
+
+## Do poprawki — Onboarding (`app/onboarding/page.tsx`)
+
+- **Brak ikon serwisów** — w kroku 2 z 3 (wybór platform) oraz na ostatnim ekranie podsumowania wyświetla się tylko tekst zamiast ikon Facebook / Instagram / TikTok. Ikony są pobierane z `cdn.simpleicons.org` — sprawdzić czy ładują się poprawnie po deploymencie.
+- **Przycisk „Dalej" i przycisk na ostatnim ekranie** — powinny wyglądać jak przycisk „Wypróbuj za darmo →" ze strony głównej: gradient fioletowy, efekt hover (`filter: brightness(1.15)`, `transform: translateY(-1px)`). Aktualnie styl `btn-primary` może nie być spójny z benchmarkiem (strona główna).
+
+---
+
+## Otwarte zadania techniczne
+
+- [ ] Stripe — włączyć po konsultacji prawnej
+- [ ] Regulamin §1 — zaktualizować po rejestracji JDG (nazwa firmy, NIP, REGON)
+- [ ] Screenshoty z apki na landing page
+- [ ] Clerk email DNS — zweryfikować propagację
+- [ ] Cloudflare cache dla Vercel — konfiguracja
+- [ ] KSeF — zawieszone (brak JDG/VAT)
+
+---
+
+## Benchmark UI/UX
+
+**Strona główna (`app/page.tsx`) to benchmark** — każda nowa strona i komponent muszą być z nią spójne:
+- Efekty hover na kartach: `translateY(-8px)`, `border-color rgba(99,102,241,...)`, transition `0.2s ease` na konkretnych właściwościach (nie `all`)
+- Przyciski primary: gradient `linear-gradient(135deg, #6366f1, #a855f7)`, hover `brightness(1.15) + translateY(-1px)`
+- Kolory tła: `#0a0a0f`, karty `rgba(255,255,255,0.03)`, border `rgba(255,255,255,0.08)`
+- Typografia: Poppins (nagłówki), DM Sans (tekst)
+- Sticky header: `background: rgba(10,10,15,0.9)`, `backdropFilter: blur(20px)`, `borderBottom: 1px solid rgba(255,255,255,0.06)`
