@@ -11,6 +11,14 @@ export default function PricingPage() {
   const [planLoading, setPlanLoading] = useState(true);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
+  const [termsAlreadyAccepted, setTermsAlreadyAccepted] = useState(false);
+
+useEffect(() => {
+  if (!user) return;
+  fetch('/api/user/terms-status')
+    .then(r => r.json())
+    .then(data => { if (data.terms_accepted_at) setTermsAlreadyAccepted(true); });
+}, [user]);
   const [showTermsAlert, setShowTermsAlert] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsChecked, setTermsChecked] = useState(false);
@@ -27,6 +35,23 @@ export default function PricingPage() {
 
   const handleSubscribe = async (priceId: string, planName: string) => {
   if (!user) { window.location.href = '/app'; return; }
+  if (termsAlreadyAccepted) {
+    setLoading(planName);
+    try {
+      const response = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId, userId: user.id }),
+      });
+      const data = await response.json();
+      if (data.url) window.location.href = data.url;
+    } catch {
+      alert('Wystąpił błąd. Spróbuj ponownie.');
+    } finally {
+      setLoading(null);
+    }
+    return;
+  }
   setPendingPriceId(priceId);
   setPendingPlan(planName);
   setTermsChecked(false);
@@ -264,25 +289,6 @@ const plans = [
             )}
           </div>
         ))}
-      </div>
-
-      {/* CHECKBOX REGULAMIN */}
-      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '0 24px 40px' }}>
-        <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer', padding: '16px 20px', background: termsAccepted ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)', border: `1px solid ${termsAccepted ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 14, transition: 'all 0.2s' }}>
-          <input
-            type="checkbox"
-            checked={termsAccepted}
-            onChange={e => setTermsAccepted(e.target.checked)}
-            style={{ width: 18, height: 18, marginTop: 2, accentColor: '#6366f1', flexShrink: 0, cursor: 'pointer' }}
-          />
-          <span style={{ fontSize: 14, color: 'rgba(240,240,245,0.65)', lineHeight: 1.6 }}>
-            Zapoznałem/am się z{' '}
-            <Link href="/terms" target="_blank" style={{ color: '#a5b4fc', textDecoration: 'underline' }}>Regulaminem</Link>
-            {' '}i{' '}
-            <Link href="/privacy" target="_blank" style={{ color: '#a5b4fc', textDecoration: 'underline' }}>Polityką prywatności</Link>
-            {' '}serwisu PostujTo i akceptuję ich treść. Wyrażam zgodę na natychmiastowe rozpoczęcie świadczenia usługi i przyjmuję do wiadomości, że po uruchomieniu subskrypcji tracę prawo do odstąpienia od umowy zgodnie z art. 38 pkt 13 ustawy o prawach konsumenta.
-          </span>
-        </label>
       </div>
 
       {/* COMPARISON TABLE */}

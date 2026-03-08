@@ -73,6 +73,9 @@ export default function OnboardingPage() {
 
       // Zapisz ukończenie onboardingu
       await fetch('/api/onboarding-complete', { method: 'POST' });
+      if (termsAccepted) {
+        await fetch('/api/user/accept-terms', { method: 'POST' });
+      }
     } catch (err) {
       console.error(err);
     }
