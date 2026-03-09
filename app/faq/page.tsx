@@ -186,7 +186,7 @@ export default function FAQPage() {
           {/* Hero */}
           <div className="fade-up" style={{ textAlign: 'center', marginBottom: 64 }}>
             <p style={{ fontSize: 12, fontWeight: 600, color: '#6366f1', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 12 }}>Pomoc</p>
-            <h1 className="font-display" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 16 }}>
+            <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 16 }}>
               Często zadawane <span className="gradient-text">pytania</span>
             </h1>
             <p style={{ fontSize: 16, color: 'rgba(240,240,245,0.45)', maxWidth: 480, margin: '0 auto' }}>
@@ -194,8 +194,6 @@ export default function FAQPage() {
               <a href="mailto:hello@postujto.com" style={{ color: '#a5b4fc', textDecoration: 'none' }}>hello@postujto.com</a>
             </p>
           </div>
-
-          </main>
 
           {/* FAQ Categories */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 48 }}>
@@ -225,6 +223,7 @@ export default function FAQPage() {
               </div>
             ))}
           </div>
+          </main>
 
         <footer style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: '28px 24px' }}>
           <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>

@@ -88,7 +88,7 @@ export default function PrivacyPage() {
         <main style={{ flex: 1, maxWidth: 760, margin: '0 auto', width: '100%', padding: '56px 24px 100px' }}>
           <div style={{ marginBottom: 48 }}>
             <p style={{ fontSize: 12, fontWeight: 600, color: '#6366f1', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 12 }}>Dokumenty prawne</p>
-            <h1 className="font-display" style={{ fontSize: 'clamp(1.8rem, 3vw, 2.6rem)', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 12 }}>
+            <h1 style={{ fontSize: 'clamp(1.8rem, 3vw, 2.6rem)', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 12 }}>
               Polityka <span className="gradient-text">prywatności</span>
             </h1>
             <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.3)' }}>Ostatnia aktualizacja: {LAST_UPDATED}</p>
