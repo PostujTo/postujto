@@ -200,8 +200,8 @@ export default function OnboardingPage() {
                 ))}
               </div>
               <TermsCheckbox accepted={termsAccepted} onAccept={setTermsAccepted} />
-              <button onClick={() => setStep(1)} disabled={!termsAccepted} className="btn-primary" style={{ width: '100%', padding: '15px', borderRadius: 14, fontSize: 16, marginTop: 16 }}>
-                Zaczynamy! →
+              <button onClick={() => setStep(1)} disabled={!termsAccepted} className="btn-primary" style={{ width: '100%', padding: '15px', borderRadius: 14, fontSize: 16, marginTop: 16, background: termsAccepted ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(255,255,255,0.05)', color: termsAccepted ? '#fff' : 'rgba(240,240,245,0.3)', border: 'none', fontWeight: 700, cursor: termsAccepted ? 'pointer' : 'not-allowed', transition: 'all 0.3s ease' }}>
+                <span>Zaczynamy!</span>
               </button>
               <button onClick={() => router.push('/app')} style={{ marginTop: 14, background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: 'rgba(240,240,245,0.3)', fontFamily: "'DM Sans', sans-serif" }}>
                 Pomiń konfigurację
