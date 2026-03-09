@@ -27,10 +27,22 @@ const TONES = [
   { id: 'sales', label: 'Sprzedażowy', emoji: '🛒', desc: 'Przekonujący, nakierowany na zakup' },
 ];
 
+const PLATFORM_ICONS: Record<string, React.ReactElement> = {
+  facebook: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="#1877f2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+  ),
+  instagram: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="url(#ig)"><defs><linearGradient id="ig" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stopColor="#f09433"/><stop offset="25%" stopColor="#e6683c"/><stop offset="50%" stopColor="#dc2743"/><stop offset="75%" stopColor="#cc2366"/><stop offset="100%" stopColor="#bc1888"/></linearGradient></defs><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+  ),
+  tiktok: (
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="#ffffff"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+  ),
+};
+
 const PLATFORMS = [
-  { id: 'facebook', label: 'Facebook', desc: 'Dłuższe posty, społeczność, zasięg organiczny', icon: 'https://cdn.simpleicons.org/facebook/1877f2' },
-  { id: 'instagram', label: 'Instagram', desc: 'Wizualny, krótkie opisy, hashtagi, Stories', icon: 'https://cdn.simpleicons.org/instagram/e1306c' },
-  { id: 'tiktok', label: 'TikTok', desc: 'Krótkie, chwytliwe opisy do wideo', icon: 'https://cdn.simpleicons.org/tiktok/ffffff' },
+  { id: 'facebook', label: 'Facebook', desc: 'Dłuższe posty, społeczność, zasięg organiczny' },
+  { id: 'instagram', label: 'Instagram', desc: 'Wizualny, krótkie opisy, hashtagi, Stories' },
+  { id: 'tiktok', label: 'TikTok', desc: 'Krótkie, chwytliwe opisy do wideo' },
 ];
 
 const STEPS = ['Witaj', 'Firma', 'Platformy', 'Ton', 'Start'];
@@ -43,8 +55,8 @@ export default function OnboardingPage() {
 
   const [companyName, setCompanyName] = useState('');
   const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['facebook']);
-  const [selectedTone, setSelectedTone] = useState<string>('professional');
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
+  const [selectedTone, setSelectedTone] = useState<string | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
   
 
@@ -62,7 +74,7 @@ export default function OnboardingPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           company_name: companyName,
-          tone: selectedTone,
+          tone: selectedTone ?? 'professional',
           style: 'realistic',
           colors: ['', '', '', '', ''],
           slogan: '',
@@ -88,10 +100,11 @@ export default function OnboardingPage() {
   };
 
   const canNext = () => {
-    if (step === 1) return true; // nazwa opcjonalna
-    if (step === 2) return selectedPlatforms.length > 0;
-    return true;
-  };
+  if (step === 1) return true;
+  if (step === 2) return selectedPlatforms.length > 0;
+  if (step === 3) return selectedTone !== null;
+  return true;
+};
 
   return (
     <>
@@ -240,7 +253,9 @@ export default function OnboardingPage() {
                     <button key={p.id} onClick={() => togglePlatform(p.id)}
                       className={`option-card ${selected ? 'selected' : ''}`}
                       style={{ padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 16, textAlign: 'left' }}>
-                      <img src={p.icon} alt={p.label} style={{ width: 32, height: 32, flexShrink: 0, objectFit: 'contain' }} />
+                      <div style={{ width: 32, height: 32, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {PLATFORM_ICONS[p.id]}
+                      </div>
                       <div style={{ flex: 1 }}>
                         <p className="font-display" style={{ fontSize: 15, fontWeight: 700, marginBottom: 3, color: selected ? '#a5b4fc' : '#f0f0f5' }}>{p.label}</p>
                         <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.4)' }}>{p.desc}</p>
@@ -300,7 +315,7 @@ export default function OnboardingPage() {
                         const pl = PLATFORMS.find(pl => pl.id === p);
                         return pl ? (
                           <span key={p} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <img src={pl.icon} alt={pl.label} style={{ width: 16, height: 16, objectFit: 'contain' }} />
+                            <span style={{ display: 'flex', alignItems: 'center' }}>{PLATFORM_ICONS[p]}</span>
                             {pl.label}
                           </span>
                         ) : null;
@@ -310,7 +325,7 @@ export default function OnboardingPage() {
                   <div style={{ display: 'flex', gap: 10, fontSize: 14 }}><span style={{ color: 'rgba(240,240,245,0.35)' }}>Ton:</span><span style={{ color: '#f0f0f5', fontWeight: 600 }}>{TONES.find(t => t.id === selectedTone)?.emoji} {TONES.find(t => t.id === selectedTone)?.label}</span></div>
                 </div>
               </div>
-              <button onClick={handleFinish} disabled={saving} className="btn-primary" style={{ width: '100%', padding: '15px', borderRadius: 14, fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+              <button onClick={handleFinish} disabled={saving} className="btn-primary" style={{ width: '100%', padding: '15px', borderRadius: 14, fontSize: 16, background: 'linear-gradient(135deg, #6366f1, #a855f7)', color: '#fff', border: 'none', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: saving ? 'not-allowed' : 'pointer' }}>
               <span>{saving ? '⏳ Zapisuję...' : '✨ Przejdź do generatora'}</span>
             </button>
             </div>
@@ -322,8 +337,8 @@ export default function OnboardingPage() {
             <button onClick={() => setStep(s => s - 1)} className="btn-ghost" style={{ padding: '12px 24px', borderRadius: 12, fontSize: 14 }}>
               ← Wróć
             </button>
-            <button onClick={() => setStep(s => s + 1)} disabled={!canNext()} className="btn-primary" style={{ padding: '12px 32px', borderRadius: 12, fontSize: 14 }}>
-              {step === 3 ? 'Zakończ konfigurację' : 'Dalej'}
+            <button onClick={() => setStep(s => s + 1)} disabled={!canNext()} className="btn-primary" style={{ padding: '12px 32px', borderRadius: 12, fontSize: 14, background: 'linear-gradient(135deg, #6366f1, #a855f7)', color: '#fff', border: 'none', fontWeight: 700, cursor: canNext() ? 'pointer' : 'not-allowed' }}>
+              <span>{step === 3 ? 'Zakończ konfigurację' : 'Dalej'}</span>
             </button>
           </div>
           )}
