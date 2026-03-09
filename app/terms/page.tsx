@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 
 const LAST_UPDATED = '6 marca 2026';
 const COMPANY = 'PostujTo';
@@ -41,16 +42,38 @@ export default function TermsPage() {
       </div>
 
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <header style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(10,10,15,0.85)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100 }}>
-          <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Link href="/" style={{ textDecoration: 'none' }}>
-              <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em', color: '#f0f0f5' }}>
-                Postuj<span className="gradient-text">To</span>
-              </span>
-            </Link>
-            <Link href="/" className="btn-ghost" style={{ padding: '8px 16px', borderRadius: 10, fontSize: 13 }}>← Wróć</Link>
-          </div>
-        </header>
+        <header style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(10,10,15,0.9)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100 }}>
+  <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <Link href="/" style={{ textDecoration: 'none' }}>
+      <span className="font-display" style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em', color: '#f0f0f5' }}>
+        Postuj<span className="gradient-text">To</span>
+      </span>
+    </Link>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <Link href="/pricing" style={{ fontSize: 14, color: 'rgba(240,240,245,0.6)', textDecoration: 'none', padding: '8px 12px' }}>Cennik</Link>
+      <SignedOut>
+        <SignInButton mode="modal" forceRedirectUrl="/app">
+          <button className="btn-secondary" style={{ padding: '10px 20px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
+            Zaloguj się
+          </button>
+        </SignInButton>
+        <Link href="/app">
+          <button className="btn-primary" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14 }}>
+            <span>Wypróbuj za darmo</span>
+          </button>
+        </Link>
+      </SignedOut>
+      <SignedIn>
+        <Link href="/app">
+          <button className="btn-primary" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14 }}>
+            <span>Generator →</span>
+          </button>
+        </Link>
+        <UserButton afterSignOutUrl="/" />
+      </SignedIn>
+    </div>
+  </div>
+</header>
 
         <main style={{ flex: 1, maxWidth: 760, margin: '0 auto', width: '100%', padding: '56px 24px 100px' }}>
           <div style={{ marginBottom: 48 }}>

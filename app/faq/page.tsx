@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 
 const FAQ_ITEMS = [
   {
@@ -129,19 +130,38 @@ export default function FAQPage() {
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
         {/* HEADER */}
-        <header style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(10,10,15,0.85)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100 }}>
-          <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Link href="/" style={{ textDecoration: 'none' }}>
-              <span className="font-display" style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em', color: '#f0f0f5' }}>
-                Postuj<span className="gradient-text">To</span>
-              </span>
-            </Link>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <Link href="/#pricing" className="btn-ghost" style={{ padding: '8px 16px', borderRadius: 10, fontSize: 13 }}>Cennik</Link>
-              <Link href="/app" className="btn-primary" style={{ padding: '8px 18px', borderRadius: 10, fontSize: 13 }}>✨ Wypróbuj za darmo</Link>
-            </div>
-          </div>
-        </header>
+        <header style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(10,10,15,0.9)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100 }}>
+  <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <Link href="/" style={{ textDecoration: 'none' }}>
+      <span className="font-display" style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em', color: '#f0f0f5' }}>
+        Postuj<span className="gradient-text">To</span>
+      </span>
+    </Link>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <Link href="/pricing" style={{ fontSize: 14, color: 'rgba(240,240,245,0.6)', textDecoration: 'none', padding: '8px 12px' }}>Cennik</Link>
+      <SignedOut>
+        <SignInButton mode="modal" forceRedirectUrl="/app">
+          <button className="btn-secondary" style={{ padding: '10px 20px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
+            Zaloguj się
+          </button>
+        </SignInButton>
+        <Link href="/app">
+          <button className="btn-primary" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14 }}>
+            <span>Wypróbuj za darmo</span>
+          </button>
+        </Link>
+      </SignedOut>
+      <SignedIn>
+        <Link href="/app">
+          <button className="btn-primary" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14 }}>
+            <span>Generator →</span>
+          </button>
+        </Link>
+        <UserButton afterSignOutUrl="/" />
+      </SignedIn>
+    </div>
+  </div>
+</header>
 
         <main style={{ flex: 1, maxWidth: 800, margin: '0 auto', width: '100%', padding: '64px 24px 100px' }}>
 
@@ -156,6 +176,8 @@ export default function FAQPage() {
               <a href="mailto:hello@postujto.com" style={{ color: '#a5b4fc', textDecoration: 'none' }}>hello@postujto.com</a>
             </p>
           </div>
+
+          </main>
 
           {/* FAQ Categories */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 48 }}>
@@ -185,14 +207,6 @@ export default function FAQPage() {
               </div>
             ))}
           </div>
-
-          {/* CTA */}
-          <div style={{ marginTop: 80, padding: '48px 40px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 24, textAlign: 'center' }}>
-            <h3 className="font-display" style={{ fontSize: 24, fontWeight: 800, marginBottom: 12 }}>Gotowy żeby zacząć?</h3>
-            <p style={{ fontSize: 15, color: 'rgba(240,240,245,0.45)', marginBottom: 28 }}>5 darmowych postów. Bez karty kredytowej.</p>
-            <Link href="/app" className="btn-primary" style={{ padding: '14px 32px', borderRadius: 14, fontSize: 15 }}>✨ Wypróbuj za darmo</Link>
-          </div>
-        </main>
 
         <footer style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: '28px 24px' }}>
           <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
