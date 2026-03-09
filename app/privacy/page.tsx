@@ -34,15 +34,26 @@ export default function PrivacyPage() {
       </div>
 
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <header style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(10,10,15,0.9)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100 }}>
-  <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <nav style={{
+  position: 'sticky', top: 0, zIndex: 100,
+  background: 'rgba(10,10,15,0.9)',
+  backdropFilter: 'blur(20px)',
+  borderBottom: '1px solid rgba(255,255,255,0.06)',
+  padding: '0 24px',
+}}>
+  <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 72 }}>
     <Link href="/" style={{ textDecoration: 'none' }}>
-      <span className="font-display" style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em', color: '#f0f0f5' }}>
+      <span className="font-display" style={{ fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>
         Postuj<span className="gradient-text">To</span>
       </span>
     </Link>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-      <Link href="/pricing" style={{ fontSize: 14, color: 'rgba(240,240,245,0.6)', textDecoration: 'none', padding: '8px 12px' }}>Cennik</Link>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+      <Link href="/pricing"
+        style={{ fontSize: 14, color: 'rgba(240,240,245,0.6)', textDecoration: 'none', transition: 'color 0.2s' }}
+        onMouseEnter={e => (e.currentTarget.style.color = '#a5b4fc')}
+        onMouseLeave={e => (e.currentTarget.style.color = 'rgba(240,240,245,0.6)')}>
+        Cennik
+      </Link>
       <SignedOut>
         <SignInButton mode="modal" forceRedirectUrl="/app">
           <button className="btn-secondary" style={{ padding: '10px 20px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
@@ -50,22 +61,22 @@ export default function PrivacyPage() {
           </button>
         </SignInButton>
         <Link href="/app">
-          <button className="btn-primary" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14 }}>
+          <button className="btn-primary" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
             <span>Wypróbuj za darmo</span>
           </button>
         </Link>
       </SignedOut>
       <SignedIn>
         <Link href="/app">
-          <button className="btn-primary" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14 }}>
-            <span>Generator →</span>
+          <button className="btn-primary" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
+            <span>Otwórz generator</span>
           </button>
         </Link>
         <UserButton afterSignOutUrl="/" />
       </SignedIn>
     </div>
   </div>
-</header>
+</nav>
 
         <main style={{ flex: 1, maxWidth: 760, margin: '0 auto', width: '100%', padding: '56px 24px 100px' }}>
           <div style={{ marginBottom: 48 }}>
