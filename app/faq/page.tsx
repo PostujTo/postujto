@@ -119,6 +119,13 @@ export default function FAQPage() {
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0a0a0f; }
         ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.4); border-radius: 3px; }
+        .btn-primary { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; font-weight: 700; transition: all 0.3s ease; position: relative; overflow: hidden; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+        .btn-primary::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%); opacity: 0; transition: opacity 0.3s ease; }
+.btn-primary:hover::after { opacity: 1; }
+.btn-primary span { position: relative; z-index: 1; }
+
+.btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #f0f0f5; font-weight: 600; transition: all 0.3s ease; backdrop-filter: blur(10px); cursor: pointer; }
+.btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
       `}</style>
 
       {/* BG */}
