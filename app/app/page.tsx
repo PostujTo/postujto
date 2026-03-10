@@ -128,7 +128,49 @@ export default function GeneratorPage() {
   const [portalLoading, setPortalLoading] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [showTermsModal, setShowTermsModal] = useState(false);
-  const [termsChecked, setTermsChecked] = useState(false);
+const [termsChecked, setTermsChecked] = useState(false);
+const [appBilling, setAppBilling] = useState<'monthly' | 'annual'>('monthly');
+const [showPlanTermsModal, setShowPlanTermsModal] = useState(false);
+const [planTermsChecked, setPlanTermsChecked] = useState(false);
+const [pendingPriceId, setPendingPriceId] = useState<string | null>(null);
+const [pendingPlanName, setPendingPlanName] = useState<string | null>(null);
+const [planCheckoutLoading, setPlanCheckoutLoading] = useState(false);
+
+const handlePlanSelect = async (priceId: string, planName: string) => {
+  setPendingPriceId(priceId);
+  setPendingPlanName(planName);
+  setPlanTermsChecked(false);
+  const termsRes = await fetch('/api/user/terms-status').then(r => r.json()).catch(() => ({ terms_accepted_at: null }));
+  if (termsRes.terms_accepted_at) {
+    setPlanCheckoutLoading(true);
+    try {
+      const res = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId }),
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+    } catch { showToast('Wystąpił błąd. Spróbuj ponownie.', 'error'); }
+    finally { setPlanCheckoutLoading(false); }
+  } else {
+    setShowPlanTermsModal(true);
+  }
+};
+
+const handleConfirmPlanTerms = async () => {
+  if (!pendingPriceId) return;
+  setPlanCheckoutLoading(true);
+  await fetch('/api/user/accept-terms', { method: 'POST' });
+  try {
+    const res = await fetch('/api/stripe/create-checkout-session', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ priceId: pendingPriceId }),
+    });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+  } catch { showToast('Wystąpił błąd. Spróbuj ponownie.', 'error'); }
+  finally { setPlanCheckoutLoading(false); }
+};
   const upcomingOccasions = getUpcomingOccasions();
 
   const showToast = useCallback((message: string, type: ToastType = 'info') => {
@@ -384,6 +426,8 @@ export default function GeneratorPage() {
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0a0a0f; }
         ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.4); border-radius: 3px; }
+        .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #f0f0f5; font-weight: 600; transition: all 0.3s ease; backdrop-filter: blur(10px); cursor: pointer; }
+        .btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
       `}</style>
 
 {showTermsModal && (
@@ -423,6 +467,35 @@ export default function GeneratorPage() {
         </div>
       )}
 
+{showPlanTermsModal && (
+  <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+    <div style={{ background: '#13131a', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 24, padding: 40, maxWidth: 480, width: '100%', textAlign: 'center' }}>
+      <div style={{ fontSize: 44, marginBottom: 16 }}>📋</div>
+      <h3 style={{ fontSize: 22, fontWeight: 800, color: '#f0f0f5', marginBottom: 12 }}>Zanim przejdziesz do płatności</h3>
+      <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.55)', lineHeight: 1.7, marginBottom: 28 }}>Prosimy o zapoznanie się z dokumentami prawnymi serwisu PostujTo.</p>
+      <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer', padding: '16px 20px', background: planTermsChecked ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)', border: `1px solid ${planTermsChecked ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 14, marginBottom: 24, transition: 'all 0.2s', textAlign: 'left' }}>
+        <input type="checkbox" checked={planTermsChecked} onChange={e => setPlanTermsChecked(e.target.checked)}
+          style={{ width: 18, height: 18, marginTop: 2, accentColor: '#6366f1', flexShrink: 0, cursor: 'pointer' }} />
+        <span style={{ fontSize: 13, color: 'rgba(240,240,245,0.65)', lineHeight: 1.6 }}>
+          Zapoznałem/am się z{' '}
+          <a href="/terms" target="_blank" style={{ color: '#a5b4fc', textDecoration: 'underline' }}>Regulaminem</a>
+          {' '}i{' '}
+          <a href="/privacy" target="_blank" style={{ color: '#a5b4fc', textDecoration: 'underline' }}>Polityką prywatności</a>
+          {' '}serwisu PostujTo i akceptuję ich treść. Wyrażam zgodę na natychmiastowe rozpoczęcie świadczenia usługi.
+        </span>
+      </label>
+      <button onClick={handleConfirmPlanTerms} disabled={!planTermsChecked || planCheckoutLoading}
+        style={{ width: '100%', padding: '14px', borderRadius: 12, fontSize: 15, fontWeight: 700, border: 'none', cursor: planTermsChecked ? 'pointer' : 'not-allowed', background: planTermsChecked ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(255,255,255,0.05)', color: planTermsChecked ? '#fff' : 'rgba(240,240,245,0.3)', transition: 'all 0.2s', marginBottom: 12 }}>
+        {planCheckoutLoading ? 'Ładowanie...' : 'Akceptuję — przejdź do płatności →'}
+      </button>
+      <button onClick={() => setShowPlanTermsModal(false)}
+        style={{ width: '100%', padding: '12px', borderRadius: 12, fontSize: 14, fontWeight: 600, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'rgba(240,240,245,0.4)', cursor: 'pointer' }}>
+        Anuluj
+      </button>
+    </div>
+  </div>
+)}
+
       {/* Toast container */}
       <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 200, display: 'flex', flexDirection: 'column', gap: 10, pointerEvents: 'none' }}>
         {toasts.map(toast => (
@@ -452,8 +525,8 @@ export default function GeneratorPage() {
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <SignedOut>
-                <SignInButton mode="modal">
-                  <button className="btn-ghost" style={{ padding: '8px 18px', borderRadius: 10, fontSize: 14 }}>
+                <SignInButton mode="modal" forceRedirectUrl="/app">
+                  <button className="btn-secondary" style={{ padding: '10px 20px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
                     Zaloguj się
                   </button>
                 </SignInButton>
@@ -679,34 +752,73 @@ export default function GeneratorPage() {
 
                   {/* Pricing for non-paid */}
                   {!hasActivePlan && (
-                    <div style={{ marginTop: 40, textAlign: 'left' }}>
-                      <p style={{ fontSize: 12, fontWeight: 600, color: 'rgba(240,240,245,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16, textAlign: 'center' }}>Ulepsz plan</p>
+                    <div style={{ marginTop: 32 }}>
+                      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+                        <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: 4, gap: 4 }}>
+                          {(['monthly', 'annual'] as const).map(option => (
+                            <button key={option} onClick={() => setAppBilling(option)}
+                              style={{ padding: '8px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'all 0.2s', background: appBilling === option ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'transparent', color: appBilling === option ? '#fff' : 'rgba(240,240,245,0.45)' }}>
+                              {option === 'monthly' ? 'Miesięczny' : 'Roczny -20%'}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                        {[
-                          { name: 'Starter', price: '79 zł', features: ['Unlimited postów', 'Obrazy AI', 'Brand Kit'], priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD },
-                          { name: 'Pro', price: '199 zł', features: ['Wszystko ze Starter', 'Auto 3 obrazy', 'Logo na obrazach'], priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM },
-                        ].map((plan, i) => (
-                          <div key={i} style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 16, padding: 20 }}>
+                        {([
+                          {
+                            name: 'Starter',
+                            price: appBilling === 'monthly' ? '79' : '63',
+                            period: appBilling === 'monthly' ? '/msc' : '/msc • 756 zł/rok',
+                            features: ['Unlimited postów', 'Generowanie obrazów AI', 'Brand Kit', 'Historia i ulubione', 'Kalendarz treści'],
+                            priceId: appBilling === 'monthly' ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD_ANNUAL,
+                          },
+                          {
+                            name: 'Pro',
+                            price: appBilling === 'monthly' ? '199' : '159',
+                            period: appBilling === 'monthly' ? '/msc' : '/msc • 1908 zł/rok',
+                            features: ['Wszystko ze Starter', 'Auto 3 obrazy przy każdym poście', 'Logo marki na obrazach', 'Priorytetowe generowanie'],
+                            priceId: appBilling === 'monthly' ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM_ANNUAL,
+                          },
+                        ] as const).map((plan, i) => (
+                          <div key={i} style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column' }}>
                             <div className="font-display" style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{plan.name}</div>
-                            <div style={{ fontSize: 22, fontWeight: 800, color: '#a5b4fc', marginBottom: 12 }}>{plan.price}<span style={{ fontSize: 12, opacity: 0.6 }}>/msc</span></div>
-                            <ul style={{ listStyle: 'none', marginBottom: 16 }}>
+                            <div style={{ marginBottom: 4 }}>
+                              <span style={{ fontSize: 26, fontWeight: 800, color: '#a5b4fc' }}>{plan.price} zł</span>
+                              <span style={{ fontSize: 11, color: 'rgba(240,240,245,0.4)', marginLeft: 4 }}>{plan.period}</span>
+                            </div>
+                            {appBilling === 'annual' && (
+                              <div style={{ fontSize: 11, color: '#4ade80', fontWeight: 600, marginBottom: 10 }}>-20% taniej</div>
+                            )}
+                            <ul style={{ listStyle: 'none', padding: 0, marginBottom: 16, flex: 1 }}>
                               {plan.features.map((f, fi) => (
                                 <li key={fi} style={{ fontSize: 12, color: 'rgba(240,240,245,0.55)', marginBottom: 5, display: 'flex', gap: 6 }}>
                                   <span style={{ color: '#6366f1' }}>✓</span>{f}
                                 </li>
                               ))}
                             </ul>
-                            <button onClick={() => handleCheckout(plan.priceId!)} className="btn-primary"
-                              style={{ width: '100%', padding: '9px', borderRadius: 10, fontSize: 13 }}>
-                              <span>Wybierz</span>
-                            </button>
+                            <SignedOut>
+                              <SignInButton mode="modal" forceRedirectUrl="/app">
+                                <button className="btn-primary" style={{ width: '100%', padding: '9px', borderRadius: 10, fontSize: 13 }}>
+                                  <span>Wybierz {plan.name}</span>
+                                </button>
+                              </SignInButton>
+                            </SignedOut>
+                            <SignedIn>
+                              <button
+                                onClick={() => handlePlanSelect(plan.priceId!, plan.name)}
+                                className="btn-primary"
+                                style={{ width: '100%', padding: '9px', borderRadius: 10, fontSize: 13 }}
+                              >
+                                <span>{planCheckoutLoading && pendingPlanName === plan.name ? 'Ładowanie...' : `Wybierz ${plan.name}`}</span>
+                              </button>
+                            </SignedIn>
                           </div>
                         ))}
                       </div>
                     </div>
                   )}
                 </div>
-              )}
+               )}
 
               {results && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
