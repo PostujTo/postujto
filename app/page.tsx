@@ -517,7 +517,7 @@ const handleConfirmTerms = async () => {
               { value: '10h', label: 'oszczędności tygodniowo' },
               { value: '30', label: 'postów w 5 minut' },
               { value: '3', label: 'platformy jednocześnie' },
-              { value: '12', label: 'branż z gotowymi wskazówkami' },
+              { value: '14', label: 'branż z gotowymi wskazówkami' },
             ].map((stat, i) => (
               <div
                 key={i}

@@ -407,14 +407,14 @@ const handleConfirmPlanTerms = async () => {
         }
 
         .textarea-dark {
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.09);
+          background: rgba(255,255,255,0.06);
+          border: 1px solid rgba(255,255,255,0.18);
           color: #f0f0f5 !important;
           var(--font-dm-sans), sans-serif;
           transition: all 0.25s ease;
           outline: none; resize: none;
         }
-        .textarea-dark::placeholder { color: rgba(240,240,245,0.25); }
+        .textarea-dark::placeholder { color: rgba(240,240,245,0.4); }
         .textarea-dark:focus {
           background: rgba(255,255,255,0.06);
           border-color: rgba(99,102,241,0.5);
