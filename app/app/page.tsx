@@ -59,6 +59,8 @@ const INDUSTRIES = [
   { id: 'automotive', label: 'Motoryzacja', emoji: '🚗', hint: 'Podkreśl parametry techniczne, stan techniczny i cenę. Zachęć do jazdy próbnej lub kontaktu.' },
   { id: 'tourism', label: 'Turystyka/hotel', emoji: '✈️', hint: 'Podkreśl wyjątkowość miejsca, atrakcje i relaks. Zachęć do rezerwacji i podaj dostępne terminy.' },
   { id: 'food', label: 'Sklep spożywczy', emoji: '🛍️', hint: 'Podkreśl świeżość, lokalność produktów i atrakcyjne ceny. Zachęć do odwiedzin lub zamówienia online.' },
+  { id: 'crafts', label: 'Rękodzieło', emoji: '🧶', hint: 'Podkreśl unikalność i ręczne wykonanie każdego produktu. Zachęć do zakupu jako wyjątkowego prezentu lub ozdoby.' },
+  { id: 'bakery', label: 'Piekarnia', emoji: '🥐', hint: 'Podkreśl świeżość, tradycyjne receptury i domowy smak. Zachęć do odwiedzin rano lub złożenia zamówienia.' },
 ];
 
 import { useState, useEffect, useCallback } from 'react';
@@ -407,7 +409,7 @@ const handleConfirmPlanTerms = async () => {
         .textarea-dark {
           background: rgba(255,255,255,0.04);
           border: 1px solid rgba(255,255,255,0.09);
-          color: #f0f0f5;
+          color: #f0f0f5 !important;
           var(--font-dm-sans), sans-serif;
           transition: all 0.25s ease;
           outline: none; resize: none;
@@ -632,12 +634,15 @@ const handleConfirmPlanTerms = async () => {
                   placeholder="np. nowa kolekcja butów sportowych, przepis na ciasto czekoladowe..."
                   rows={3}
                   spellCheck={false}
-                  style={{ width: '100%', padding: '14px 16px', borderRadius: 14, fontSize: 14, lineHeight: 1.6 }}
+                  style={{ width: '100%', padding: '14px 16px', borderRadius: 14, fontSize: 14, lineHeight: 1.6, color: '#f0f0f5'}}
                 />
                 <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <label className="checkbox-label">
-                    <input type="checkbox" checked={useBrandColors} onChange={e => setUseBrandColors(e.target.checked)} />
-                    <span style={{ fontSize: 13, color: 'rgba(240,240,245,0.6)' }}>Użyj kolorów i stylu z Brand Kit</span>
+                  <label className="checkbox-label" style={{ opacity: credits?.plan !== 'free' && user ? 1 : 0.4, cursor: credits?.plan !== 'free' && user ? 'pointer' : 'not-allowed' }}>
+                    <input type="checkbox" checked={useBrandColors} onChange={e => setUseBrandColors(e.target.checked)} disabled={!user || credits?.plan === 'free'} />
+                    <span style={{ fontSize: 13, color: 'rgba(240,240,245,0.6)' }}>
+                      Użyj kolorów i stylu z Brand Kit
+                      {(!user || credits?.plan === 'free') && <span style={{ marginLeft: 6, fontSize: 11, color: '#6366f1' }}>(tylko Starter i Pro)</span>}
+                    </span>
                   </label>
                   <label className="checkbox-label" style={{ opacity: credits?.plan === 'premium' ? 1 : 0.4, cursor: credits?.plan === 'premium' ? 'pointer' : 'not-allowed' }}>
                     <input type="checkbox" checked={addWatermark} onChange={e => setAddWatermark(e.target.checked)} disabled={credits?.plan !== 'premium'} />
@@ -733,10 +738,10 @@ const handleConfirmPlanTerms = async () => {
                       <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3"/>
                       <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round"/>
                     </svg>
-                    Generuję posty...
+                    <span>Generuję posty...</span>
                   </>
                 ) : (
-                  <><span style={{ fontSize: 20 }}>✨</span> Wygeneruj posty</>
+                  <><span style={{ fontSize: 20 }}>✨</span><span>Wygeneruj posty</span></>
                 )}
               </button>
             </div>
