@@ -541,7 +541,7 @@ const handleConfirmPlanTerms = async () => {
                       {PLAN_COLORS[credits.plan].label}
                     </span>
                     {credits.plan === 'free' && (
-                      <span style={{ padding: '6px 12px', borderRadius: 100, fontSize: 12, background: 'rgba(255,255,255,0.05)', color: 'rgba(240,240,245,0.5)' }}>
+                      <span style={{ padding: '6px 12px', borderRadius: 100, fontSize: 12, background: credits.remaining === 0 ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)', color: credits.remaining === 0 ? '#f87171' : 'rgba(240,240,245,0.5)' }}>
                         {credits.remaining}/{credits.total} kredytów
                       </span>
                     )}
@@ -816,7 +816,7 @@ const handleConfirmPlanTerms = async () => {
                             <SignedIn>
                               <button
                                 onClick={() => handlePlanSelect(plan.priceId!, plan.name)}
-                                style={{ width: '100%', padding: '12px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', background: plan.name === 'Starter' ? 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)' : 'rgba(255,255,255,0.05)', color: '#fff', border: plan.name === 'Pro' ? '1px solid rgba(255,255,255,0.15)' : 'none', transition: 'all 0.25s ease' }}
+                                style={{ width: '100%', padding: '12px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)', color: '#fff', border: 'none', transition: 'all 0.25s ease' }}
                                 onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.25)'; }}
                                 onMouseLeave={e => { e.currentTarget.style.filter = ''; }}
                               >
@@ -844,7 +844,7 @@ const handleConfirmPlanTerms = async () => {
                       <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.55)', marginBottom: 12 }}>Zaloguj się za darmo i dostań 3 wersje + 5 kredytów na start.</p>
                       <SignInButton mode="modal">
                         <button className="btn-primary" style={{ padding: '9px 20px', borderRadius: 10, fontSize: 13 }}>
-                          <span>Załóż konto za darmo →</span>
+                          <span>Załóż konto za darmo</span>
                         </button>
                       </SignInButton>
                     </div>
