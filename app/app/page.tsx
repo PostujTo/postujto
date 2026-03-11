@@ -634,7 +634,7 @@ const handleConfirmPlanTerms = async () => {
                   placeholder="np. nowa kolekcja butów sportowych, przepis na ciasto czekoladowe..."
                   rows={3}
                   spellCheck={false}
-                  style={{ width: '100%', padding: '14px 16px', borderRadius: 14, fontSize: 14, lineHeight: 1.6, color: '#f0f0f5'}}
+                  style={{ width: '100%', padding: '14px 16px', borderRadius: 14, fontSize: 14, lineHeight: 1.6, color: '#f0f0f5', border: '1px solid rgba(255,255,255,0.25)' }}
                 />
                 <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
                   <label className="checkbox-label" style={{ opacity: credits?.plan !== 'free' && user ? 1 : 0.4, cursor: credits?.plan !== 'free' && user ? 'pointer' : 'not-allowed' }}>
@@ -806,7 +806,7 @@ const handleConfirmPlanTerms = async () => {
                               <SignInButton mode="modal" forceRedirectUrl="/app">
                                 <button
                                   style={{ width: '100%', padding: '12px', borderRadius: 10, fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)', color: '#fff', transition: 'all 0.25s ease' }}
-                                  onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.15)'; }}
+                                  onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.25)'; }}
                                   onMouseLeave={e => { e.currentTarget.style.filter = ''; }}
                                 >
                                   Wybierz {plan.name}
@@ -817,7 +817,7 @@ const handleConfirmPlanTerms = async () => {
                               <button
                                 onClick={() => handlePlanSelect(plan.priceId!, plan.name)}
                                 style={{ width: '100%', padding: '12px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', background: plan.name === 'Starter' ? 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)' : 'rgba(255,255,255,0.05)', color: '#fff', border: plan.name === 'Pro' ? '1px solid rgba(255,255,255,0.15)' : 'none', transition: 'all 0.25s ease' }}
-                                onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.15)'; }}
+                                onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.25)'; }}
                                 onMouseLeave={e => { e.currentTarget.style.filter = ''; }}
                               >
                                 <span>{planCheckoutLoading && pendingPlanName === plan.name ? 'Ładowanie...' : `Wybierz ${plan.name}`}</span>
