@@ -100,7 +100,7 @@ const plans = [
     price: prices.starter,
     period: billing === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 756 zł/rok',
     desc: billing === 'monthly' ? '2,60 zł dziennie' : 'Oszczędzasz 192 zł rocznie',
-    features: ['Unlimited postów', 'Generowanie obrazów AI', 'Brand Kit', 'Historia i ulubione', 'Kalendarz polskich okazji'],
+    features: ['Unlimited postów', 'Generowanie obrazów AI', 'Brand Kit', 'Głos marki', 'Historia i ulubione', 'Kalendarz polskich okazji'],
     featured: true,
     badge: 'NAJPOPULARNIEJSZY',
     planKey: 'standard',

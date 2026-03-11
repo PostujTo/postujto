@@ -770,7 +770,7 @@ const handleConfirmTerms = async () => {
       price: landingBilling === 'monthly' ? '79' : '63',
       period: landingBilling === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 756 zł/rok',
       desc: landingBilling === 'monthly' ? '2,60 zł dziennie' : 'Oszczędzasz 192 zł rocznie',
-      features: ['Unlimited postów', 'Generowanie obrazów AI', 'Brand Kit', 'Historia i ulubione', 'Kalendarz polskich okazji'],
+      features: ['Unlimited postów', 'Generowanie obrazów AI', 'Brand Kit', 'Głos marki', 'Historia i ulubione', 'Kalendarz polskich okazji'],
       featured: true, badge: 'NAJPOPULARNIEJSZY', href: '/pricing', cta: 'Wybierz Starter',
     },
     {

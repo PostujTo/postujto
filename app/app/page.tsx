@@ -651,11 +651,11 @@ const handleConfirmPlanTerms = async () => {
                       {credits?.plan !== 'premium' && <span style={{ marginLeft: 6, fontSize: 11, color: '#6366f1' }}>(tylko PRO)</span>}
                     </span>
                   </label>
-                  <label className="checkbox-label" style={{ opacity: user ? 1 : 0.4, cursor: user ? 'pointer' : 'not-allowed' }}>
-                    <input type="checkbox" checked={useBrandVoice} onChange={e => setUseBrandVoice(e.target.checked)} disabled={!user} />
+                  <label className="checkbox-label" style={{ opacity: credits?.plan !== 'free' && user ? 1 : 0.4, cursor: credits?.plan !== 'free' && user ? 'pointer' : 'not-allowed' }}>
+                    <input type="checkbox" checked={useBrandVoice} onChange={e => setUseBrandVoice(e.target.checked)} disabled={!user || credits?.plan === 'free'} />
                     <span style={{ fontSize: 13, color: 'rgba(240,240,245,0.6)' }}>
                       Generuj w moim stylu
-                      {!user && <span style={{ marginLeft: 6, fontSize: 11, color: '#6366f1' }}>(wymaga logowania)</span>}
+                      {(!user || credits?.plan === 'free') && <span style={{ marginLeft: 6, fontSize: 11, color: '#6366f1' }}>(tylko Starter i Pro)</span>}
                     </span>
                   </label>
                 </div>
@@ -775,7 +775,7 @@ const handleConfirmPlanTerms = async () => {
                             name: 'Starter',
                             price: appBilling === 'monthly' ? '79' : '63',
                             period: appBilling === 'monthly' ? '/msc' : '/msc • 756 zł/rok',
-                            features: ['Unlimited postów', 'Generowanie obrazów AI', 'Brand Kit', 'Historia i ulubione', 'Kalendarz treści'],
+                            features: ['Unlimited postów', 'Generowanie obrazów AI', 'Brand Kit', 'Głos marki', 'Historia i ulubione', 'Kalendarz treści'],
                             priceId: appBilling === 'monthly' ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD_ANNUAL,
                           },
                           {
