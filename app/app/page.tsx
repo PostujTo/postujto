@@ -798,7 +798,11 @@ const handleConfirmPlanTerms = async () => {
                             </ul>
                             <SignedOut>
                               <SignInButton mode="modal" forceRedirectUrl="/app">
-                                <button style={{ width: '100%', padding: '12px', borderRadius: 10, fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)', color: '#fff' }}>
+                                <button
+                                  style={{ width: '100%', padding: '12px', borderRadius: 10, fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)', color: '#fff', transition: 'all 0.25s ease' }}
+                                  onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.15)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                                  onMouseLeave={e => { e.currentTarget.style.filter = ''; e.currentTarget.style.transform = ''; }}
+                                >
                                   Wybierz {plan.name}
                                 </button>
                               </SignInButton>
@@ -806,13 +810,9 @@ const handleConfirmPlanTerms = async () => {
                             <SignedIn>
                               <button
                                 onClick={() => handlePlanSelect(plan.priceId!, plan.name)}
-                                style={{ 
-                                  width: '100%', padding: '12px', borderRadius: 10, fontSize: 13, fontWeight: 700, 
-                                  cursor: 'pointer', 
-                                  background: plan.name === 'Starter' ? 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)' : 'rgba(255,255,255,0.05)', 
-                                  color: '#fff', 
-                                  border: plan.name === 'Pro' ? '1px solid rgba(255,255,255,0.15)' : 'none'
-                                }}
+                                style={{ width: '100%', padding: '12px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', background: plan.name === 'Starter' ? 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)' : 'rgba(255,255,255,0.05)', color: '#fff', border: plan.name === 'Pro' ? '1px solid rgba(255,255,255,0.15)' : 'none', transition: 'all 0.25s ease' }}
+                                onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.15)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                                onMouseLeave={e => { e.currentTarget.style.filter = ''; e.currentTarget.style.transform = ''; }}
                               >
                                 {planCheckoutLoading && pendingPlanName === plan.name ? 'Ładowanie...' : `Wybierz ${plan.name}`}
                               </button>
