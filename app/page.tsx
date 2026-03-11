@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
 
 function FaqAccordion() {
@@ -52,12 +53,23 @@ function FaqAccordion() {
 export default function LandingPage() {
   const [scrollY, setScrollY] = useState(0);
   const [landingBilling, setLandingBilling] = useState<'monthly' | 'annual'>('monthly');
-const { user } = useUser();
+const { user, isLoaded } = useUser();
 const [showTermsModal, setShowTermsModal] = useState(false);
 const [termsChecked, setTermsChecked] = useState(false);
 const [pendingPriceId, setPendingPriceId] = useState<string | null>(null);
 const [pendingPlan, setPendingPlan] = useState<string | null>(null);
 const [checkoutLoading, setCheckoutLoading] = useState(false);
+const router = useRouter();
+
+useEffect(() => {
+  if (isLoaded && user) {
+    fetch('/api/credits').then(r => r.json()).then(data => {
+      if (data.plan === 'standard' || data.plan === 'premium') {
+        router.push('/app');
+      }
+    });
+  }
+}, [isLoaded, user]);
 
 const handleLandingSubscribe = (priceId: string, planName: string) => {
   if (!user) { window.location.href = '/app'; return; }
