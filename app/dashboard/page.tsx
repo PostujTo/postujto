@@ -227,17 +227,43 @@ const deleteAccount = async () => {
         <header style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(10,10,15,0.85)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100 }}>
           <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Link href="/" style={{ textDecoration: 'none' }}>
-              <span className="font-display" style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em', color: '#f0f0f5' }}>
+              <span className="font-display" style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', color: '#fff' }}>
                 Postuj<span className="gradient-text">To</span>
               </span>
             </Link>
+
+            {/* Tabs */}
+            <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 4 }}>
+              <Link href="/app" style={{ textDecoration: 'none' }}>
+                <button className="btn-ghost" style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, border: 'none', background: 'transparent', color: 'rgba(240,240,245,0.5)' }}>
+                  ✨ Generator
+                </button>
+              </Link>
+              <Link href="/calendar" style={{ textDecoration: 'none' }}>
+                <button className="btn-ghost" style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, border: 'none', background: 'transparent', color: 'rgba(240,240,245,0.5)' }}>
+                  📅 Kalendarz
+                </button>
+              </Link>
+              <button style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.4)', color: '#a5b4fc', cursor: 'default', fontFamily: "'DM Sans', sans-serif", fontWeight: 600 }}>
+                📊 Dashboard
+              </button>
+            </div>
+
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Link href="/app">
-                <button className="btn-primary" style={{ padding: '8px 18px', borderRadius: 10, fontSize: 13 }}>✨ Generator</button>
-              </Link>
-              <Link href="/settings">
-                <button className="btn-ghost" style={{ padding: '8px 16px', borderRadius: 10, fontSize: 13 }}>Ustawienia</button>
-              </Link>
+              {credits && (
+                <>
+                  <span style={{ padding: '6px 10px', borderRadius: 100, fontSize: 11, fontWeight: 600, background: 'rgba(255,255,255,0.05)', color: 'rgba(240,240,245,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    {credits.plan === 'free' ? 'FREE' : credits.plan === 'standard' ? 'STARTER' : 'PRO'}
+                  </span>
+                  {credits.plan === 'free' && (
+                    <span style={{ padding: '6px 10px', borderRadius: 100, fontSize: 11, background: credits.remaining === 0 ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)', color: credits.remaining === 0 ? '#f87171' : 'rgba(240,240,245,0.5)' }}>
+                      {credits.remaining}/{credits.total} kredytów
+                    </span>
+                  )}
+                </>
+              )}
+              <Link href="/settings"><button className="btn-ghost" style={{ padding: '7px 16px', borderRadius: 10, fontSize: 13 }}>🎨 Brand Kit</button></Link>
+              <UserButton />
             </div>
           </div>
         </header>

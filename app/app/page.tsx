@@ -520,15 +520,53 @@ const handleConfirmPlanTerms = async () => {
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
         {/* HEADER */}
-        <header style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(10,10,15,0.8)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100 }}>
+        <header style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(10,10,15,0.85)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100 }}>
           <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Link href="/" style={{ textDecoration: 'none' }}>
-  <span className="font-display" style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em', color: '#f0f0f5' }}>
-    Postuj<span className="gradient-text">To</span>
-  </span>
-</Link>
+              <span className="font-display" style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', color: '#fff' }}>
+                Postuj<span className="gradient-text">To</span>
+              </span>
+            </Link>
+
+            {/* Tabs */}
+            <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 4 }}>
+              <button style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.4)', color: '#a5b4fc', cursor: 'default', fontFamily: "'DM Sans', sans-serif", fontWeight: 600 }}>
+                ✨ Generator
+              </button>
+              <Link href="/calendar" style={{ textDecoration: 'none' }}>
+                <button className="btn-ghost" style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, border: 'none', background: 'transparent', color: 'rgba(240,240,245,0.5)' }}>
+                  📅 Kalendarz
+                </button>
+              </Link>
+              <Link href="/dashboard" style={{ textDecoration: 'none' }}>
+                <button className="btn-ghost" style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, border: 'none', background: 'transparent', color: 'rgba(240,240,245,0.5)' }}>
+                  📊 Dashboard
+                </button>
+              </Link>
+            </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <SignedIn>
+                {!loadingCredits && credits && (
+                  <>
+                    <span style={{ padding: '6px 10px', borderRadius: 100, fontSize: 11, fontWeight: 600, background: PLAN_COLORS[credits.plan].bg, color: PLAN_COLORS[credits.plan].text, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      {PLAN_COLORS[credits.plan].label}
+                    </span>
+                    {credits.plan === 'free' && (
+                      <span style={{ padding: '6px 10px', borderRadius: 100, fontSize: 11, background: credits.remaining === 0 ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)', color: credits.remaining === 0 ? '#f87171' : 'rgba(240,240,245,0.5)' }}>
+                        {credits.remaining}/{credits.total} kredytów
+                      </span>
+                    )}
+                    {hasActivePlan && (
+                      <button onClick={handleCustomerPortal} disabled={portalLoading} className="btn-ghost" style={{ padding: '7px 16px', borderRadius: 10, fontSize: 13 }}>
+                        {portalLoading ? '...' : 'Subskrypcja'}
+                      </button>
+                    )}
+                    <Link href="/settings"><button className="btn-ghost" style={{ padding: '7px 16px', borderRadius: 10, fontSize: 13 }}>🎨 Brand Kit</button></Link>
+                  </>
+                )}
+                <UserButton afterSignOutUrl="/" />
+              </SignedIn>
               <SignedOut>
                 <SignInButton mode="modal" forceRedirectUrl="/app">
                   <button className="btn-secondary" style={{ padding: '10px 20px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
@@ -536,37 +574,6 @@ const handleConfirmPlanTerms = async () => {
                   </button>
                 </SignInButton>
               </SignedOut>
-              <SignedIn>
-                {!loadingCredits && credits && (
-                  <>
-                    <span style={{ padding: '6px 14px', borderRadius: 100, fontSize: 12, fontWeight: 600, letterSpacing: '0.05em', background: PLAN_COLORS[credits.plan].bg, color: PLAN_COLORS[credits.plan].text }}>
-                      {PLAN_COLORS[credits.plan].label}
-                    </span>
-                    {credits.plan === 'free' && (
-                      <span style={{ padding: '6px 12px', borderRadius: 100, fontSize: 12, background: credits.remaining === 0 ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)', color: credits.remaining === 0 ? '#f87171' : 'rgba(240,240,245,0.5)' }}>
-                        {credits.remaining}/{credits.total} kredytów
-                      </span>
-                    )}
-                    {hasActivePlan && (
-                      <>
-                        <Link href="/settings">
-                          <button className="btn-ghost" style={{ padding: '7px 16px', borderRadius: 10, fontSize: 13 }}>Ustawienia</button>
-                        </Link>
-                        <button onClick={handleCustomerPortal} disabled={portalLoading} className="btn-ghost" style={{ padding: '7px 16px', borderRadius: 10, fontSize: 13 }}>
-                          {portalLoading ? '...' : 'Subskrypcja'}
-                        </button>
-                      </>
-                    )}
-                    <Link href="/calendar">
-                      <button className="btn-ghost" style={{ padding: '7px 16px', borderRadius: 10, fontSize: 13 }}>📅 Kalendarz</button>
-                    </Link>
-                    <Link href="/dashboard">
-                      <button className="btn-ghost" style={{ padding: '7px 16px', borderRadius: 10, fontSize: 13 }}>Panel</button>
-                    </Link>
-                  </>
-                )}
-                <UserButton afterSignOutUrl="/" />
-              </SignedIn>
             </div>
           </div>
         </header>

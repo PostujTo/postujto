@@ -1,5 +1,5 @@
 # PostujTo.pl — Kontekst projektu
-_Ostatnia aktualizacja: 2026-03-13_
+_Ostatnia aktualizacja: 2026-03-14_
 
 ## Stack techniczny
 - **Frontend/Backend:** Next.js 16 (App Router)
@@ -93,7 +93,7 @@ _Ostatnia aktualizacja: 2026-03-13_
 - Edycja tematu i platformy per dzień
 - Tony: Profesjonalny, Swobodny, Humorystyczny, Sprzedażowy
 - Prawdziwe SVG ikony platform (Facebook, Instagram, TikTok) z nazwami (FB/IG/TT) w panelu dnia
-- Header: tabs Generator / Kalendarz / Dashboard + plan/kredyty + przycisk Brand Kit po prawej
+- Header: pill toggle Generator / Kalendarz / Dashboard (aktywny tab podświetlony) + plan/kredyty + Brand Kit + avatar — spójny na /app, /calendar, /dashboard
 - Logo spójne z benchmarkiem (fontSize 22, color #fff, gradient-text na "To")
 - Przycisk Eksportuj CSV — aktywny tylko gdy generatedCount > 0, widoczny styl nieaktywny
 - Przyciski Akcje mają widoczny gradient (naprawiony błąd font-family w .btn-primary)
@@ -254,7 +254,7 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 
 ### 🔴 Pilne
 - [ ] Stripe — włączyć płatności po konsultacji prawnej
-- [ ] Screenshoty z apki na landing page (generator, dashboard, kalendarz)
+- [x] Screenshoty z apki na landing page (CSS mockupy generatora, dashboardu, kalendarza)
 - [x] Modal upgrade przy wyczerpaniu kredytów w kalendarzu (wyświetlać ile dni zostało bez postów + CTA do Stripe)
 
 ### 🟡 Ważne
@@ -282,8 +282,6 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 - `<UserButton />` bez deprecated `afterSignOutUrl` prop
 
 ## Do sprawdzenia po włączeniu płatności
-- Roczne price IDs w .env.local mają format `prod_` (product ID) zamiast `price_` — wymagają korekty przed live
-
 - Czy modal przed Stripe w `/pricing` poprawnie zapisuje `terms_accepted_at`
 - Czy checkbox blokuje przycisk „Akceptuję — przejdź do płatności →" dopóki niezaznaczony
 - Czy użytkownicy którzy zaakceptowali regulamin przez `/app` lub onboarding nie widzą ponownie modala
