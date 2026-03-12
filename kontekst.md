@@ -1,5 +1,5 @@
 # PostujTo.pl — Kontekst projektu
-_Ostatnia aktualizacja: 2026-03-12_
+_Ostatnia aktualizacja: 2026-03-13_
 
 ## Stack techniczny
 - **Frontend/Backend:** Next.js 16 (App Router)
@@ -255,14 +255,14 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 ### 🔴 Pilne
 - [ ] Stripe — włączyć płatności po konsultacji prawnej
 - [ ] Screenshoty z apki na landing page (generator, dashboard, kalendarz)
-- [ ] Modal upgrade przy wyczerpaniu kredytów w kalendarzu (wyświetlać ile dni zostało bez postów + CTA do Stripe)
+- [x] Modal upgrade przy wyczerpaniu kredytów w kalendarzu (wyświetlać ile dni zostało bez postów + CTA do Stripe)
 
 ### 🟡 Ważne
 - [ ] Regulamin §1 — zaktualizować po rejestracji JDG (nazwa firmy, NIP, REGON, adres)
 - [ ] Doprecyzowanie "standardowych klauzul umownych" w polityce prywatności
 - [ ] Limit kredytów Free — doprecyzować w regulaminie czy wygasają
-- [ ] Onboarding — ikony serwisów (cdn.simpleicons.org) — sprawdzić po deploymencie
-- [ ] Onboarding — spójność przycisku "Dalej" z benchmarkiem (gradient, hover)
+- [x] Onboarding — ikony serwisów (cdn.simpleicons.org) — sprawdzić po deploymencie
+- [x] Onboarding — spójność przycisku "Dalej" z benchmarkiem (gradient, hover)
 
 ### 🟢 Backlog
 - [ ] Social proof — wstawić po zebraniu min. 3 prawdziwych opinii (kod gotowy poniżej)
@@ -282,6 +282,8 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 - `<UserButton />` bez deprecated `afterSignOutUrl` prop
 
 ## Do sprawdzenia po włączeniu płatności
+- Roczne price IDs w .env.local mają format `prod_` (product ID) zamiast `price_` — wymagają korekty przed live
+
 - Czy modal przed Stripe w `/pricing` poprawnie zapisuje `terms_accepted_at`
 - Czy checkbox blokuje przycisk „Akceptuję — przejdź do płatności →" dopóki niezaznaczony
 - Czy użytkownicy którzy zaakceptowali regulamin przez `/app` lub onboarding nie widzą ponownie modala

@@ -601,6 +601,93 @@ const handleConfirmTerms = async () => {
         </div>
       </section>
 
+
+      {/* PRODUCT PREVIEW */}
+      <section style={{ padding: "80px 24px", position: "relative", overflow: "hidden" }} id="preview" data-animate>
+        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 800, height: 800, borderRadius: "50%", background: "radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative" }}>
+          <div className={`section-reveal from-up ${isVisible("preview") ? "visible" : ""}`} style={{ textAlign: "center", marginBottom: 56 }}>
+            <div style={{ display: "inline-block", fontSize: 12, fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", color: "#6366f1", marginBottom: 16 }}>Podglad aplikacji</div>
+            <h2 className="font-display" style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, letterSpacing: "-0.02em" }}>Wszystko w jednym miejscu</h2>
+          </div>
+          <div className={`section-reveal from-up ${isVisible("preview") ? "visible" : ""}`} style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, transitionDelay: "0.1s" }}>
+            
+            <div style={{ borderRadius: 20, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
+              
+              <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {["#ef4444","#f59e0b","#22c55e"].map((col,i) => <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: col }} />)}
+                </div>
+                <span style={{ fontSize: 11, color: "rgba(240,240,245,0.3)", marginLeft: 4 }}>Generator postow</span>
+              </div>
+              <div style={{ padding: 20 }}>
+                <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "10px 14px", marginBottom: 10 }}>
+                  <div style={{ fontSize: 11, color: "rgba(240,240,245,0.35)", marginBottom: 6 }}>Temat posta</div>
+                  <div style={{ fontSize: 12, color: "rgba(240,240,245,0.7)" }}>Wiosenna promocja salonu - 15% rabatu na zabiegi...</div>
+                </div>
+                <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+                  {["Facebook","Instagram","TikTok"].map((pl,i) => (<div key={pl} style={{ flex: 1, textAlign: "center", padding: "6px 4px", borderRadius: 8, fontSize: 10, fontWeight: 600, background: i===0 ? "rgba(99,102,241,0.2)" : "rgba(255,255,255,0.04)", border: "1px solid " + (i===0 ? "rgba(99,102,241,0.4)" : "rgba(255,255,255,0.08)"), color: i===0 ? "#a5b4fc" : "rgba(240,240,245,0.4)" }}>{pl}</div>))}
+                </div>
+                <div style={{ background: "linear-gradient(135deg, #6366f1, #a855f7)", borderRadius: 10, padding: 9, textAlign: "center", fontSize: 11, fontWeight: 700, color: "#fff", marginBottom: 14 }}>Generuj 3 wersje</div>
+                <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 10, padding: 12 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: "#a5b4fc", marginBottom: 6 }}>WERSJA 1</div>
+                  <div style={{ fontSize: 11, color: "rgba(240,240,245,0.6)", lineHeight: 1.6, marginBottom: 8 }}>Wiosna to czas zmian! Odswierz swoj look z nasza oferta zabiegow pielegnacyjnych...</div>
+                  <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                    {["#salonurody","#wiosna2026","#piekno"].map(h => (<span key={h} style={{ fontSize: 9, color: "#6366f1", background: "rgba(99,102,241,0.1)", padding: "2px 8px", borderRadius: 100 }}>{h}</span>))}
+                  </div>
+                </div>
+              </div>
+              <div style={{ padding: "10px 20px", borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(99,102,241,0.05)", fontSize: 11, fontWeight: 600, color: "#4ade80" }}>Wygenerowano w 4 sek</div>
+            </div>
+            
+            <div style={{ borderRadius: 20, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
+              
+              <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {["#ef4444","#f59e0b","#22c55e"].map((col,i) => <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: col }} />)}
+                </div>
+                <span style={{ fontSize: 11, color: "rgba(240,240,245,0.3)", marginLeft: 4 }}>Historia postow</span>
+              </div>
+              <div style={{ padding: 20 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginBottom: 14 }}>
+                  {[{v:"47",l:"postow"},{v:"12",l:"ulubionych"},{v:"3",l:"platformy"}].map((s,i) => (<div key={i} style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.15)", borderRadius: 10, padding: "10px 8px", textAlign: "center" }}><div style={{ fontSize: 18, fontWeight: 800, color: "#a5b4fc" }}>{s.v}</div><div style={{ fontSize: 9, color: "rgba(240,240,245,0.4)", marginTop: 2 }}>{s.l}</div></div>))}
+                </div>
+                {[{t:"Promocja wiosenna salonu...",pl:"FB",stars:5,bg:"#3b82f6"},{t:"Nowe zabiegi pielegnacyjne...",pl:"IG",stars:4,bg:"#ec4899"},{t:"Walentynkowa oferta...",pl:"TT",stars:5,bg:"#111"}].map((post,i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, marginBottom: 6 }}>
+                    <div style={{ width: 28, height: 28, borderRadius: 8, background: post.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: "#fff", flexShrink: 0 }}>{post.pl}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 11, color: "rgba(240,240,245,0.7)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{post.t}</div>
+                      <div style={{ fontSize: 9, color: "#fbbf24", marginTop: 2 }}>{"star".repeat(post.stars)}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div style={{ borderRadius: 20, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
+              
+              <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 8 }}>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {["#ef4444","#f59e0b","#22c55e"].map((col,i) => <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: col }} />)}
+                </div>
+                <span style={{ fontSize: 11, color: "rgba(240,240,245,0.3)", marginLeft: 4 }}>Kalendarz tresci</span>
+              </div>
+              <div style={{ padding: 20 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(240,240,245,0.6)" }}>Marzec 2026</span>
+                  <span style={{ fontSize: 10, color: "#4ade80", background: "rgba(74,222,128,0.1)", padding: "2px 10px", borderRadius: 100, border: "1px solid rgba(74,222,128,0.2)" }}>8/31 gotowych</span>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 3, marginBottom: 14 }}>
+                  {["Pn","Wt","Sr","Cz","Pt","So","Nd"].map(d => (<div key={d} style={{ textAlign: "center", fontSize: 8, fontWeight: 600, color: "rgba(240,240,245,0.25)", paddingBottom: 4 }}>{d}</div>))}
+                  {Array.from({length:31},(_,i) => { const gen=[1,2,3,4,5,8,9,10].includes(i+1); const plan=[11,12,15,16,17,18,19,22,23].includes(i+1); return (<div key={i} style={{ aspectRatio: "1", borderRadius: 5, background: gen ? "rgba(99,102,241,0.25)" : plan ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.02)", border: "1px solid " + (gen ? "rgba(99,102,241,0.4)" : plan ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.04)"), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: gen ? 700 : 400, color: gen ? "#a5b4fc" : plan ? "rgba(240,240,245,0.5)" : "rgba(240,240,245,0.2)" }}>{i+1}</div>); })}
+                </div>
+                <div style={{ background: "linear-gradient(135deg, #6366f1, #a855f7)", borderRadius: 10, padding: 9, textAlign: "center", fontSize: 11, fontWeight: 700, color: "#fff" }}>Wygeneruj caly miesiac</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* FEATURES */}
       <section style={{ padding: '80px 24px', background: 'rgba(255,255,255,0.015)', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)' }} id="features" data-animate>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
