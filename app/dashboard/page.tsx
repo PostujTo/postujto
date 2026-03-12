@@ -39,6 +39,7 @@ export default function DashboardPage() {
   const [reportLoading, setReportLoading] = useState(false);
   const [gdprLoading, setGdprLoading] = useState(false);
 const [deleteLoading, setDeleteLoading] = useState(false);
+  const [credits, setCredits] = useState<{ plan: string; remaining: number; total: number } | null>(null);
 
 const downloadGdprData = async () => {
   setGdprLoading(true);
@@ -114,10 +115,12 @@ const deleteAccount = async () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/dashboard');
+      const [res, credRes] = await Promise.all([fetch('/api/dashboard'), fetch('/api/credits')]);
       const data = await res.json();
       setGenerations(data.generations || []);
       setStats(data.stats || null);
+      const credData = await credRes.json();
+      if (credData.plan) setCredits({ plan: credData.plan, remaining: credData.creditsRemaining, total: credData.creditsTotal });
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
