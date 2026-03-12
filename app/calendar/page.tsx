@@ -456,7 +456,7 @@ useEffect(() => {
                 {/* Day names */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, marginBottom: 8 }}>
                   {DAY_NAMES_PL.map(d => (
-                    <div key={d} style={{ textAlign: 'center', fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.3)', letterSpacing: '0.08em', padding: '6px 0' }}>{d}</div>
+                    <div key={d} style={{ textAlign: 'center', fontSize: 12, fontWeight: 600, color: 'rgba(240,240,245,0.75)', letterSpacing: '0.08em', padding: '6px 0' }}>{d}</div>
                   ))}
                 </div>
                 {/* Days */}
@@ -469,7 +469,7 @@ useEffect(() => {
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
                         <span style={{ fontSize: 13, fontWeight: day.isToday ? 700 : 500, color: day.isToday ? '#a5b4fc' : 'rgba(240,240,245,0.75)' }}>{day.dayOfMonth}</span>
-                        {day.occasion && <span style={{ fontSize: 14 }}>{day.occasion.emoji}</span>}
+                        {day.occasion && <span style={{ fontSize: 15 }}>{day.occasion.emoji}</span>}
                       </div>
                       {day.topic && (
                         <p style={{ fontSize: 10, color: 'rgba(240,240,245,0.55)', lineHeight: 1.4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
@@ -513,7 +513,7 @@ useEffect(() => {
                   >
                     <div style={{ width: 44, textAlign: 'center', flexShrink: 0 }}>
                       <div className="font-display" style={{ fontSize: 20, fontWeight: 700, color: day.isToday ? '#a5b4fc' : 'rgba(240,240,245,0.6)', lineHeight: 1 }}>{day.dayOfMonth}</div>
-                      <div style={{ fontSize: 10, color: 'rgba(240,240,245,0.3)', marginTop: 2 }}>{['Pon','Wto','Śro','Czw','Pią','Sob','Nie'][(day.date.getDay() + 6) % 7]}</div>
+                      <div style={{ fontSize: 11, color: 'rgba(240,240,245,0.6)', marginTop: 2 }}>{['Pon','Wto','Śro','Czw','Pią','Sob','Nie'][(day.date.getDay() + 6) % 7]}</div>
                     </div>
 
                     {day.occasion && (
@@ -577,20 +577,20 @@ useEffect(() => {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <button onClick={generatePlan} disabled={status === 'planning' || status === 'generating'} className="btn-primary"
-                  style={{ padding: '12px', borderRadius: 12, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                  style={{ padding: '12px', borderRadius: 12, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none' }}>
                   {status === 'planning'
                     ? <><svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3"/><path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round"/></svg> Planuję tematy...</>
-                    : <>🗓️ Zaplanuj tematy na miesiąc</>
+                    : <><span>🗓️ Zaplanuj tematy na miesiąc</span></>
                   }
                 </button>
 
                 <button onClick={generateAllPosts}
                   disabled={topicCount === 0 || status === 'planning' || status === 'generating'}
                   className="btn-primary"
-                  style={{ padding: '12px', borderRadius: 12, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: topicCount === 0 ? 0.4 : 1 }}>
+                  style={{ padding: '12px', borderRadius: 12, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', opacity: topicCount === 0 ? 0.4 : 1 }}>
                   {status === 'generating'
                     ? <><svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3"/><path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round"/></svg> Generuję posty...</>
-                    : <>✨ Wygeneruj {topicCount > 0 ? topicCount : 30} postów</>
+                    : <span>✨ Wygeneruj {topicCount > 0 ? topicCount : (credits?.plan === 'free' ? (credits?.remaining ?? 5) : 30)} postów{credits?.plan === 'free' ? ` (${credits?.remaining ?? 5} kredytów)` : ''}</span>
                   }
                 </button>
 
@@ -666,7 +666,7 @@ useEffect(() => {
                     <button key={p} onClick={() => setDays(prev => prev.map(d => d.fullKey === selectedDayData.fullKey ? { ...d, platform: p } : d))}
                       className={`option-btn ${selectedDayData.platform === p ? 'active' : ''}`}
                       style={{ flex: 1, padding: '6px', borderRadius: 8, fontSize: 11 }}>
-                      {p === 'facebook' ? '📘' : p === 'instagram' ? '📸' : '🎵'}
+                      {p === 'facebook' ? <FacebookIcon /> : p === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
                     </button>
                   ))}
                 </div>
@@ -726,7 +726,7 @@ useEffect(() => {
         {/* FOOTER */}
         <footer style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: '24px', textAlign: 'center' }}>
           <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.2)' }}>
-            <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>PostujTo.com</Link> · © 2025
+            <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>PostujTo.com</Link> · © 2026
           </p>
         </footer>
       </div>
