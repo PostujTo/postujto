@@ -137,11 +137,20 @@ const BEST_TIMES: Record<string, { times: string[]; tip: string }> = {
 export default function CalendarPage() {
   const { user } = useUser();
   const [credits, setCredits] = useState<{ plan: string; remaining: number; total: number } | null>(null);
+  const [hasBrandKit, setHasBrandKit] = useState(false);
 
 useEffect(() => {
   if (user) {
     fetch('/api/credits').then(r => r.json()).then(setCredits);
   }
+
+useEffect(() => {
+  if (user) {
+    fetch('/api/brand-kit').then(r => r.json()).then(data => {
+      setHasBrandKit(!!data.company_name);
+    });
+  }
+}, [user]);
 }, [user]);
   const today = new Date();
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
@@ -574,6 +583,12 @@ useEffect(() => {
             {/* Actions */}
             <div className="fade-up glass-card" style={{ padding: '20px 24px', animationDelay: '0.15s' }}>
               <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16 }}>Akcje</p>
+
+              <p style={{ fontSize: 11, color: hasBrandKit ? 'rgba(52,211,153,0.8)' : 'rgba(251,191,36,0.8)', marginBottom: 8, lineHeight: 1.5 }}>
+                {hasBrandKit
+                  ? '✅ Claude użyje Twojego Brand Kitu'
+                  : <><span style={{ color: 'rgba(251,191,36,0.8)' }}>⚠️ Brak Brand Kitu — tematy będą generyczne. Uzupełnij go w </span><Link href="/settings" style={{ color: '#a5b4fc', textDecoration: 'underline' }}>Brand Kit</Link>.</>}
+              </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <button onClick={generatePlan} disabled={status === 'planning' || status === 'generating'} className="btn-primary"
