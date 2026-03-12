@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
 import { UserButton } from '@clerk/nextjs';
@@ -136,6 +136,13 @@ const BEST_TIMES: Record<string, { times: string[]; tip: string }> = {
 
 export default function CalendarPage() {
   const { user } = useUser();
+  const [credits, setCredits] = useState<{ plan: string; remaining: number; total: number } | null>(null);
+
+useEffect(() => {
+  if (user) {
+    fetch('/api/credits').then(r => r.json()).then(setCredits);
+  }
+}, [user]);
   const today = new Date();
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
@@ -367,6 +374,18 @@ export default function CalendarPage() {
                   📊 Dashboard
                 </button>
               </Link>
+              {credits && (
+                <>
+                  <span style={{ padding: '6px 10px', borderRadius: 100, fontSize: 11, fontWeight: 600, background: 'rgba(255,255,255,0.05)', color: 'rgba(240,240,245,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    {credits.plan === 'free' ? 'FREE' : credits.plan === 'standard' ? 'STARTER' : 'PRO'}
+                  </span>
+                  {credits.plan === 'free' && (
+                    <span style={{ padding: '6px 10px', borderRadius: 100, fontSize: 11, background: credits.remaining === 0 ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)', color: credits.remaining === 0 ? '#f87171' : 'rgba(240,240,245,0.5)' }}>
+                      {credits.remaining}/{credits.total} kredytów
+                    </span>
+                  )}
+                </>
+              )}
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -381,21 +400,22 @@ export default function CalendarPage() {
           {/* LEFT */}
           <div>
             {/* Controls */}
-            <div className="fade-up glass-card" style={{ padding: '20px 24px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-              {/* Month nav */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <button onClick={() => navigateMonth(-1)} className="btn-ghost" style={{ width: 36, height: 36, borderRadius: 9, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, paddingBottom: 2 }}>‹</button>
-                <span className="font-display" style={{ fontSize: 18, fontWeight: 700, minWidth: 180, textAlign: 'center' }}>
-                  {MONTH_NAMES_PL[currentMonth]} {currentYear}
-                </span>
-                <button onClick={() => navigateMonth(1)} className="btn-ghost" style={{ width: 36, height: 36, borderRadius: 9, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, paddingBottom: 2 }}>›</button>
-              </div>
+            <div className="fade-up glass-card" style={{ padding: '20px 24px', marginBottom: 20 }}>
+              {/* Górny rząd: miesiąc + platformy + siatka/lista */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+                {/* Month nav */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <button onClick={() => navigateMonth(-1)} className="btn-ghost" style={{ width: 36, height: 36, borderRadius: 9, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, paddingBottom: 2 }}>‹</button>
+                  <span className="font-display" style={{ fontSize: 18, fontWeight: 700, minWidth: 180, textAlign: 'center' }}>
+                    {MONTH_NAMES_PL[currentMonth]} {currentYear}
+                  </span>
+                  <button onClick={() => navigateMonth(1)} className="btn-ghost" style={{ width: 36, height: 36, borderRadius: 9, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, paddingBottom: 2 }}>›</button>
+                </div>
 
-              <div style={{ flex: 1 }} />
+                <div style={{ flex: 1 }} />
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
-                {/* Platform + View toggle w jednym rzędzie */}
-                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                {/* Platform */}
+                <div style={{ display: 'flex', gap: 6 }}>
                   {PLATFORMS.map(p => (
                     <button key={p} onClick={() => setDefaultPlatform(p)} className={`option-btn ${defaultPlatform === p ? 'active' : ''}`}
                       style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -403,26 +423,28 @@ export default function CalendarPage() {
                       {p === 'facebook' ? 'Facebook' : p === 'instagram' ? 'Instagram' : 'TikTok'}
                     </button>
                   ))}
-                  <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 9, padding: 3 }}>
-                    {(['calendar', 'list'] as const).map(v => (
-                      <button key={v} onClick={() => setView(v)}
-                        style={{ padding: '5px 12px', borderRadius: 7, fontSize: 12, cursor: 'pointer', border: 'none', fontFamily: "'DM Sans', sans-serif", transition: 'all 0.2s', background: view === v ? 'rgba(99,102,241,0.25)' : 'transparent', color: view === v ? '#a5b4fc' : 'rgba(240,240,245,0.45)' }}>
-                        {v === 'calendar' ? '📅 Siatka' : '📋 Lista'}
-                      </button>
-                    ))}
-                  </div>
                 </div>
 
-                {/* Tone */}
-                <div style={{ display: 'flex', gap: 6 }}>
-                  {(['professional', 'casual', 'humorous', 'sales'] as const).map(t => (
-                    <button key={t} onClick={() => setDefaultTone(t)} className={`option-btn ${defaultTone === t ? 'active' : ''}`}
-                      style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12 }}>
-                      {t === 'professional' ? '💼' : t === 'casual' ? '😊' : t === 'humorous' ? '😄' : '🛒'}
-                      {' '}{t === 'professional' ? 'Profesjonalny' : t === 'casual' ? 'Swobodny' : t === 'humorous' ? 'Humorystyczny' : 'Sprzedażowy'}
+                {/* View toggle */}
+                <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 9, padding: 3 }}>
+                  {(['calendar', 'list'] as const).map(v => (
+                    <button key={v} onClick={() => setView(v)}
+                      style={{ padding: '5px 12px', borderRadius: 7, fontSize: 12, cursor: 'pointer', border: 'none', fontFamily: "'DM Sans', sans-serif", transition: 'all 0.2s', background: view === v ? 'rgba(99,102,241,0.25)' : 'transparent', color: view === v ? '#a5b4fc' : 'rgba(240,240,245,0.45)' }}>
+                      {v === 'calendar' ? '📅 Siatka' : '📋 Lista'}
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* Dolny rząd: tony */}
+              <div style={{ display: 'flex', gap: 6 }}>
+                {(['professional', 'casual', 'humorous', 'sales'] as const).map(t => (
+                  <button key={t} onClick={() => setDefaultTone(t)} className={`option-btn ${defaultTone === t ? 'active' : ''}`}
+                    style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12 }}>
+                    {t === 'professional' ? '💼' : t === 'casual' ? '😊' : t === 'humorous' ? '😄' : '🛒'}
+                    {' '}{t === 'professional' ? 'Profesjonalny' : t === 'casual' ? 'Swobodny' : t === 'humorous' ? 'Humorystyczny' : 'Sprzedażowy'}
+                  </button>
+                ))}
               </div>
             </div>
 
