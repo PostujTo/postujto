@@ -247,30 +247,38 @@ useEffect(() => {
       setProgressLabel(`Generuję post ${i + 1}/${toGenerate.length}: ${day.topic.slice(0, 40)}...`);
       setProgress(Math.round(((i) / toGenerate.length) * 100));
 
-      try {
-        const res = await fetch('/api/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            topic: day.topic,
-            platform: day.platform,
-            tone: defaultTone,
-            length: 'medium',
-            scheduled_date: day.fullKey,
-          }),
-        });
-        const data = await res.json();
-        if (res.ok && data.posts?.[0]) {
-          const post = data.posts[0];
-          setDays(prev => prev.map(d =>
-            d.fullKey === day.fullKey
-              ? { ...d, generated: true, postText: post.text, hashtags: post.hashtags }
-              : d
-          ));
+        try {
+          const res = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              topic: day.topic,
+              platform: day.platform,
+              tone: defaultTone,
+              length: 'medium',
+              scheduled_date: day.fullKey,
+            }),
+          });
+          const data = await res.json();
+
+          if (res.status === 403) {
+            setStatus('error');
+            setProgressLabel('Brak kredytów. Przejdź na plan Starter aby generować bez limitu.');
+            break;
+          }
+
+          if (res.ok && data.posts?.[0]) {
+            const post = data.posts[0];
+            setDays(prev => prev.map(d =>
+              d.fullKey === day.fullKey
+                ? { ...d, generated: true, postText: post.text, hashtags: post.hashtags }
+                : d
+            ));
+            setCredits(prev => prev ? { ...prev, remaining: data.creditsRemaining } : prev);
+          }
+        } catch (err) {
+          console.error(`Error generating post for ${day.fullKey}:`, err);
         }
-      } catch (err) {
-        console.error(`Error generating post for ${day.fullKey}:`, err);
-      }
 
       // Krótka pauza żeby nie przeciążyć API
       await new Promise(r => setTimeout(r, 500));

@@ -16,7 +16,7 @@ Zaplanuj kalendarz treści na ${monthName} ${year} (${daysCount} dni).
 Polskie okazje w tym miesiącu:
 ${occasions || 'Brak specjalnych okazji'}
 
-Platforma domyślna: ${platform}
+Platforma: ${platform}
 Ton komunikacji: ${tone}
 
 Zwróć JSON z planem dla KAŻDEGO dnia miesiąca.
@@ -24,14 +24,14 @@ Format: tablica obiektów, każdy obiekt:
 {
   "date": "YYYY-MM-DD",
   "topic": "konkretny temat posta po polsku (1-2 zdania)",
-  "platform": "facebook|instagram|tiktok"
+  "platform": "${platform}"
 }
 
 Zasady:
+- KAŻDY post musi mieć "platform": "${platform}" — nie zmieniaj tej wartości
 - Przy dniach z okazją — nawiąż do niej w temacie
 - Tematy muszą być konkretne i działające dla małej firmy (np. "Nowa kolekcja letnich sukienek — pokaż 3 bestsellery", nie "Post o produktach")
-- Urozmaicaj: edukacyjne, promocyjne, behind-the-scenes, angażujące pytania, opinie klientów
-- Dostosuj długość do platformy (TikTok = krótkie, Facebook = dłuższe)
+- Urozmaicaj typy treści: edukacyjne, promocyjne, behind-the-scenes, angażujące pytania, opinie klientów
 - Pisz po polsku
 - Zwróć TYLKO czysty JSON, bez markdown, bez żadnego tekstu przed ani po`;
 
