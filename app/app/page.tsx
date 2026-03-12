@@ -138,25 +138,11 @@ const [pendingPriceId, setPendingPriceId] = useState<string | null>(null);
 const [pendingPlanName, setPendingPlanName] = useState<string | null>(null);
 const [planCheckoutLoading, setPlanCheckoutLoading] = useState(false);
 
-const handlePlanSelect = async (priceId: string, planName: string) => {
+const handlePlanSelect = (priceId: string, planName: string) => {
   setPendingPriceId(priceId);
   setPendingPlanName(planName);
   setPlanTermsChecked(false);
-  const termsRes = await fetch('/api/user/terms-status').then(r => r.json()).catch(() => ({ terms_accepted_at: null }));
-  if (termsRes.terms_accepted_at) {
-    setPlanCheckoutLoading(true);
-    try {
-      const res = await fetch('/api/stripe/create-checkout-session', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ priceId }),
-      });
-      const data = await res.json();
-      if (data.url) window.location.href = data.url;
-    } catch { showToast('Wystąpił błąd. Spróbuj ponownie.', 'error'); }
-    finally { setPlanCheckoutLoading(false); }
-  } else {
-    setShowPlanTermsModal(true);
-  }
+  setShowPlanTermsModal(true);
 };
 
 const handleConfirmPlanTerms = async () => {

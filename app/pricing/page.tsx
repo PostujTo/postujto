@@ -11,14 +11,6 @@ export default function PricingPage() {
   const [planLoading, setPlanLoading] = useState(true);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
-  const [termsAlreadyAccepted, setTermsAlreadyAccepted] = useState(false);
-
-useEffect(() => {
-  if (!user) return;
-  fetch('/api/user/terms-status')
-    .then(r => r.json())
-    .then(data => { if (data.terms_accepted_at) setTermsAlreadyAccepted(true); });
-}, [user]);
   const [showTermsAlert, setShowTermsAlert] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsChecked, setTermsChecked] = useState(false);
@@ -33,25 +25,8 @@ useEffect(() => {
       .finally(() => setPlanLoading(false));
   }, [user]);
 
-  const handleSubscribe = async (priceId: string, planName: string) => {
+  const handleSubscribe = (priceId: string, planName: string) => {
   if (!user) { window.location.href = '/app'; return; }
-  if (termsAlreadyAccepted) {
-    setLoading(planName);
-    try {
-      const response = await fetch('/api/stripe/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ priceId, userId: user.id }),
-      });
-      const data = await response.json();
-      if (data.url) window.location.href = data.url;
-    } catch {
-      alert('Wystąpił błąd. Spróbuj ponownie.');
-    } finally {
-      setLoading(null);
-    }
-    return;
-  }
   setPendingPriceId(priceId);
   setPendingPlan(planName);
   setTermsChecked(false);
