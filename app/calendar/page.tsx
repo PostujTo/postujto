@@ -374,6 +374,9 @@ useEffect(() => {
                   📊 Dashboard
                 </button>
               </Link>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               {credits && (
                 <>
                   <span style={{ padding: '6px 10px', borderRadius: 100, fontSize: 11, fontWeight: 600, background: 'rgba(255,255,255,0.05)', color: 'rgba(240,240,245,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -386,9 +389,6 @@ useEffect(() => {
                   )}
                 </>
               )}
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <Link href="/settings"><button className="btn-ghost" style={{ padding: '7px 16px', borderRadius: 10, fontSize: 13 }}>🎨 Brand Kit</button></Link>
               <UserButton />
             </div>
@@ -424,6 +424,19 @@ useEffect(() => {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* Dolny rząd: tony */}
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                {(['professional', 'casual', 'humorous', 'sales'] as const).map(t => (
+                  <button key={t} onClick={() => setDefaultTone(t)} className={`option-btn ${defaultTone === t ? 'active' : ''}`}
+                    style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12 }}>
+                    {t === 'professional' ? '💼' : t === 'casual' ? '😊' : t === 'humorous' ? '😄' : '🛒'}
+                    {' '}{t === 'professional' ? 'Profesjonalny' : t === 'casual' ? 'Swobodny' : t === 'humorous' ? 'Humorystyczny' : 'Sprzedażowy'}
+                  </button>
+                ))}
+
+                <div style={{ flex: 1 }} />
 
                 {/* View toggle */}
                 <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 9, padding: 3 }}>
@@ -434,17 +447,6 @@ useEffect(() => {
                     </button>
                   ))}
                 </div>
-              </div>
-
-              {/* Dolny rząd: tony */}
-              <div style={{ display: 'flex', gap: 6 }}>
-                {(['professional', 'casual', 'humorous', 'sales'] as const).map(t => (
-                  <button key={t} onClick={() => setDefaultTone(t)} className={`option-btn ${defaultTone === t ? 'active' : ''}`}
-                    style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12 }}>
-                    {t === 'professional' ? '💼' : t === 'casual' ? '😊' : t === 'humorous' ? '😄' : '🛒'}
-                    {' '}{t === 'professional' ? 'Profesjonalny' : t === 'casual' ? 'Swobodny' : t === 'humorous' ? 'Humorystyczny' : 'Sprzedażowy'}
-                  </button>
-                ))}
               </div>
             </div>
 
