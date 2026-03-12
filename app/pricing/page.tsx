@@ -177,23 +177,28 @@ const plans = [
               Postuj<span className="gradient-text">To</span>
             </span>
           </Link>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <SignedOut>
-            <SignInButton mode="modal" forceRedirectUrl="/app">
-              <button className="btn-secondary" style={{ padding: '10px 20px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
-                Zaloguj się
-              </button>
-            </SignInButton>
-          </SignedOut>
-          <SignedIn>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
-          <Link href="/app">
-            <button className="btn-primary" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14 }}>
-              Wypróbuj za darmo
-            </button>
-          </Link>
-        </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <SignedOut>
+              <SignInButton mode="modal" forceRedirectUrl="/app">
+                <button className="btn-secondary" style={{ padding: '10px 20px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
+                  Zaloguj się
+                </button>
+              </SignInButton>
+              <Link href="/app">
+                <button className="btn-primary" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
+                  Wypróbuj za darmo
+                </button>
+              </Link>
+            </SignedOut>
+            <SignedIn>
+              <Link href="/app">
+                <button className="btn-primary" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
+                  Otwórz generator
+                </button>
+              </Link>
+              <UserButton afterSignOutUrl="/" />
+            </SignedIn>
+          </div>
         </div>
       </nav>
 
