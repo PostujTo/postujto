@@ -140,24 +140,18 @@ export default function CalendarPage() {
   const [hasBrandKit, setHasBrandKit] = useState(false);
 
 useEffect(() => {
-  if (user) {
-    fetch('/api/credits')
-      .then(r => r.json())
-      .then(setCredits)
-      .catch(() => {});
-  }
+  if (!user) return;
+  
+  fetch('/api/credits')
+    .then(r => r.ok ? r.json() : null)
+    .then(data => { if (data) setCredits(data); })
+    .catch(() => {});
 
-useEffect(() => {
-  if (user) {
-    fetch('/api/brand-kit')
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (data) setHasBrandKit(!!data.company_name);
-      })
-      .catch(() => setHasBrandKit(false));
-  }
-}, [user]);
-}, [user]);
+  fetch('/api/brand-kit')
+    .then(r => r.ok ? r.json() : null)
+    .then(data => { if (data) setHasBrandKit(!!data.company_name); })
+    .catch(() => {});
+}, [user?.id]);
   const today = new Date();
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
