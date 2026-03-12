@@ -595,7 +595,7 @@ useEffect(() => {
                   style={{ padding: '12px', borderRadius: 12, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none' }}>
                   {status === 'planning'
                     ? <><svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3"/><path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round"/></svg> Planuję tematy...</>
-                    : <><span>🗓️ Zaplanuj tematy na miesiąc</span></>
+                    : <span>🗓️ Zaplanuj tematy na miesiąc</span>
                   }
                 </button>
 
@@ -605,12 +605,12 @@ useEffect(() => {
                   style={{ padding: '12px', borderRadius: 12, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', opacity: topicCount === 0 ? 0.4 : 1 }}>
                   {status === 'generating'
                     ? <><svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3"/><path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round"/></svg> Generuję posty...</>
-                    : <span>✨ Wygeneruj {topicCount > 0 ? topicCount : (credits?.plan === 'free' ? (credits?.remaining ?? 5) : 30)} postów{credits?.plan === 'free' ? ` (${credits?.remaining ?? 5} kredytów)` : ''}</span>
+                    : <span>✨ Wygeneruj {topicCount > 0 ? topicCount : (credits?.plan === 'free' ? credits.remaining : currentDays.length)}/{currentDays.length}{credits?.plan === 'free' ? ` (${credits.remaining} kredytów)` : ''}</span>
                   }
                 </button>
 
-                <button onClick={exportCSV} disabled={generatedCount === 0} className="btn-ghost"
-                  style={{ padding: '11px', borderRadius: 12, fontSize: 14, opacity: generatedCount === 0 ? 0.4 : 1 }}>
+                <button onClick={exportCSV} disabled={generatedCount === 0}
+                  style={{ padding: '11px', borderRadius: 12, fontSize: 14, cursor: generatedCount === 0 ? 'not-allowed' : 'pointer', border: '1px solid rgba(255,255,255,0.15)', background: generatedCount === 0 ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.08)', color: generatedCount === 0 ? 'rgba(240,240,245,0.3)' : 'rgba(240,240,245,0.8)', transition: 'all 0.2s', width: '100%' }}>
                   📥 Eksportuj CSV ({generatedCount})
                 </button>
 
@@ -657,7 +657,7 @@ useEffect(() => {
             {selectedDayData && selectedDayData.isCurrentMonth && (
               <div className="fade-up glass-card" style={{ padding: '20px 24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.75)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                     {selectedDayData.dayOfMonth} {MONTH_NAMES_PL[currentMonth]}
                   </p>
                   {selectedDayData.occasion && (
@@ -680,8 +680,9 @@ useEffect(() => {
                   {PLATFORMS.map(p => (
                     <button key={p} onClick={() => setDays(prev => prev.map(d => d.fullKey === selectedDayData.fullKey ? { ...d, platform: p } : d))}
                       className={`option-btn ${selectedDayData.platform === p ? 'active' : ''}`}
-                      style={{ flex: 1, padding: '6px', borderRadius: 8, fontSize: 11 }}>
+                      style={{ flex: 1, padding: '6px', borderRadius: 8, fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
                       {p === 'facebook' ? <FacebookIcon /> : p === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
+                      {p === 'facebook' ? 'FB' : p === 'instagram' ? 'IG' : 'TT'}
                     </button>
                   ))}
                 </div>
