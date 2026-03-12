@@ -305,7 +305,6 @@ export default function CalendarPage() {
       <style jsx global>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: var(--font-dm-sans), sans-serif; background: #0a0a0f; color: #f0f0f5; }
-        .font-family: var(--font-poppins), sans-serif;
         .gradient-text { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .glass-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 18px; }
         .btn-primary { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; border: none; cursor: pointer; var(--font-poppins), sans-serif; font-weight: 600; transition: all 0.25s ease; }
@@ -385,45 +384,45 @@ export default function CalendarPage() {
             <div className="fade-up glass-card" style={{ padding: '20px 24px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
               {/* Month nav */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <button onClick={() => navigateMonth(-1)} className="btn-ghost" style={{ width: 36, height: 36, borderRadius: 9, fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>‹</button>
+                <button onClick={() => navigateMonth(-1)} className="btn-ghost" style={{ width: 36, height: 36, borderRadius: 9, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, paddingBottom: 2 }}>‹</button>
                 <span className="font-display" style={{ fontSize: 18, fontWeight: 700, minWidth: 180, textAlign: 'center' }}>
                   {MONTH_NAMES_PL[currentMonth]} {currentYear}
                 </span>
-                <button onClick={() => navigateMonth(1)} className="btn-ghost" style={{ width: 36, height: 36, borderRadius: 9, fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>›</button>
+                <button onClick={() => navigateMonth(1)} className="btn-ghost" style={{ width: 36, height: 36, borderRadius: 9, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, paddingBottom: 2 }}>›</button>
               </div>
 
               <div style={{ flex: 1 }} />
 
-              {/* Platform */}
-              <div style={{ display: 'flex', gap: 6 }}>
-                {PLATFORMS.map(p => (
-                  <button key={p} onClick={() => setDefaultPlatform(p)} className={`option-btn ${defaultPlatform === p ? 'active' : ''}`}
-                    style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, textTransform: 'capitalize' }}>
-                    {p === 'facebook' ? <FacebookIcon /> : p === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
-                    {' '}{p === 'facebook' ? 'Facebook' : p === 'instagram' ? 'Instagram' : 'TikTok'}
-                  </button>
-                ))}
-              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
+                {/* Platform + View toggle w jednym rzędzie */}
+                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  {PLATFORMS.map(p => (
+                    <button key={p} onClick={() => setDefaultPlatform(p)} className={`option-btn ${defaultPlatform === p ? 'active' : ''}`}
+                      style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      {p === 'facebook' ? <FacebookIcon /> : p === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
+                      {p === 'facebook' ? 'Facebook' : p === 'instagram' ? 'Instagram' : 'TikTok'}
+                    </button>
+                  ))}
+                  <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 9, padding: 3 }}>
+                    {(['calendar', 'list'] as const).map(v => (
+                      <button key={v} onClick={() => setView(v)}
+                        style={{ padding: '5px 12px', borderRadius: 7, fontSize: 12, cursor: 'pointer', border: 'none', fontFamily: "'DM Sans', sans-serif", transition: 'all 0.2s', background: view === v ? 'rgba(99,102,241,0.25)' : 'transparent', color: view === v ? '#a5b4fc' : 'rgba(240,240,245,0.45)' }}>
+                        {v === 'calendar' ? '📅 Siatka' : '📋 Lista'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-              {/* Tone */}
-              <div style={{ display: 'flex', gap: 6 }}>
-                {(['professional', 'casual', 'humorous', 'sales'] as const).map(t => (
-                  <button key={t} onClick={() => setDefaultTone(t)} className={`option-btn ${defaultTone === t ? 'active' : ''}`}
-                    style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12 }}>
-                    {t === 'professional' ? '💼' : t === 'casual' ? '😊' : t === 'humorous' ? '😄' : '🛒'}
-                    {' '}{t === 'professional' ? 'Profesjonalny' : t === 'casual' ? 'Swobodny' : t === 'humorous' ? 'Humorystyczny' : 'Sprzedażowy'}
-                  </button>
-                ))}
-              </div>
-
-              {/* View toggle */}
-              <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 9, padding: 3 }}>
-                {(['calendar', 'list'] as const).map(v => (
-                  <button key={v} onClick={() => setView(v)}
-                    style={{ padding: '5px 12px', borderRadius: 7, fontSize: 12, cursor: 'pointer', border: 'none', fontFamily: "'DM Sans', sans-serif", transition: 'all 0.2s', background: view === v ? 'rgba(99,102,241,0.25)' : 'transparent', color: view === v ? '#a5b4fc' : 'rgba(240,240,245,0.45)' }}>
-                    {v === 'calendar' ? '📅 Siatka' : '📋 Lista'}
-                  </button>
-                ))}
+                {/* Tone */}
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {(['professional', 'casual', 'humorous', 'sales'] as const).map(t => (
+                    <button key={t} onClick={() => setDefaultTone(t)} className={`option-btn ${defaultTone === t ? 'active' : ''}`}
+                      style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12 }}>
+                      {t === 'professional' ? '💼' : t === 'casual' ? '😊' : t === 'humorous' ? '😄' : '🛒'}
+                      {' '}{t === 'professional' ? 'Profesjonalny' : t === 'casual' ? 'Swobodny' : t === 'humorous' ? 'Humorystyczny' : 'Sprzedażowy'}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
