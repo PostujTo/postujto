@@ -137,12 +137,27 @@ const [planTermsChecked, setPlanTermsChecked] = useState(false);
 const [pendingPriceId, setPendingPriceId] = useState<string | null>(null);
 const [pendingPlanName, setPendingPlanName] = useState<string | null>(null);
 const [planCheckoutLoading, setPlanCheckoutLoading] = useState(false);
+const [termsAcceptedAt, setTermsAcceptedAt] = useState<string | null>(null);
 
-const handlePlanSelect = (priceId: string, planName: string) => {
+const handlePlanSelect = async (priceId: string, planName: string) => {
   setPendingPriceId(priceId);
   setPendingPlanName(planName);
   setPlanTermsChecked(false);
-  setShowPlanTermsModal(true);
+  const accepted = termsAcceptedAt || (await fetch('/api/user/terms-status').then(r => r.json()).catch(() => ({ terms_accepted_at: null }))).terms_accepted_at;
+  if (accepted) {
+    setPlanCheckoutLoading(true);
+    try {
+      const res = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId }),
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+    } catch { showToast('Wystąpił błąd. Spróbuj ponownie.', 'error'); }
+    finally { setPlanCheckoutLoading(false); }
+  } else {
+    setShowPlanTermsModal(true);
+  }
 };
 
 const handleConfirmPlanTerms = async () => {
@@ -185,6 +200,7 @@ const handleConfirmPlanTerms = async () => {
     });
     fetch('/api/user/terms-status').then(r => r.json()).then(data => {
       if (!data.terms_accepted_at) setShowTermsModal(true);
+      else setTermsAcceptedAt(data.terms_accepted_at);
     });
   }
     if (isLoaded && !user) {
@@ -812,6 +828,12 @@ const handleConfirmPlanTerms = async () => {
                           </div>
                         ))}
                       </div>
+                      {termsAcceptedAt && (
+                        <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.25)', textAlign: 'center', marginTop: 12 }}>
+                          ✓ Regulamin zaakceptowany{' '}
+                          {new Date(termsAcceptedAt).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>

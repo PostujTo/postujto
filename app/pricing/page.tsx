@@ -11,6 +11,7 @@ export default function PricingPage() {
   const [planLoading, setPlanLoading] = useState(true);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [billing, setBilling] = useState<'monthly' | 'annual'>('monthly');
+  const [termsAcceptedAt, setTermsAcceptedAt] = useState<string | null>(null);
   const [showTermsAlert, setShowTermsAlert] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [termsChecked, setTermsChecked] = useState(false);
@@ -23,10 +24,25 @@ export default function PricingPage() {
       .then(r => r.json())
       .then(data => setCurrentPlan(data.plan || 'free'))
       .finally(() => setPlanLoading(false));
+    fetch('/api/user/terms-status')
+      .then(r => r.json())
+      .then(data => { if (data.terms_accepted_at) setTermsAcceptedAt(data.terms_accepted_at); });
   }, [user]);
 
   const handleSubscribe = (priceId: string, planName: string) => {
   if (!user) { window.location.href = '/app'; return; }
+  if (termsAcceptedAt) {
+    setLoading(planName);
+    fetch('/api/stripe/create-checkout-session', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ priceId, userId: user.id }),
+    }).then(r => r.json()).then(data => {
+      if (data.url) window.location.href = data.url;
+      else alert('Wystąpił błąd. Spróbuj ponownie.');
+    }).catch(() => alert('Wystąpił błąd. Spróbuj ponownie.'))
+      .finally(() => setLoading(null));
+    return;
+  }
   setPendingPriceId(priceId);
   setPendingPlan(planName);
   setTermsChecked(false);
@@ -321,6 +337,12 @@ const plans = [
       {/* FOOTER NOTE */}
       <div style={{ textAlign: 'center', padding: '0 24px 60px', color: 'rgba(240,240,245,0.35)', fontSize: 14 }}>
         Bezpieczne płatności przez Stripe • Anuluj w każdej chwili • Ceny w PLN z VAT
+        {termsAcceptedAt && (
+          <div style={{ marginTop: 10, fontSize: 12, color: 'rgba(240,240,245,0.25)' }}>
+            ✓ Regulamin i Polityka prywatności zaakceptowane{' '}
+            {new Date(termsAcceptedAt).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' })}
+          </div>
+        )}
       </div>
     </div>
   );
