@@ -1,5 +1,5 @@
 # PostujTo.pl — Kontekst projektu
-_Ostatnia aktualizacja: 2026-03-11_
+_Ostatnia aktualizacja: 2026-03-12_
 
 ## Stack techniczny
 - **Frontend/Backend:** Next.js 16 (App Router)
@@ -83,7 +83,7 @@ _Ostatnia aktualizacja: 2026-03-11_
 ### Kalendarz treści (/calendar)
 - Widok miesięczny (siatka) + widok listy
 - Polskie okazje handlowe (28 okazji)
-- Planowanie 30 tematów przez Claude
+- Planowanie tematów przez Claude (liczba = dni w danym miesiącu, nie stałe 30)
 - Bulk generation wszystkich postów
 - Generowanie pojedynczego posta z panelu bocznego
 - Eksport CSV z BOM (UTF-8)
@@ -92,9 +92,15 @@ _Ostatnia aktualizacja: 2026-03-11_
 - Best time to post w panelu dnia
 - Edycja tematu i platformy per dzień
 - Tony: Profesjonalny, Swobodny, Humorystyczny, Sprzedażowy
-- Prawdziwe SVG ikony platform (Facebook, Instagram, TikTok)
-- Header: tabs Generator / Kalendarz / Dashboard + przycisk Brand Kit po prawej
+- Prawdziwe SVG ikony platform (Facebook, Instagram, TikTok) z nazwami (FB/IG/TT) w panelu dnia
+- Header: tabs Generator / Kalendarz / Dashboard + plan/kredyty + przycisk Brand Kit po prawej
 - Logo spójne z benchmarkiem (fontSize 22, color #fff, gradient-text na "To")
+- Przycisk Eksportuj CSV — aktywny tylko gdy generatedCount > 0, widoczny styl nieaktywny
+- Przyciski Akcje mają widoczny gradient (naprawiony błąd font-family w .btn-primary)
+- Brand Kit check przed generowaniem (zielony / żółty z linkiem do /settings)
+- Tekst "Wygeneruj X/31" — X to liczba dni z tematem, 31 to liczba dni w miesiącu
+- Platforma w planie — enforced: Claude przypisuje tę samą platformę do wszystkich dni
+- Przerwanie pętli generowania przy błędzie 403 (brak kredytów)
 
 ### Onboarding (/onboarding)
 - Wizard 5 kroków: Witaj → Firma → Platformy → Ton → Start
@@ -213,6 +219,31 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 ### Jeśli COUNT > 0 (zwrot NIE przysługuje)
 > Dziękujemy za kontakt. Zgodnie z §5 naszego Regulaminu, który zaakceptowałeś przy rejestracji, prawo odstąpienia od umowy nie przysługuje w przypadku gdy usługa cyfrowa została uruchomiona i wykorzystana przed upływem 14 dni (art. 38 pkt 13 ustawy o prawach konsumenta). W Twoim przypadku usługa była aktywnie używana, dlatego nie możemy zrealizować zwrotu. W razie pytań jesteśmy do dyspozycji pod hello@postujto.com.
 
+## Znane błędy do naprawy (priorytet)
+
+### 🔴 Persistence kalendarza
+- Tematy zaplanowane przez Claude i wygenerowane posty znikają po odświeżeniu strony
+- Stan kalendarza żyje tylko w React state — nie jest zapisywany do Supabase
+- Potrzebna nowa tabela `calendar_topics` w Supabase:
+  ```sql
+  calendar_topics:
+    id, user_id, date (YYYY-MM-DD), topic (text), platform, generated (boolean),
+    post_text (text), hashtags (jsonb), created_at
+  ```
+- Przy załadowaniu strony — fetch tematów z Supabase
+- Przy zapisaniu/zmianie tematu — upsert do Supabase
+- Wygenerowane posty — zapis do `calendar_topics` (nie tylko do `generations`)
+
+### 🔴 Kredyty nie odświeżają się po odświeżeniu strony
+- `/api/generate` poprawnie odejmuje kredyt w Supabase
+- Ale stan `credits` w React nie jest aktualizowany po generowaniu
+- Fix: re-fetch `/api/credits` po zakończeniu generowania całej pętli
+
+### 🟡 Modal upgrade przy wyczerpaniu kredytów
+- Gdy użytkownik (Free) wyczerpie 5 kredytów podczas bulk generation
+- Pokazać modal: "Wygenerowałeś X/31 postów. Zostało Ci Y dni bez treści. Plan Starter odblokuje wszystkie za 79 zł/msc."
+- Przycisk "Przejdź na Starter" → Stripe checkout
+
 ## Roadmap — zaplanowane funkcje
 
 ### Sprint: Kalendarz multi-platforma (priorytet po launchcie)
@@ -232,6 +263,7 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 ### 🔴 Pilne
 - [ ] Stripe — włączyć płatności po konsultacji prawnej
 - [ ] Screenshoty z apki na landing page (generator, dashboard, kalendarz)
+- [ ] Modal upgrade przy wyczerpaniu kredytów w kalendarzu (wyświetlać ile dni zostało bez postów + CTA do Stripe)
 
 ### 🟡 Ważne
 - [ ] Regulamin §1 — zaktualizować po rejestracji JDG (nazwa firmy, NIP, REGON, adres)
