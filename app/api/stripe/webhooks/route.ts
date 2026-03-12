@@ -56,11 +56,9 @@ export async function POST(req: Request) {
       const subscription: any = await stripe.subscriptions.retrieve(subscriptionId);
       const priceId = subscription.items.data[0].price.id;
 
-      let plan: 'standard' | 'premium' = 'standard';
+      const premiumIds = [process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM, process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM_ANNUAL].filter(Boolean);
+      let plan: 'standard' | 'premium' = premiumIds.includes(priceId) ? 'premium' : 'standard';
       let credits = 999999;
-      if (priceId === process.env.STRIPE_PRICE_ID_PREMIUM) {
-        plan = 'premium';
-      }
 
       console.log('📝 Updating user:', { clerkUserId, plan, credits });
 
@@ -155,12 +153,8 @@ try {
       const subscription = event.data.object as Stripe.Subscription;
       const priceId = subscription.items.data[0].price.id;
 
-      let plan: 'standard' | 'premium' | 'free' = 'standard';
-      if (priceId === process.env.STRIPE_PRICE_ID_PREMIUM) {
-        plan = 'premium';
-      } else if (priceId === process.env.STRIPE_PRICE_ID_STANDARD) {
-        plan = 'standard';
-      }
+      const premiumPriceIds = [process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM, process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM_ANNUAL].filter(Boolean);
+      let plan: 'standard' | 'premium' | 'free' = premiumPriceIds.includes(priceId) ? 'premium' : 'standard';
 
       await supabaseAdmin
         .from('users')
