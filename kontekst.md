@@ -221,18 +221,11 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 
 ## Znane błędy do naprawy (priorytet)
 
-### 🔴 Persistence kalendarza
-- Tematy zaplanowane przez Claude i wygenerowane posty znikają po odświeżeniu strony
-- Stan kalendarza żyje tylko w React state — nie jest zapisywany do Supabase
-- Potrzebna nowa tabela `calendar_topics` w Supabase:
-  ```sql
-  calendar_topics:
-    id, user_id, date (YYYY-MM-DD), topic (text), platform, generated (boolean),
-    post_text (text), hashtags (jsonb), created_at
-  ```
-- Przy załadowaniu strony — fetch tematów z Supabase
-- Przy zapisaniu/zmianie tematu — upsert do Supabase
-- Wygenerowane posty — zapis do `calendar_topics` (nie tylko do `generations`)
+### ✅ Persistence kalendarza (NAPRAWIONE)
+- Tabela `calendar_topics` w Supabase — migracja w `supabase/migrations/calendar_topics.sql`
+- API route `GET/POST /api/calendar/topics`
+- Tematy ładowane z Supabase przy zmianie miesiąca (useEffect)
+- Zapis: po generatePlan (batch), po edycji tematu (onBlur), po zmianie platformy, po wygenerowaniu posta
 
 ### 🔴 Kredyty nie odświeżają się po odświeżeniu strony
 - `/api/generate` poprawnie odejmuje kredyt w Supabase
