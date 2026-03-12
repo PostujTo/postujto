@@ -513,8 +513,8 @@ const handleConfirmTerms = async () => {
                   { label: 'Platforma', value: 'Facebook' },
                 ].map((stat, i) => (
                   <div key={i} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 10, padding: '12px 14px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                    <div className="font-display" style={{ fontSize: 18, fontWeight: 700, color: '#a5b4fc', marginBottom: 2 }}>{stat.value}</div>
-                    <div style={{ fontSize: 11, color: 'rgba(240,240,245,0.4)' }}>{stat.label}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(240,240,245,0.4)', marginBottom: 2 }}>{stat.label}</div>
+                    <div className="font-display" style={{ fontSize: 18, fontWeight: 700, color: '#a5b4fc' }}>{stat.value}</div>
                   </div>
                 ))}
               </div>
