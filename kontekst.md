@@ -227,12 +227,11 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 - Tematy ładowane z Supabase przy zmianie miesiąca (useEffect)
 - Zapis: po generatePlan (batch), po edycji tematu (onBlur), po zmianie platformy, po wygenerowaniu posta
 
-### 🔴 Kredyty nie odświeżają się po odświeżeniu strony
-- `/api/generate` poprawnie odejmuje kredyt w Supabase
-- Ale stan `credits` w React nie jest aktualizowany po generowaniu
-- Fix: re-fetch `/api/credits` po zakończeniu generowania całej pętli
+### ✅ Kredyty nie odświeżają się po odświeżeniu strony (NAPRAWIONE)
+- Re-fetch /api/credits po bulk generation i po generowaniu z sidebara
+- setCredits z data.creditsRemaining po generowaniu single posta
 
-### 🟡 Modal upgrade przy wyczerpaniu kredytów
+### ✅ Modal upgrade przy wyczerpaniu kredytów (NAPRAWIONE)
 - Gdy użytkownik (Free) wyczerpie 5 kredytów podczas bulk generation
 - Pokazać modal: "Wygenerowałeś X/31 postów. Zostało Ci Y dni bez treści. Plan Starter odblokuje wszystkie za 79 zł/msc."
 - Przycisk "Przejdź na Starter" → Stripe checkout

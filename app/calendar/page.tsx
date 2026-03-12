@@ -165,6 +165,7 @@ useEffect(() => {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [copiedWeek, setCopiedWeek] = useState<number | null>(null);
   const [view, setView] = useState<'calendar' | 'list'>('calendar');
+  const [upgradeModal, setUpgradeModal] = useState<{ generated: number; remaining: number } | null>(null);
 
   // ─── PERSISTENCE ──────────────────────────────────────────────────────────
   const loadTopics = useCallback(async (year: number, month: number) => {
@@ -310,6 +311,7 @@ useEffect(() => {
           if (res.status === 403) {
             setStatus('error');
             setProgressLabel('Brak kredytów. Przejdź na plan Starter aby generować bez limitu.');
+            setUpgradeModal({ generated: i, remaining: toGenerate.length - i });
             break;
           }
 
@@ -809,6 +811,29 @@ useEffect(() => {
           </p>
         </footer>
       </div>
+      {/* UPGRADE MODAL */}
+      {upgradeModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div style={{ background: '#13131a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: '36px 32px', maxWidth: 440, width: '100%', textAlign: 'center' }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>🚀</div>
+            <h2 className="font-display" style={{ fontSize: 22, fontWeight: 700, color: '#f0f0f5', marginBottom: 12, lineHeight: 1.3 }}>
+              Wygenerowałeś {upgradeModal.generated}/{upgradeModal.generated + upgradeModal.remaining} postów
+            </h2>
+            <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.55)', lineHeight: 1.7, marginBottom: 28 }}>
+              Zostało Ci <strong style={{ color: '#f87171' }}>{upgradeModal.remaining} dni</strong> bez treści w tym miesiącu.<br />
+              Plan Starter odblokuje nielimitowane generowanie za <strong style={{ color: '#a5b4fc' }}>79 zł/msc</strong>.
+            </p>
+            <Link href="/pricing" onClick={() => setUpgradeModal(null)} style={{ display: 'block', marginBottom: 10 }}>
+              <button className="btn-primary" style={{ width: '100%', padding: '14px', borderRadius: 12, fontSize: 15, border: 'none' }}>
+                <span>✨ Przejdź na Starter — 79 zł/msc</span>
+              </button>
+            </Link>
+            <button onClick={() => setUpgradeModal(null)} className="btn-ghost" style={{ width: '100%', padding: '12px', borderRadius: 12, fontSize: 14 }}>
+              Może później
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }
