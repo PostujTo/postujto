@@ -141,14 +141,20 @@ export default function CalendarPage() {
 
 useEffect(() => {
   if (user) {
-    fetch('/api/credits').then(r => r.json()).then(setCredits);
+    fetch('/api/credits')
+      .then(r => r.json())
+      .then(setCredits)
+      .catch(() => {});
   }
 
 useEffect(() => {
   if (user) {
-    fetch('/api/brand-kit').then(r => r.json()).then(data => {
-      setHasBrandKit(!!data.company_name);
-    });
+    fetch('/api/brand-kit')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data) setHasBrandKit(!!data.company_name);
+      })
+      .catch(() => setHasBrandKit(false));
   }
 }, [user]);
 }, [user]);
