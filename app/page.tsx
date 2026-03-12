@@ -59,6 +59,7 @@ const [termsChecked, setTermsChecked] = useState(false);
 const [pendingPriceId, setPendingPriceId] = useState<string | null>(null);
 const [pendingPlan, setPendingPlan] = useState<string | null>(null);
 const [checkoutLoading, setCheckoutLoading] = useState(false);
+const [termsAcceptedAt, setTermsAcceptedAt] = useState<string | null>(null);
 const router = useRouter();
 
 useEffect(() => {
@@ -68,11 +69,26 @@ useEffect(() => {
         router.push('/app');
       }
     });
+    fetch('/api/user/terms-status').then(r => r.json()).then(data => {
+      if (data.terms_accepted_at) setTermsAcceptedAt(data.terms_accepted_at);
+    });
   }
 }, [isLoaded, user]);
 
 const handleLandingSubscribe = (priceId: string, planName: string) => {
   if (!user) { window.location.href = '/app'; return; }
+  if (termsAcceptedAt) {
+    setCheckoutLoading(true);
+    fetch('/api/stripe/create-checkout-session', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ priceId, userId: user.id }),
+    }).then(r => r.json()).then(data => {
+      if (data.url) window.location.href = data.url;
+      else alert('Wystąpił błąd. Spróbuj ponownie.');
+    }).catch(() => alert('Wystąpił błąd. Spróbuj ponownie.'))
+      .finally(() => setCheckoutLoading(false));
+    return;
+  }
   setPendingPriceId(priceId);
   setPendingPlan(planName);
   setTermsChecked(false);
