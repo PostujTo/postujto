@@ -24,9 +24,15 @@ const PLATFORM_STYLES: Record<string, { bg: string; color: string; label: string
 
 export default function DashboardPage() {
   const { user, isLoaded } = useUser();
-  const [generations, setGenerations] = useState<Generation[]>([]);
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [generations, setGenerations] = useState<Generation[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try { const c = localStorage.getItem('dash_generations'); return c ? JSON.parse(c) : []; } catch { return []; }
+  });
+  const [stats, setStats] = useState<Stats | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try { const c = localStorage.getItem('dash_stats'); return c ? JSON.parse(c) : null; } catch { return null; }
+  });
+  const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState<'all' | 'favorites' | 'facebook' | 'instagram' | 'tiktok'>('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -39,7 +45,10 @@ export default function DashboardPage() {
   const [reportLoading, setReportLoading] = useState(false);
   const [gdprLoading, setGdprLoading] = useState(false);
 const [deleteLoading, setDeleteLoading] = useState(false);
-  const [credits, setCredits] = useState<{ plan: string; remaining: number; total: number } | null>(null);
+  const [credits, setCredits] = useState<{ plan: string; remaining: number; total: number } | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try { const c = localStorage.getItem('dash_credits'); return c ? JSON.parse(c) : null; } catch { return null; }
+  });
 
 const downloadGdprData = async () => {
   setGdprLoading(true);
@@ -113,14 +122,20 @@ const deleteAccount = async () => {
   useEffect(() => { if (isLoaded && user) fetchData(); }, [isLoaded, user]);
 
   const fetchData = async () => {
-    setLoading(true);
     try {
       const [res, credRes] = await Promise.all([fetch('/api/dashboard'), fetch('/api/credits')]);
       const data = await res.json();
-      setGenerations(data.generations || []);
-      setStats(data.stats || null);
+      const gens = data.generations || [];
+      const st = data.stats || null;
+      setGenerations(gens);
+      setStats(st);
+      try { localStorage.setItem('dash_generations', JSON.stringify(gens)); if (st) localStorage.setItem('dash_stats', JSON.stringify(st)); } catch {}
       const credData = await credRes.json();
-      if (credData.plan) setCredits({ plan: credData.plan, remaining: credData.remaining, total: credData.total });
+      if (credData.plan) {
+        const cred = { plan: credData.plan, remaining: credData.remaining, total: credData.total };
+        setCredits(cred);
+        try { localStorage.setItem('dash_credits', JSON.stringify(cred)); } catch {}
+      }
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
