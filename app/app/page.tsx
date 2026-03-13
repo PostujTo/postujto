@@ -125,8 +125,11 @@ export default function GeneratorPage() {
   const [addWatermark, setAddWatermark] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('lastAddWatermark') === 'true' : false);
   const [useBrandColors, setUseBrandColors] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('lastUseBrandColors') !== 'false' : true);
   const [useBrandVoice, setUseBrandVoice] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('lastUseBrandVoice') !== 'false' : true);
-  const [credits, setCredits] = useState<{ remaining: number; total: number; plan: Plan } | null>(null);
-  const [loadingCredits, setLoadingCredits] = useState(true);
+  const [credits, setCredits] = useState<{ remaining: number; total: number; plan: Plan } | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try { const d = localStorage.getItem('dash_credits'); return d ? JSON.parse(d) : null; } catch { return null; }
+  });
+  const [loadingCredits, setLoadingCredits] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [showTermsModal, setShowTermsModal] = useState(false);
@@ -216,7 +219,9 @@ const handleConfirmPlanTerms = async () => {
       const res = await fetch('/api/credits');
       if (!res.ok) return;
       const data = await res.json();
-      setCredits({ remaining: data.remaining, total: data.total, plan: data.plan || 'free' });
+      const cred = { remaining: data.remaining, total: data.total, plan: data.plan || 'free' };
+      setCredits(cred);
+      try { localStorage.setItem('dash_credits', JSON.stringify(cred)); } catch {}
     } catch (err) { console.error(err); }
     finally { setLoadingCredits(false); }
   };

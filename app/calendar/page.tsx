@@ -136,7 +136,10 @@ const BEST_TIMES: Record<string, { times: string[]; tip: string }> = {
 
 export default function CalendarPage() {
   const { user } = useUser();
-  const [credits, setCredits] = useState<{ plan: string; remaining: number; total: number } | null>(null);
+  const [credits, setCredits] = useState<{ plan: string; remaining: number; total: number } | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try { const d = localStorage.getItem('dash_credits'); return d ? JSON.parse(d) : null; } catch { return null; }
+  });
   const [hasBrandKit, setHasBrandKit] = useState(false);
 
 useEffect(() => {
@@ -144,7 +147,7 @@ useEffect(() => {
   
   fetch('/api/credits')
     .then(r => r.ok ? r.json() : null)
-    .then(data => { if (data) setCredits(data); })
+    .then(data => { if (data) { setCredits(data); try { localStorage.setItem('dash_credits', JSON.stringify(data)); } catch {} } })
     .catch(() => {});
 
   fetch('/api/brand-kit')
