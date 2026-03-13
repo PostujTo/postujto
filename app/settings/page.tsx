@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useUser, useClerk } from '@clerk/nextjs';
 import Link from 'next/link';
 
 const BRAND_STYLES = [
@@ -80,6 +80,8 @@ const STYLE_PRESETS = [
 
 export default function SettingsPage() {
   const { user } = useUser();
+  const { signOut } = useClerk();
+  const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showTip, setShowTip] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -186,9 +188,30 @@ export default function SettingsPage() {
             <Link href="/app" style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, fontWeight: 600, color: 'rgba(240,240,245,0.5)', textDecoration: 'none' }}>✨ Generator</Link>
             <Link href="/calendar" style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, fontWeight: 600, color: 'rgba(240,240,245,0.5)', textDecoration: 'none' }}>📅 Kalendarz</Link>
             <Link href="/dashboard" style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, fontWeight: 600, color: 'rgba(240,240,245,0.5)', textDecoration: 'none' }}>📊 Historia</Link>
-            <span style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, fontWeight: 600, background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.4)', color: '#a5b4fc' }}>🎨 Brand Kit</span>
           </div>
-          <div />
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <div style={{ position: 'relative' }}>
+                {user?.imageUrl
+                  ? <img src={user.imageUrl} alt="Avatar" onClick={() => setAvatarMenuOpen(o => !o)} style={{ width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', border: '2px solid rgba(99,102,241,0.4)' }} />
+                  : <div onClick={() => setAvatarMenuOpen(o => !o)} style={{ width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', border: '2px solid rgba(99,102,241,0.4)', background: 'rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>👤</div>
+                }
+                {avatarMenuOpen && (
+                  <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: 8, background: '#16162a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: 8, minWidth: 180, zIndex: 100, boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
+                    <Link href="/settings" style={{ textDecoration: 'none' }} onClick={() => setAvatarMenuOpen(false)}>
+                      <div style={{ padding: '10px 14px', borderRadius: 8, fontSize: 14, color: '#a5b4fc', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(99,102,241,0.1)' }}>
+                        🎨 Brand Kit
+                      </div>
+                    </Link>
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '4px 0' }} />
+                    <button onClick={() => signOut({ redirectUrl: '/' })} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, fontSize: 14, color: 'rgba(240,240,245,0.6)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, background: 'transparent', border: 'none', fontFamily: 'inherit', textAlign: 'left' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                      ↪ Wyloguj
+                    </button>
+                  </div>
+                )}
+              </div>
+          </div>
         </div>
       </header>
 

@@ -66,7 +66,7 @@ const INDUSTRIES = [
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { SignInButton, SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
+import { SignInButton, SignedIn, SignedOut, useClerk, useUser } from '@clerk/nextjs';
 
 type Plan = 'free' | 'standard' | 'premium';
 type ToastType = 'error' | 'success' | 'info' | 'warning';
@@ -148,6 +148,8 @@ const OCCASION_HINTS: Record<string, string> = {
 
 export default function GeneratorPage() {
   const { user, isLoaded } = useUser();
+  const { signOut } = useClerk();
+  const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const router = useRouter();
   const [topic, setTopic] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('lastTopic') || '' : '');
   const [recentTopics, setRecentTopics] = useState<Array<{topic: string; platform: string}>>([]);
@@ -640,8 +642,29 @@ const handleConfirmPlanTerms = async () => {
                     )}
                   </>
                 )}
-                <Link href="/settings"><button className="btn-ghost" style={{ padding: '7px 16px', borderRadius: 10, fontSize: 13 }}>🎨 Brand Kit</button></Link>
-                <UserButton afterSignOutUrl="/" />
+<div style={{ position: 'relative' }}>
+                {user?.imageUrl
+                  ? <img src={user.imageUrl} alt="Avatar" onClick={() => setAvatarMenuOpen(o => !o)} style={{ width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', border: '2px solid rgba(99,102,241,0.4)' }} />
+                  : <div onClick={() => setAvatarMenuOpen(o => !o)} style={{ width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', border: '2px solid rgba(99,102,241,0.4)', background: 'rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>👤</div>
+                }
+                {avatarMenuOpen && (
+                  <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: 8, background: '#16162a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: 8, minWidth: 180, zIndex: 100, boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
+                    <Link href="/settings" style={{ textDecoration: 'none' }} onClick={() => setAvatarMenuOpen(false)}>
+                      <div style={{ padding: '10px 14px', borderRadius: 8, fontSize: 14, color: 'rgba(240,240,245,0.8)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                        🎨 Brand Kit
+                      </div>
+                    </Link>
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '4px 0' }} />
+                    <button onClick={() => signOut({ redirectUrl: '/' })} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, fontSize: 14, color: 'rgba(240,240,245,0.6)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, background: 'transparent', border: 'none', fontFamily: 'inherit', textAlign: 'left' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                      ↪ Wyloguj
+                    </button>
+                  </div>
+                )}
+              </div>
               </SignedIn>
               <SignedOut>
                 <SignInButton mode="modal" forceRedirectUrl="/app">
