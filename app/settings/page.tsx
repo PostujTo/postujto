@@ -178,32 +178,21 @@ export default function SettingsPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0f', fontFamily: '"DM Sans", sans-serif', color: '#f0f0f5' }}>
       {/* Header */}
-      <header style={{ position: 'sticky', top: 0, zIndex: 50, backdropFilter: 'blur(20px)', background: 'rgba(10,10,15,0.85)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '0 24px', height: 64, display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center' }}>
-        <Link href="/app" style={{ fontFamily: '"Poppins", sans-serif', fontWeight: 800, fontSize: 20, background: 'linear-gradient(135deg, #6366f1, #a855f7, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', textDecoration: 'none' }}>
-          PostujTo
+      <header style={{ position: 'sticky', top: 0, zIndex: 50, backdropFilter: 'blur(20px)', background: 'rgba(10,10,15,0.85)', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '0 24px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Link href="/app" style={{ fontFamily: '"Poppins", sans-serif', fontWeight: 800, fontSize: 20, color: '#fff', textDecoration: 'none', letterSpacing: '-0.02em' }}>
+          Postuj<span style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>To</span>
         </Link>
-        <div style={{ display: 'flex', gap: 4, padding: '5px 6px', background: 'rgba(255,255,255,0.04)', borderRadius: 14, border: '1px solid rgba(255,255,255,0.08)' }}>
-          {[
-            { href: '/app', label: 'Generator' },
-            { href: '/calendar', label: 'Kalendarz' },
-            { href: '/dashboard', label: 'Dashboard' },
-          ].map(tab => (
-            <Link key={tab.href} href={tab.href} style={{ padding: '6px 16px', borderRadius: 10, fontSize: 14, fontWeight: 600, color: 'rgba(240,240,245,0.5)', textDecoration: 'none' }}>
-              {tab.label}
-            </Link>
-          ))}
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Link href="/app" style={{ padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 600, color: 'rgba(240,240,245,0.55)', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', textDecoration: 'none' }}>
-            ← Wróć
-          </Link>
-        </div>
+        <Link href="/app" style={{ padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 600, color: 'rgba(240,240,245,0.55)', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', textDecoration: 'none' }}>
+          ← Wróć
+        </Link>
       </header>
 
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px' }}>
         {/* Title */}
         <div style={{ marginBottom: 32 }}>
-          <h1 style={{ fontFamily: '"Poppins", sans-serif', fontWeight: 800, fontSize: 32, background: 'linear-gradient(135deg, #6366f1, #a855f7, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: 6 }}>Brand Kit</h1>
+          <h1 style={{ fontFamily: '"Poppins", sans-serif', fontWeight: 800, fontSize: 32, color: '#fff', marginBottom: 6, letterSpacing: '-0.02em' }}>
+            <span style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Brand</span> Kit
+          </h1>
           <p style={{ color: 'rgba(240,240,245,0.4)', fontSize: 15 }}>Skonfiguruj styl komunikacji swojej firmy</p>
         </div>
 
