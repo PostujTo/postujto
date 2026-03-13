@@ -545,9 +545,9 @@ const handleConfirmPlanTerms = async () => {
               </Link>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 280, justifyContent: 'flex-end' }}>
               <SignedIn>
-                {!loadingCredits && credits && (
+                {credits && (
                   <>
                     <span style={{ padding: '6px 10px', borderRadius: 100, fontSize: 11, fontWeight: 600, background: PLAN_COLORS[credits.plan].bg, color: PLAN_COLORS[credits.plan].text, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       {PLAN_COLORS[credits.plan].label}
@@ -562,9 +562,9 @@ const handleConfirmPlanTerms = async () => {
                         {portalLoading ? '...' : 'Subskrypcja'}
                       </button>
                     )}
-                    <Link href="/settings"><button className="btn-ghost" style={{ padding: '7px 16px', borderRadius: 10, fontSize: 13 }}>🎨 Brand Kit</button></Link>
                   </>
                 )}
+                <Link href="/settings"><button className="btn-ghost" style={{ padding: '7px 16px', borderRadius: 10, fontSize: 13 }}>🎨 Brand Kit</button></Link>
                 <UserButton afterSignOutUrl="/" />
               </SignedIn>
               <SignedOut>

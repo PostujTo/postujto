@@ -168,27 +168,42 @@ useEffect(() => {
   const [upgradeModal, setUpgradeModal] = useState<{ generated: number; remaining: number } | null>(null);
 
   // ─── PERSISTENCE ──────────────────────────────────────────────────────────
+  const applyTopics = useCallback((topics: any[], prevDays: CalendarDay[]) => {
+    return prevDays.map(d => {
+      const saved = topics.find((t: any) => t.date === d.fullKey);
+      if (!saved || !saved.topic) return d;
+      return {
+        ...d,
+        topic: saved.topic,
+        platform: (saved.platform as any) || d.platform,
+        generated: saved.generated,
+        postText: saved.post_text || undefined,
+        hashtags: saved.hashtags || undefined,
+      };
+    });
+  }, []);
+
   const loadTopics = useCallback(async (year: number, month: number) => {
     if (!user) return;
+    // Instant load from localStorage cache
+    const cacheKey = `cal_topics_${year}_${month}`;
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        const topics = JSON.parse(cached);
+        if (topics?.length) setDays(prev => applyTopics(topics, prev));
+      }
+    } catch {}
+    // Then fetch from API
     try {
       const res = await fetch(`/api/calendar/topics?year=${year}&month=${month + 1}`);
       if (!res.ok) return;
       const { topics } = await res.json();
       if (!topics?.length) return;
-      setDays(prev => prev.map(d => {
-        const saved = topics.find((t: any) => t.date === d.fullKey);
-        if (!saved || !saved.topic) return d;
-        return {
-          ...d,
-          topic: saved.topic,
-          platform: (saved.platform as any) || d.platform,
-          generated: saved.generated,
-          postText: saved.post_text || undefined,
-          hashtags: saved.hashtags || undefined,
-        };
-      }));
+      try { localStorage.setItem(cacheKey, JSON.stringify(topics)); } catch {}
+      setDays(prev => applyTopics(topics, prev));
     } catch {}
-  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user?.id, applyTopics]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const saveTopics = useCallback(async (
     items: Array<{ date: string; topic: string; platform: string; generated?: boolean; post_text?: string; hashtags?: string[] }>
@@ -444,7 +459,7 @@ useEffect(() => {
               </Link>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 280, justifyContent: 'flex-end' }}>
               {credits && (
                 <>
                   <span style={{ padding: '6px 10px', borderRadius: 100, fontSize: 11, fontWeight: 600, background: 'rgba(255,255,255,0.05)', color: 'rgba(240,240,245,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>

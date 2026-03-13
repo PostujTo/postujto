@@ -243,7 +243,7 @@ const deleteAccount = async () => {
               </button>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 280, justifyContent: 'flex-end' }}>
               {credits && (
                 <>
                   <span style={{ padding: '6px 10px', borderRadius: 100, fontSize: 11, fontWeight: 600, background: 'rgba(255,255,255,0.05)', color: 'rgba(240,240,245,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -264,10 +264,6 @@ const deleteAccount = async () => {
 
         <main style={{ flex: 1, maxWidth: 1200, margin: '0 auto', width: '100%', padding: '48px 24px 80px' }}>
 
-          {loading && (
-            <div style={{ textAlign: 'center', padding: '60px 0', color: 'rgba(240,240,245,0.4)', fontSize: 14 }}>Ładowanie...</div>
-          )}
-          {!loading && <>
           {/* Page title */}
           <div className="fade-up" style={{ marginBottom: 40 }}>
             <p style={{ fontSize: 12, fontWeight: 600, color: '#6366f1', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8 }}>Historia</p>
@@ -648,7 +644,6 @@ const deleteAccount = async () => {
               })}
             </div>
           )}
-          </>}
         </main>
 
         {/* FOOTER */}
