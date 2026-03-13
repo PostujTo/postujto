@@ -25,7 +25,6 @@ export async function POST(request: Request) {
 
     const { priceId } = await request.json();
     
-console.log('🔍 DEBUG:', { priceId, env_standard: process.env.STRIPE_PRICE_ID_STANDARD, env_premium: process.env.STRIPE_PRICE_ID_PREMIUM });
 
     if (!priceId) {
       return NextResponse.json(

@@ -310,7 +310,7 @@ WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy c
       console.error('Błąd odejmowania kredytu:', creditError);
     }
 
-    const { error: historyError } = await supabase
+    const { data: newGen, error: historyError } = await supabase
       .from('generations')
       .insert({
         user_id: user!.id,
@@ -324,7 +324,9 @@ WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy c
         has_audio: false,
         cost_usd: 0.015,
         scheduled_date: scheduled_date || null,
-      });
+      })
+      .select('id')
+      .single();
 
     if (historyError) {
       console.error('Błąd zapisywania generacji:', historyError);
@@ -356,14 +358,6 @@ WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy c
     } catch (monitorErr) {
       console.error('Błąd monitoringu użycia:', monitorErr);
     }
-
-    const { data: newGen } = await supabase
-      .from('generations')
-      .select('id')
-      .eq('user_id', user!.id)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
 
     return NextResponse.json({
       ...jsonData,

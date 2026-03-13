@@ -67,7 +67,6 @@ export async function createInvoice(data: InvoiceData) {
   }
 
   const invoice = await res.json();
-  console.log('✅ Faktura wystawiona:', invoice?.invoice?.number);
   return invoice;
 }
 
@@ -84,5 +83,4 @@ export async function sendInvoiceByEmail(invoiceId: string) {
     throw new Error(`inFakt send email error ${res.status}: ${error}`);
   }
 
-  console.log('✅ Faktura wysłana emailem do klienta');
 }

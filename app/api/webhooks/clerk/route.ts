@@ -72,7 +72,6 @@ export async function POST(req: Request) {
         return new Response('Error creating user', { status: 500 });
       }
 
-      console.log('User created in Supabase:', data);
 
       // Wyślij onboarding email
       try {
@@ -172,7 +171,6 @@ export async function POST(req: Request) {
         return new Response('Error updating user', { status: 500 });
       }
 
-      console.log('User updated in Supabase');
       return new Response('User updated', { status: 200 });
     } catch (err) {
       console.error('Error:', err);
@@ -195,7 +193,6 @@ export async function POST(req: Request) {
         return new Response('Error deleting user', { status: 500 });
       }
 
-      console.log('User deleted from Supabase');
       return new Response('User deleted', { status: 200 });
     } catch (err) {
       console.error('Error:', err);

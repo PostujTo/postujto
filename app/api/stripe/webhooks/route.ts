@@ -34,16 +34,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
 
-    console.log('✅ Webhook received:', event.type);
 
     // Handle checkout.session.completed
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
 
-      console.log('💳 Processing checkout.session.completed');
-      console.log('Session ID:', session.id);
-      console.log('Customer:', session.customer);
-      console.log('Subscription:', session.subscription);
 
       const clerkUserId = session.metadata?.clerk_user_id;
       const subscriptionId = session.subscription as string;
@@ -60,7 +55,6 @@ export async function POST(req: Request) {
       let plan: 'standard' | 'premium' = premiumIds.includes(priceId) ? 'premium' : 'standard';
       let credits = 999999;
 
-      console.log('📝 Updating user:', { clerkUserId, plan, credits });
 
       const { error } = await supabaseAdmin
         .from('users')
@@ -90,7 +84,6 @@ export async function POST(req: Request) {
         console.error('Alert email error:', emailErr);
       }
 
-      console.log('✅ User updated successfully');
       // Wystaw fakturę w inFakt
 try {
   let clientEmail = session.customer_email || '';
@@ -129,7 +122,6 @@ try {
         .update({ credits_remaining: credits, credits_total: credits })
         .eq('stripe_subscription_id', subscriptionId);
 
-      console.log('✅ Kredyty odnowione dla subskrypcji:', subscriptionId);
     }
 
     // NOWE: błąd płatności
@@ -166,7 +158,6 @@ try {
         })
         .eq('stripe_subscription_id', subscription.id);
 
-      console.log('✅ Plan zaktualizowany:', { subscriptionId: subscription.id, plan });
     }
 
     // Anulowanie subskrypcji
@@ -196,7 +187,6 @@ try {
         console.error('Alert email error:', emailErr);
       }
 
-      console.log('✅ Subskrypcja anulowana:', subscription.id);
     }
 
     return NextResponse.json({ received: true }, { status: 200 });
