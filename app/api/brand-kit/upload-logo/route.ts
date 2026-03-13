@@ -38,8 +38,8 @@ export async function POST(req: Request) {
 
     // Sprawdź rozszerzenie pliku
     const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.svg'];
-    const fileName = file.name.toLowerCase();
-    if (!allowedExtensions.some(ext => fileName.endsWith(ext))) {
+    const originalFileName = file.name.toLowerCase();
+    if (!allowedExtensions.some(ext => originalFileName.endsWith(ext))) {
       return NextResponse.json({ error: 'Niedozwolone rozszerzenie pliku.' }, { status: 400 });
     }
 
