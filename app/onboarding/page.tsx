@@ -5,20 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import { TermsCheckbox } from '@/components/TermsCheckbox';
 
-const INDUSTRIES = [
-  { id: 'restaurant', label: 'Restauracja', emoji: '🍽️' },
-  { id: 'fashion', label: 'Moda / Odzież', emoji: '👗' },
-  { id: 'beauty', label: 'Uroda / Kosmetyki', emoji: '💅' },
-  { id: 'construction', label: 'Budowlanka', emoji: '🔨' },
-  { id: 'ecommerce', label: 'Sklep online', emoji: '🛒' },
-  { id: 'fitness', label: 'Fitness / Sport', emoji: '💪' },
-  { id: 'realestate', label: 'Nieruchomości', emoji: '🏠' },
-  { id: 'medical', label: 'Zdrowie', emoji: '🏥' },
-  { id: 'education', label: 'Edukacja', emoji: '📚' },
-  { id: 'automotive', label: 'Motoryzacja', emoji: '🚗' },
-  { id: 'tourism', label: 'Turystyka', emoji: '✈️' },
-  { id: 'food', label: 'Sklep spożywczy', emoji: '🛍️' },
-];
+import { INDUSTRIES } from '@/lib/constants';
 
 const TONES = [
   { id: 'professional', label: 'Profesjonalny', emoji: '💼', desc: 'Formalny, biznesowy, budujący zaufanie' },
