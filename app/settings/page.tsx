@@ -180,7 +180,7 @@ export default function SettingsPage() {
       {/* Header */}
       <header style={{ position: 'sticky', top: 0, zIndex: 50, backdropFilter: 'blur(20px)', background: 'rgba(10,10,15,0.85)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 24px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link href="/app" style={{ fontFamily: '"Poppins", sans-serif', fontWeight: 800, fontSize: 22, color: '#fff', textDecoration: 'none', letterSpacing: '-0.02em' }}>
+          <Link href="/app" style={{ fontFamily: '"Poppins", sans-serif', fontWeight: 400, fontSize: 22, color: '#fff', textDecoration: 'none', letterSpacing: '-0.02em' }}>
             Postuj<span style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>To</span>
           </Link>
           <Link href="/app" style={{ padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 600, color: 'rgba(240,240,245,0.55)', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', textDecoration: 'none' }}>
