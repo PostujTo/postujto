@@ -385,13 +385,7 @@ const handleConfirmPlanTerms = async () => {
         .btn-primary:active { transform: translateY(0); }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; filter: none; }
 
-        .btn-ghost {
-          background: rgba(255,255,255,0.05);
-          border: 1px solid rgba(255,255,255,0.1);
-          color: rgba(240,240,245,0.8); cursor: pointer;
-          var(--font-dm-sans), sans-serif; font-weight: 500;
-          transition: all 0.25s ease;
-        }
+        .btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(240,240,245,0.7); cursor: pointer; font-family: var(--font-dm-sans), sans-serif; font-weight: 500; transition: all 0.2s ease; }
         .btn-ghost:hover { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.2); }
 
         .option-btn {
@@ -521,7 +515,7 @@ const handleConfirmPlanTerms = async () => {
 
         {/* HEADER */}
         <header style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(10,10,15,0.85)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100 }}>
-          <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 68, display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center' }}>
             <Link href="/" style={{ textDecoration: 'none' }}>
               <span className="font-display" style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', color: '#fff' }}>
                 Postuj<span className="gradient-text">To</span>
@@ -545,7 +539,7 @@ const handleConfirmPlanTerms = async () => {
               </Link>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 280, justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-end' }}>
               <SignedIn>
                 {credits && (
                   <>
