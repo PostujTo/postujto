@@ -148,15 +148,17 @@ POLSKIE PRAWO REKLAMOWE - przestrzegaj tych zasad:
 - NIE używaj emoji ani emotikon w tekście postu - tylko czysty tekst
 `;
 
-// Pobierz sample_posts z Brand Kit (tylko dla zalogowanych z włączonym głosem marki)
+// Pobierz Brand Kit (dla głosu marki i/lub fallback kontekstu)
     let samplePostsHint = '';
-    if (!isGuest && use_brand_voice) {
+    let brandContextHint = '';
+    if (!isGuest) {
       const { data: brandKit } = await supabase
         .from('brand_kits')
         .select('sample_posts, company_name, tone')
         .eq('user_id', user!.id)
         .single();
-      if (brandKit?.sample_posts && brandKit.sample_posts.trim().length > 0) {
+
+      if (use_brand_voice && brandKit?.sample_posts && brandKit.sample_posts.trim().length > 0) {
         samplePostsHint = `
 GŁOS MARKI — BARDZO WAŻNE:
 Poniżej przykładowe posty tej firmy. Przeanalizuj ich styl, długość zdań, sposób zwracania się do odbiorcy, użycie emoji, interpunkcję i słownictwo. Pisz DOKŁADNIE w tym samym stylu:
@@ -164,6 +166,16 @@ Poniżej przykładowe posty tej firmy. Przeanalizuj ich styl, długość zdań, 
 ---
 ${brandKit.sample_posts.slice(0, 3000)}
 ---
+`;
+      }
+
+      if (!brandKit?.company_name) {
+        // Brak Brand Kitu — fallback kontekst
+        brandContextHint = `
+KONTEKST FIRMY: Użytkownik nie skonfigurował profilu. Pisz dla małej polskiej firmy lub freelancera.
+Na podstawie tematu posta postaraj się wywnioskować branżę i dostosuj styl.
+Użyj swobodnego, ale profesjonalnego tonu — jak właściciel małej firmy który sam prowadzi social media.
+Unikaj korporacyjnego języka i sztucznych zwrotów.
 `;
       }
     }
@@ -201,7 +213,7 @@ ${lowRated.length > 0 ? `\nPOSTY KTÓRE SIĘ NIE PODOBAŁY (ocena 1-2★) — un
       }
     }
     const postCount = isGuest ? 1 : 3;
-    const prompt = `Jesteś ekspertem od social media marketingu w Polsce. Wygeneruj ${postCount} ${isGuest ? 'wersję' : 'różne wersje'} postu na ${platformDescription}.${industryHint}${polishLawHint}${samplePostsHint}${ratingsHint}
+    const prompt = `Jesteś ekspertem od social media marketingu w Polsce. Wygeneruj ${postCount} ${isGuest ? 'wersję' : 'różne wersje'} postu na ${platformDescription}.${industryHint}${brandContextHint}${polishLawHint}${samplePostsHint}${ratingsHint}
 
 TEMAT: ${sanitizedTopic}
 

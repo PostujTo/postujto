@@ -46,7 +46,7 @@ const BEST_TIMES: Record<string, { times: string[]; tip: string }> = {
   },
 };
 
-import { INDUSTRIES } from '@/lib/constants';
+import { INDUSTRIES, INDUSTRY_GROUPS } from '@/lib/constants';
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
@@ -165,6 +165,13 @@ export default function GeneratorPage() {
   const [useBrandColors, setUseBrandColors] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('lastUseBrandColors') !== 'false' : true);
   const [useBrandVoice, setUseBrandVoice] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('lastUseBrandVoice') !== 'false' : true);
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
+  const [hasBrandKit, setHasBrandKit] = useState(false);
+  const [showLazyOnboarding, setShowLazyOnboarding] = useState(false);
+  const [lazyOnboardingDismissed, _setLazyOnboardingDismissed] = useState(
+    () => typeof window !== 'undefined' && localStorage.getItem('postujto_lazy_dismissed') === '1'
+  );
+  const [lazyCompanyName, setLazyCompanyName] = useState('');
+  const [lazyIndustry, setLazyIndustry] = useState('');
   const [credits, setCredits] = useState<{ remaining: number; total: number; plan: Plan } | null>(() => {
     if (typeof window === 'undefined') return null;
     try { const d = localStorage.getItem('dash_credits'); return d ? JSON.parse(d) : null; } catch { return null; }
@@ -238,6 +245,9 @@ const handleConfirmPlanTerms = async () => {
   useEffect(() => {
   if (isLoaded && user) {
     fetchUserCredits();
+    fetch('/api/brand-kit').then(r => r.json()).then(data => {
+      if (data?.company_name) setHasBrandKit(true);
+    }).catch(() => {});
     fetch('/api/credits').then(r => r.json()).then(data => {
       if (data.onboarding_completed === false) {
         router.push('/onboarding');
@@ -255,6 +265,22 @@ const handleConfirmPlanTerms = async () => {
       sessionStorage.removeItem('lastResults'); sessionStorage.removeItem('lastGenerationId');
     }
   }, [isLoaded, user]);
+
+  const setLazyOnboardingDismissed = (val: boolean) => {
+    if (val) { try { localStorage.setItem('postujto_lazy_dismissed', '1'); } catch {} }
+    _setLazyOnboardingDismissed(val);
+  };
+
+  const saveLazyOnboarding = async () => {
+    await fetch('/api/brand-kit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ company_name: lazyCompanyName, tone: lazyIndustry ? 'casual' : null }),
+    });
+    setShowLazyOnboarding(false);
+    setLazyOnboardingDismissed(true);
+    setHasBrandKit(true);
+  };
 
   const fetchUserCredits = async () => {
     if (!user) return;
@@ -703,14 +729,21 @@ const handleConfirmPlanTerms = async () => {
               {/* Industry */}
               <div style={{ marginBottom: 28 }}>
                 <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.35)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>Branża (opcjonalnie)</p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {INDUSTRIES.map(industry => (
-                    <button key={industry.id} onClick={() => setSelectedIndustry(selectedIndustry === industry.id ? null : industry.id)}
-                      className={`option-btn ${selectedIndustry === industry.id ? 'active' : ''}`}
-                      style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 11px', borderRadius: 8, fontSize: 12 }}
-                    >
-                      <span>{industry.emoji}</span> {industry.label}
-                    </button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {INDUSTRY_GROUPS.map(group => (
+                    <div key={group}>
+                      <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.06em', color: 'rgba(240,240,245,0.25)', textTransform: 'uppercase', marginBottom: 5 }}>{group}</p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                        {INDUSTRIES.filter(i => i.group === group).map(industry => (
+                          <button key={industry.id} onClick={() => setSelectedIndustry(selectedIndustry === industry.id ? null : industry.id)}
+                            className={`option-btn ${selectedIndustry === industry.id ? 'active' : ''}`}
+                            style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 11px', borderRadius: 20, fontSize: 12 }}
+                          >
+                            <span>{industry.emoji}</span> {industry.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -911,6 +944,46 @@ const handleConfirmPlanTerms = async () => {
                       </button>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* Lazy onboarding — show after first results if no brand kit */}
+              {results && !hasBrandKit && !lazyOnboardingDismissed && user && (
+                <div className="fade-up" style={{ animationDelay: '0.1s' }}>
+                  {!showLazyOnboarding ? (
+                    <div style={{ margin: '0 0 16px', padding: '14px 16px', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                      <div>
+                        <p style={{ fontSize: 14, color: '#f0f0f5', margin: '0 0 3px', fontWeight: 600 }}>💡 Podaj nazwę swojej firmy — Claude napisze trafniej</p>
+                        <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.45)', margin: 0 }}>Jedno pole. Zajmie 10 sekund.</p>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                        <button onClick={() => setShowLazyOnboarding(true)} style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, background: 'rgba(99,102,241,0.3)', border: '1px solid rgba(99,102,241,0.5)', color: '#a5b4fc', cursor: 'pointer', fontWeight: 600, fontFamily: "'DM Sans', sans-serif" }}>
+                          Podaj nazwę →
+                        </button>
+                        <button onClick={() => setLazyOnboardingDismissed(true)} style={{ padding: '8px 12px', borderRadius: 8, fontSize: 13, background: 'transparent', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,240,245,0.35)', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>
+                          Później
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ margin: '0 0 16px', padding: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12 }}>
+                      <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.5)', marginBottom: 12 }}>Te dane trafiają do Brand Kitu — możesz je rozbudować w ustawieniach.</p>
+                      <input type="text" placeholder="np. Piekarnia Kowalski, Studio Urody Maya..." value={lazyCompanyName} onChange={e => setLazyCompanyName(e.target.value)}
+                        style={{ width: '100%', padding: '10px 14px', borderRadius: 8, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#f0f0f5', fontSize: 14, fontFamily: "'DM Sans', sans-serif", marginBottom: 10, boxSizing: 'border-box' as const }} />
+                      <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 5, marginBottom: 12 }}>
+                        {INDUSTRIES.slice(0, 8).map(ind => (
+                          <button key={ind.id} onClick={() => setLazyIndustry(lazyIndustry === ind.id ? '' : ind.id)}
+                            style={{ padding: '4px 10px', borderRadius: 16, fontSize: 12, border: lazyIndustry === ind.id ? '1px solid rgba(99,102,241,0.5)' : '1px solid rgba(255,255,255,0.07)', background: lazyIndustry === ind.id ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.03)', color: lazyIndustry === ind.id ? '#a5b4fc' : 'rgba(240,240,245,0.5)', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}>
+                            {ind.emoji} {ind.label}
+                          </button>
+                        ))}
+                      </div>
+                      <button onClick={saveLazyOnboarding} disabled={!lazyCompanyName.trim()}
+                        style={{ padding: '10px 20px', borderRadius: 8, fontSize: 14, background: lazyCompanyName.trim() ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' : 'rgba(255,255,255,0.05)', border: 'none', color: lazyCompanyName.trim() ? '#fff' : 'rgba(240,240,245,0.3)', cursor: lazyCompanyName.trim() ? 'pointer' : 'not-allowed', fontFamily: "'DM Sans', sans-serif", fontWeight: 600 }}>
+                        Zapisz i generuj lepiej ✨
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 

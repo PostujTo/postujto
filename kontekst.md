@@ -1,5 +1,5 @@
 # PostujTo.pl — Kontekst projektu
-_Ostatnia aktualizacja: 2026-03-17_
+_Ostatnia aktualizacja: 2026-03-18_
 
 ## Stack techniczny
 - **Frontend/Backend:** Next.js 16 (App Router)
@@ -58,6 +58,9 @@ _Ostatnia aktualizacja: 2026-03-17_
 - Karty pakietów: slider miesięczny/roczny, oba przyciski gradient, brightness(1.25) na hover
 - Modal regulaminu przed Stripe (sprawdza terms_accepted_at)
 - Inspiracje tematów — 3 losowe chipy per platforma (odświeżają się przy zmianie platformy)
+- 21 branż podzielonych na 6 grup (Gastronomia, Uroda i zdrowie, Handel, Usługi i rzemiosło, Edukacja i biznes, Nieruchomości i turystyka) — chipy z nagłówkami grup
+- Lazy onboarding — baner po pierwszym wygenerowanym poście gdy brak Brand Kit (jedno pole: nazwa firmy + opcjonalna branża z chipami), zamykany przez "Później" (localStorage)
+- Fallback kontekst w prompt gdy Brand Kit pusty — Claude dostaje wskazówkę o polskiej małej firmie i wnioskuje branżę z tematu
 - Historia ostatnich tematów (5 ostatnich z /api/dashboard, rozwijana lista)
 - Klikalne okazje handlowe → wpisują gotowy temat do textarei
 - Licznik słów i znaków pod każdą wersją posta + ostrzeżenie o długości per platforma
@@ -130,7 +133,7 @@ _Ostatnia aktualizacja: 2026-03-17_
 ### Landing page (/)
 - Hero z demo card
 - Statyczne pillsy z funkcjami
-- Statystyki (10h, 30 postów, 3 platformy, 12 branż)
+- Statystyki (10h, 30 postów, 3 platformy, 21 branż)
 - Jak to działa (3 kroki) + CTA po sekcji
 - Co wyróżnia PostujTo (6 cech)
 - Dla kogo (6 use-case'ów z cytatami)
