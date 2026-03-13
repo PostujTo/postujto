@@ -14,10 +14,19 @@ export async function POST(req: Request) {
   const { id, version_index, rating } = await req.json();
   if (!id || version_index === undefined || !rating) return NextResponse.json({ error: 'Brak danych' }, { status: 400 });
 
+  const { data: user } = await supabase
+    .from('users')
+    .select('id')
+    .eq('clerk_user_id', userId)
+    .single();
+
+  if (!user) return NextResponse.json({ error: 'Nie znaleziono użytkownika' }, { status: 404 });
+
   const { data: gen } = await supabase
     .from('generations')
-    .select('ratings, user_id')
+    .select('ratings')
     .eq('id', id)
+    .eq('user_id', user.id)
     .single();
 
   if (!gen) return NextResponse.json({ error: 'Nie znaleziono' }, { status: 404 });
@@ -27,7 +36,8 @@ export async function POST(req: Request) {
   await supabase
     .from('generations')
     .update({ ratings: updatedRatings })
-    .eq('id', id);
+    .eq('id', id)
+    .eq('user_id', user.id);
 
   return NextResponse.json({ ok: true, ratings: updatedRatings });
 }

@@ -14,10 +14,21 @@ export async function POST(req: Request) {
   const { id, performance } = await req.json();
   if (!id || !performance) return NextResponse.json({ error: 'Brak danych' }, { status: 400 });
 
-  await supabase
+  const { data: user } = await supabase
+    .from('users')
+    .select('id')
+    .eq('clerk_user_id', userId)
+    .single();
+
+  if (!user) return NextResponse.json({ error: 'Nie znaleziono użytkownika' }, { status: 404 });
+
+  const { error } = await supabase
     .from('generations')
     .update({ performance })
-    .eq('id', id);
+    .eq('id', id)
+    .eq('user_id', user.id);
+
+  if (error) return NextResponse.json({ error: 'Błąd aktualizacji' }, { status: 500 });
 
   return NextResponse.json({ ok: true });
 }

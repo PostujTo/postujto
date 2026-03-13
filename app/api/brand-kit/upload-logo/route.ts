@@ -36,6 +36,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Dozwolone formaty: PNG, JPG, SVG, WebP' }, { status: 400 });
     }
 
+    // Sprawdź rozszerzenie pliku
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.svg'];
+    const fileName = file.name.toLowerCase();
+    if (!allowedExtensions.some(ext => fileName.endsWith(ext))) {
+      return NextResponse.json({ error: 'Niedozwolone rozszerzenie pliku.' }, { status: 400 });
+    }
+
     const fileExt = file.name.split('.').pop();
     const fileName = `${user.id}/logo.${fileExt}`;
     const arrayBuffer = await file.arrayBuffer();
