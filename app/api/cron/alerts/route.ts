@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { sendAnthropicCostAlert, sendSupabaseAlert, sendWeeklyReport } from '@/lib/email';
+import { sendDailyUsageReport } from '@/lib/alerts';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -122,6 +123,15 @@ export async function GET(request: NextRequest) {
       console.error('Weekly report error:', err);
       results.push('Weekly report failed');
     }
+  }
+
+  // 4. DAILY USAGE REPORT
+  try {
+    await sendDailyUsageReport();
+    results.push('Daily usage report wysłany (lub pominięty — brak generacji wczoraj)');
+  } catch (err) {
+    console.error('Daily usage report error:', err);
+    results.push('Daily usage report failed');
   }
 
   return NextResponse.json({ ok: true, results, timestamp: now.toISOString() });

@@ -36,6 +36,8 @@ _Ostatnia aktualizacja: 2026-03-18_
 ### Infrastruktura
 - Toast notifications
 - Email alerty przez Resend (Stripe/Anthropic/Supabase/weekly report)
+- Alerty anomalii użycia (100/300/500 generacji/msc per user) — `lib/alerts.ts`
+- Dzienny raport generacji (tylko gdy dailyCount > 0) + top 5 użytkowników w miesiącu
 - inFakt auto-faktura przy nowej subskrypcji
 - Vercel cron job (codziennie 8:00 UTC)
 - Onboarding email po rejestracji (Clerk webhook)

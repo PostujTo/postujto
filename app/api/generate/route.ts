@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 import { rateLimit } from '@/lib/rateLimit';
+import { sendUsageAlert } from '@/lib/alerts';
 
 // Server-side Supabase client z service role
 const supabase = createClient(
@@ -327,6 +328,33 @@ WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy c
 
     if (historyError) {
       console.error('Błąd zapisywania generacji:', historyError);
+    }
+
+    // ============================================
+    // MONITORING UŻYCIA — sprawdź anomalie
+    // ============================================
+    try {
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+
+      const { count: monthlyCount } = await supabase
+        .from('generations')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user!.id)
+        .gte('created_at', startOfMonth.toISOString());
+
+      const ALERT_THRESHOLDS = [100, 300, 500];
+      if (monthlyCount && ALERT_THRESHOLDS.includes(monthlyCount)) {
+        await sendUsageAlert({
+          userId: user!.id,
+          email: user!.email,
+          plan: user!.subscription_plan,
+          monthlyCount,
+        });
+      }
+    } catch (monitorErr) {
+      console.error('Błąd monitoringu użycia:', monitorErr);
     }
 
     const { data: newGen } = await supabase
