@@ -187,7 +187,7 @@ export default function SettingsPage() {
           <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 4 }}>
             <Link href="/app" style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, fontWeight: 600, color: 'rgba(240,240,245,0.5)', textDecoration: 'none' }}>✨ Generator</Link>
             <Link href="/calendar" style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, fontWeight: 600, color: 'rgba(240,240,245,0.5)', textDecoration: 'none' }}>📅 Kalendarz</Link>
-            <Link href="/dashboard" style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, fontWeight: 600, color: 'rgba(240,240,245,0.5)', textDecoration: 'none' }}>📊 Historia</Link>
+            <Link href="/dashboard" style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, fontWeight: 600, color: 'rgba(240,240,245,0.5)', textDecoration: 'none' }}>📊 Dashboard</Link>
           </div>
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <div style={{ position: 'relative' }}>
