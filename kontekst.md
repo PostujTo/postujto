@@ -1,5 +1,5 @@
 # PostujTo.pl — Kontekst projektu
-_Ostatnia aktualizacja: 2026-03-14_
+_Ostatnia aktualizacja: 2026-03-15_
 
 ## Stack techniczny
 - **Frontend/Backend:** Next.js 16 (App Router)
@@ -57,6 +57,11 @@ _Ostatnia aktualizacja: 2026-03-14_
 - Licznik kredytów: czerwony przy 0 (background rgba(239,68,68,0.15), color #f87171)
 - Karty pakietów: slider miesięczny/roczny, oba przyciski gradient, brightness(1.25) na hover
 - Modal regulaminu przed Stripe (sprawdza terms_accepted_at)
+- Inspiracje tematów — 3 losowe chipy per platforma (odświeżają się przy zmianie platformy)
+- Historia ostatnich tematów (5 ostatnich z /api/dashboard, rozwijana lista)
+- Klikalne okazje handlowe → wpisują gotowy temat do textarei
+- Licznik słów i znaków pod każdą wersją posta + ostrzeżenie o długości per platforma
+- Przycisk "Dodaj do kalendarza" z date-pickerem → zapisuje do calendar_topics
 
 ### Brand Kit (/settings)
 - Nazwa firmy, slogan
@@ -66,6 +71,11 @@ _Ostatnia aktualizacja: 2026-03-14_
 - Logo (upload do Supabase Storage)
 - Przykładowe posty (sample_posts — nauka stylu przez Claude)
 - Presety stylów: Lokalny biznes, Korporacja, Eko, Premium, Młodzieżowy, Minimalizm
+- Pasek kompletności Brand Kitu (0–100%, kolor zależny od procentu, lista brakujących pól)
+- Presety przeniesione na górę formularza z opisami
+- Wskazówki "Jak to wypełnić?" przy sample_posts (rozwijane)
+- Licznik znaków sample_posts (max 10 000)
+- Podgląd "Jak Claude widzi Twoją markę" (na podstawie wypełnionych pól, bez API)
 
 ### Dashboard (/dashboard)
 - Historia wszystkich postów
@@ -340,4 +350,686 @@ Wstawić w `app/page.tsx` między `{/* HOW IT WORKS */}` a `{/* FEATURES */}`. D
     </div>
   </div>
 </section>
+# Dashboard — plan ulepszeń dla Claude Code
+_Plik dla Claude Code — gotowe zadania do implementacji_
+
+## Kontekst
+Dashboard (`app/dashboard/page.tsx`) to obecnie lista postów z filtrami i ocenami.
+Stack: Next.js 16, Supabase, Clerk, recharts (już w projekcie), Tailwind/inline styles.
+Motyw: ciemny (`#0a0a0f`), spójny z resztą apki (patrz `kontekst.md` → Benchmark UI/UX).
+
+---
+
+## Zadanie 1 — Wykres aktywności (PRIORYTET)
+
+### Co zrobić
+Dodać sekcję z wykresem na górze strony Dashboard, **przed** listą postów.
+
+### Dane
+Pobierz z Supabase tabeli `generations`:
+```sql
+SELECT DATE_TRUNC('week', created_at) as week, platform, COUNT(*) as count
+FROM generations
+WHERE user_id = $1
+GROUP BY week, platform
+ORDER BY week DESC
+LIMIT 12  -- ostatnie 12 tygodni
 ```
+
+Endpoint: dodać do istniejącego `/api/dashboard` lub nowy `/api/dashboard/stats`.
+
+### UI
+Użyj `recharts` — `BarChart` z `Bar` per platforma (3 kolory: Facebook `#60a5fa`, Instagram `#f472b6`, TikTok `#e2e8f0`).
+Oś X: skrócone daty tygodni (np. "3 mar", "10 mar").
+Oś Y: liczba postów.
+Tooltip po hover.
+Tytuł sekcji: "Aktywność w ostatnich 12 tygodniach".
+
+### Styl
+```tsx
+// Karta wykresu — spójna z resztą
+<div className="glass-card" style={{ padding: '24px', marginBottom: 24 }}>
+  <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.3)',
+    textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16 }}>
+    Aktywność — ostatnie 12 tygodni
+  </p>
+  <ResponsiveContainer width="100%" height={180}>
+    <BarChart data={weeklyStats}>
+      <XAxis dataKey="week" tick={{ fill: 'rgba(240,240,245,0.3)', fontSize: 11 }} />
+      <YAxis tick={{ fill: 'rgba(240,240,245,0.3)', fontSize: 11 }} />
+      <Tooltip contentStyle={{ background: '#1a1a2e', border: '1px solid rgba(255,255,255,0.1)' }} />
+      <Bar dataKey="facebook" fill="#60a5fa" radius={[4,4,0,0]} />
+      <Bar dataKey="instagram" fill="#f472b6" radius={[4,4,0,0]} />
+      <Bar dataKey="tiktok" fill="#e2e8f0" radius={[4,4,0,0]} />
+    </BarChart>
+  </ResponsiveContainer>
+</div>
+```
+
+---
+
+## Zadanie 2 — Raport miesięczny Claude jako feature, nie przycisk
+
+### Problem
+Przycisk "Generuj raport" jest ukryty na dole listy. Użytkownicy go nie widzą.
+
+### Co zrobić
+Przenieść raport miesięczny na górę strony, **obok wykresu**, jako osobna karta po prawej stronie (grid 2 kolumny: wykres po lewej, raport po prawej).
+
+Layout:
+```tsx
+<div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 20, marginBottom: 24 }}>
+  {/* Karta wykresu — lewa */}
+  {/* Karta raportu — prawa */}
+</div>
+```
+
+Karta raportu powinna:
+- Pokazać datę ostatniego raportu (jeśli istnieje)
+- Pokazać pierwsze 3 zdania ostatniego raportu jako preview (skrócone, `lineClamp: 3`)
+- Mieć przycisk "Generuj raport za [miesiąc]" — btn-primary ze spanem
+- Po kliknięciu: spinner + generowanie, wynik pojawia się w karcie bez przeładowania
+- Jeśli brak postów w tym miesiącu: disabled z tooltipem "Wygeneruj najpierw posty"
+
+---
+
+## Zadanie 3 — Insights od Claude (nowa sekcja)
+
+### Co zrobić
+Dodać nową sekcję "Co działa najlepiej" między wykresem a listą postów.
+
+### Logika
+Oblicz po stronie frontu (nie trzeba API) na podstawie danych z `generations`:
+
+```tsx
+// Znajdź platformę z najwyższą średnią oceną
+const bestPlatform = platforms.reduce((best, p) => {
+  const avg = posts.filter(post => post.platform === p && post.ratings)
+    .reduce((sum, post) => {
+      const ratings = Object.values(post.ratings || {}) as number[];
+      return sum + (ratings.reduce((a,b) => a+b, 0) / ratings.length);
+    }, 0) / posts.filter(p2 => p2.platform === p).length;
+  return avg > best.avg ? { platform: p, avg } : best;
+}, { platform: '', avg: 0 });
+
+// Znajdź ton z najwyższą średnią oceną
+const bestTone = tones.reduce(/* analogicznie */);
+```
+
+### UI
+3 małe kafle w rzędzie (grid 3 kolumny):
+```
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+│ 📱 Najlepsza    │  │ 🎯 Najlepszy    │  │ 📅 Najbardziej  │
+│ platforma       │  │ ton             │  │ aktywny dzień   │
+│                 │  │                 │  │                 │
+│ Instagram ★4.2  │  │ Swobodny ★4.5  │  │ Wtorek          │
+└─────────────────┘  └─────────────────┘  └─────────────────┘
+```
+
+Styl kafli:
+```tsx
+style={{
+  background: 'rgba(99,102,241,0.07)',
+  border: '1px solid rgba(99,102,241,0.15)',
+  borderRadius: 14,
+  padding: '16px 20px'
+}}
+```
+
+Jeśli brak danych (za mało postów z ocenami) — nie pokazuj sekcji wcale.
+
+---
+
+## Zadanie 4 — Filtrowanie po ocenie i dacie
+
+### Problem
+Aktualnie filtry: Wszystkie / Ulubione / Facebook / Instagram / TikTok.
+Przy 50+ postach lista jest bezużyteczna.
+
+### Co zrobić
+Dodać do istniejącego paska filtrów dwa dodatkowe elementy:
+
+**Filtr oceny** (radio buttons styl option-btn):
+```
+[Wszystkie] [★★★★★ 4-5] [★★★ 3+] [Bez oceny]
+```
+
+**Sortowanie** (select lub option-btn):
+```
+[Najnowsze ▼] [Najstarsze] [Najwyżej ocenione]
+```
+
+Implementacja po stronie frontu — filtruj tablicę `posts` w state, nie nowe zapytanie do Supabase.
+
+Styl — użyj istniejącej klasy `option-btn` z CSS.
+
+---
+
+## Zadanie 5 — Połączenie wyników z Kalendarzem
+
+### Co zrobić
+W tabeli `generations` istnieje kolumna `scheduled_date` (date, YYYY-MM-DD).
+Jeśli post ma `scheduled_date` — pokaż w karcie posta badge "📅 Zaplanowany" z datą.
+
+```tsx
+{post.scheduled_date && (
+  <span style={{
+    fontSize: 11, padding: '2px 8px', borderRadius: 6,
+    background: 'rgba(99,102,241,0.12)',
+    border: '1px solid rgba(99,102,241,0.2)',
+    color: '#a5b4fc'
+  }}>
+    📅 {new Date(post.scheduled_date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' })}
+  </span>
+)}
+```
+
+---
+
+## Kolejność implementacji
+
+1. **Zadanie 4** (filtry) — najmniejszy zakres, bez nowych API
+2. **Zadanie 1** (wykres) — wymaga nowego endpointu stats
+3. **Zadanie 2** (raport na górze) — refactor istniejącego kodu
+4. **Zadanie 3** (insights) — obliczenia po stronie frontu
+5. **Zadanie 5** (badge kalendarz) — 5 linii kodu
+
+---
+
+## Czego NIE robić
+
+- Nie dodawać integracji z API Meta/TikTok — to wymaga App Review (tygodnie)
+- Nie duplikować statystyk z Kalendarza (dni/okazje/tematy/posty) — te są tam, nie tu
+- Nie przepisywać istniejącego kodu list postów — tylko dodawać na górze
+- Nie zmieniać schematu Supabase — wszystkie dane już istnieją w `generations`
+# Brand Kit (/settings) — plan ulepszeń dla Claude Code
+_Plik dla Claude Code — gotowe zadania do implementacji_
+
+## Kontekst
+Brand Kit (`app/settings/page.tsx`) to formularz konfiguracji marki.
+Dane zapisywane do tabeli `brand_kits` w Supabase.
+Claude używa Brand Kit przy generowaniu postów w `/app` i `/calendar`.
+Stack: Next.js 16, Supabase, Clerk, inline styles.
+Motyw: ciemny (`#0a0a0f`), spójny z resztą (patrz `kontekst.md` → Benchmark UI/UX).
+
+---
+
+## Zadanie 1 — Wskaźnik kompletności Brand Kit (PRIORYTET)
+
+### Problem
+Użytkownik nie wie ile pól wypełnił ani jak Brand Kit wpływa na jakość postów.
+W kalendarzu i generatorze są ostrzeżenia "Brak Brand Kitu" — ale użytkownik nie wie co dokładnie brakuje.
+
+### Co zrobić
+Dodać pasek postępu na górze strony z procentem uzupełnienia i listą brakujących pól.
+
+### Logika
+```tsx
+const brandKitFields = [
+  { key: 'company_name', label: 'Nazwa firmy', weight: 25 },
+  { key: 'colors', label: 'Kolory marki', weight: 15 },      // colors.length > 0
+  { key: 'logo_url', label: 'Logo', weight: 20 },
+  { key: 'sample_posts', label: 'Przykładowe posty', weight: 30 }, // najważniejsze
+  { key: 'tone', label: 'Ton komunikacji', weight: 10 },
+];
+
+const completeness = brandKitFields.reduce((sum, f) => {
+  const val = brandKit[f.key];
+  const filled = Array.isArray(val) ? val.length > 0 : !!val;
+  return filled ? sum + f.weight : sum;
+}, 0); // 0-100
+```
+
+### UI
+```tsx
+// Na górze strony, przed pierwszą sekcją
+<div className="glass-card" style={{ padding: '20px 24px', marginBottom: 24 }}>
+  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+    <span style={{ fontSize: 13, fontWeight: 600, color: '#f0f0f5' }}>
+      Kompletność Brand Kitu
+    </span>
+    <span style={{ fontSize: 13, fontWeight: 700,
+      color: completeness >= 80 ? '#4ade80' : completeness >= 50 ? '#fbbf24' : '#f87171' }}>
+      {completeness}%
+    </span>
+  </div>
+  <div style={{ height: 6, background: 'rgba(255,255,255,0.07)', borderRadius: 100 }}>
+    <div style={{
+      height: '100%', borderRadius: 100, transition: 'width 0.4s ease',
+      width: `${completeness}%`,
+      background: completeness >= 80
+        ? 'linear-gradient(90deg, #4ade80, #22c55e)'
+        : completeness >= 50
+        ? 'linear-gradient(90deg, #fbbf24, #f59e0b)'
+        : 'linear-gradient(90deg, #f87171, #ef4444)'
+    }} />
+  </div>
+  {completeness < 100 && (
+    <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.4)', marginTop: 8 }}>
+      Brakuje: {brandKitFields.filter(f => {
+        const val = brandKit[f.key];
+        return Array.isArray(val) ? val.length === 0 : !val;
+      }).map(f => f.label).join(', ')}
+    </p>
+  )}
+</div>
+```
+
+---
+
+## Zadanie 2 — Sekcja "Przykładowe posty" — lepsza instrukcja
+
+### Problem
+Pole `sample_posts` (textarea) to najważniejszy element Brand Kitu (waga 30%) bo Claude analizuje styl pisania. Ale użytkownik nie wie co tam wpisać — placeholder jest zbyt ogólny.
+
+### Co zrobić
+Dodać nad textareą rozwijane "Jak to wypełnić?" z konkretnymi wskazówkami i przykładem.
+
+```tsx
+const [showTip, setShowTip] = useState(false);
+
+// Nad textareą sample_posts:
+<div style={{ marginBottom: 8 }}>
+  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <label style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)' }}>
+      Przykładowe posty (styl pisania)
+    </label>
+    <button onClick={() => setShowTip(!showTip)}
+      style={{ fontSize: 11, color: '#a5b4fc', background: 'none', border: 'none',
+        cursor: 'pointer', textDecoration: 'underline' }}>
+      {showTip ? 'Ukryj wskazówki' : '💡 Jak to wypełnić?'}
+    </button>
+  </div>
+
+  {showTip && (
+    <div style={{ padding: '12px 14px', background: 'rgba(99,102,241,0.07)',
+      border: '1px solid rgba(99,102,241,0.15)', borderRadius: 10, marginBottom: 8 }}>
+      <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.6)', lineHeight: 1.7, marginBottom: 8 }}>
+        Wklej 3–5 postów które sam napisałeś i które Ci się podobają.
+        Claude przeanalizuje Twój styl: długość zdań, użycie emoji, ton, słownictwo.
+      </p>
+      <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.35)', fontStyle: 'italic' }}>
+        Przykład (salon fryzjerski):<br />
+        "Witajcie! ✂️ Dziś chcemy pokazać Wam metamorfozę naszej Klientki Ani.
+        Przyszła z długimi włosami — wyszła z pewnością siebie! 💪
+        Umów się na wizytę: 📞 123 456 789"
+      </p>
+    </div>
+  )}
+</div>
+```
+
+---
+
+## Zadanie 3 — Podgląd "Jak Claude widzi Twoją markę"
+
+### Co zrobić
+Dodać na końcu strony (po przycisku Zapisz) sekcję tylko do odczytu — podsumowanie tego co Claude dostaje w prompcie.
+
+Nie wywołuj API Claude — generuj po stronie frontu na podstawie wypełnionych pól.
+
+```tsx
+// Tylko jeśli company_name jest wypełnione
+{brandKit.company_name && (
+  <div className="glass-card" style={{ padding: '20px 24px', marginTop: 24 }}>
+    <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.3)',
+      textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>
+      👁 Jak Claude widzi Twoją markę
+    </p>
+    <div style={{ fontSize: 13, color: 'rgba(240,240,245,0.6)', lineHeight: 1.8,
+      fontStyle: 'italic', padding: '12px 14px',
+      background: 'rgba(255,255,255,0.03)', borderRadius: 10 }}>
+      {`Firma: ${brandKit.company_name}${brandKit.slogan ? ` — "${brandKit.slogan}"` : ''}.`}
+      {brandKit.tone ? ` Ton komunikacji: ${brandKit.tone}.` : ''}
+      {brandKit.colors?.length > 0 ? ` Kolory marki: ${brandKit.colors.join(', ')}.` : ''}
+      {brandKit.sample_posts
+        ? ` Styl pisania: Claude przeanalizował Twoje przykładowe posty.`
+        : ' ⚠️ Brak przykładowych postów — posty będą generyczne.'}
+    </div>
+  </div>
+)}
+```
+
+---
+
+## Zadanie 4 — Presety branżowe jako punkt startowy (refactor)
+
+### Problem
+Presety stylów (Lokalny biznes, Korporacja, Eko, Premium, Młodzieżowy, Minimalizm) są dostępne, ale użytkownik nie wie jak je zastosować. Nie ma CTA ani wyjaśnienia.
+
+### Co zrobić
+Przenieść presety na **górę strony** (przed formularzem), z wyraźnym opisem:
+
+```tsx
+<div className="glass-card" style={{ padding: '20px 24px', marginBottom: 24 }}>
+  <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.3)',
+    textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>
+    Zacznij od presetu
+  </p>
+  <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', marginBottom: 14 }}>
+    Wybierz szablon jako punkt startowy — możesz go potem edytować.
+  </p>
+  {/* istniejące przyciski presetów */}
+</div>
+```
+
+Dodać też mini-opis pod każdym presetem (tooltip lub tekst pod przyciskiem):
+```
+Lokalny biznes → ciepły, przyjazny, buduje zaufanie
+Korporacja → profesjonalny, formalny, bez emoji
+Eko → autentyczny, wartości, naturalny język
+Premium → elegancki, ekskluzywny, lakoniczny
+Młodzieżowy → slang, emoji, energia, TikTok-ready
+Minimalizm → krótko, konkretnie, bez ozdobników
+```
+
+---
+
+## Zadanie 5 — Licznik znaków dla sample_posts
+
+### Problem
+Pole `sample_posts` ma max 10 000 znaków (limit w Supabase). Użytkownik nie wie ile wpisał.
+
+### Co zrobić
+Dodać licznik pod textareą:
+
+```tsx
+<div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
+  <span style={{
+    fontSize: 11,
+    color: samplePosts.length > 9000
+      ? '#f87171'
+      : 'rgba(240,240,245,0.25)'
+  }}>
+    {samplePosts.length} / 10 000 znaków
+  </span>
+</div>
+```
+
+---
+
+## Kolejność implementacji
+
+1. **Zadanie 1** (pasek kompletności) — największy wpływ na engagement, motywuje do uzupełnienia
+2. **Zadanie 2** (wskazówki sample_posts) — poprawia jakość danych dla Claude
+3. **Zadanie 5** (licznik znaków) — 3 linie kodu
+4. **Zadanie 4** (refactor presetów) — UX, bez nowych danych
+5. **Zadanie 3** (podgląd Claude) — nice-to-have, edukuje użytkownika
+
+---
+
+## Czego NIE robić
+
+- Nie dodawać integracji z Canva ani innymi narzędziami graficznymi
+- Nie zmieniać schematu tabeli `brand_kits` — wszystkie kolumny już istnieją
+- Nie generować podglądu posta przez API Claude — za drogo, za wolno
+- Nie usuwać istniejących presetów — tylko przenieść wyżej i opisać
+# Generator (/app) — plan ulepszeń dla Claude Code
+_Plik dla Claude Code — gotowe zadania do implementacji_
+
+## Kontekst
+Generator (`app/app/page.tsx`) to główna funkcja produktu — generuje 3 wersje posta.
+Stack: Next.js 16, Supabase, Clerk, Anthropic API, inline styles.
+Plany: Free (5 kredytów), Starter (79 zł, unlimited), Pro (199 zł).
+Motyw: ciemny (`#0a0a0f`), spójny z resztą (patrz `kontekst.md` → Benchmark UI/UX).
+
+---
+
+## Zadanie 1 — Inspiracje tematów (PRIORYTET)
+
+### Problem
+Użytkownik siada przed pustą textareą i nie wie co wpisać. To jest największa bariera wejścia — "blank page problem". Konkurencja (Buffer AI, Hootsuite OwlyWriter) sugeruje tematy automatycznie.
+
+### Co zrobić
+Dodać pod textareą sekcję z sugestiami tematów — klikalne chipy, które wpisują tekst do pola.
+
+### Logika
+Sugestie są statyczne (nie API) — 3 zestawy rotowane losowo przy załadowaniu strony + dopasowane do wybranej platformy.
+
+```tsx
+const TOPIC_SUGGESTIONS: Record<string, string[]> = {
+  facebook: [
+    'Pokaż kulisy swojej pracy — co dzieje się za zamkniętymi drzwiami?',
+    'Zadaj pytanie swoim obserwatorom: co chcieliby zobaczyć więcej?',
+    'Historia klienta — jak Twój produkt/usługa mu pomogła',
+    'Poranna rutyna w Twojej firmie — 3 zdjęcia z opisem',
+    'Najczęstsze pytanie które dostajesz — i szczera odpowiedź',
+    'Przed i po — pokaż transformację lub efekt swojej pracy',
+    'Dlaczego zacząłeś ten biznes? Historia założyciela',
+  ],
+  instagram: [
+    'Flat lay Twoich produktów z sezonowym akcentem',
+    '3 rzeczy których nauczyłeś się w tym miesiącu',
+    'Ulubione narzędzie/produkt którego używasz codziennie',
+    'Mini-tutorial w 3 krokach — coś przydatnego dla obserwatorów',
+    'Quote który Cię inspiruje + jak to łączy się z Twoją pracą',
+  ],
+  tiktok: [
+    'POV: jeden dzień z życia [Twój zawód]',
+    'Rzeczy których NIE robię w swojej branży (i dlaczego)',
+    'Najszybszy sposób na [problem który rozwiązujesz]',
+    'Błąd który popełniłem i czego mnie nauczył',
+    'Odpowiedź na najczęstszy mit o [Twoja branża]',
+  ],
+};
+
+// W komponencie — losuj 3 przy każdym render
+const [suggestions] = useState(() =>
+  TOPIC_SUGGESTIONS[platform]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 3)
+);
+```
+
+### UI
+```tsx
+// Pod textareą, przed przyciskiem Generuj
+<div style={{ marginTop: 8, marginBottom: 16 }}>
+  <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.3)', marginBottom: 6 }}>
+    Potrzebujesz inspiracji?
+  </p>
+  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+    {suggestions.map((s, i) => (
+      <button key={i} onClick={() => setTopic(s)}
+        style={{
+          padding: '5px 10px', borderRadius: 20, fontSize: 11, cursor: 'pointer',
+          background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)',
+          color: 'rgba(240,240,245,0.6)', transition: 'all 0.2s', textAlign: 'left',
+        }}
+        onMouseEnter={e => {
+          e.currentTarget.style.background = 'rgba(99,102,241,0.18)';
+          e.currentTarget.style.color = '#f0f0f5';
+        }}
+        onMouseLeave={e => {
+          e.currentTarget.style.background = 'rgba(99,102,241,0.08)';
+          e.currentTarget.style.color = 'rgba(240,240,245,0.6)';
+        }}>
+        {s.length > 60 ? s.slice(0, 57) + '...' : s}
+      </button>
+    ))}
+  </div>
+</div>
+```
+
+Sugestie powinny się odświeżyć gdy użytkownik zmienia platformę (useEffect na `platform`).
+
+---
+
+## Zadanie 2 — Historia ostatnich tematów
+
+### Problem
+Użytkownik wraca do generatora i nie pamięta o czym pisał ostatnio. Musi wchodzić na Dashboard żeby sprawdzić.
+
+### Co zrobić
+Dodać pod inspiracjami dropdown "Ostatnio generowane" — 5 ostatnich tematów z `generations` w Supabase.
+
+Endpoint: istniejący `/api/dashboard` już zwraca dane. Użyj go, ale ogranicz do 5 wyników z `select=topic,platform,created_at`.
+
+Alternatywnie: dodaj parametr do endpointu:
+```
+GET /api/dashboard?limit=5&fields=topic,platform
+```
+
+### UI
+```tsx
+{recentTopics.length > 0 && (
+  <details style={{ marginBottom: 12 }}>
+    <summary style={{ fontSize: 11, color: 'rgba(240,240,245,0.3)',
+      cursor: 'pointer', listStyle: 'none', marginBottom: 6 }}>
+      🕐 Ostatnio generowane ▾
+    </summary>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 6 }}>
+      {recentTopics.map((t, i) => (
+        <button key={i} onClick={() => { setTopic(t.topic); setSelectedPlatform(t.platform); }}
+          style={{ padding: '6px 10px', borderRadius: 8, fontSize: 12, cursor: 'pointer',
+            background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+            color: 'rgba(240,240,245,0.5)', textAlign: 'left', transition: 'all 0.2s' }}>
+          {t.topic.slice(0, 80)}{t.topic.length > 80 ? '...' : ''}
+        </button>
+      ))}
+    </div>
+  </details>
+)}
+```
+
+---
+
+## Zadanie 3 — Liczba słów w wygenerowanym poście
+
+### Problem
+Użytkownik nie wie czy post jest odpowiedniej długości dla platformy. Nie ma żadnej informacji zwrotnej.
+
+### Co zrobić
+Dodać pod każdym wygenerowanym postem (w karcie wersji) dwa elementy:
+
+**Licznik słów:**
+```tsx
+const wordCount = post.text.split(/\s+/).filter(Boolean).length;
+const charCount = post.text.length;
+
+<span style={{ fontSize: 11, color: 'rgba(240,240,245,0.3)' }}>
+  {wordCount} słów · {charCount} znaków
+</span>
+```
+
+**Ocena długości dla platformy:**
+```tsx
+const lengthOk = {
+  facebook: charCount >= 100 && charCount <= 500,
+  instagram: charCount >= 80 && charCount <= 300,
+  tiktok: charCount <= 150,
+};
+
+{!lengthOk[platform] && (
+  <span style={{ fontSize: 11, color: '#fbbf24', marginLeft: 8 }}>
+    ⚠️ {charCount > 500 ? 'Może być za długi' : 'Może być za krótki'} dla {platform}
+  </span>
+)}
+```
+
+---
+
+## Zadanie 4 — Przycisk "Wyślij do Kalendarza"
+
+### Problem
+Użytkownik generuje post ale nie ma prostej drogi żeby przypisać go do konkretnej daty.
+Teraz: generuje → kopiuje → idzie do kalendarza → ręcznie wpisuje temat → generuje ponownie.
+To jest zbędne 2x generowanie i strata kredytów.
+
+### Co zrobić
+Dodać w karcie wygenerowanego posta przycisk "📅 Dodaj do kalendarza".
+
+Po kliknięciu: wyświetl mini date-picker (prosty `<input type="date">`) + przycisk "Zapisz".
+
+Zapisz do nowej tabeli `calendar_topics` (ta sama którą tworzy się dla Zadania persistence w kalendarzu):
+```tsx
+await fetch('/api/calendar/save-post', {
+  method: 'POST',
+  body: JSON.stringify({
+    date: selectedDate,         // YYYY-MM-DD
+    topic: generationTopic,     // temat z textarea
+    platform: selectedPlatform,
+    post_text: post.text,
+    hashtags: post.hashtags,
+    generated: true,
+  }),
+});
+```
+
+### UI
+```tsx
+<button onClick={() => setShowDatePicker(post.id)}
+  className="btn-ghost"
+  style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12 }}>
+  📅 Dodaj do kalendarza
+</button>
+
+{showDatePicker === post.id && (
+  <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 8 }}>
+    <input type="date" value={selectedDate}
+      onChange={e => setSelectedDate(e.target.value)}
+      min={new Date().toISOString().split('T')[0]}
+      style={{ padding: '6px 10px', borderRadius: 8, fontSize: 12,
+        background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)',
+        color: '#f0f0f5', outline: 'none' }} />
+    <button onClick={() => saveToCalendar(post)}
+      className="btn-primary"
+      style={{ padding: '6px 14px', borderRadius: 8, fontSize: 12 }}>
+      <span>Zapisz</span>
+    </button>
+  </div>
+)}
+```
+
+UWAGA: Zadanie 4 zależy od persistence kalendarza (tabela `calendar_topics`). Implementuj po tym jak kalendarz ma persistence.
+
+---
+
+## Zadanie 5 — Polskie okazje — aktywna sugestia tematu
+
+### Problem
+W generatorze jest już sekcja "Nadchodzące okazje" ale jest tylko informacyjna. Kliknięcie okazji nie robi nic.
+
+### Co zrobić
+Kliknięcie okazji powinno wpisać sugestię tematu do textarey.
+
+```tsx
+// Istniejące chipy okazji — dodaj onClick:
+onClick={() => setTopic(
+  `${occasion.emoji} ${occasion.name} — ${getSuggestionForOccasion(occasion.name, platform)}`
+)}
+
+// Funkcja pomocnicza
+function getSuggestionForOccasion(name: string, platform: string): string {
+  const map: Record<string, string> = {
+    'Dzień Kobiet': 'złóż życzenia swoim klientkom i pokaż ofertę specjalną',
+    'Walentynki': 'zaproponuj wyjątkowy prezent lub usługę dla par',
+    'Black Friday': 'ogłoś promocję z konkretnym rabatem i terminem',
+    'Mikołajki': 'pokaż pomysły na prezenty z Twojej oferty',
+    'Wigilia': 'złóż życzenia i podziel się atmosferą świąt w firmie',
+    // ... pozostałe okazje
+  };
+  return map[name] || 'nawiąż do tej okazji w kontekście swojej firmy';
+}
+```
+
+---
+
+## Kolejność implementacji
+
+1. **Zadanie 1** (inspiracje tematów) — eliminuje "blank page problem", zwiększa konwersję
+2. **Zadanie 5** (okazje → temat) — 10 linii kodu, duży efekt
+3. **Zadanie 3** (licznik słów) — informacja zwrotna, łatwe
+4. **Zadanie 2** (historia tematów) — wymaga lekkiej zmiany w API
+5. **Zadanie 4** (wyślij do kalendarza) — zależy od persistence kalendarza, implementuj na końcu
+
+---
+
+## Czego NIE robić
+
+- Nie zmieniać układu strony — tylko dodawać elementy w istniejących sekcjach
+- Nie dodawać nowych API dla zadań 1, 3, 5 — wszystko po stronie frontu
+- Nie usuwać istniejących inspiracji/okazji — tylko je rozszerzyć
+- Zadanie 4 implementować dopiero po tym jak `/api/calendar/save-post` i tabela `calendar_topics` istnieją
+- Nie zmieniać logiki kredytów — to osobne zadanie (patrz `kontekst.md` → Znane błędy)

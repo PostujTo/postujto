@@ -86,6 +86,7 @@ const STYLE_PRESETS = [
 export default function SettingsPage() {
   const { user } = useUser();
   const [saving, setSaving] = useState(false);
+  const [showTip, setShowTip] = useState(false);
   const [saved, setSaved] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [brandKit, setBrandKit] = useState({
@@ -166,6 +167,23 @@ export default function SettingsPage() {
     }
   };
 
+  const bkFields = [
+    { key: 'company_name' as keyof typeof brandKit, label: 'Nazwa firmy', weight: 25 },
+    { key: 'colors' as keyof typeof brandKit, label: 'Kolory marki', weight: 15 },
+    { key: 'logo_url' as keyof typeof brandKit, label: 'Logo', weight: 20 },
+    { key: 'sample_posts' as keyof typeof brandKit, label: 'Przykładowe posty', weight: 30 },
+    { key: 'tone' as keyof typeof brandKit, label: 'Ton komunikacji', weight: 10 },
+  ];
+  const completeness = bkFields.reduce((sum, f) => {
+    const val = brandKit[f.key];
+    const filled = Array.isArray(val) ? (val as string[]).some(v => !!v) : !!val;
+    return filled ? sum + f.weight : sum;
+  }, 0);
+  const missing = bkFields.filter(f => {
+    const val = brandKit[f.key];
+    return Array.isArray(val) ? !(val as string[]).some(v => !!v) : !val;
+  }).map(f => f.label);
+
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-6">
       <div className="max-w-3xl mx-auto">
@@ -181,6 +199,43 @@ export default function SettingsPage() {
         </div>
 
         <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8 space-y-8">
+
+          {/* Kompletność */}
+          <div className="p-5 rounded-2xl border-2" style={{ borderColor: completeness >= 80 ? '#bbf7d0' : completeness >= 50 ? '#fde68a' : '#fecaca', background: completeness >= 80 ? '#f0fdf4' : completeness >= 50 ? '#fffbeb' : '#fff1f2' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+              <span className="text-sm font-semibold text-gray-800">Kompletność Brand Kitu</span>
+              <span className="text-sm font-bold" style={{ color: completeness >= 80 ? '#16a34a' : completeness >= 50 ? '#d97706' : '#dc2626' }}>{completeness}%</span>
+            </div>
+            <div style={{ height: 6, background: 'rgba(0,0,0,0.07)', borderRadius: 100 }}>
+              <div style={{ height: '100%', borderRadius: 100, transition: 'width 0.4s ease', width: completeness + '%', background: completeness >= 80 ? 'linear-gradient(90deg,#4ade80,#22c55e)' : completeness >= 50 ? 'linear-gradient(90deg,#fbbf24,#f59e0b)' : 'linear-gradient(90deg,#f87171,#ef4444)' }} />
+            </div>
+            {missing.length > 0 && <p className="text-xs text-gray-400 mt-2">Brakuje: {missing.join(', ')}</p>}
+            {completeness === 100 && <p className="text-xs font-semibold mt-2" style={{ color: '#16a34a' }}>✅ Brand Kit w pełni skonfigurowany!</p>}
+          </div>
+
+          {/* Presety — punkt startowy */}
+          <div className="p-5 rounded-2xl border-2 border-purple-100 bg-purple-50">
+            <p className="text-xs font-bold text-purple-700 uppercase tracking-widest mb-1">Zacznij od presetu</p>
+            <p className="text-xs text-gray-500 mb-4">Wybierz szablon jako punkt startowy — możesz go potem edytować.</p>
+            <div className="grid grid-cols-2 gap-3">
+              {STYLE_PRESETS.map(preset => (
+                <button key={preset.id}
+                  onClick={() => setBrandKit(prev => ({ ...prev, style: preset.style, tone: preset.tone, colors: preset.colors }))}
+                  className="p-4 rounded-2xl border-2 border-gray-200 hover:border-purple-400 text-left transition-all bg-white hover:bg-purple-50">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-lg">{preset.emoji}</span>
+                    <span className="font-bold text-gray-900 text-sm">{preset.label}</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mb-2">{preset.desc}</p>
+                  <div className="flex gap-1">
+                    {preset.colors.map((col, i) => (
+                      <div key={i} className="w-4 h-4 rounded-full border border-gray-200" style={{ backgroundColor: col }} />
+                    ))}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* Nazwa firmy */}
           <div>
@@ -241,40 +296,7 @@ export default function SettingsPage() {
   </div>
   <p className="text-xs text-gray-400 mt-2">Podgląd koloru pojawi się automatycznie po wpisaniu prawidłowej wartości HEX</p>
 </div>
-{/* Presety stylów */}
-          <div>
-            <label className="block text-sm font-bold text-gray-900 uppercase tracking-wide mb-1">
-              Szybki start — wybierz preset
-            </label>
-            <p className="text-xs text-gray-500 mb-3">
-              Kliknij aby automatycznie ustawić styl, ton i kolory. Możesz je później zmienić.
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              {STYLE_PRESETS.map(preset => (
-                <button
-                  key={preset.id}
-                  onClick={() => setBrandKit(prev => ({
-                    ...prev,
-                    style: preset.style,
-                    tone: preset.tone,
-                    colors: preset.colors,
-                  }))}
-                  className="p-4 rounded-2xl border-2 border-gray-200 hover:border-purple-300 text-left transition-all hover:bg-purple-50 group"
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-lg">{preset.emoji}</span>
-                    <span className="font-bold text-gray-900 text-sm">{preset.label}</span>
-                  </div>
-                  <p className="text-xs text-gray-500 mb-2">{preset.desc}</p>
-                  <div className="flex gap-1">
-                    {preset.colors.map((c, i) => (
-                      <div key={i} className="w-4 h-4 rounded-full border border-gray-200" style={{ backgroundColor: c }} />
-                    ))}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
+
           {/* Styl marki */}
           <div>
             <label className="block text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">
@@ -355,12 +377,26 @@ export default function SettingsPage() {
           </div>
 {/* Przykładowe posty */}
           <div>
-            <label className="block text-sm font-bold text-gray-900 uppercase tracking-wide mb-1">
-              Przykładowe posty <span className="text-gray-400 font-normal normal-case">(opcjonalnie)</span>
-            </label>
-            <p className="text-xs text-gray-500 mb-3">
-              Wklej 3–10 swoich najlepszych postów. Claude nauczy się Twojego stylu i będzie pisał podobnie.
-            </p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+              <label className="block text-sm font-bold text-gray-900 uppercase tracking-wide">
+                Przykładowe posty <span className="text-gray-400 font-normal normal-case">(opcjonalnie)</span>
+              </label>
+              <button onClick={() => setShowTip(!showTip)} style={{ fontSize: 11, color: '#7c3aed', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
+                {showTip ? 'Ukryj wskazówki' : '💡 Jak to wypełnić?'}
+              </button>
+            </div>
+            {showTip && (
+              <div className="mb-3 p-3 rounded-xl" style={{ background: '#f5f3ff', border: '1px solid #ddd6fe' }}>
+                <p className="text-xs text-gray-600 mb-2" style={{ lineHeight: 1.7 }}>
+                  Wklej 3–5 postów które sam napisałeś i które Ci się podobają. Claude przeanalizuje Twój styl: długość zdań, użycie emoji, ton, słownictwo.
+                </p>
+                <p className="text-xs text-gray-400 italic" style={{ lineHeight: 1.7 }}>
+                  Przykład (salon fryzjerski):<br />
+                  "Witajcie! ✂️ Dziś chcemy pokazać Wam metamorfozę naszej Klientki Ani. Przyszła z długimi włosami — wyszła z pewnością siebie! 💪 Umów się: 📞 123 456 789"
+                </p>
+              </div>
+            )}
+            {!showTip && <p className="text-xs text-gray-500 mb-3">Wklej 3–10 swoich najlepszych postów. Claude nauczy się Twojego stylu i będzie pisał podobnie.</p>}
             <textarea
               value={brandKit.sample_posts}
               onChange={e => setBrandKit(prev => ({ ...prev, sample_posts: e.target.value }))}
@@ -368,11 +404,16 @@ export default function SettingsPage() {
               rows={10}
               className="w-full px-5 py-4 bg-gray-50 border-2 border-gray-200 rounded-2xl text-gray-900 placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-all font-medium text-sm resize-y"
             />
-            <p className="text-xs text-gray-400 mt-2">
-              {brandKit.sample_posts.length > 0
-                ? `✅ ${brandKit.sample_posts.split('\n\n').filter(p => p.trim()).length} postów — Claude będzie pisał w Twoim stylu`
-                : 'Brak przykładów — Claude użyje domyślnego stylu'}
-            </p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
+              <p className="text-xs text-gray-400">
+                {brandKit.sample_posts.length > 0
+                  ? `✅ ${brandKit.sample_posts.split('\n\n').filter(p => p.trim()).length} postów — Claude będzie pisał w Twoim stylu`
+                  : 'Brak przykładów — Claude użyje domyślnego stylu'}
+              </p>
+              <span style={{ fontSize: 11, color: brandKit.sample_posts.length > 9000 ? '#dc2626' : 'rgba(0,0,0,0.25)' }}>
+                {brandKit.sample_posts.length} / 10 000 znaków
+              </span>
+            </div>
           </div>
           {/* Zapisz */}
           <button
@@ -382,6 +423,20 @@ export default function SettingsPage() {
           >
             {saving ? '⏳ Zapisuję...' : saved ? '✅ Zapisano!' : 'Zapisz Brand Kit'}
           </button>
+
+          {brandKit.company_name && (
+            <div className="p-5 rounded-2xl border-2 border-gray-100 bg-gray-50">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">👁 Jak Claude widzi Twoją markę</p>
+              <p className="text-sm text-gray-600 italic" style={{ lineHeight: 1.8 }}>
+                {'Firma: ' + brandKit.company_name + (brandKit.slogan ? ' — "' + brandKit.slogan + '"' : '') + '.'}
+                {brandKit.tone ? ' Ton komunikacji: ' + brandKit.tone + '.' : ''}
+                {brandKit.colors.some(col => !!col) ? ' Kolory marki: ' + brandKit.colors.filter(col => !!col).join(', ') + '.' : ''}
+                {brandKit.sample_posts
+                  ? ' Styl pisania: Claude przeanalizował Twoje przykładowe posty.'
+                  : ' ⚠️ Brak przykładowych postów — posty będą mniej spersonalizowane.'}
+              </p>
+            </div>
+          )}
 
         </div>
       </div>

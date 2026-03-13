@@ -101,11 +101,63 @@ const TikTokIcon = () => (
   </svg>
 );
 
+
+const TOPIC_SUGGESTIONS: Record<string, string[]> = {
+  facebook: [
+    'Pokaż kulisy swojej pracy — co dzieje się za zamkniętymi drzwiami?',
+    'Zadaj pytanie swoim obserwatorom: co chcieliby zobaczyć więcej?',
+    'Historia klienta — jak Twój produkt/usługa mu pomogła',
+    'Poranna rutyna w Twojej firmie — 3 zdjęcia z opisem',
+    'Najczęstsze pytanie które dostajesz — i szczera odpowiedź',
+    'Przed i po — pokaż transformację lub efekt swojej pracy',
+    'Dlaczego zacząłeś ten biznes? Historia założyciela',
+  ],
+  instagram: [
+    'Flat lay Twoich produktów z sezonowym akcentem',
+    '3 rzeczy których nauczyłeś się w tym miesiącu',
+    'Ulubione narzędzie/produkt którego używasz codziennie',
+    'Mini-tutorial w 3 krokach — coś przydatnego dla obserwatorów',
+    'Quote który Cię inspiruje + jak to łączy się z Twoją pracą',
+    'Mały sukces z tego tygodnia — celebruj razem z obserwatorami',
+    'Kulisy procesu tworzenia — od pomysłu do efektu końcowego',
+  ],
+  tiktok: [
+    'POV: jeden dzień z życia [Twój zawód]',
+    'Rzeczy których NIE robię w swojej branży (i dlaczego)',
+    'Najszybszy sposób na [problem który rozwiązujesz]',
+    'Błąd który popełniłem i czego mnie nauczył',
+    'Odpowiedź na najczęstszy mit o [Twoja branża]',
+    '3 rzeczy które bym zrobił inaczej zaczynając od nowa',
+    'Dzień w liczbach — ile naprawdę zajmuje [Twoja praca]',
+  ],
+};
+
+const OCCASION_HINTS: Record<string, string> = {
+  'Dzień Kobiet': 'złóż życzenia swoim klientkom i pokaż ofertę specjalną',
+  'Walentynki': 'zaproponuj wyjątkowy prezent lub usługę dla par',
+  'Black Friday': 'ogłoś promocję z konkretnym rabatem i terminem',
+  'Mikołajki': 'pokaż pomysły na prezenty z Twojej oferty',
+  'Wigilia': 'złóż życzenia i podziel się atmosferą świąt w firmie',
+  'Wielkanoc': 'podziel się życzeniami i sezonową ofertą',
+  'Dzień Matki': 'przygotuj specjalną ofertę dla mam i ich bliskich',
+  'Dzień Ojca': 'zaproponuj pomysł na prezent dla taty',
+  'Nowy Rok': 'podziel się planami na nowy rok i podziękowaniami',
+  'Halloween': 'zrób tematyczną akcję lub dekorację w stylu Twojej marki',
+  'Pierwszy dzień wiosny': 'ogłoś sezonowe nowości lub wiosenną kolekcję',
+};
+
 export default function GeneratorPage() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
   const [topic, setTopic] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('lastTopic') || '' : '');
+  const [recentTopics, setRecentTopics] = useState<Array<{topic: string; platform: string}>>([]);
+  const [showDatePicker, setShowDatePicker] = useState<number | null>(null);
+  const [calendarDate, setCalendarDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [calendarSaving, setCalendarSaving] = useState(false);
   const [platform, setPlatform] = useState<'facebook' | 'instagram' | 'tiktok'>('facebook');
+  const [suggestions, setSuggestions] = useState<string[]>(() =>
+    TOPIC_SUGGESTIONS['facebook'].sort(() => Math.random() - 0.5).slice(0, 3)
+  );
   const [tone, setTone] = useState<'professional' | 'casual' | 'humorous' | 'sales'>('professional');
   const [length, setLength] = useState<'short' | 'medium' | 'long'>('medium');
   const [loading, setLoading] = useState(false);
@@ -187,6 +239,9 @@ const handleConfirmPlanTerms = async () => {
 
   useEffect(() => { sessionStorage.setItem('lastTopic', topic); }, [topic]);
   useEffect(() => {
+    setSuggestions(TOPIC_SUGGESTIONS[platform].sort(() => Math.random() - 0.5).slice(0, 3));
+  }, [platform]);
+  useEffect(() => {
     sessionStorage.setItem('lastAddWatermark', String(addWatermark));
     sessionStorage.setItem('lastUseBrandColors', String(useBrandColors));
     sessionStorage.setItem('lastUseBrandVoice', String(useBrandVoice));
@@ -207,6 +262,7 @@ const handleConfirmPlanTerms = async () => {
     });
   }
     if (isLoaded && !user) {
+      setRecentTopics([]);
       setCredits(null); setLoadingCredits(false); setResults(null);
       sessionStorage.removeItem('lastResults'); sessionStorage.removeItem('lastGenerationId');
     }
@@ -222,6 +278,12 @@ const handleConfirmPlanTerms = async () => {
       const cred = { remaining: data.remaining, total: data.total, plan: data.plan || 'free' };
       setCredits(cred);
       try { localStorage.setItem('dash_credits', JSON.stringify(cred)); } catch {}
+      // Fetch recent topics for history
+      try {
+        const rRes = await fetch('/api/dashboard?limit=5');
+        const rData = await rRes.json();
+        if (rData.generations) setRecentTopics(rData.generations.slice(0, 5).map((g: any) => ({ topic: g.topic, platform: g.platform })));
+      } catch {}
     } catch (err) { console.error(err); }
     finally { setLoadingCredits(false); }
   };
@@ -288,6 +350,20 @@ const handleConfirmPlanTerms = async () => {
       });
     } catch (err) { console.error(err); }
     finally { setResults(prev => prev ? prev.map((r, i) => i === idx ? { ...r, imageLoading: false } : r) : null); }
+  };
+
+  const saveToCalendar = async (postText: string, hashtags: string[]) => {
+    setCalendarSaving(true);
+    try {
+      await fetch('/api/calendar/topics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topics: [{ date: calendarDate, topic, platform, generated: true, post_text: postText, hashtags }] }),
+      });
+      showToast('Zapisano w kalendarzu!', 'success');
+      setShowDatePicker(null);
+    } catch { showToast('Błąd zapisu', 'error'); }
+    finally { setCalendarSaving(false); }
   };
 
   const generatePost = async () => {
@@ -601,7 +677,7 @@ const handleConfirmPlanTerms = async () => {
                   <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.35)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>Nadchodzące okazje</p>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                     {upcomingOccasions.map(o => (
-                      <button key={o.date} onClick={() => setTopic(`Post z okazji ${o.name}`)}
+                      <button key={o.date} onClick={() => setTopic(o.emoji + ' ' + o.name + ' — ' + (OCCASION_HINTS[o.name] || 'nawiąż do tej okazji w kontekście swojej firmy'))}
                         style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 12px', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 100, cursor: 'pointer', transition: 'all 0.2s' }}
                         onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.5)')}
                         onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(99,102,241,0.2)')}
@@ -667,6 +743,36 @@ const handleConfirmPlanTerms = async () => {
                     </span>
                   </label>
                 </div>
+              </div>
+
+              {/* Topic suggestions */}
+              <div style={{ marginTop: 8, marginBottom: 20 }}>
+                <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.3)', marginBottom: 6 }}>Potrzebujesz inspiracji?</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+                  {suggestions.map((s, i) => (
+                    <button key={i} onClick={() => setTopic(s)}
+                      style={{ padding: '5px 10px', borderRadius: 20, fontSize: 11, cursor: 'pointer', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', color: 'rgba(240,240,245,0.6)', transition: 'all 0.2s', textAlign: 'left' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.18)'; e.currentTarget.style.color = '#f0f0f5'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.08)'; e.currentTarget.style.color = 'rgba(240,240,245,0.6)'; }}>
+                      {s.length > 60 ? s.slice(0, 57) + '...' : s}
+                    </button>
+                  ))}
+                </div>
+                {recentTopics.length > 0 && (
+                  <details>
+                    <summary style={{ fontSize: 11, color: 'rgba(240,240,245,0.3)', cursor: 'pointer', listStyle: 'none', marginBottom: 4 }}>🕐 Ostatnio generowane ▾</summary>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 6 }}>
+                      {recentTopics.map((t, i) => (
+                        <button key={i} onClick={() => { setTopic(t.topic); setPlatform(t.platform as any); }}
+                          style={{ padding: '6px 10px', borderRadius: 8, fontSize: 12, cursor: 'pointer', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(240,240,245,0.5)', textAlign: 'left', transition: 'all 0.2s' }}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = '#f0f0f5'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = 'rgba(240,240,245,0.5)'; }}>
+                          {t.topic.slice(0, 80)}{t.topic.length > 80 ? '...' : ''}
+                        </button>
+                      ))}
+                    </div>
+                  </details>
+                )}
               </div>
 
               {/* Platform */}
@@ -905,6 +1011,40 @@ const handleConfirmPlanTerms = async () => {
                       <div style={{ marginBottom: 18 }}>
                         <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Tekst</p>
                         <p style={{ fontSize: 15, color: 'rgba(240,240,245,0.85)', lineHeight: 1.7 }}>{result.text}</p>
+                      </div>
+
+                      {/* Word count + calendar */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18, flexWrap: 'wrap', gap: 8 }}>
+                        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                          <span style={{ fontSize: 11, color: 'rgba(240,240,245,0.3)' }}>
+                            {result.text.split(/\s+/).filter(Boolean).length} słów · {result.text.length} znaków
+                          </span>
+                          {((platform === 'facebook' && (result.text.length < 100 || result.text.length > 500)) ||
+                            (platform === 'instagram' && (result.text.length < 80 || result.text.length > 300)) ||
+                            (platform === 'tiktok' && result.text.length > 150)) && (
+                            <span style={{ fontSize: 11, color: '#fbbf24' }}>
+                              ⚠️ {result.text.length > (platform === 'tiktok' ? 150 : platform === 'facebook' ? 500 : 300) ? 'Może być za długi' : 'Może być za krótki'} dla {platform}
+                            </span>
+                          )}
+                        </div>
+                        <div>
+                          <button onClick={() => setShowDatePicker(showDatePicker === idx ? null : idx)}
+                            className="btn-ghost" style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12 }}>
+                            📅 Dodaj do kalendarza
+                          </button>
+                          {showDatePicker === idx && (
+                            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 8 }}>
+                              <input type="date" value={calendarDate}
+                                onChange={e => setCalendarDate(e.target.value)}
+                                min={new Date().toISOString().split('T')[0]}
+                                style={{ padding: '6px 10px', borderRadius: 8, fontSize: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#f0f0f5', outline: 'none' }} />
+                              <button onClick={() => saveToCalendar(result.text, result.hashtags)} disabled={calendarSaving}
+                                className="btn-primary" style={{ padding: '6px 14px', borderRadius: 8, fontSize: 12 }}>
+                                <span>{calendarSaving ? '...' : 'Zapisz'}</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       {/* Hashtags */}
