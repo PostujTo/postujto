@@ -212,7 +212,6 @@ export default function OnboardingPage() {
           {/* STEP 1 — Nazwa firmy + branża */}
           {step === 1 && (
             <div>
-              <p style={{ fontSize: 12, fontWeight: 600, color: '#6366f1', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8 }}>Krok 1 z 3</p>
               <h2 className="font-display" style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Twoja firma</h2>
               <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.45)', marginBottom: 28 }}>Podaj nazwę i wybierz branżę — to pomoże Claude pisać trafniej.</p>
 
@@ -243,7 +242,6 @@ export default function OnboardingPage() {
           {/* STEP 2 — Platformy */}
           {step === 2 && (
             <div>
-              <p style={{ fontSize: 12, fontWeight: 600, color: '#6366f1', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8 }}>Krok 2 z 3</p>
               <h2 className="font-display" style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Gdzie publikujesz?</h2>
               <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.45)', marginBottom: 28 }}>Wybierz platformy na których jesteś aktywny. Możesz wybrać kilka.</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -273,7 +271,6 @@ export default function OnboardingPage() {
           {/* STEP 3 — Ton */}
           {step === 3 && (
             <div>
-              <p style={{ fontSize: 12, fontWeight: 600, color: '#6366f1', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 8 }}>Krok 3 z 3</p>
               <h2 className="font-display" style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Jak komunikujesz się z klientami?</h2>
               <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.45)', marginBottom: 28 }}>Wybierz ton który najlepiej pasuje do Twojej marki.</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -328,6 +325,16 @@ export default function OnboardingPage() {
               <button onClick={handleFinish} disabled={saving} className="btn-primary" style={{ width: '100%', padding: '15px', borderRadius: 14, fontSize: 16, background: 'linear-gradient(135deg, #6366f1, #a855f7)', color: '#fff', border: 'none', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: saving ? 'not-allowed' : 'pointer' }}>
               <span>{saving ? '⏳ Zapisuję...' : '✨ Przejdź do generatora'}</span>
             </button>
+            <div style={{ marginTop: 16, padding: '12px 16px', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 10, textAlign: 'left' }}>
+              <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.7)', marginBottom: 6 }}>
+                💡 <strong style={{ color: '#f0f0f5' }}>Chcesz lepsze posty?</strong>
+              </p>
+              <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.45)', lineHeight: 1.5 }}>
+                Dodaj logo i przykładowe posty w{' '}
+                <a href="/settings" style={{ color: '#a5b4fc', textDecoration: 'underline' }}>Brand Kit</a>
+                {' '}— Claude będzie pisał bardziej w Twoim stylu.
+              </p>
+            </div>
             </div>
           )}
 

@@ -1033,3 +1033,467 @@ function getSuggestionForOccasion(name: string, platform: string): string {
 - Nie usuwać istniejących inspiracji/okazji — tylko je rozszerzyć
 - Zadanie 4 implementować dopiero po tym jak `/api/calendar/save-post` i tabela `calendar_topics` istnieją
 - Nie zmieniać logiki kredytów — to osobne zadanie (patrz `kontekst.md` → Znane błędy)
+# UX Fixes — brief dla Claude Code
+_Plik dla Claude Code — gotowe zadania do implementacji_
+_Priorytet: naprawić przed launchem_
+
+## Kontekst
+Stack: Next.js 16, Supabase, Clerk, Stripe, inline styles.
+Motyw: ciemny (`#0a0a0f`), spójny z resztą (patrz `kontekst.md` → Benchmark UI/UX).
+Język interfejsu: **wyłącznie polski** — żadnych angielskich słów w UI.
+
+---
+
+## ZASADA GLOBALNA — Język polski
+
+Przeszukaj WSZYSTKIE pliki w `app/` i zamień angielskie słowa w UI na polskie.
+Najczęstsze błędy do znalezienia i poprawienia:
+
+| Angielskie | Polskie |
+|------------|---------|
+| "Dashboard" (jako label w UI) | "Panel" lub "Historia" |
+| "Brand Kit" | zostaje — to nazwa własna produktu |
+| "Free" (plan) | zostaje — to nazwa planu |
+| "Starter" / "Pro" | zostają — to nazwy planów |
+| "Facebook", "Instagram", "TikTok" | zostają — to nazwy platform |
+| Wszelkie inne angielskie słowa w przyciskach, labelach, komunikatach | przetłumacz |
+
+Sprawdź szczególnie: komunikaty błędów, tooltopy, placeholdery, etykiety sekcji, puste stany.
+
+---
+
+## Zadanie 1 — Dodanie tabów do `/settings` (Brand Kit)
+
+### Problem
+Strona `/settings` ma tylko przycisk "Wróć" — brak tabów nawigacyjnych.
+Wszystkie inne podstrony (`/app`, `/calendar`, `/dashboard`) mają tabs w headerze.
+Użytkownik który wszedł z linku "Uzupełnij Brand Kit" nie wie jak wrócić.
+
+### Co zrobić
+Dodać do headera `/settings` ten sam komponent tabów co na `/calendar`:
+
+```tsx
+{/* Tabs — skopiuj dokładnie z app/calendar/page.tsx */}
+<div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.04)',
+  border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 4 }}>
+  <Link href="/app" style={{ textDecoration: 'none' }}>
+    <button className="btn-ghost" style={{ padding: '7px 18px', borderRadius: 9,
+      fontSize: 13, border: 'none', background: 'transparent',
+      color: 'rgba(240,240,245,0.5)' }}>
+      ✨ Generator
+    </button>
+  </Link>
+  <Link href="/calendar" style={{ textDecoration: 'none' }}>
+    <button className="btn-ghost" style={{ padding: '7px 18px', borderRadius: 9,
+      fontSize: 13, border: 'none', background: 'transparent',
+      color: 'rgba(240,240,245,0.5)' }}>
+      📅 Kalendarz
+    </button>
+  </Link>
+  <Link href="/dashboard" style={{ textDecoration: 'none' }}>
+    <button className="btn-ghost" style={{ padding: '7px 18px', borderRadius: 9,
+      fontSize: 13, border: 'none', background: 'transparent',
+      color: 'rgba(240,240,245,0.5)' }}>
+      📊 Historia
+    </button>
+  </Link>
+  {/* Brand Kit — aktywny tab */}
+  <button style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13,
+    background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.4)',
+    color: '#a5b4fc', cursor: 'default',
+    fontFamily: "'DM Sans', sans-serif", fontWeight: 600 }}>
+    🎨 Brand Kit
+  </button>
+</div>
+```
+
+Usuń przycisk "Wróć" z headera — zastąpiony przez tabs.
+
+---
+
+## Zadanie 2 — Empty state w generatorze zamiast cennika
+
+### Problem
+Nowy użytkownik który jeszcze nic nie wygenerował widzi po prawej stronie karty cennikowe Starter/Pro.
+Pitch sprzedażowy przed pokazaniem wartości produktu = zły UX.
+
+### Co zrobić
+W `app/app/page.tsx` — panel prawy pokazuje cennik gdy `posts.length === 0`.
+Zamień na przyjazny empty state:
+
+```tsx
+{/* Zamiast cennika gdy brak postów */}
+{posts.length === 0 && (
+  <div className="glass-card" style={{ padding: '40px 32px', textAlign: 'center' }}>
+    <div style={{ fontSize: 48, marginBottom: 16 }}>✨</div>
+    <p className="font-display" style={{ fontSize: 20, fontWeight: 700,
+      marginBottom: 8, color: '#f0f0f5' }}>
+      Gotowy na pierwszy post?
+    </p>
+    <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.45)', lineHeight: 1.6,
+      marginBottom: 24 }}>
+      Wpisz temat po lewej stronie i kliknij „Wygeneruj posty".<br />
+      Dostaniesz 3 gotowe wersje w kilka sekund.
+    </p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10,
+      padding: '16px', background: 'rgba(99,102,241,0.07)',
+      border: '1px solid rgba(99,102,241,0.15)', borderRadius: 12 }}>
+      <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', marginBottom: 4 }}>
+        💡 Przykładowe tematy na start:
+      </p>
+      {[
+        'Pokaż kulisy swojej pracy — co dzieje się za zamkniętymi drzwiami?',
+        'Historia klienta — jak Twój produkt mu pomógł',
+        'Najczęstsze pytanie które dostajesz — i szczera odpowiedź',
+      ].map((t, i) => (
+        <button key={i} onClick={() => setTopic(t)}
+          style={{ padding: '8px 12px', borderRadius: 8, fontSize: 12,
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            color: 'rgba(240,240,245,0.6)', cursor: 'pointer',
+            textAlign: 'left', transition: 'all 0.2s' }}>
+          {t}
+        </button>
+      ))}
+    </div>
+  </div>
+)}
+```
+
+Cennik (karty Starter/Pro) pokaż dopiero gdy użytkownik wyczerpie kredyty (`credits.remaining === 0`).
+
+---
+
+## Zadanie 3 — Tooltip przy disabled funkcjach w generatorze
+
+### Problem
+Checkboxy "Użyj kolorów i stylu z Brand Kit" i "Generuj w moim stylu" są disabled dla Free.
+Użytkownik klika — nic się nie dzieje, brak feedbacku.
+
+### Co zrobić
+Dodać tooltip który pojawia się przy hover na disabled checkbox:
+
+```tsx
+// Wrapper z pozycją relative dla każdego disabled checkboxa
+<div style={{ position: 'relative' }}
+  onMouseEnter={() => setShowTooltip('brand-kit')}
+  onMouseLeave={() => setShowTooltip(null)}>
+
+  <label style={{ opacity: 0.4, cursor: 'not-allowed', display: 'flex',
+    alignItems: 'center', gap: 8 }}>
+    <input type="checkbox" disabled />
+    Użyj kolorów i stylu z Brand Kit
+    <span style={{ fontSize: 11, color: 'rgba(240,240,245,0.4)' }}>
+      (tylko Starter i Pro)
+    </span>
+  </label>
+
+  {showTooltip === 'brand-kit' && (
+    <div style={{
+      position: 'absolute', bottom: '100%', left: 0, marginBottom: 6,
+      padding: '8px 12px', borderRadius: 8, fontSize: 12,
+      background: 'rgba(26,26,46,0.98)',
+      border: '1px solid rgba(99,102,241,0.3)',
+      color: '#f0f0f5', whiteSpace: 'nowrap', zIndex: 50,
+      boxShadow: '0 4px 20px rgba(0,0,0,0.4)'
+    }}>
+      Dostępne w planie Starter (79 zł/msc) lub Pro (199 zł/msc)
+      <Link href="/pricing" style={{ display: 'block', marginTop: 4,
+        color: '#a5b4fc', textDecoration: 'underline', fontSize: 11 }}>
+        Zobacz plany →
+      </Link>
+    </div>
+  )}
+</div>
+```
+
+Zastosuj analogicznie dla checkboxa "Generuj w moim stylu".
+
+---
+
+## Zadanie 4 — Rozszerzenie okazji do 30 dni w generatorze
+
+### Problem
+Sekcja "Nadchodzące okazje" pokazuje okazje z najbliższych 7 dni.
+Gdy nie ma okazji w ciągu 7 dni — sekcja wygląda pusta i ubogo.
+
+### Co zrobić
+W `app/app/page.tsx` znajdź logikę filtrowania okazji i zmień przedział z 7 na 30 dni:
+
+```tsx
+// Znajdź coś podobnego do:
+const upcomingOccasions = occasions.filter(o => {
+  const daysUntil = /* obliczenie dni */;
+  return daysUntil <= 7; // <-- zmień na 30
+});
+```
+
+Jeśli okazji jest więcej niż 5 — pokaż pierwsze 5 i dodaj "Pokaż więcej" (collapsible).
+
+---
+
+## Zadanie 5 — Przycisk "Wygeneruj" disabled przy 0 kredytach w kalendarzu
+
+### Problem
+Przycisk "✨ Wygeneruj 31/31 (0 kredytów)" jest aktywny mimo braku kredytów.
+Użytkownik klika, nic się nie generuje — brak feedbacku.
+
+### Co zrobić
+W `app/calendar/page.tsx` znajdź przycisk generateAllPosts i dodaj warunek:
+
+```tsx
+<button
+  onClick={generateAllPosts}
+  disabled={
+    topicCount === 0 ||
+    status === 'planning' ||
+    status === 'generating' ||
+    (credits?.plan === 'free' && credits.remaining === 0) // <-- dodaj
+  }
+  className="btn-primary"
+  style={{
+    padding: '12px', borderRadius: 12, fontSize: 14,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    gap: 8, border: 'none',
+    opacity: (topicCount === 0 ||
+      (credits?.plan === 'free' && credits.remaining === 0)) ? 0.4 : 1
+  }}>
+  {status === 'generating'
+    ? <><svg className="animate-spin" .../>Generuję posty...</>
+    : credits?.plan === 'free' && credits.remaining === 0
+    ? <span>✨ Brak kredytów — przejdź na Starter</span>
+    : <span>✨ Wygeneruj {topicCount > 0 ? topicCount : currentDays.length}/{currentDays.length}
+        {credits?.plan === 'free' ? ` (${credits.remaining} kredytów)` : ''}
+      </span>
+  }
+</button>
+```
+
+Po kliknięciu disabled przycisku gdy brak kredytów — pokaż modal upgrade (patrz `kontekst.md` → Znane błędy → Modal upgrade).
+
+---
+
+## Zadanie 6 — Zmiana etykiety "Pokaż (3)" w dashboardzie
+
+### Problem
+Przycisk rozwijający wersje posta jest niejasny.
+
+### Co zrobić
+W `app/dashboard/page.tsx` znajdź przycisk z tekstem "Pokaż (3)" i zmień na:
+
+```tsx
+// Przed:
+<button>Pokaż (3)</button>
+
+// Po:
+<button>▼ Rozwiń 3 wersje</button>
+
+// Gdy rozwinięte:
+<button>▲ Zwiń</button>
+```
+
+---
+
+## Zadanie 7 — Naprawienie kalkulacji kompletności Brand Kit
+
+### Problem
+Brand Kit pokazuje 20% kompletności mimo częściowego uzupełnienia podczas onboardingu.
+Prawdopodobna przyczyna: onboarding zapisuje dane do innej kolumny niż Brand Kit sprawdza,
+lub wagi nie uwzględniają że część pól jest opcjonalna.
+
+### Co zrobić
+W `app/settings/page.tsx` znajdź funkcję liczącą kompletność i popraw wagi:
+
+```tsx
+const brandKitFields = [
+  { key: 'company_name', label: 'Nazwa firmy', weight: 30 },     // najważniejsze
+  { key: 'sample_posts', label: 'Przykładowe posty', weight: 30 }, // kluczowe dla Claude
+  { key: 'logo_url', label: 'Logo', weight: 15 },
+  { key: 'colors', label: 'Kolory marki', weight: 15 },           // sprawdź: colors?.length > 0
+  { key: 'tone', label: 'Ton komunikacji', weight: 10 },
+  // slogan i styl graficzny — bonusowe, nie obniżają gdy brak
+];
+
+// Sprawdź czy colors to tablica czy string — dostosuj warunek:
+const isFilled = (key: string, val: any) => {
+  if (key === 'colors') return Array.isArray(val) ? val.some(c => c && c !== '#000000') : !!val;
+  return !!val && val !== '';
+};
+```
+
+Dodatkowo: upewnij się że dane zapisane przez onboarding są odczytywane przez Brand Kit (ten sam `user_id` i ta sama tabela `brand_kits`).
+
+---
+
+## Zadanie 8 — Edycja Brand Kit (odblokowanie zapisanych pól)
+
+### Problem
+Raz zapisany Brand Kit nie może być edytowany — pola są zablokowane lub nadpisanie nie działa.
+
+### Co zrobić
+W `app/settings/page.tsx` znajdź obsługę formularza i upewnij się że używa `upsert` a nie `insert`:
+
+```tsx
+// W /api/brand-kit/route.ts — zmień insert na upsert:
+const { error } = await supabase
+  .from('brand_kits')
+  .upsert({
+    user_id: user.id,
+    company_name,
+    slogan,
+    colors,
+    style,
+    tone,
+    logo_url,
+    sample_posts,
+    updated_at: new Date().toISOString(),
+  }, {
+    onConflict: 'user_id', // <-- klucz upsert
+  });
+```
+
+Sprawdź też czy formularz w `/settings` przy załadowaniu strony pobiera istniejące dane z Supabase i wypełnia pola (`useEffect` z `fetch('/api/brand-kit')`). Jeśli nie — dodaj.
+
+---
+
+## Zadanie 9 — © 2025 w footerze FAQ
+
+### Problem
+`/faq` ma w footerze © 2025 zamiast © 2026.
+
+### Co zrobić
+W `app/faq/page.tsx` znajdź footer i zmień:
+```tsx
+// Przed:
+© 2025 PostujTo.com
+
+// Po:
+© 2026 PostujTo.com
+```
+
+---
+
+---
+
+## Zadanie 10 — Naprawa licznika kroków w onboardingu
+
+### Problem
+Na kroku 2 ("Firma") widać napis **"KROK 1 Z 3"** — ale pasek postępu na górze ma 5 kółek (Witaj → Firma → Platformy → Ton → Start). Użytkownik widzi dwie różne liczby i jest zdezorientowany.
+
+### Co zrobić
+Dwie opcje — wybierz jedną:
+
+**Opcja A (prosta):** Usuń licznik "KROK X Z 3" ze wszystkich kroków — pasek postępu na górze wystarczy.
+
+**Opcja B (spójna):** Zmień licznik żeby odpowiadał pozycji w pasku:
+```tsx
+// Krok 2 (Firma) → "KROK 2 Z 5"
+// Krok 3 (Platformy) → "KROK 3 Z 5"
+// Krok 4 (Ton) → "KROK 4 Z 5"
+```
+
+Rekomendacja: Opcja A — pasek wizualny jest bardziej intuicyjny niż licznik tekstowy.
+
+---
+
+## Zadanie 11 — Dodanie nazwy firmy do podsumowania (krok 5)
+
+### Problem
+Krok 5 ("Gotowe!") pokazuje Branżę, Platformy i Ton — ale nie nazwę firmy którą użytkownik wpisał w kroku 2. Użytkownik nie może zweryfikować że dane się zapisały poprawnie.
+
+### Co zrobić
+W `app/onboarding/page.tsx` (lub odpowiednim pliku) znajdź komponent kroku 5 i dodaj wiersz z nazwą firmy:
+
+```tsx
+<div style={{ /* istniejące style kafelka podsumowania */ }}>
+  <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', fontWeight: 600,
+    letterSpacing: '0.05em', marginBottom: 8 }}>
+    TWOJA KONFIGURACJA
+  </p>
+  {/* Dodaj ten wiersz: */}
+  {companyName && (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+      <span style={{ color: 'rgba(240,240,245,0.5)', fontSize: 14 }}>Firma:</span>
+      <span style={{ color: '#f0f0f5', fontSize: 14, fontWeight: 600 }}>
+        🏢 {companyName}
+      </span>
+    </div>
+  )}
+  {/* istniejące wiersze Branża / Platformy / Ton */}
+</div>
+```
+
+---
+
+## Zadanie 12 — Wskazówka po onboardingu o uzupełnieniu Brand Kit
+
+### Problem
+Onboarding zbiera: nazwę firmy, branżę, platformy, ton.
+**Nie zbiera:** logo, kolory marki, przykładowe posty.
+
+Po onboardingu Brand Kit pokazuje ~20-30% kompletności i czerwony pasek ostrzeżenia — użytkownik nie dostał żadnego sygnału że powinien coś jeszcze zrobić. Pierwsze wrażenie po rejestracji to czerwony alert.
+
+### Co zrobić
+Na kroku 5 ("Gotowe!") — pod przyciskiem "Przejdź do generatora" — dodaj subtelną wskazówkę:
+
+```tsx
+{/* Pod przyciskiem głównym */}
+<div style={{ marginTop: 16, padding: '12px 16px',
+  background: 'rgba(99,102,241,0.08)',
+  border: '1px solid rgba(99,102,241,0.2)',
+  borderRadius: 10, textAlign: 'left' }}>
+  <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.7)', marginBottom: 6 }}>
+    💡 <strong style={{ color: '#f0f0f5' }}>Chcesz lepsze posty?</strong>
+  </p>
+  <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.45)', lineHeight: 1.5 }}>
+    Dodaj logo i przykładowe posty w{' '}
+    <Link href="/settings" style={{ color: '#a5b4fc', textDecoration: 'underline' }}>
+      Brand Kit
+    </Link>
+    {' '}— Claude będzie pisał bardziej w Twoim stylu.
+  </p>
+</div>
+```
+
+Alternatywnie: po kliknięciu "Przejdź do generatora" — jeśli Brand Kit &lt; 60% — pokaż jednorazowy modal:
+
+```tsx
+// Modal po pierwszym wejściu do /app gdy brand_kit_completeness < 60
+if (isFirstVisit && brandKitCompleteness < 60) {
+  showModal({
+    title: 'Uzupełnij Brand Kit dla lepszych wyników',
+    body: 'Masz już podstawy. Dodaj logo i przykłady swoich postów — Claude zacznie pisać znacznie trafniej.',
+    primaryAction: { label: 'Uzupełnij teraz', href: '/settings' },
+    secondaryAction: { label: 'Później', action: 'dismiss' },
+  });
+}
+```
+
+`isFirstVisit` = flaga w Supabase (`profiles.onboarding_completed_at`) lub localStorage.
+
+---
+
+## Kolejność implementacji — WSZYSTKIE ZREALIZOWANE ✅
+
+1. ✅ **Zadanie 9** — © 2025 → 2026 w footerze FAQ
+2. ✅ **Zadanie 6** — "▼ Rozwiń X wersje" w dashboardzie
+3. ✅ **Zadanie 10** — usunięto licznik "KROK X Z 3" z onboardingu
+4. ✅ **Zadanie 11** — nazwa firmy była już w podsumowaniu onboardingu (OK)
+5. ✅ **Zasada globalna** — język polski sprawdzony
+6. ✅ **Zadanie 1** — tabs nawigacyjne w /settings (Brand Kit)
+7. ✅ **Zadanie 5** — disabled + "Brak kredytów" przy 0 kredytach w kalendarzu
+8. ✅ **Zadanie 3** — tooltopy przy disabled checkboxach (Brand Colors, Brand Voice)
+9. ✅ **Zadanie 4** — okazje rozszerzone do 30 dni (slice 5 zamiast 3)
+10. ✅ **Zadanie 7** — kalkulacja kompletności Brand Kit poprawiona (wagi 30/30/15/15/10, sprawdzanie kolorów)
+11. ✅ **Zadanie 8** — upsert Brand Kit już używał onConflict: 'user_id' (OK)
+12. ✅ **Zadanie 12** — wskazówka "Chcesz lepsze posty?" pod przyciskiem w onboardingu
+13. ✅ **Zadanie 2** — empty state w generatorze z przykładowymi tematami, cennik tylko przy 0 kredytach
+
+---
+
+## Czego NIE robić
+
+- Nie zmieniać nazw własnych: Brand Kit, Starter, Pro, Free, Facebook, Instagram, TikTok
+- Nie przepisywać stron od zera — tylko punktowe poprawki
+- Nie zmieniać schematu Supabase przy zadaniu 8 — tylko naprawić upsert
+- Nie dodawać nowych bibliotek — wszystko inline styles + istniejące klasy CSS
