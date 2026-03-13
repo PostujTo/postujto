@@ -695,7 +695,7 @@ const deleteAccount = async () => {
                         >{gen.is_favorite ? '⭐' : '☆'}</button>
                         <button onClick={() => setExpandedId(isExpanded ? null : gen.id)}
                           className="btn-ghost" style={{ padding: '7px 14px', borderRadius: 9, fontSize: 13 }}>
-                          {isExpanded ? '▲ Zwiń' : `▼ Pokaż (${gen.generated_posts.length})`}
+                          {isExpanded ? '▲ Zwiń' : `▼ Rozwiń ${gen.generated_posts.length} wersje`}
                         </button>
                         <button onClick={() => deleteGeneration(gen.id)}
                           className="btn-danger" style={{ padding: '7px 12px', borderRadius: 9, fontSize: 13 }}>

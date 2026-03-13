@@ -225,7 +225,7 @@ export default function FAQPage() {
 
         <footer style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: '28px 24px' }}>
           <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-            <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.2)' }}>© 2025 PostujTo.com · Wykonane z ❤️ w Polsce</p>
+            <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.2)' }}>© 2026 PostujTo.com · Wykonane z ❤️ w Polsce</p>
             <div style={{ display: 'flex', gap: 20 }}>
               {[['Regulamin', '/terms'], ['Polityka prywatności', '/privacy'], ['FAQ', '/faq']].map(([label, href]) => (
                 <Link key={href} href={href} style={{ fontSize: 13, color: 'rgba(240,240,245,0.3)', textDecoration: 'none' }}>{label}</Link>

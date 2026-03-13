@@ -28,7 +28,7 @@ function getUpcomingOccasions() {
     if (occasionDate < today) occasionDate = new Date(year + 1, month - 1, day);
     const daysLeft = Math.ceil((occasionDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     return { ...occasion, days: daysLeft };
-  }).filter(o => o.days <= 30).sort((a, b) => a.days - b.days).slice(0, 3);
+  }).filter(o => o.days <= 30).sort((a, b) => a.days - b.days).slice(0, 5);
 }
 
 const BEST_TIMES: Record<string, { times: string[]; tip: string }> = {
@@ -177,6 +177,7 @@ export default function GeneratorPage() {
   const [addWatermark, setAddWatermark] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('lastAddWatermark') === 'true' : false);
   const [useBrandColors, setUseBrandColors] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('lastUseBrandColors') !== 'false' : true);
   const [useBrandVoice, setUseBrandVoice] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('lastUseBrandVoice') !== 'false' : true);
+  const [showTooltip, setShowTooltip] = useState<string | null>(null);
   const [credits, setCredits] = useState<{ remaining: number; total: number; plan: Plan } | null>(() => {
     if (typeof window === 'undefined') return null;
     try { const d = localStorage.getItem('dash_credits'); return d ? JSON.parse(d) : null; } catch { return null; }
@@ -721,13 +722,22 @@ const handleConfirmPlanTerms = async () => {
                   style={{ width: '100%', padding: '14px 16px', borderRadius: 14, fontSize: 14, lineHeight: 1.6, color: '#f0f0f5', border: '1px solid rgba(255,255,255,0.25)' }}
                 />
                 <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <label className="checkbox-label" style={{ opacity: credits?.plan !== 'free' && user ? 1 : 0.4, cursor: credits?.plan !== 'free' && user ? 'pointer' : 'not-allowed' }}>
-                    <input type="checkbox" checked={useBrandColors} onChange={e => setUseBrandColors(e.target.checked)} disabled={!user || credits?.plan === 'free'} />
-                    <span style={{ fontSize: 13, color: 'rgba(240,240,245,0.6)' }}>
-                      Użyj kolorów i stylu z Brand Kit
-                      {(!user || credits?.plan === 'free') && <span style={{ marginLeft: 6, fontSize: 11, color: '#6366f1' }}>(tylko Starter i Pro)</span>}
-                    </span>
-                  </label>
+                  <div style={{ position: 'relative' }}
+                    onMouseEnter={() => (!user || credits?.plan === 'free') ? setShowTooltip('brand-kit') : undefined}
+                    onMouseLeave={() => setShowTooltip(null)}>
+                    <label className="checkbox-label" style={{ opacity: credits?.plan !== 'free' && user ? 1 : 0.4, cursor: credits?.plan !== 'free' && user ? 'pointer' : 'not-allowed' }}>
+                      <input type="checkbox" checked={useBrandColors} onChange={e => setUseBrandColors(e.target.checked)} disabled={!user || credits?.plan === 'free'} />
+                      <span style={{ fontSize: 13, color: 'rgba(240,240,245,0.6)' }}>
+                        Użyj kolorów i stylu z Brand Kit
+                        {(!user || credits?.plan === 'free') && <span style={{ marginLeft: 6, fontSize: 11, color: '#6366f1' }}>(tylko Starter i Pro)</span>}
+                      </span>
+                    </label>
+                    {showTooltip === 'brand-kit' && (
+                      <div style={{ position: 'absolute', bottom: '100%', left: 0, marginBottom: 6, padding: '8px 12px', borderRadius: 8, fontSize: 12, background: 'rgba(26,26,46,0.98)', border: '1px solid rgba(99,102,241,0.3)', color: '#f0f0f5', whiteSpace: 'nowrap', zIndex: 50, boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
+                        Dostępne w planie Starter (79 zł/msc) lub Pro (199 zł/msc)
+                      </div>
+                    )}
+                  </div>
                   <label className="checkbox-label" style={{ opacity: credits?.plan === 'premium' ? 1 : 0.4, cursor: credits?.plan === 'premium' ? 'pointer' : 'not-allowed' }}>
                     <input type="checkbox" checked={addWatermark} onChange={e => setAddWatermark(e.target.checked)} disabled={credits?.plan !== 'premium'} />
                     <span style={{ fontSize: 13, color: 'rgba(240,240,245,0.6)' }}>
@@ -735,13 +745,22 @@ const handleConfirmPlanTerms = async () => {
                       {credits?.plan !== 'premium' && <span style={{ marginLeft: 6, fontSize: 11, color: '#6366f1' }}>(tylko PRO)</span>}
                     </span>
                   </label>
-                  <label className="checkbox-label" style={{ opacity: credits?.plan !== 'free' && user ? 1 : 0.4, cursor: credits?.plan !== 'free' && user ? 'pointer' : 'not-allowed' }}>
-                    <input type="checkbox" checked={useBrandVoice} onChange={e => setUseBrandVoice(e.target.checked)} disabled={!user || credits?.plan === 'free'} />
-                    <span style={{ fontSize: 13, color: 'rgba(240,240,245,0.6)' }}>
-                      Generuj w moim stylu
-                      {(!user || credits?.plan === 'free') && <span style={{ marginLeft: 6, fontSize: 11, color: '#6366f1' }}>(tylko Starter i Pro)</span>}
-                    </span>
-                  </label>
+                  <div style={{ position: 'relative' }}
+                    onMouseEnter={() => (!user || credits?.plan === 'free') ? setShowTooltip('brand-voice') : undefined}
+                    onMouseLeave={() => setShowTooltip(null)}>
+                    <label className="checkbox-label" style={{ opacity: credits?.plan !== 'free' && user ? 1 : 0.4, cursor: credits?.plan !== 'free' && user ? 'pointer' : 'not-allowed' }}>
+                      <input type="checkbox" checked={useBrandVoice} onChange={e => setUseBrandVoice(e.target.checked)} disabled={!user || credits?.plan === 'free'} />
+                      <span style={{ fontSize: 13, color: 'rgba(240,240,245,0.6)' }}>
+                        Generuj w moim stylu
+                        {(!user || credits?.plan === 'free') && <span style={{ marginLeft: 6, fontSize: 11, color: '#6366f1' }}>(tylko Starter i Pro)</span>}
+                      </span>
+                    </label>
+                    {showTooltip === 'brand-voice' && (
+                      <div style={{ position: 'absolute', bottom: '100%', left: 0, marginBottom: 6, padding: '8px 12px', borderRadius: 8, fontSize: 12, background: 'rgba(26,26,46,0.98)', border: '1px solid rgba(99,102,241,0.3)', color: '#f0f0f5', whiteSpace: 'nowrap', zIndex: 50, boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
+                        Dostępne w planie Starter (79 zł/msc) lub Pro (199 zł/msc)
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -863,16 +882,34 @@ const handleConfirmPlanTerms = async () => {
             {/* RIGHT — Results */}
             <div>
               {!results && (
-                <div className="fade-up glass-card" style={{ padding: 48, textAlign: 'center', animationDelay: '0.2s' }}>
-                  <div style={{ fontSize: 56, marginBottom: 20 }}>✨</div>
-                  <h3 className="font-display" style={{ fontSize: 20, fontWeight: 700, marginBottom: 10, color: 'rgba(240,240,245,0.8)' }}>Gotowy na pierwszy post?</h3>
-                  <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.35)', lineHeight: 1.7 }}>
-                    Wypełnij formularz po lewej stronie<br />i kliknij Wygeneruj posty
+                <div className="fade-up glass-card" style={{ padding: 40, textAlign: 'center', animationDelay: '0.2s' }}>
+                  <div style={{ fontSize: 48, marginBottom: 16 }}>✨</div>
+                  <p className="font-display" style={{ fontSize: 20, fontWeight: 700, marginBottom: 8, color: '#f0f0f5' }}>Gotowy na pierwszy post?</p>
+                  <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.45)', lineHeight: 1.6, marginBottom: 24 }}>
+                    Wpisz temat po lewej stronie i kliknij „Wygeneruj posty".<br />Dostaniesz 3 gotowe wersje w kilka sekund.
                   </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 16, background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 12, marginBottom: 0, textAlign: 'left' }}>
+                    <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', marginBottom: 4 }}>💡 Przykładowe tematy na start:</p>
+                    {[
+                      'Pokaż kulisy swojej pracy — co dzieje się za zamkniętymi drzwiami?',
+                      'Historia klienta — jak Twój produkt mu pomógł',
+                      'Najczęstsze pytanie które dostajesz — i szczera odpowiedź',
+                    ].map((t, i) => (
+                      <button key={i} onClick={() => setTopic(t)}
+                        style={{ padding: '8px 12px', borderRadius: 8, fontSize: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(240,240,245,0.6)', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s' }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.12)'; e.currentTarget.style.color = '#f0f0f5'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.color = 'rgba(240,240,245,0.6)'; }}>
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-                  {/* Pricing for non-paid */}
-                  {!hasActivePlan && (
-                    <div style={{ marginTop: 32 }}>
+              {/* Pricing — show only when credits exhausted */}
+              {!hasActivePlan && credits?.remaining === 0 && (
+                <div className="fade-up glass-card" style={{ padding: 32, marginTop: 16, animationDelay: '0.3s' }}>
+                  <div style={{ marginTop: 0 }}>
                       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
                         <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: 4, gap: 4 }}>
                           {(['monthly', 'annual'] as const).map(option => (
@@ -946,10 +983,9 @@ const handleConfirmPlanTerms = async () => {
                           {new Date(termsAcceptedAt).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' })}
                         </p>
                       )}
-                    </div>
-                  )}
+                  </div>
                 </div>
-               )}
+              )}
 
               {results && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>

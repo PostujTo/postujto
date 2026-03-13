@@ -153,21 +153,20 @@ export default function SettingsPage() {
   };
 
   const bkFields = [
-    { key: 'company_name' as keyof typeof brandKit, label: 'Nazwa firmy', weight: 25 },
-    { key: 'colors' as keyof typeof brandKit, label: 'Kolory marki', weight: 15 },
-    { key: 'logo_url' as keyof typeof brandKit, label: 'Logo', weight: 20 },
+    { key: 'company_name' as keyof typeof brandKit, label: 'Nazwa firmy', weight: 30 },
     { key: 'sample_posts' as keyof typeof brandKit, label: 'Przykładowe posty', weight: 30 },
+    { key: 'logo_url' as keyof typeof brandKit, label: 'Logo', weight: 15 },
+    { key: 'colors' as keyof typeof brandKit, label: 'Kolory marki', weight: 15 },
     { key: 'tone' as keyof typeof brandKit, label: 'Ton komunikacji', weight: 10 },
   ];
+  const isBkFilled = (key: string, val: unknown): boolean => {
+    if (key === 'colors') return Array.isArray(val) ? (val as string[]).some(c => c && c !== '#000000' && c !== '') : !!val;
+    return !!val && val !== '';
+  };
   const completeness = bkFields.reduce((sum, f) => {
-    const val = brandKit[f.key];
-    const filled = Array.isArray(val) ? (val as string[]).some(v => !!v) : !!val;
-    return filled ? sum + f.weight : sum;
+    return isBkFilled(f.key, brandKit[f.key]) ? sum + f.weight : sum;
   }, 0);
-  const missing = bkFields.filter(f => {
-    const val = brandKit[f.key];
-    return Array.isArray(val) ? !(val as string[]).some(v => !!v) : !val;
-  }).map(f => f.label);
+  const missing = bkFields.filter(f => !isBkFilled(f.key, brandKit[f.key])).map(f => f.label);
 
   const s = {
     card: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: 20 } as React.CSSProperties,
@@ -179,13 +178,17 @@ export default function SettingsPage() {
     <div style={{ minHeight: '100vh', background: '#0a0a0f', fontFamily: '"DM Sans", sans-serif', color: '#f0f0f5' }}>
       {/* Header */}
       <header style={{ position: 'sticky', top: 0, zIndex: 50, backdropFilter: 'blur(20px)', background: 'rgba(10,10,15,0.85)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 24px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto', padding: '0 24px', height: 64, display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center' }}>
           <Link href="/app" style={{ fontFamily: '"Poppins", sans-serif', fontWeight: 400, fontSize: 22, color: '#fff', textDecoration: 'none', letterSpacing: '-0.02em' }}>
             Postuj<span style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>To</span>
           </Link>
-          <Link href="/app" style={{ padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 600, color: 'rgba(240,240,245,0.55)', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', textDecoration: 'none' }}>
-            ← Wróć
-          </Link>
+          <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 4 }}>
+            <Link href="/app" style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, fontWeight: 600, color: 'rgba(240,240,245,0.5)', textDecoration: 'none' }}>✨ Generator</Link>
+            <Link href="/calendar" style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, fontWeight: 600, color: 'rgba(240,240,245,0.5)', textDecoration: 'none' }}>📅 Kalendarz</Link>
+            <Link href="/dashboard" style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, fontWeight: 600, color: 'rgba(240,240,245,0.5)', textDecoration: 'none' }}>📊 Historia</Link>
+            <span style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, fontWeight: 600, background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.4)', color: '#a5b4fc' }}>🎨 Brand Kit</span>
+          </div>
+          <div />
         </div>
       </header>
 
