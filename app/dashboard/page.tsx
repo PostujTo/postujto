@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useUser, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
 
@@ -34,6 +35,8 @@ export default function DashboardPage() {
   });
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState<'all' | 'favorites' | 'facebook' | 'instagram' | 'tiktok'>('all');
+  const [ratingFilter, setRatingFilter] = useState<'all' | '4plus' | '3plus' | 'none'>('all');
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest' | 'top'>('newest');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [pendingRating, setPendingRating] = useState<string | null>(null);
@@ -140,6 +143,61 @@ const deleteAccount = async () => {
     finally { setLoading(false); }
   };
 
+
+  const weeklyStats = useMemo(() => {
+    const weeks: Record<string, { label: string; facebook: number; instagram: number; tiktok: number }> = {};
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i * 7);
+      d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+      d.setHours(0,0,0,0);
+      const key = d.toISOString().slice(0, 10);
+      weeks[key] = { label: d.toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' }), facebook: 0, instagram: 0, tiktok: 0 };
+    }
+    generations.forEach(g => {
+      const d = new Date(g.created_at);
+      d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+      d.setHours(0,0,0,0);
+      const key = d.toISOString().slice(0, 10);
+      if (weeks[key]) {
+        const pl = g.platform as 'facebook'|'instagram'|'tiktok';
+        weeks[key][pl] = (weeks[key][pl] || 0) + 1;
+      }
+    });
+    return Object.values(weeks);
+  }, [generations]);
+
+  const insights = useMemo(() => {
+    if (generations.length < 3) return null;
+    const avgR = (g: Generation) => {
+      const vals = Object.values(g.ratings || {}) as number[];
+      return vals.length ? vals.reduce((a: number, b: number) => a + b, 0) / vals.length : null;
+    };
+    const bestOf = (key: keyof Generation, values: string[]) => {
+      let best = { val: '', avg: 0 };
+      values.forEach(v => {
+        const rated = generations.filter(g => g[key] === v).map(avgR).filter((r): r is number => r !== null);
+        if (rated.length >= 1) {
+          const avg = rated.reduce((a: number, b: number) => a + b, 0) / rated.length;
+          if (avg > best.avg) best = { val: v, avg };
+        }
+      });
+      return best.val ? best : null;
+    };
+    const platform = bestOf('platform', ['facebook','instagram','tiktok']);
+    const tone = bestOf('tone', ['professional','casual','humorous','sales']);
+    const dayCounts = [0,1,2,3,4,5,6].map(d => generations.filter(g => new Date(g.created_at).getDay() === d).length);
+    const maxDay = dayCounts.indexOf(Math.max(...dayCounts));
+    const dayNames = ['Niedziela','Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota'];
+    const plLabel: Record<string, string> = { facebook:'Facebook', instagram:'Instagram', tiktok:'TikTok' };
+    const tLabel: Record<string, string> = { professional:'Profesjonalny', casual:'Swobodny', humorous:'Humorystyczny', sales:'Sprzedażowy' };
+    return {
+      platform: platform ? { label: plLabel[platform.val], avg: platform.avg } : null,
+      tone: tone ? { label: tLabel[tone.val], avg: tone.avg } : null,
+      day: dayCounts[maxDay] > 0 ? dayNames[maxDay] : null,
+    };
+  }, [generations]);
+
   const recalcStats = (gens: Generation[]) => ({
     total: gens.length,
     favorites: gens.filter(g => g.is_favorite).length,
@@ -178,12 +236,29 @@ const deleteAccount = async () => {
     setCopiedId(id); setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const filtered =
-    filter === 'favorites' ? generations.filter(g => g.is_favorite) :
-    filter === 'facebook' ? generations.filter(g => g.platform === 'facebook') :
-    filter === 'instagram' ? generations.filter(g => g.platform === 'instagram') :
-    filter === 'tiktok' ? generations.filter(g => g.platform === 'tiktok') :
-    generations;
+  const getAvgRating = (gen: Generation) => {
+    const vals = Object.values(gen.ratings || {}) as number[];
+    return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+  };
+
+  const filtered = (() => {
+    let list =
+      filter === 'favorites' ? generations.filter(g => g.is_favorite) :
+      filter === 'facebook' ? generations.filter(g => g.platform === 'facebook') :
+      filter === 'instagram' ? generations.filter(g => g.platform === 'instagram') :
+      filter === 'tiktok' ? generations.filter(g => g.platform === 'tiktok') :
+      generations;
+
+    if (ratingFilter === '4plus') list = list.filter(g => { const r = getAvgRating(g); return r !== null && r >= 4; });
+    else if (ratingFilter === '3plus') list = list.filter(g => { const r = getAvgRating(g); return r !== null && r >= 3; });
+    else if (ratingFilter === 'none') list = list.filter(g => getAvgRating(g) === null);
+
+    if (sortOrder === 'oldest') list = [...list].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    else if (sortOrder === 'top') list = [...list].sort((a, b) => (getAvgRating(b) ?? 0) - (getAvgRating(a) ?? 0));
+    else list = [...list].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    return list;
+  })();
 
 
 
@@ -305,13 +380,79 @@ const deleteAccount = async () => {
             </div>
           )}
 
-{/* REPORT BUTTON */}
-          <div className="fade-up" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16, animationDelay: '0.08s' }}>
-            <button onClick={generateReport} disabled={reportLoading} className="btn-ghost"
-              style={{ padding: '9px 20px', borderRadius: 12, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
-              {reportLoading ? 'Generuję...' : 'Raport miesięczny'}
-            </button>
+          {/* CHART + REPORT */}
+          <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 20, marginBottom: 20, animationDelay: '0.07s' }}>
+            <div className="glass-card" style={{ padding: '20px 24px' }}>
+              <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16 }}>Aktywność — ostatnie 12 tygodni</p>
+              <ResponsiveContainer width="100%" height={160}>
+                <BarChart data={weeklyStats} barSize={8} barCategoryGap="30%">
+                  <XAxis dataKey="label" tick={{ fill: 'rgba(240,240,245,0.25)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: 'rgba(240,240,245,0.25)', fontSize: 10 }} axisLine={false} tickLine={false} width={24} allowDecimals={false} />
+                  <Tooltip contentStyle={{ background: '#1a1a2e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12 }} cursor={{ fill: 'rgba(255,255,255,0.04)' }} />
+                  <Bar dataKey="facebook" name="Facebook" fill="#60a5fa" radius={[3,3,0,0]} />
+                  <Bar dataKey="instagram" name="Instagram" fill="#f472b6" radius={[3,3,0,0]} />
+                  <Bar dataKey="tiktok" name="TikTok" fill="#94a3b8" radius={[3,3,0,0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="glass-card" style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                {'Raport — '}{new Date().toLocaleDateString('pl-PL', { month: 'long', year: 'numeric' })}
+              </p>
+              {reportLoading && (
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 8, padding: '12px 0' }}>
+                  <div style={{ fontSize: 28 }}>🤖</div>
+                  <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)' }}>Claude analizuje...</p>
+                </div>
+              )}
+              {!reportLoading && reportData?.report && (
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.6)', lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden' }}>
+                    {reportData.report.summary}
+                  </p>
+                  <button onClick={() => setReportOpen(true)} style={{ marginTop: 8, fontSize: 12, color: '#a5b4fc', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                    Pełny raport →
+                  </button>
+                </div>
+              )}
+              {!reportLoading && !reportData?.report && (
+                <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.35)', lineHeight: 1.6, flex: 1 }}>
+                  Wygeneruj raport żeby zobaczyć analizę postów i rekomendacje Claude.
+                </p>
+              )}
+              <button onClick={generateReport} disabled={reportLoading || generations.length === 0}
+                className="btn-primary" style={{ padding: '9px 16px', borderRadius: 10, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: generations.length === 0 ? 0.5 : 1 }}>
+                <span>{reportLoading ? 'Generuję...' : '🤖 Generuj raport'}</span>
+              </button>
+            </div>
           </div>
+
+          {/* INSIGHTS */}
+          {insights && (insights.platform || insights.tone || insights.day) && (
+            <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 24, animationDelay: '0.09s' }}>
+              {insights.platform && (
+                <div style={{ background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 14, padding: '16px 20px' }}>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.3)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>📱 Najlepsza platforma</p>
+                  <p className="font-display" style={{ fontSize: 18, fontWeight: 700, color: '#a5b4fc' }}>{insights.platform.label}</p>
+                  <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.35)', marginTop: 4 }}>★ {insights.platform.avg.toFixed(1)} śr. ocena</p>
+                </div>
+              )}
+              {insights.tone && (
+                <div style={{ background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 14, padding: '16px 20px' }}>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.3)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>🎯 Najlepszy ton</p>
+                  <p className="font-display" style={{ fontSize: 18, fontWeight: 700, color: '#a5b4fc' }}>{insights.tone.label}</p>
+                  <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.35)', marginTop: 4 }}>★ {insights.tone.avg.toFixed(1)} śr. ocena</p>
+                </div>
+              )}
+              {insights.day && (
+                <div style={{ background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 14, padding: '16px 20px' }}>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.3)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>📅 Aktywny dzień</p>
+                  <p className="font-display" style={{ fontSize: 18, fontWeight: 700, color: '#a5b4fc' }}>{insights.day}</p>
+                  <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.35)', marginTop: 4 }}>Najczęściej publikujesz</p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* REPORT MODAL */}
           {reportOpen && (
@@ -409,7 +550,7 @@ const deleteAccount = async () => {
 </div>
 
           {/* FILTERS */}
-          <div className="fade-up" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28, animationDelay: '0.1s' }}>
+          <div className="fade-up" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12, animationDelay: '0.1s' }}>
             {[
               { key: 'all', label: `Wszystkie (${generations.length})` },
               { key: 'favorites', label: `⭐ Ulubione (${generations.filter(g => g.is_favorite).length})` },
@@ -421,6 +562,30 @@ const deleteAccount = async () => {
                 className={`filter-btn ${filter === f.key ? 'active' : ''}`}
                 style={{ padding: '8px 16px', borderRadius: 100, fontSize: 13 }}
               >{f.label}</button>
+            ))}
+          </div>
+          <div className="fade-up" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28, animationDelay: '0.12s', alignItems: 'center' }}>
+            {[
+              { key: 'all', label: 'Każda ocena' },
+              { key: '4plus', label: '★ 4–5' },
+              { key: '3plus', label: '★ 3+' },
+              { key: 'none', label: 'Bez oceny' },
+            ].map(f => (
+              <button key={f.key} onClick={() => setRatingFilter(f.key as any)}
+                className={`filter-btn ${ratingFilter === f.key ? 'active' : ''}`}
+                style={{ padding: '6px 14px', borderRadius: 100, fontSize: 12 }}
+              >{f.label}</button>
+            ))}
+            <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.1)', margin: '0 4px' }} />
+            {[
+              { key: 'newest', label: 'Najnowsze ↓' },
+              { key: 'oldest', label: 'Najstarsze ↑' },
+              { key: 'top', label: '★ Najwyżej ocenione' },
+            ].map(s => (
+              <button key={s.key} onClick={() => setSortOrder(s.key as any)}
+                className={`filter-btn ${sortOrder === s.key ? 'active' : ''}`}
+                style={{ padding: '6px 14px', borderRadius: 100, fontSize: 12 }}
+              >{s.label}</button>
             ))}
           </div>
 
@@ -513,6 +678,11 @@ const deleteAccount = async () => {
                             {' '}
                             {new Date(gen.created_at).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}
                           </span>
+                          {(gen as any).scheduled_date && (
+                            <span style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', color: '#a5b4fc' }}>
+                              {'📅 '}{new Date((gen as any).scheduled_date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' })}
+                            </span>
+                          )}
                         </div>
                       </div>
 
