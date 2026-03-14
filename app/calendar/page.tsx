@@ -47,10 +47,13 @@ interface CalendarDay {
   isToday: boolean;
   occasion: { name: string; emoji: string } | null;
   topic: string;
-  platform: 'facebook' | 'instagram' | 'tiktok';
-  generated: boolean;
-  postText?: string;
-  hashtags?: string[];
+  platform: 'facebook' | 'instagram' | 'tiktok'; // primary (= platforms[0])
+  platforms: string[]; // selected platforms for this day
+  generated: boolean; // true if ≥1 platform generated
+  generated_platforms: Record<string, boolean | undefined>; // per-platform status
+  postsByPlatform: Record<string, { text: string; hashtags: string[] } | undefined>; // per-platform content
+  postText?: string; // alias: postsByPlatform[platforms[0]]?.text (backward compat)
+  hashtags?: string[]; // alias: postsByPlatform[platforms[0]]?.hashtags (backward compat)
 }
 
 type GenerationStatus = 'idle' | 'planning' | 'generating' | 'done' | 'error';
@@ -79,7 +82,8 @@ function getDaysInMonth(year: number, month: number): CalendarDay[] {
       date: d, dateKey: `${mm}-${dd}`,
       fullKey: `${d.getFullYear()}-${mm}-${dd}`,
       dayOfMonth: d.getDate(), isCurrentMonth: false, isToday: false,
-      occasion: null, topic: '', platform: 'facebook', generated: false,
+      occasion: null, topic: '', platform: 'facebook', platforms: ['facebook'],
+      generated: false, generated_platforms: {}, postsByPlatform: {},
     });
   }
 
@@ -95,7 +99,8 @@ function getDaysInMonth(year: number, month: number): CalendarDay[] {
       date, dateKey, fullKey, dayOfMonth: d,
       isCurrentMonth: true, isToday,
       occasion: POLISH_OCCASIONS[dateKey] || null,
-      topic: '', platform: 'facebook', generated: false,
+      topic: '', platform: 'facebook', platforms: ['facebook'],
+      generated: false, generated_platforms: {}, postsByPlatform: {},
     });
   }
 
@@ -109,7 +114,8 @@ function getDaysInMonth(year: number, month: number): CalendarDay[] {
       date: d, dateKey: `${mm}-${dd}`,
       fullKey: `${d.getFullYear()}-${mm}-${dd}`,
       dayOfMonth: i, isCurrentMonth: false, isToday: false,
-      occasion: null, topic: '', platform: 'facebook', generated: false,
+      occasion: null, topic: '', platform: 'facebook', platforms: ['facebook'],
+      generated: false, generated_platforms: {}, postsByPlatform: {},
     });
   }
 
@@ -165,7 +171,10 @@ useEffect(() => {
   const [status, setStatus] = useState<GenerationStatus>('idle');
   const [progress, setProgress] = useState(0);
   const [progressLabel, setProgressLabel] = useState('');
-  const [defaultPlatform, setDefaultPlatform] = useState<'facebook' | 'instagram' | 'tiktok'>('facebook');
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['facebook']);
+  const [activePlatform, setActivePlatform] = useState<string>('facebook');
+  const [showGenerateModeModal, setShowGenerateModeModal] = useState(false);
+  const [generateMode, setGenerateMode] = useState<'copy' | 'adapted'>('copy');
   const [defaultTone, setDefaultTone] = useState<'professional' | 'casual' | 'humorous' | 'sales'>('professional');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [copiedWeek, setCopiedWeek] = useState<number | null>(null);
@@ -177,13 +186,19 @@ useEffect(() => {
     return prevDays.map(d => {
       const saved = topics.find((t: any) => t.date === d.fullKey);
       if (!saved || !saved.topic) return d;
+      const savedPlatforms: string[] = saved.platforms || [saved.platform] || ['facebook'];
+      const savedGenPlatforms: Partial<Record<string, boolean>> = saved.generated_platforms || (saved.generated ? { [savedPlatforms[0]]: true } : {});
+      const savedPostsByPlatform: Partial<Record<string, { text: string; hashtags: string[] }>> = saved.posts_by_platform || (saved.post_text ? { [savedPlatforms[0]]: { text: saved.post_text, hashtags: saved.hashtags || [] } } : {});
       return {
         ...d,
         topic: saved.topic,
-        platform: (saved.platform as any) || d.platform,
-        generated: saved.generated,
-        postText: saved.post_text || undefined,
-        hashtags: saved.hashtags || undefined,
+        platform: savedPlatforms[0] as 'facebook' | 'instagram' | 'tiktok',
+        platforms: savedPlatforms,
+        generated_platforms: savedGenPlatforms,
+        postsByPlatform: savedPostsByPlatform,
+        generated: Object.values(savedGenPlatforms).some(Boolean),
+        postText: savedPostsByPlatform[savedPlatforms[0]]?.text,
+        hashtags: savedPostsByPlatform[savedPlatforms[0]]?.hashtags,
       };
     });
   }, []);
@@ -211,7 +226,14 @@ useEffect(() => {
   }, [user?.id, applyTopics]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const saveTopics = useCallback(async (
-    items: Array<{ date: string; topic: string; platform: string; generated?: boolean; post_text?: string; hashtags?: string[] }>
+    items: Array<{
+      date: string; topic: string; platform: string;
+      platforms?: string[];
+      generated?: boolean;
+      generated_platforms?: Partial<Record<string, boolean>>;
+      post_text?: string; hashtags?: string[];
+      posts_by_platform?: Partial<Record<string, { text: string; hashtags: string[] }>>;
+    }>
   ) => {
     if (!user || !items.length) return;
     try {
@@ -246,6 +268,17 @@ useEffect(() => {
     setProgress(0);
   };
 
+  const togglePlatform = (platform: string) => {
+    if (selectedPlatforms.includes(platform)) {
+      if (selectedPlatforms.length === 1) return; // block last
+      const newPlatforms = selectedPlatforms.filter(x => x !== platform);
+      setSelectedPlatforms(newPlatforms);
+      if (activePlatform === platform) setActivePlatform(newPlatforms[0]);
+    } else {
+      setSelectedPlatforms(prev => [...prev, platform]);
+    }
+  };
+
   const generatePlan = async () => {
     if (!user) return;
     setStatus('planning');
@@ -266,7 +299,8 @@ useEffect(() => {
           month: currentMonth + 1,
           monthName: MONTH_NAMES_PL[currentMonth],
           occasions,
-          platform: defaultPlatform,
+          platform: selectedPlatforms[0],
+          platforms: selectedPlatforms,
           tone: defaultTone,
           daysCount: currentDays.length,
         }),
@@ -284,7 +318,11 @@ useEffect(() => {
         return {
           ...d,
           topic: entry.topic,
-          platform: (entry.platform as any) || defaultPlatform,
+          platform: (selectedPlatforms[0] as 'facebook' | 'instagram' | 'tiktok'),
+          platforms: [...selectedPlatforms],
+          generated_platforms: {},
+          postsByPlatform: {},
+          generated: false,
         };
       }));
 
@@ -293,7 +331,14 @@ useEffect(() => {
       // Zapisz plan do Supabase
       const topicsToSave = plan
         .filter((p: any) => p.topic)
-        .map((p: any) => ({ date: p.date, topic: p.topic, platform: (p.platform as string) || defaultPlatform }));
+        .map((p: any) => ({
+          date: p.date,
+          topic: p.topic,
+          platform: selectedPlatforms[0],
+          platforms: selectedPlatforms,
+          generated_platforms: {},
+          posts_by_platform: {},
+        }));
       saveTopics(topicsToSave);
     } catch (err) {
       console.error(err);
@@ -303,7 +348,18 @@ useEffect(() => {
   };
 
   const generateAllPosts = async () => {
-    const toGenerate = currentDays.filter(d => d.topic && !d.generated);
+    const toGenerate = currentDays.filter(d => d.topic);
+    if (toGenerate.length === 0) return;
+    // Show mode modal if >1 platform and not Free
+    if (selectedPlatforms.length > 1 && credits?.plan !== 'free') {
+      setShowGenerateModeModal(true);
+      return;
+    }
+    await doGenerateAllPosts('copy');
+  };
+
+  const doGenerateAllPosts = async (mode: 'copy' | 'adapted') => {
+    const toGenerate = currentDays.filter(d => d.topic && !d.platforms.every(pl => d.generated_platforms?.[pl]));
     if (toGenerate.length === 0) return;
 
     setStatus('generating');
@@ -311,68 +367,112 @@ useEffect(() => {
 
     for (let i = 0; i < toGenerate.length; i++) {
       const day = toGenerate[i];
-      setProgressLabel(`Generuję post ${i + 1}/${toGenerate.length}: ${day.topic.slice(0, 40)}...`);
-      setProgress(Math.round(((i) / toGenerate.length) * 100));
+      const dayPlatforms = day.platforms.length > 0 ? day.platforms : [day.platform];
+      const platformsToGenerate = dayPlatforms.filter(pl => !day.generated_platforms?.[pl]);
 
+      setProgressLabel(`Generuję post ${i + 1}/${toGenerate.length}: ${day.topic.slice(0, 40)}...`);
+      setProgress(Math.round((i / toGenerate.length) * 100));
+
+      if (mode === 'copy' || dayPlatforms.length === 1) {
+        // Generate once for first platform, copy to rest
+        const primaryPlatform = platformsToGenerate[0] || dayPlatforms[0];
         try {
           const res = await fetch('/api/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              topic: day.topic,
-              platform: day.platform,
-              tone: defaultTone,
-              length: 'medium',
-              scheduled_date: day.fullKey,
-            }),
+            body: JSON.stringify({ topic: day.topic, platform: primaryPlatform, tone: defaultTone, length: 'medium', scheduled_date: day.fullKey }),
           });
           const data = await res.json();
-
           if (res.status === 403) {
             setStatus('error');
             setProgressLabel('Brak kredytów. Przejdź na plan Starter aby generować bez limitu.');
             setUpgradeModal({ generated: i, remaining: toGenerate.length - i });
             break;
           }
-
           if (res.ok && data.posts?.[0]) {
             const post = data.posts[0];
+            const newGenPlatforms: Partial<Record<string, boolean>> = { ...(day.generated_platforms || {}) };
+            const newPostsByPlatform: Partial<Record<string, { text: string; hashtags: string[] }>> = { ...(day.postsByPlatform || {}) };
+            for (const pl of dayPlatforms) {
+              newGenPlatforms[pl] = true;
+              newPostsByPlatform[pl] = { text: post.text, hashtags: post.hashtags || [] };
+            }
             setDays(prev => prev.map(d =>
               d.fullKey === day.fullKey
-                ? { ...d, generated: true, postText: post.text, hashtags: post.hashtags }
+                ? { ...d, generated: true, generated_platforms: newGenPlatforms, postsByPlatform: newPostsByPlatform, postText: post.text, hashtags: post.hashtags }
                 : d
             ));
             setCredits(prev => prev ? { ...prev, remaining: data.creditsRemaining } : prev);
-            saveTopics([{ date: day.fullKey, topic: day.topic, platform: day.platform, generated: true, post_text: post.text, hashtags: post.hashtags }]);
+            saveTopics([{ date: day.fullKey, topic: day.topic, platform: dayPlatforms[0], platforms: dayPlatforms, generated: true, generated_platforms: newGenPlatforms, post_text: post.text, hashtags: post.hashtags, posts_by_platform: newPostsByPlatform }]);
           }
         } catch (err) {
           console.error(`Error generating post for ${day.fullKey}:`, err);
         }
+      } else {
+        // Adapted mode (Pro): generate separately for each platform
+        const newGenPlatforms: Partial<Record<string, boolean>> = { ...(day.generated_platforms || {}) };
+        const newPostsByPlatform: Partial<Record<string, { text: string; hashtags: string[] }>> = { ...(day.postsByPlatform || {}) };
+        for (const pl of platformsToGenerate) {
+          setProgressLabel(`Generuję post ${i + 1}/${toGenerate.length} (${pl}): ${day.topic.slice(0, 30)}...`);
+          try {
+            const res = await fetch('/api/generate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ topic: day.topic, platform: pl, tone: defaultTone, length: 'medium', scheduled_date: day.fullKey }),
+            });
+            const data = await res.json();
+            if (res.status === 403) {
+              setStatus('error');
+              setProgressLabel('Brak kredytów. Przejdź na plan Starter aby generować bez limitu.');
+              setUpgradeModal({ generated: i, remaining: toGenerate.length - i });
+              break;
+            }
+            if (res.ok && data.posts?.[0]) {
+              const post = data.posts[0];
+              newGenPlatforms[pl] = true;
+              newPostsByPlatform[pl] = { text: post.text, hashtags: post.hashtags || [] };
+              setCredits(prev => prev ? { ...prev, remaining: data.creditsRemaining } : prev);
+            }
+            await new Promise(r => setTimeout(r, 500));
+          } catch (err) {
+            console.error(`Error generating ${pl} post for ${day.fullKey}:`, err);
+          }
+        }
+        setDays(prev => prev.map(d =>
+          d.fullKey === day.fullKey
+            ? { ...d, generated: Object.values(newGenPlatforms).some(Boolean), generated_platforms: newGenPlatforms, postsByPlatform: newPostsByPlatform, postText: newPostsByPlatform[dayPlatforms[0]]?.text, hashtags: newPostsByPlatform[dayPlatforms[0]]?.hashtags }
+            : d
+        ));
+        saveTopics([{ date: day.fullKey, topic: day.topic, platform: dayPlatforms[0], platforms: dayPlatforms, generated: Object.values(newGenPlatforms).some(Boolean), generated_platforms: newGenPlatforms, posts_by_platform: newPostsByPlatform }]);
+      }
 
-      // Krótka pauza żeby nie przeciążyć API
       await new Promise(r => setTimeout(r, 500));
     }
 
     setProgress(100);
     setProgressLabel('Wszystkie posty wygenerowane! 🎉');
     setStatus('done');
-    // Odśwież kredyty z Supabase po zakończeniu generowania
     fetch('/api/credits').then(r => r.ok ? r.json() : null).then(data => { if (data) setCredits(data); }).catch(() => {});
   };
 
   const exportCSV = () => {
-    const generated = currentDays.filter(d => d.generated && d.postText);
+    const generated = currentDays.filter(d => d.generated);
     if (generated.length === 0) return;
 
-    const headers = ['Data', 'Platforma', 'Temat', 'Okazja', 'Tekst', 'Hashtagi'];
-    const rows = generated.map(d => [
-      d.fullKey,
-      d.platform,
-      d.topic,
-      d.occasion ? `${d.occasion.emoji} ${d.occasion.name}` : '',
-      `"${(d.postText || '').replace(/"/g, '""')}"`,
-      (d.hashtags || []).join(' '),
-    ]);
+    const headers = ['Data', 'Platformy', 'Temat', 'Okazja', 'Tekst', 'Hashtagi'];
+    const rows = generated.map(d => {
+      const dayPlatforms = d.platforms?.length ? d.platforms : [d.platform];
+      const firstGenPlatform = dayPlatforms.find(pl => d.generated_platforms?.[pl]) || dayPlatforms[0];
+      const postContent = d.postsByPlatform?.[firstGenPlatform] || { text: d.postText || '', hashtags: d.hashtags || [] };
+      return [
+        d.fullKey,
+        dayPlatforms.join(','),
+        d.topic,
+        d.occasion ? `${d.occasion.emoji} ${d.occasion.name}` : '',
+        `"${postContent.text.replace(/"/g, '""')}"`,
+        postContent.hashtags.join(' '),
+      ];
+    });
 
     const csv = [headers, ...rows].map(r => r.join(';')).join('\n');
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -523,15 +623,22 @@ useEffect(() => {
 
                 <div style={{ flex: 1 }} />
 
-                {/* Platform */}
+                {/* Platform multi-select */}
                 <div style={{ display: 'flex', gap: 6 }}>
-                  {PLATFORMS.map(p => (
-                    <button key={p} onClick={() => setDefaultPlatform(p)} className={`option-btn ${defaultPlatform === p ? 'active' : ''}`}
-                      style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      {p === 'facebook' ? <FacebookIcon /> : p === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
-                      {p === 'facebook' ? 'Facebook' : p === 'instagram' ? 'Instagram' : 'TikTok'}
-                    </button>
-                  ))}
+                  {PLATFORMS.map(pl => {
+                    const isSelected = selectedPlatforms.includes(pl);
+                    const isLast = isSelected && selectedPlatforms.length === 1;
+                    return (
+                      <button key={pl} onClick={() => !isLast && togglePlatform(pl)}
+                        className={`option-btn ${isSelected ? 'active' : ''}`}
+                        style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, opacity: isLast ? 0.7 : 1 }}
+                        title={isLast ? 'Minimum 1 platforma wymagana' : ''}>
+                        {pl === 'facebook' ? <FacebookIcon /> : pl === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
+                        {pl === 'facebook' ? 'Facebook' : pl === 'instagram' ? 'Instagram' : 'TikTok'}
+                        {isSelected && <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#a5b4fc', flexShrink: 0 }} />}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -559,6 +666,19 @@ useEffect(() => {
               </div>
             </div>
 
+            {/* PLATFORM TABS — shown when >1 platform selected */}
+            {selectedPlatforms.length > 1 && (
+              <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+                {selectedPlatforms.map(pl => (
+                  <button key={pl} onClick={() => setActivePlatform(pl)}
+                    style={{ padding: '8px 16px', borderRadius: 10, fontSize: 13, border: `2px solid ${activePlatform === pl ? PLATFORM_COLORS[pl] : 'rgba(255,255,255,0.1)'}`, background: activePlatform === pl ? `${PLATFORM_COLORS[pl]}22` : 'rgba(255,255,255,0.03)', color: activePlatform === pl ? PLATFORM_COLORS[pl] : 'rgba(240,240,245,0.5)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontWeight: activePlatform === pl ? 600 : 400, transition: 'all 0.2s' }}>
+                    {pl === 'facebook' ? <FacebookIcon /> : pl === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
+                    {pl === 'facebook' ? 'Facebook' : pl === 'instagram' ? 'Instagram' : 'TikTok'}
+                  </button>
+                ))}
+              </div>
+            )}
+
             {/* CALENDAR GRID */}
             {view === 'calendar' && (
               <div className="fade-up glass-card" style={{ padding: 20, animationDelay: '0.05s' }}>
@@ -585,8 +705,13 @@ useEffect(() => {
                           {day.topic}
                         </p>
                       )}
-                      {day.generated && (
-                        <div style={{ position: 'absolute', bottom: 5, right: 6, width: 6, height: 6, borderRadius: '50%', background: '#4ade80' }} />
+                      {/* Per-platform status dots */}
+                      {day.isCurrentMonth && (day.platforms?.length > 0 || day.generated) && (
+                        <div style={{ position: 'absolute', bottom: 5, right: 4, display: 'flex', gap: 2 }}>
+                          {(day.platforms?.length > 0 ? day.platforms : [day.platform]).map(pl => (
+                            <div key={pl} style={{ width: 5, height: 5, borderRadius: '50%', background: day.generated_platforms?.[pl] ? '#4ade80' : 'rgba(255,255,255,0.2)', border: activePlatform === pl && selectedPlatforms.length > 1 ? `1px solid ${PLATFORM_COLORS[pl]}` : 'none' }} />
+                          ))}
+                        </div>
                       )}
                     </div>
                   ))}
@@ -613,48 +738,96 @@ useEffect(() => {
 
             {/* LIST VIEW */}
             {view === 'list' && (
-              <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 8, animationDelay: '0.05s' }}>
-                {currentDays.map((day, i) => (
-                  <div key={day.fullKey}
-                    onClick={() => setSelectedDay(day.fullKey === selectedDay ? null : day.fullKey)}
-                    className="glass-card"
-                    style={{ padding: '14px 20px', cursor: 'pointer', border: day.fullKey === selectedDay ? '1px solid rgba(99,102,241,0.5)' : undefined, transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 14 }}
-                  >
-                    <div style={{ width: 44, textAlign: 'center', flexShrink: 0 }}>
-                      <div className="font-display" style={{ fontSize: 20, fontWeight: 700, color: day.isToday ? '#a5b4fc' : 'rgba(240,240,245,0.6)', lineHeight: 1 }}>{day.dayOfMonth}</div>
-                      <div style={{ fontSize: 11, color: 'rgba(240,240,245,0.6)', marginTop: 2 }}>{['Pon','Wto','Śro','Czw','Pią','Sob','Nie'][(day.date.getDay() + 6) % 7]}</div>
-                    </div>
-
-                    {day.occasion && (
-                      <div style={{ flexShrink: 0, textAlign: 'center' }}>
-                        <div style={{ fontSize: 20 }}>{day.occasion.emoji}</div>
-                        <div style={{ fontSize: 9, color: 'rgba(240,240,245,0.3)', maxWidth: 60, lineHeight: 1.3, marginTop: 2 }}>{day.occasion.name}</div>
-                      </div>
-                    )}
-
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      {day.topic ? (
-                        <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.8)', lineHeight: 1.5, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{day.topic}</p>
-                      ) : (
-                        <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.2)', fontStyle: 'italic' }}>Brak tematu</p>
-                      )}
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                      {day.platform && (
-                        <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.05)', color: PLATFORM_COLORS[day.platform] }}>
-                          {day.platform}
-                        </span>
-                      )}
-                      {day.generated
-                        ? <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'rgba(34,197,94,0.15)', color: '#4ade80' }}>✓ Gotowy</span>
-                        : day.topic
-                        ? <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'rgba(251,191,36,0.1)', color: '#fbbf24' }}>Temat</span>
-                        : null
-                      }
-                    </div>
+              <div className="fade-up" style={{ animationDelay: '0.05s' }}>
+                {/* Platform tabs for list view — same shared activePlatform state */}
+                {selectedPlatforms.length > 1 && (
+                  <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+                    {selectedPlatforms.map(pl => (
+                      <button key={pl} onClick={() => setActivePlatform(pl)}
+                        style={{ padding: '8px 16px', borderRadius: 10, fontSize: 13, border: `2px solid ${activePlatform === pl ? PLATFORM_COLORS[pl] : 'rgba(255,255,255,0.1)'}`, background: activePlatform === pl ? `${PLATFORM_COLORS[pl]}22` : 'rgba(255,255,255,0.03)', color: activePlatform === pl ? PLATFORM_COLORS[pl] : 'rgba(240,240,245,0.5)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontWeight: activePlatform === pl ? 600 : 400, transition: 'all 0.2s' }}>
+                        {pl === 'facebook' ? <FacebookIcon /> : pl === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
+                        {pl === 'facebook' ? 'Facebook' : pl === 'instagram' ? 'Instagram' : 'TikTok'}
+                      </button>
+                    ))}
                   </div>
-                ))}
+                )}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {currentDays
+                    .filter(day => {
+                      if (selectedPlatforms.length <= 1) return true; // show all when 1 platform
+                      const dayPlats = day.platforms?.length > 0 ? day.platforms : [day.platform];
+                      return dayPlats.includes(activePlatform);
+                    })
+                    .map((day) => {
+                      const dayPlats = day.platforms?.length > 0 ? day.platforms : [day.platform];
+                      const isActiveGenerated = !!day.generated_platforms?.[activePlatform];
+                      const activePost = day.postsByPlatform?.[activePlatform];
+                      return (
+                        <div key={day.fullKey}
+                          onClick={() => setSelectedDay(day.fullKey === selectedDay ? null : day.fullKey)}
+                          className="glass-card"
+                          style={{ padding: '14px 20px', cursor: 'pointer', border: day.fullKey === selectedDay ? '1px solid rgba(99,102,241,0.5)' : undefined, transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 14 }}
+                        >
+                          <div style={{ width: 44, textAlign: 'center', flexShrink: 0 }}>
+                            <div className="font-display" style={{ fontSize: 20, fontWeight: 700, color: day.isToday ? '#a5b4fc' : 'rgba(240,240,245,0.6)', lineHeight: 1 }}>{day.dayOfMonth}</div>
+                            <div style={{ fontSize: 11, color: 'rgba(240,240,245,0.6)', marginTop: 2 }}>{['Pon','Wto','Śro','Czw','Pią','Sob','Nie'][(day.date.getDay() + 6) % 7]}</div>
+                          </div>
+
+                          {day.occasion && (
+                            <div style={{ flexShrink: 0, textAlign: 'center' }}>
+                              <div style={{ fontSize: 20 }}>{day.occasion.emoji}</div>
+                              <div style={{ fontSize: 9, color: 'rgba(240,240,245,0.3)', maxWidth: 60, lineHeight: 1.3, marginTop: 2 }}>{day.occasion.name}</div>
+                            </div>
+                          )}
+
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            {day.topic ? (
+                              <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.8)', lineHeight: 1.5, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{day.topic}</p>
+                            ) : (
+                              <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.2)', fontStyle: 'italic' }}>Brak tematu</p>
+                            )}
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+                            {isActiveGenerated && activePost ? (
+                              <>
+                                <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'rgba(34,197,94,0.15)', color: '#4ade80' }}>✓ Gotowy</span>
+                                <button onClick={() => {
+                                  navigator.clipboard.writeText(`${activePost.text}\n\n${(activePost.hashtags || []).join(' ')}`);
+                                  setCopiedKey(day.fullKey + '_' + activePlatform);
+                                  setTimeout(() => setCopiedKey(null), 2000);
+                                }} className="btn-ghost" style={{ padding: '4px 10px', borderRadius: 7, fontSize: 12 }}>
+                                  {copiedKey === day.fullKey + '_' + activePlatform ? '✅' : '📋 Kopiuj'}
+                                </button>
+                              </>
+                            ) : day.topic ? (
+                              <>
+                                <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'rgba(251,191,36,0.1)', color: '#fbbf24' }}>Temat</span>
+                                <button onClick={async () => {
+                                  setProgressLabel(`Generuję post dla ${day.dayOfMonth} ${MONTH_NAMES_PL[currentMonth]}...`);
+                                  try {
+                                    const res = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic: day.topic, platform: activePlatform, tone: defaultTone, length: 'medium', scheduled_date: day.fullKey }) });
+                                    const data = await res.json();
+                                    if (res.ok && data.posts?.[0]) {
+                                      const post = data.posts[0];
+                                      const newGenPlatforms = { ...(day.generated_platforms || {}), [activePlatform]: true };
+                                      const newPostsByPlatform = { ...(day.postsByPlatform || {}), [activePlatform]: { text: post.text, hashtags: post.hashtags || [] } };
+                                      setDays(prev => prev.map(d => d.fullKey === day.fullKey ? { ...d, generated: true, generated_platforms: newGenPlatforms, postsByPlatform: newPostsByPlatform } : d));
+                                      saveTopics([{ date: day.fullKey, topic: day.topic, platform: dayPlats[0], platforms: dayPlats, generated: true, generated_platforms: newGenPlatforms, posts_by_platform: newPostsByPlatform }]);
+                                      if (data.creditsRemaining !== undefined) setCredits(prev => prev ? { ...prev, remaining: data.creditsRemaining } : prev);
+                                    }
+                                  } catch (err) { console.error(err); }
+                                  setProgressLabel('');
+                                }} className="btn-primary" style={{ padding: '4px 10px', borderRadius: 7, fontSize: 12, border: 'none' }}>
+                                  ✨ Generuj
+                                </button>
+                              </>
+                            ) : null}
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
               </div>
             )}
           </div>
@@ -780,68 +953,91 @@ useEffect(() => {
                 {/* Platform for this day */}
                 <label style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', display: 'block', marginBottom: 6 }}>Platforma</label>
                 <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-                  {PLATFORMS.map(p => (
-                    <button key={p} onClick={() => {
-                      setDays(prev => prev.map(d => d.fullKey === selectedDayData.fullKey ? { ...d, platform: p } : d));
-                      if (selectedDayData.topic) saveTopics([{ date: selectedDayData.fullKey, topic: selectedDayData.topic, platform: p }]);
-                    }}
-                      className={`option-btn ${selectedDayData.platform === p ? 'active' : ''}`}
-                      style={{ flex: 1, padding: '6px', borderRadius: 8, fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-                      {p === 'facebook' ? <FacebookIcon /> : p === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
-                      {p === 'facebook' ? 'FB' : p === 'instagram' ? 'IG' : 'TT'}
-                    </button>
-                  ))}
+                  {PLATFORMS.map(pl => {
+                    const dayPlats = selectedDayData.platforms?.length > 0 ? selectedDayData.platforms : [selectedDayData.platform];
+                    const isSelected = dayPlats.includes(pl);
+                    return (
+                      <button key={pl} onClick={() => {
+                        setActivePlatform(pl);
+                        if (!isSelected) return; // only switch view, not assignment when multi-select
+                      }}
+                        className={`option-btn ${activePlatform === pl ? 'active' : ''}`}
+                        style={{ flex: 1, padding: '6px', borderRadius: 8, fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, opacity: isSelected ? 1 : 0.4 }}>
+                        {pl === 'facebook' ? <FacebookIcon /> : pl === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
+                        {pl === 'facebook' ? 'FB' : pl === 'instagram' ? 'IG' : 'TT'}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 {/* Best time to post */}
                 <div style={{ padding: '10px 12px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 10, marginBottom: 16 }}>
                   <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>⏰ Najlepsza godzina publikacji</p>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
-                    {BEST_TIMES[selectedDayData.platform].times.map((t, i) => (
+                    {BEST_TIMES[activePlatform] && BEST_TIMES[activePlatform].times.map((t, i) => (
                       <span key={i} style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: 6, color: '#a5b4fc', fontWeight: 500 }}>{t}</span>
                     ))}
                   </div>
-                  <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.35)', lineHeight: 1.5, margin: 0 }}>{BEST_TIMES[selectedDayData.platform].tip}</p>
+                  <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.35)', lineHeight: 1.5, margin: 0 }}>{BEST_TIMES[activePlatform]?.tip}</p>
                 </div>
 
-                {selectedDayData.generated && selectedDayData.postText ? (
-                  <div>
-                    <label style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', display: 'block', marginBottom: 8 }}>Wygenerowany post</label>
-                    <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '12px 14px', marginBottom: 10 }}>
-                      <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.8)', lineHeight: 1.7, marginBottom: 10 }}>{selectedDayData.postText}</p>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                        {(selectedDayData.hashtags || []).map((tag, i) => (
-                          <span key={i} style={{ fontSize: 11, padding: '3px 8px', background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 6, color: '#818cf8' }}>{tag}</span>
-                        ))}
+                {(() => {
+                  const dayPlats = selectedDayData.platforms?.length > 0 ? selectedDayData.platforms : [selectedDayData.platform];
+                  const activePost = selectedDayData.postsByPlatform?.[activePlatform];
+                  const isActiveGenerated = !!selectedDayData.generated_platforms?.[activePlatform];
+                  return isActiveGenerated && activePost ? (
+                    <div>
+                      <label style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', display: 'block', marginBottom: 8 }}>
+                        Wygenerowany post {dayPlats.length > 1 && <span style={{ color: PLATFORM_COLORS[activePlatform], fontWeight: 600 }}>({activePlatform})</span>}
+                      </label>
+                      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '12px 14px', marginBottom: 10 }}>
+                        <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.8)', lineHeight: 1.7, marginBottom: 10 }}>{activePost.text}</p>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                          {(activePost.hashtags || []).map((tag, i) => (
+                            <span key={i} style={{ fontSize: 11, padding: '3px 8px', background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 6, color: '#818cf8' }}>{tag}</span>
+                          ))}
+                        </div>
                       </div>
+                      <button onClick={() => {
+                        navigator.clipboard.writeText(`${activePost.text}\n\n${(activePost.hashtags || []).join(' ')}`);
+                        setCopiedKey(selectedDayData.fullKey + '_' + activePlatform);
+                        setTimeout(() => setCopiedKey(null), 2000);
+                      }} className="btn-ghost" style={{ width: '100%', padding: '9px', borderRadius: 10, fontSize: 13 }}>
+                        {copiedKey === selectedDayData.fullKey + '_' + activePlatform ? '✅ Skopiowano!' : '📋 Kopiuj post'}
+                      </button>
+                      {generateMode === 'copy' && dayPlats.length > 1 && credits?.plan !== 'premium' && (
+                        <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.3)', marginTop: 8, lineHeight: 1.5 }}>
+                          💡 Ten post to kopia z {dayPlats[0]}. W <Link href="/pricing" style={{ color: '#a5b4fc' }}>planie Pro</Link> dostaniesz wersję dopasowaną do każdej platformy.
+                        </p>
+                      )}
                     </div>
-                    <button onClick={() => copyPost(selectedDayData)} className="btn-ghost"
-                      style={{ width: '100%', padding: '9px', borderRadius: 10, fontSize: 13 }}>
-                      {copiedKey === selectedDayData.fullKey ? '✅ Skopiowano!' : '📋 Kopiuj post'}
+                  ) : selectedDayData.topic ? (
+                    <button onClick={async () => {
+                      setStatus('generating');
+                      setProgressLabel(`Generuję post dla ${selectedDayData.dayOfMonth} ${MONTH_NAMES_PL[currentMonth]} (${activePlatform})...`);
+                      try {
+                        const res = await fetch('/api/generate', {
+                          method: 'POST', headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ topic: selectedDayData.topic, platform: activePlatform, tone: defaultTone, length: 'medium', scheduled_date: selectedDayData.fullKey }),
+                        });
+                        const data = await res.json();
+                        if (res.ok && data.posts?.[0]) {
+                          const post = data.posts[0];
+                          const newGenPlatforms = { ...(selectedDayData.generated_platforms || {}), [activePlatform]: true };
+                          const newPostsByPlatform = { ...(selectedDayData.postsByPlatform || {}), [activePlatform]: { text: post.text, hashtags: post.hashtags || [] } };
+                          setDays(prev => prev.map(d => d.fullKey === selectedDayData.fullKey
+                            ? { ...d, generated: true, generated_platforms: newGenPlatforms, postsByPlatform: newPostsByPlatform, postText: post.text, hashtags: post.hashtags }
+                            : d));
+                          saveTopics([{ date: selectedDayData.fullKey, topic: selectedDayData.topic, platform: dayPlats[0], platforms: dayPlats, generated: true, generated_platforms: newGenPlatforms, post_text: post.text, hashtags: post.hashtags, posts_by_platform: newPostsByPlatform }]);
+                          if (data.creditsRemaining !== undefined) setCredits(prev => prev ? { ...prev, remaining: data.creditsRemaining } : prev);
+                        }
+                      } catch (err) { console.error(err); }
+                      setStatus('idle'); setProgressLabel('');
+                    }} className="btn-primary" style={{ width: '100%', padding: '10px', borderRadius: 10, fontSize: 13 }}>
+                      ✨ Wygeneruj post ({activePlatform})
                     </button>
-                  </div>
-                ) : selectedDayData.topic ? (
-                  <button onClick={async () => {
-                    setStatus('generating');
-                    setProgressLabel(`Generuję post dla ${selectedDayData.dayOfMonth} ${MONTH_NAMES_PL[currentMonth]}...`);
-                    try {
-                      const res = await fetch('/api/generate', {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ topic: selectedDayData.topic, platform: selectedDayData.platform, tone: defaultTone, length: 'medium', scheduled_date: selectedDayData.fullKey }),
-                      });
-                      const data = await res.json();
-                      if (res.ok && data.posts?.[0]) {
-                        const post = data.posts[0];
-                        setDays(prev => prev.map(d => d.fullKey === selectedDayData.fullKey ? { ...d, generated: true, postText: post.text, hashtags: post.hashtags } : d));
-                        saveTopics([{ date: selectedDayData.fullKey, topic: selectedDayData.topic, platform: selectedDayData.platform, generated: true, post_text: post.text, hashtags: post.hashtags }]);
-                        if (data.creditsRemaining !== undefined) setCredits(prev => prev ? { ...prev, remaining: data.creditsRemaining } : prev);
-                      }
-                    } catch (err) { console.error(err); }
-                    setStatus('idle'); setProgressLabel('');
-                  }} className="btn-primary" style={{ width: '100%', padding: '10px', borderRadius: 10, fontSize: 13 }}>
-                    ✨ Wygeneruj ten post
-                  </button>
-                ) : null}
+                  ) : null;
+                })()}
               </div>
             )}
           </div>
@@ -854,6 +1050,59 @@ useEffect(() => {
           </p>
         </footer>
       </div>
+      {/* GENERATE MODE MODAL */}
+      {showGenerateModeModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div style={{ background: '#13131a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: '36px 32px', maxWidth: 480, width: '100%' }}>
+            <h2 className="font-display" style={{ fontSize: 18, fontWeight: 700, color: '#f0f0f5', marginBottom: 6, lineHeight: 1.3 }}>
+              Jak generować posty na kilka platform?
+            </h2>
+            <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.4)', marginBottom: 24 }}>
+              Wybrałeś {selectedPlatforms.length} platformy: {selectedPlatforms.join(', ')}
+            </p>
+
+            {/* Option 1: Copy */}
+            <div onClick={() => setGenerateMode('copy')} style={{ border: `2px solid ${generateMode === 'copy' ? '#6366f1' : 'rgba(255,255,255,0.1)'}`, borderRadius: 14, padding: '16px 20px', cursor: 'pointer', marginBottom: 10, background: generateMode === 'copy' ? 'rgba(99,102,241,0.1)' : 'transparent', transition: 'all 0.2s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 20, height: 20, borderRadius: '50%', border: `2px solid ${generateMode === 'copy' ? '#6366f1' : 'rgba(255,255,255,0.3)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  {generateMode === 'copy' && <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#6366f1' }} />}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#f0f0f5', marginBottom: 2 }}>
+                    To samo na każdą platformę <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 100, background: 'rgba(99,102,241,0.2)', color: '#a5b4fc', marginLeft: 6 }}>Starter</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: 'rgba(240,240,245,0.45)' }}>Jeden post, skopiowany na każdą platformę. Szybko i spójnie.</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Option 2: Adapted (Pro only) */}
+            <div onClick={() => { if (credits?.plan === 'premium') setGenerateMode('adapted'); }} style={{ border: `2px solid ${generateMode === 'adapted' ? '#a855f7' : 'rgba(255,255,255,0.1)'}`, borderRadius: 14, padding: '16px 20px', cursor: credits?.plan === 'premium' ? 'pointer' : 'not-allowed', marginBottom: 24, background: generateMode === 'adapted' ? 'rgba(168,85,247,0.1)' : 'transparent', opacity: credits?.plan === 'premium' ? 1 : 0.55, transition: 'all 0.2s' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 20, height: 20, borderRadius: '50%', border: `2px solid ${generateMode === 'adapted' ? '#a855f7' : 'rgba(255,255,255,0.3)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  {generateMode === 'adapted' && <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#a855f7' }} />}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#f0f0f5', marginBottom: 2 }}>
+                    Dostosowane do każdej platformy <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 100, background: 'rgba(168,85,247,0.2)', color: '#c084fc', marginLeft: 6 }}>Pro ★</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: 'rgba(240,240,245,0.45)' }}>
+                    {credits?.plan === 'premium' ? 'Każda platforma dostaje osobno zoptymalizowany content.' : 'Dostępne w planie Pro — każda platforma dostaje osobny content.'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setShowGenerateModeModal(false)} className="btn-ghost" style={{ flex: 1, padding: '12px', borderRadius: 12, fontSize: 14 }}>Anuluj</button>
+              <button onClick={() => { setShowGenerateModeModal(false); doGenerateAllPosts(generateMode); }} className="btn-primary" style={{ flex: 2, padding: '12px', borderRadius: 12, fontSize: 14, border: 'none' }}>
+                <span>✨ Generuj</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* UPGRADE MODAL */}
       {upgradeModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>

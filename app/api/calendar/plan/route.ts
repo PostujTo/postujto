@@ -8,7 +8,8 @@ export async function POST(req: NextRequest) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { year, month, monthName, occasions, platform, tone, daysCount } = await req.json();
+  const { year, month, monthName, occasions, platform, platforms, tone, daysCount } = await req.json();
+  const primaryPlatform = (platforms && platforms.length > 0) ? platforms[0] : (platform || 'facebook');
 
   const prompt = `Jesteś ekspertem od social media marketingu dla polskich firm.
 Zaplanuj kalendarz treści na ${monthName} ${year} (${daysCount} dni).
@@ -16,7 +17,7 @@ Zaplanuj kalendarz treści na ${monthName} ${year} (${daysCount} dni).
 Polskie okazje w tym miesiącu:
 ${occasions || 'Brak specjalnych okazji'}
 
-Platforma: ${platform}
+Platforma: ${primaryPlatform}
 Ton komunikacji: ${tone}
 
 Zwróć JSON z planem dla KAŻDEGO dnia miesiąca.
@@ -24,11 +25,11 @@ Format: tablica obiektów, każdy obiekt:
 {
   "date": "YYYY-MM-DD",
   "topic": "konkretny temat posta po polsku (1-2 zdania)",
-  "platform": "${platform}"
+  "platform": "${primaryPlatform}"
 }
 
 Zasady:
-- KAŻDY post musi mieć "platform": "${platform}" — nie zmieniaj tej wartości
+- KAŻDY post musi mieć "platform": "${primaryPlatform}" — nie zmieniaj tej wartości
 - Przy dniach z okazją — nawiąż do niej w temacie
 - Tematy muszą być konkretne i działające dla małej firmy (np. "Nowa kolekcja letnich sukienek — pokaż 3 bestsellery", nie "Post o produktach")
 - Urozmaicaj typy treści: edukacyjne, promocyjne, behind-the-scenes, angażujące pytania, opinie klientów

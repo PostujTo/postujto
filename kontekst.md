@@ -1,5 +1,5 @@
 # PostujTo.pl — Kontekst projektu
-_Ostatnia aktualizacja: 2026-03-18_
+_Ostatnia aktualizacja: 2026-03-19_
 
 ## Stack techniczny
 - **Frontend/Backend:** Next.js 16 (App Router)
@@ -123,6 +123,13 @@ _Ostatnia aktualizacja: 2026-03-18_
 - Platforma w planie — enforced: Claude przypisuje tę samą platformę do wszystkich dni
 - Przerwanie pętli generowania przy błędzie 403 (brak kredytów)
 - Przycisk "Wygeneruj" disabled + etykieta "Brak kredytów" gdy credits.remaining === 0
+- **Multi-platforma:** selektor checkboxowy (min. 1 platforma), zakładki platform nad siatką i listą (wspólny stan `activePlatform`)
+- Status generowania per platforma — kółeczka ○/✓ w kafelkach kalendarza
+- Modal trybu generowania (Starter: kopia, Pro: dostosowane) gdy >1 platforma
+- Widok listy: filtrowanie po aktywnej platformie + przyciski inline Generuj/Kopiuj
+- Sidebar: wyświetla post dla aktywnej platformy, generuje dla aktywnej platformy
+- CSV eksport: kolumna `Platformy` (oddzielone przecinkiem)
+- Notka "Ten post to kopia" dla Starter przy multi-platformie
 
 ### Onboarding (/onboarding)
 - Wizard 5 kroków: Witaj → Firma → Platformy → Ton → Start
@@ -168,6 +175,14 @@ brand_kits:
   - colors (jsonb), style, tone
   - logo_url
   - sample_posts (text, max 10k znaków)
+
+calendar_topics:
+  - user_id, date, topic, platform (deprecated → platforms[0])
+  - platforms text[] — wybrane platformy
+  - generated boolean (deprecated → generated_platforms)
+  - generated_platforms jsonb — per-platform status {facebook: true, instagram: false}
+  - post_text, hashtags (deprecated → posts_by_platform)
+  - posts_by_platform jsonb — {facebook: {text, hashtags}, instagram: {...}}
 ```
 
 ## API endpoints
@@ -184,6 +199,8 @@ POST /api/dashboard/rating  — ocena wersji
 POST /api/dashboard/performance — wyniki posta
 POST /api/dashboard/report  — raport miesięczny Claude
 POST /api/calendar/plan     — planowanie tematów na miesiąc
+GET  /api/calendar/topics   — ładowanie tematów z Supabase
+POST /api/calendar/topics   — zapis tematów do Supabase
 POST /api/onboarding-complete — oznacz onboarding jako ukończony
 POST /api/user/accept-terms — zapisz terms_accepted_at
 GET  /api/user/terms-status — sprawdź czy regulamin zaakceptowany
@@ -193,7 +210,7 @@ POST /api/stripe/create-checkout-session
 POST /api/stripe/customer-portal
 POST /api/stripe/webhook
 POST /api/webhooks/clerk    — tworzenie użytkownika w Supabase + onboarding email
-GET  /api/cron/daily        — dzienny cron (Vercel)
+GET  /api/cron/alerts       — dzienny cron (Vercel): koszty Anthropic, storage Supabase, tygodniowy raport, dzienny raport użycia
 ```
 
 ## Akceptacja regulaminu — pełne pokrycie
@@ -209,6 +226,9 @@ GET  /api/cron/daily        — dzienny cron (Vercel)
 - Rate limiting: /api/generate (10 req/min), /api/image (5 req/min)
 - Row Level Security w Supabase
 - Walidacja i sanityzacja inputów w /api/generate
+- Weryfikacja właściciela we wszystkich mutujących endpointach (user_id z Clerk, nie z body)
+- Stripe webhook weryfikacja sygnatury (`constructEvent`)
+- Upload logo — walidacja server-side (rozmiar, typ MIME, rozszerzenie)
 - Regulamin §1: dane osoby fizycznej (Jarosław Cisło) — do aktualizacji po JDG
 - Regulamin §5 Reklamacje, §10 RODO, §12 Rozstrzyganie sporów
 - Polityka prywatności z kolumną Odbiorcy (Clerk, Supabase, Stripe, Anthropic, Vercel/Cloudflare)
@@ -262,12 +282,13 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 
 ## Roadmap — zaplanowane funkcje
 
-### Sprint: Kalendarz multi-platforma (priorytet po launchcie)
-- Refactor `CalendarDay` — pole `platform` zamienione na tablicę postów per platforma
-- Multi-select platform w trybie szybkim (FB + IG + TikTok jednocześnie)
-- Tryb zaawansowany: zaznaczanie wielu dni (shift+klik) + hurtowa zmiana platformy/tonu
-- Claude dobiera ton automatycznie na podstawie okazji przy bulk generation
-- Eksport CSV uwzględnia wiele platform per dzień
+### ✅ Sprint: Kalendarz multi-platforma — WDROŻONE
+- Multi-select platform (checkboxy, min. 1 wymagana)
+- Zakładki platform nad siatką i listą (wspólny stan)
+- Modal trybu: kopia (Starter) vs dostosowane (Pro)
+- Widok listy z filtrowaniem + inline Generuj/Kopiuj
+- Status per platforma w kafelkach
+- CSV z kolumną Platformy
 
 ### Auto-posting (wersja 2.0)
 - Wymaga App Review Meta + Business Verification — proces wielotygodniowy
