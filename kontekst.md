@@ -130,6 +130,8 @@ _Ostatnia aktualizacja: 2026-03-19_
 - Sidebar: wyświetla post dla aktywnej platformy, generuje dla aktywnej platformy
 - CSV eksport: kolumna `Platformy` (oddzielone przecinkiem)
 - Notka "Ten post to kopia" dla Starter przy multi-platformie
+- Bulk generation pomija dni już wygenerowane dla aktywnej platformy (nie nadpisuje)
+- Dynamiczna etykieta przycisku: "Wygeneruj 31 postów" / "Wygeneruj pozostałe 26 postów" / "✓ Wszystkie posty gotowe"
 
 ### Onboarding (/onboarding)
 - Wizard 5 kroków: Witaj → Firma → Platformy → Ton → Start

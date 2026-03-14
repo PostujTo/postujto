@@ -348,7 +348,8 @@ useEffect(() => {
   };
 
   const generateAllPosts = async () => {
-    const toGenerate = currentDays.filter(d => d.topic);
+    // Only generate days where activePlatform hasn't been generated yet
+    const toGenerate = currentDays.filter(d => d.topic && !d.generated_platforms?.[activePlatform]);
     if (toGenerate.length === 0) return;
     // Show mode modal if >1 platform and not Free
     if (selectedPlatforms.length > 1 && credits?.plan !== 'free') {
@@ -359,7 +360,8 @@ useEffect(() => {
   };
 
   const doGenerateAllPosts = async (mode: 'copy' | 'adapted') => {
-    const toGenerate = currentDays.filter(d => d.topic && !d.platforms.every(pl => d.generated_platforms?.[pl]));
+    // Skip days already generated for the active platform
+    const toGenerate = currentDays.filter(d => d.topic && !d.generated_platforms?.[activePlatform]);
     if (toGenerate.length === 0) return;
 
     setStatus('generating');
@@ -873,14 +875,20 @@ useEffect(() => {
                 </button>
 
                 <button onClick={generateAllPosts}
-                  disabled={topicCount === 0 || status === 'planning' || status === 'generating' || (credits?.plan === 'free' && credits.remaining === 0)}
+                  disabled={topicCount === 0 || status === 'planning' || status === 'generating' || (credits?.plan === 'free' && credits.remaining === 0) || currentDays.filter(d => d.topic && !d.generated_platforms?.[activePlatform]).length === 0}
                   className="btn-primary"
-                  style={{ padding: '12px', borderRadius: 12, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', opacity: (topicCount === 0 || (credits?.plan === 'free' && credits.remaining === 0)) ? 0.4 : 1 }}>
+                  style={{ padding: '12px', borderRadius: 12, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', opacity: (topicCount === 0 || (credits?.plan === 'free' && credits.remaining === 0) || currentDays.filter(d => d.topic && !d.generated_platforms?.[activePlatform]).length === 0) ? 0.4 : 1 }}>
                   {status === 'generating'
                     ? <><svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3"/><path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round"/></svg> Generuję posty...</>
                     : credits?.plan === 'free' && credits.remaining === 0
                     ? <span>✨ Brak kredytów — przejdź na Starter</span>
-                    : <span>✨ Wygeneruj {topicCount > 0 ? topicCount : currentDays.length}/{currentDays.length}{credits?.plan === 'free' ? ` (${credits.remaining} kredytów)` : ''}</span>
+                    : (() => {
+                        const remaining = currentDays.filter(d => d.topic && !d.generated_platforms?.[activePlatform]).length;
+                        const alreadyGenerated = currentDays.filter(d => d.generated_platforms?.[activePlatform]).length;
+                        if (remaining === 0 && topicCount > 0) return <span>✓ Wszystkie posty gotowe</span>;
+                        if (alreadyGenerated > 0) return <span>⚡ Wygeneruj pozostałe {remaining} postów{credits?.plan === 'free' ? ` (${credits.remaining} kredytów)` : ''}</span>;
+                        return <span>⚡ Wygeneruj {remaining} postów{credits?.plan === 'free' ? ` (${credits.remaining} kredytów)` : ''}</span>;
+                      })()
                   }
                 </button>
 
