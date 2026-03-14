@@ -1,9 +1,9 @@
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = 'PostujTo Monitoring <alerty@postujto.com>';
-const TO = process.env.ALERT_EMAIL!;
+const getResend = () => new Resend(process.env.RESEND_API_KEY);
+const getTo = () => process.env.ALERT_EMAIL!;
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -27,9 +27,9 @@ export async function sendUsageAlert({
   const month = new Date().toLocaleString('pl-PL', { month: 'long', year: 'numeric' });
 
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: FROM,
-      to: TO,
+      to: getTo(),
       subject: `${severity} Anomalia użycia — ${monthlyCount} generacji w ${month}`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
@@ -135,9 +135,9 @@ export async function sendDailyUsageReport() {
   const month = new Date().toLocaleString('pl-PL', { month: 'long', year: 'numeric' });
 
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: FROM,
-      to: TO,
+      to: getTo(),
       subject: `📊 Dzienny raport PostujTo — ${dailyCount} generacji wczoraj`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">

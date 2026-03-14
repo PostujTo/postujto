@@ -78,9 +78,10 @@ export async function POST(req: Request) {
 
     if (logo_url !== undefined && typeof logo_url === 'string' && logo_url.length > 500) {
       return NextResponse.json({ error: 'Nieprawidłowy URL logo' }, { status: 400 });
-      if (sample_posts !== undefined && (typeof sample_posts !== 'string' || sample_posts.length > 10000)) {
-      return NextResponse.json({ error: 'Przykładowe posty są za długie (max 10000 znaków)' }, { status: 400 });
     }
+
+    if (sample_posts !== undefined && (typeof sample_posts !== 'string' || sample_posts.length > 10000)) {
+      return NextResponse.json({ error: 'Przykładowe posty są za długie (max 10000 znaków)' }, { status: 400 });
     }
 
     // Sanityzacja

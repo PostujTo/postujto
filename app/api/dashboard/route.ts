@@ -47,11 +47,6 @@ return NextResponse.json({
   generations: generations || [],
   stats: { total, favorites, facebook, instagram, tiktok },
 });
-
-    return NextResponse.json({
-      generations: generations || [],
-      stats: { total, favorites, facebook, instagram, tiktok },
-  });
   } catch (error: any) {
     return NextResponse.json({ error: 'Błąd serwera', details: error.message }, { status: 500 });
   }

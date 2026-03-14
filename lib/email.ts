@@ -1,8 +1,8 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = 'PostujTo Alerty <alerty@postujto.com>';
-const TO = process.env.ALERT_EMAIL!;
+const getResend = () => new Resend(process.env.RESEND_API_KEY);
+const getTo = () => process.env.ALERT_EMAIL!;
 
 function baseTemplate(title: string, color: string, body: string): string {
   return `<!DOCTYPE html>
@@ -38,8 +38,8 @@ function row(label: string, value: string, valueColor?: string): string {
 export async function sendNewSubscriptionAlert(data: {
   email: string; plan: string; amount: number; currency: string;
 }) {
-  await resend.emails.send({
-    from: FROM, to: TO,
+  await getResend().emails.send({
+    from: FROM, to: getTo(),
     subject: `💰 Nowa subskrypcja — ${data.plan}`,
     html: baseTemplate('Nowa subskrypcja', '#22c55e', `
       <p style="margin:0 0 20px;font-size:20px;font-weight:700;color:#f0f0f5;">Nowy płatny użytkownik! 🎉</p>
@@ -55,8 +55,8 @@ export async function sendNewSubscriptionAlert(data: {
 export async function sendCancellationAlert(data: {
   email: string; plan: string; endsAt: string;
 }) {
-  await resend.emails.send({
-    from: FROM, to: TO,
+  await getResend().emails.send({
+    from: FROM, to: getTo(),
     subject: `⚠️ Anulowanie subskrypcji — ${data.email}`,
     html: baseTemplate('Anulowanie', '#f59e0b', `
       <p style="margin:0 0 20px;font-size:18px;font-weight:700;color:#f0f0f5;">Użytkownik anulował subskrypcję</p>
@@ -72,8 +72,8 @@ export async function sendCancellationAlert(data: {
 export async function sendPaymentFailedAlert(data: {
   email: string; amount: number; currency: string; reason: string;
 }) {
-  await resend.emails.send({
-    from: FROM, to: TO,
+  await getResend().emails.send({
+    from: FROM, to: getTo(),
     subject: `❌ Nieudana płatność — ${data.email}`,
     html: baseTemplate('Błąd płatności', '#ef4444', `
       <p style="margin:0 0 20px;font-size:18px;font-weight:700;color:#f0f0f5;">Płatność nie powiodła się</p>
@@ -89,8 +89,8 @@ export async function sendPaymentFailedAlert(data: {
 export async function sendAnthropicCostAlert(data: {
   cost: number; threshold: number; period: string;
 }) {
-  await resend.emails.send({
-    from: FROM, to: TO,
+  await getResend().emails.send({
+    from: FROM, to: getTo(),
     subject: `🤖 Anthropic API — przekroczono $${data.threshold}`,
     html: baseTemplate('Próg kosztów API', '#a855f7', `
       <p style="margin:0 0 20px;font-size:18px;font-weight:700;color:#f0f0f5;">Koszty Anthropic API przekroczyły próg</p>
@@ -109,8 +109,8 @@ export async function sendSupabaseAlert(data: {
 }) {
   const label = data.type === 'storage' ? 'Storage' : 'Połączenia DB';
   const unit = data.type === 'storage' ? 'MB' : '';
-  await resend.emails.send({
-    from: FROM, to: TO,
+  await getResend().emails.send({
+    from: FROM, to: getTo(),
     subject: `🗄️ Supabase ${label} — ${data.percent}% limitu`,
     html: baseTemplate(`Supabase ${label}`, '#06b6d4', `
       <p style="margin:0 0 20px;font-size:18px;font-weight:700;color:#f0f0f5;">Supabase zbliża się do limitu</p>
@@ -130,8 +130,8 @@ export async function sendWeeklyReport(data: {
   totalGenerations: number; weekGenerations: number;
   revenue: number;
 }) {
-  await resend.emails.send({
-    from: FROM, to: TO,
+  await getResend().emails.send({
+    from: FROM, to: getTo(),
     subject: `📊 Tygodniowy raport PostujTo — ${new Date().toLocaleDateString('pl-PL', { day: 'numeric', month: 'long' })}`,
     html: baseTemplate('Raport tygodniowy', '#6366f1', `
       <p style="margin:0 0 24px;font-size:18px;font-weight:700;color:#f0f0f5;">Podsumowanie tygodnia</p>

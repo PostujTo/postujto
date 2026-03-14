@@ -1,5 +1,5 @@
 # PostujTo.pl — Kontekst projektu
-_Ostatnia aktualizacja: 2026-03-19_
+_Ostatnia aktualizacja: 2026-03-20_
 
 ## Stack techniczny
 - **Frontend/Backend:** Next.js 16 (App Router)
@@ -229,6 +229,12 @@ GET  /api/cron/alerts       — dzienny cron (Vercel): koszty Anthropic, storage
 - Row Level Security w Supabase
 - Walidacja i sanityzacja inputów w /api/generate
 - Weryfikacja właściciela we wszystkich mutujących endpointach (user_id z Clerk, nie z body)
+- **Izolacja danych użytkowników** — pełna weryfikacja i naprawa wszystkich endpointów:
+  - `dashboard/route.ts` — naprawiony zduplikowany return
+  - `brand-kit/route.ts` — naprawiona walidacja sample_posts (błędnie zagnieżdżona w logo_url)
+  - `user/delete-account/route.ts` — dodano usuwanie brand_kits + calendar_topics
+  - `supabase/migrations/rls_policies.sql` — RLS na wszystkich tabelach (do uruchomienia)
+  - Zweryfikowane jako poprawne: dashboard/delete, dashboard/favorite, dashboard/rating, dashboard/performance, dashboard/raport, user/gdpr-export, credits, stripe/webhook
 - Stripe webhook weryfikacja sygnatury (`constructEvent`)
 - Upload logo — walidacja server-side (rozmiar, typ MIME, rozszerzenie)
 - Regulamin §1: dane osoby fizycznej (Jarosław Cisło) — do aktualizacji po JDG

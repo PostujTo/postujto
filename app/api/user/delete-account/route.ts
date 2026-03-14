@@ -15,6 +15,8 @@ export async function DELETE() {
     .from('users').select('id').eq('clerk_user_id', userId).single();
 
   if (user) {
+    await supabaseAdmin.from('calendar_topics').delete().eq('user_id', user.id);
+    await supabaseAdmin.from('brand_kits').delete().eq('user_id', user.id);
     await supabaseAdmin.from('generations').delete().eq('user_id', user.id);
     await supabaseAdmin.from('users').delete().eq('id', user.id);
   }
