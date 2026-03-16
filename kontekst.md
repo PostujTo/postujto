@@ -1,5 +1,5 @@
 # PostujTo.pl — Kontekst projektu
-_Ostatnia aktualizacja: 2026-03-20_
+_Ostatnia aktualizacja: 2026-03-16_
 
 ## Stack techniczny
 - **Frontend/Backend:** Next.js 16 (App Router)
@@ -36,8 +36,6 @@ _Ostatnia aktualizacja: 2026-03-20_
 ### Infrastruktura
 - Toast notifications
 - Email alerty przez Resend (Stripe/Anthropic/Supabase/weekly report)
-- Alerty anomalii użycia (100/300/500 generacji/msc per user) — `lib/alerts.ts`
-- Dzienny raport generacji (tylko gdy dailyCount > 0) + top 5 użytkowników w miesiącu
 - inFakt auto-faktura przy nowej subskrypcji
 - Vercel cron job (codziennie 8:00 UTC)
 - Onboarding email po rejestracji (Clerk webhook)
@@ -59,17 +57,6 @@ _Ostatnia aktualizacja: 2026-03-20_
 - Licznik kredytów: czerwony przy 0 (background rgba(239,68,68,0.15), color #f87171)
 - Karty pakietów: slider miesięczny/roczny, oba przyciski gradient, brightness(1.25) na hover
 - Modal regulaminu przed Stripe (sprawdza terms_accepted_at)
-- Inspiracje tematów — 3 losowe chipy per platforma (odświeżają się przy zmianie platformy)
-- 21 branż podzielonych na 6 grup (Gastronomia, Uroda i zdrowie, Handel, Usługi i rzemiosło, Edukacja i biznes, Nieruchomości i turystyka) — chipy z nagłówkami grup
-- Lazy onboarding — baner po pierwszym wygenerowanym poście gdy brak Brand Kit (jedno pole: nazwa firmy + opcjonalna branża z chipami), zamykany przez "Później" (localStorage)
-- Fallback kontekst w prompt gdy Brand Kit pusty — Claude dostaje wskazówkę o polskiej małej firmie i wnioskuje branżę z tematu
-- Historia ostatnich tematów (5 ostatnich z /api/dashboard, rozwijana lista)
-- Klikalne okazje handlowe → wpisują gotowy temat do textarei
-- Licznik słów i znaków pod każdą wersją posta + ostrzeżenie o długości per platforma
-- Przycisk "Dodaj do kalendarza" z date-pickerem → zapisuje do calendar_topics
-- Empty state z 3 klikalnymi przykładowymi tematami (setTopic)
-- Cennik wyświetlany tylko gdy credits.remaining === 0 (nie w empty state)
-- Tooltip przy disabled Brand Colors / Brand Voice (widoczny na hover, opis planu)
 
 ### Brand Kit (/settings)
 - Nazwa firmy, slogan
@@ -79,17 +66,9 @@ _Ostatnia aktualizacja: 2026-03-20_
 - Logo (upload do Supabase Storage)
 - Przykładowe posty (sample_posts — nauka stylu przez Claude)
 - Presety stylów: Lokalny biznes, Korporacja, Eko, Premium, Młodzieżowy, Minimalizm
-- Pasek kompletności Brand Kitu (0–100%, kolor zależny od procentu, lista brakujących pól)
-- Presety przeniesione na górę formularza z opisami
-- Wskazówki "Jak to wypełnić?" przy sample_posts (rozwijane)
-- Licznik znaków sample_posts (max 10 000)
-- Podgląd "Jak Claude widzi Twoją markę" (na podstawie wypełnionych pól, bez API)
-- Kompletność: wagi 30/30/15/15/10 (company_name/sample_posts/logo_url/colors/tone)
-- Sprawdzanie kolorów: ignoruje #000000 i puste stringi
 
 ### Dashboard (/dashboard)
 - Historia wszystkich postów
-- Tab w nawigacji: "📊 Historia" (nie "Dashboard")
 - Filtry: wszystkie, ulubione, Facebook, Instagram, TikTok
 - Statystyki (total, ulubione, per platforma)
 - Ulubione (gwiazdka)
@@ -105,16 +84,16 @@ _Ostatnia aktualizacja: 2026-03-20_
 - Widok miesięczny (siatka) + widok listy
 - Polskie okazje handlowe (28 okazji)
 - Planowanie tematów przez Claude (liczba = dni w danym miesiącu, nie stałe 30)
-- Bulk generation wszystkich postów
+- Bulk generation wszystkich postów (pomija już wygenerowane — brief: calendar-bulk-generation-skip.md ✅)
 - Generowanie pojedynczego posta z panelu bocznego
-- Eksport CSV z BOM (UTF-8)
+- Eksport CSV z BOM (UTF-8) + kolumna `platforms`
 - Kopiuj serię na tydzień (4 przyciski)
 - Zapis z datą (scheduled_date) do Supabase
 - Best time to post w panelu dnia
 - Edycja tematu i platformy per dzień
 - Tony: Profesjonalny, Swobodny, Humorystyczny, Sprzedażowy
 - Prawdziwe SVG ikony platform (Facebook, Instagram, TikTok) z nazwami (FB/IG/TT) w panelu dnia
-- Header: pill toggle Generator / Kalendarz / Historia (3 zakładki, aktywna podświetlona) + plan/kredyty + avatar z dropdownem (🎨 Brand Kit + ↪ Wyloguj) — spójny na /app, /calendar, /dashboard, /settings
+- Header: tabs Generator / Kalendarz / Dashboard + plan/kredyty + przycisk Brand Kit po prawej
 - Logo spójne z benchmarkiem (fontSize 22, color #fff, gradient-text na "To")
 - Przycisk Eksportuj CSV — aktywny tylko gdy generatedCount > 0, widoczny styl nieaktywny
 - Przyciski Akcje mają widoczny gradient (naprawiony błąd font-family w .btn-primary)
@@ -122,29 +101,20 @@ _Ostatnia aktualizacja: 2026-03-20_
 - Tekst "Wygeneruj X/31" — X to liczba dni z tematem, 31 to liczba dni w miesiącu
 - Platforma w planie — enforced: Claude przypisuje tę samą platformę do wszystkich dni
 - Przerwanie pętli generowania przy błędzie 403 (brak kredytów)
-- Przycisk "Wygeneruj" disabled + etykieta "Brak kredytów" gdy credits.remaining === 0
-- **Multi-platforma:** selektor checkboxowy (min. 1 platforma), zakładki platform nad siatką i listą (wspólny stan `activePlatform`)
-- Status generowania per platforma — kółeczka ○/✓ w kafelkach kalendarza
-- Modal trybu generowania (Starter: kopia, Pro: dostosowane) gdy >1 platforma
-- Widok listy: filtrowanie po aktywnej platformie + przyciski inline Generuj/Kopiuj
-- Sidebar: wyświetla post dla aktywnej platformy, generuje dla aktywnej platformy
-- CSV eksport: kolumna `Platformy` (oddzielone przecinkiem)
-- Notka "Ten post to kopia" dla Starter przy multi-platformie
-- Bulk generation pomija dni już wygenerowane dla aktywnej platformy (nie nadpisuje)
-- Dynamiczna etykieta przycisku: "Wygeneruj 31 postów" / "Wygeneruj pozostałe 26 postów" / "✓ Wszystkie posty gotowe"
+- Multi-platforma: selektor platform jako multi-select checkboxy, zakładki platform nad siatką i listą (brief: calendar-multi-platform.md ✅)
+- Widok listy: zakładki platform jak w siatce, przyciski Generuj/Kopiuj inline (brief: calendar-list-view-platforms.md ✅)
+- Izolacja danych: każdy użytkownik widzi tylko swoje dane (brief: user-data-isolation.md ✅)
 
 ### Onboarding (/onboarding)
 - Wizard 5 kroków: Witaj → Firma → Platformy → Ton → Start
 - Zapis do Brand Kit po zakończeniu
 - Redirect do generatora z pre-wypełnionym tematem
 - Kolumna `onboarding_completed` w Supabase
-- Brak licznika "KROK X Z 3" — pasek postępu wystarczy
-- Krok 5: wskazówka "Chcesz lepsze posty? Dodaj logo i przykładowe posty w Brand Kit"
 
 ### Landing page (/)
 - Hero z demo card
 - Statyczne pillsy z funkcjami
-- Statystyki (10h, 30 postów, 3 platformy, 21 branż)
+- Statystyki (10h, 30 postów, 3 platformy, 12 branż)
 - Jak to działa (3 kroki) + CTA po sekcji
 - Co wyróżnia PostujTo (6 cech)
 - Dla kogo (6 use-case'ów z cytatami)
@@ -179,12 +149,13 @@ brand_kits:
   - sample_posts (text, max 10k znaków)
 
 calendar_topics:
-  - user_id, date, topic, platform (deprecated → platforms[0])
-  - platforms text[] — wybrane platformy
-  - generated boolean (deprecated → generated_platforms)
-  - generated_platforms jsonb — per-platform status {facebook: true, instagram: false}
-  - post_text, hashtags (deprecated → posts_by_platform)
-  - posts_by_platform jsonb — {facebook: {text, hashtags}, instagram: {...}}
+  - id, user_id, date (YYYY-MM-DD), topic (text)
+  - platforms (text[]) — np. ["facebook", "instagram"]
+  - generated_platforms (jsonb) — np. {"facebook": true, "instagram": false}
+  - platform (text) — deprecated, zachowane dla kompatybilności
+  - post_text (text), hashtags (jsonb)
+  - created_at
+  - RLS włączone: użytkownik widzi tylko swoje rekordy
 ```
 
 ## API endpoints
@@ -201,8 +172,6 @@ POST /api/dashboard/rating  — ocena wersji
 POST /api/dashboard/performance — wyniki posta
 POST /api/dashboard/report  — raport miesięczny Claude
 POST /api/calendar/plan     — planowanie tematów na miesiąc
-GET  /api/calendar/topics   — ładowanie tematów z Supabase
-POST /api/calendar/topics   — zapis tematów do Supabase
 POST /api/onboarding-complete — oznacz onboarding jako ukończony
 POST /api/user/accept-terms — zapisz terms_accepted_at
 GET  /api/user/terms-status — sprawdź czy regulamin zaakceptowany
@@ -212,7 +181,7 @@ POST /api/stripe/create-checkout-session
 POST /api/stripe/customer-portal
 POST /api/stripe/webhook
 POST /api/webhooks/clerk    — tworzenie użytkownika w Supabase + onboarding email
-GET  /api/cron/alerts       — dzienny cron (Vercel): koszty Anthropic, storage Supabase, tygodniowy raport, dzienny raport użycia
+GET  /api/cron/daily        — dzienny cron (Vercel)
 ```
 
 ## Akceptacja regulaminu — pełne pokrycie
@@ -228,15 +197,6 @@ GET  /api/cron/alerts       — dzienny cron (Vercel): koszty Anthropic, storage
 - Rate limiting: /api/generate (10 req/min), /api/image (5 req/min)
 - Row Level Security w Supabase
 - Walidacja i sanityzacja inputów w /api/generate
-- Weryfikacja właściciela we wszystkich mutujących endpointach (user_id z Clerk, nie z body)
-- **Izolacja danych użytkowników** — pełna weryfikacja i naprawa wszystkich endpointów:
-  - `dashboard/route.ts` — naprawiony zduplikowany return
-  - `brand-kit/route.ts` — naprawiona walidacja sample_posts (błędnie zagnieżdżona w logo_url)
-  - `user/delete-account/route.ts` — dodano usuwanie brand_kits + calendar_topics
-  - `supabase/migrations/rls_policies.sql` — RLS na wszystkich tabelach (do uruchomienia)
-  - Zweryfikowane jako poprawne: dashboard/delete, dashboard/favorite, dashboard/rating, dashboard/performance, dashboard/raport, user/gdpr-export, credits, stripe/webhook
-- Stripe webhook weryfikacja sygnatury (`constructEvent`)
-- Upload logo — walidacja server-side (rozmiar, typ MIME, rozszerzenie)
 - Regulamin §1: dane osoby fizycznej (Jarosław Cisło) — do aktualizacji po JDG
 - Regulamin §5 Reklamacje, §10 RODO, §12 Rozstrzyganie sporów
 - Polityka prywatności z kolumną Odbiorcy (Clerk, Supabase, Stripe, Anthropic, Vercel/Cloudflare)
@@ -273,30 +233,45 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 
 ## Znane błędy do naprawy (priorytet)
 
-### ✅ Persistence kalendarza (NAPRAWIONE)
-- Tabela `calendar_topics` w Supabase — migracja w `supabase/migrations/calendar_topics.sql`
-- API route `GET/POST /api/calendar/topics`
-- Tematy ładowane z Supabase przy zmianie miesiąca (useEffect)
-- Zapis: po generatePlan (batch), po edycji tematu (onBlur), po zmianie platformy, po wygenerowaniu posta
+### 🔴 Persistence kalendarza
+- Tematy zaplanowane przez Claude i wygenerowane posty znikają po odświeżeniu strony
+- Stan kalendarza żyje tylko w React state — nie jest zapisywany do Supabase
+- Potrzebna nowa tabela `calendar_topics` w Supabase:
+  ```sql
+  calendar_topics:
+    id, user_id, date (YYYY-MM-DD), topic (text), platform, generated (boolean),
+    post_text (text), hashtags (jsonb), created_at
+  ```
+- Przy załadowaniu strony — fetch tematów z Supabase
+- Przy zapisaniu/zmianie tematu — upsert do Supabase
+- Wygenerowane posty — zapis do `calendar_topics` (nie tylko do `generations`)
 
-### ✅ Kredyty nie odświeżają się po odświeżeniu strony (NAPRAWIONE)
-- Re-fetch /api/credits po bulk generation i po generowaniu z sidebara
-- setCredits z data.creditsRemaining po generowaniu single posta
+### 🔴 Kredyty nie odświeżają się po odświeżeniu strony
+- `/api/generate` poprawnie odejmuje kredyt w Supabase
+- Ale stan `credits` w React nie jest aktualizowany po generowaniu
+- Fix: re-fetch `/api/credits` po zakończeniu generowania całej pętli
 
-### ✅ Modal upgrade przy wyczerpaniu kredytów (NAPRAWIONE)
+### 🟡 Modal upgrade przy wyczerpaniu kredytów
 - Gdy użytkownik (Free) wyczerpie 5 kredytów podczas bulk generation
 - Pokazać modal: "Wygenerowałeś X/31 postów. Zostało Ci Y dni bez treści. Plan Starter odblokuje wszystkie za 79 zł/msc."
 - Przycisk "Przejdź na Starter" → Stripe checkout
 
 ## Roadmap — zaplanowane funkcje
 
-### ✅ Sprint: Kalendarz multi-platforma — WDROŻONE
-- Multi-select platform (checkboxy, min. 1 wymagana)
-- Zakładki platform nad siatką i listą (wspólny stan)
-- Modal trybu: kopia (Starter) vs dostosowane (Pro)
-- Widok listy z filtrowaniem + inline Generuj/Kopiuj
-- Status per platforma w kafelkach
-- CSV z kolumną Platformy
+### Kalendarz multi-platforma — WDROŻONE ✅
+- Multi-select platform przy planowaniu (checkboxy zamiast radio)
+- 1 kafelek per dzień, ikonki statusu platform ○/✓
+- Zakładki platform nad siatką i listą kalendarza
+- Panel boczny z zakładkami per platforma
+- Dwa tryby generowania: Kopia (Starter) / Dostosowane (Pro)
+- Bulk generation pomija już wygenerowane posty
+- Dynamiczna etykieta przycisku "Wygeneruj pozostałe X postów"
+
+### Bezpieczeństwo — WDROŻONE ✅
+- Pełna izolacja danych użytkowników (RLS + filtrowanie user_id)
+- Weryfikacja właściciela przy każdej operacji mutującej dane
+- Stripe webhook: weryfikacja constructEvent()
+- Upload logo: walidacja server-side, ścieżka zawiera user_id
 
 ### Auto-posting (wersja 2.0)
 - Wymaga App Review Meta + Business Verification — proces wielotygodniowy
@@ -304,24 +279,87 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 - Na teraz: przycisk "Kopiuj post" + intent link otwierający platformę z wklejonym tekstem
 
 ## Otwarte zadania
+> ⚠️ Backlog prowadzony w Notion: "PostujTo — backlog"
+> Na początku sesji poproś Claude o sprawdzenie Notion zamiast czytać tę sekcję.
 
-### 🔴 Pilne
+### 🔴 Krytyczne
 - [ ] Stripe — włączyć płatności po konsultacji prawnej
-- [x] Screenshoty z apki na landing page (CSS mockupy generatora, dashboardu, kalendarza)
-- [x] Modal upgrade przy wyczerpaniu kredytów w kalendarzu (wyświetlać ile dni zostało bez postów + CTA do Stripe)
+- [ ] Modal upgrade przy wyczerpaniu kredytów w kalendarzu
 
 ### 🟡 Ważne
 - [ ] Regulamin §1 — zaktualizować po rejestracji JDG (nazwa firmy, NIP, REGON, adres)
-- [ ] Doprecyzowanie "standardowych klauzul umownych" w polityce prywatności
-- [ ] Limit kredytów Free — doprecyzować w regulaminie czy wygasają
-- [x] Onboarding — ikony serwisów (cdn.simpleicons.org) — sprawdzić po deploymencie
-- [x] Onboarding — spójność przycisku "Dalej" z benchmarkiem (gradient, hover)
+- [ ] Polityka prywatności — doprecyzować "standardowe klauzule umowne"
+- [ ] Regulamin — doprecyzować czy 5 kredytów Free wygasa
+- [ ] Cloudflare cache konfiguracja (0% Percent Cached)
+- [ ] Screenshoty z apki na landing page (generator, dashboard, kalendarz)
 
 ### 🟢 Backlog
 - [ ] Social proof — wstawić po zebraniu min. 3 prawdziwych opinii (kod gotowy poniżej)
 - [ ] KSeF — zawieszone (brak JDG/VAT)
+- [ ] Limit generowania kalendarza per plan (Free: tydzień, Starter: miesiąc, Pro: 3 mies.)
+- [ ] Slack connector — dodać po launchcie
 
-## Benchmark UI/UX
+## Zasady komunikacji — JAK PRACUJEMY
+
+### Jarek → Claude
+- **Zawsze dołącz screenshot** gdy mówisz o UI/UX — zamiast opisywać co nie gra, pokaż
+- **Powiedz co boli użytkownika**, nie tylko co zmienić ("za dużo klikania" > "dodaj zakładki")
+- **Jeden temat per wiadomość** przy złożonych sprawach
+- **Na początku sesji:** "sprawdź backlog w Notion" — Claude przeczyta i zaproponuje co dalej
+- **Opcjonalny szablon startu sesji:**
+  ```
+  Pracujemy nad: [nazwa featurea lub buga]
+  Problem: [co nie działa / co chcemy osiągnąć]
+  Pliki do zmiany: [opcjonalnie]
+  ```
+
+### Claude → Claude Code (zasady briefów)
+- **Każdy brief ma sekcję "Nie zmieniaj X"** — lista rzeczy których nie wolno ruszyć
+- **Pseudokod "przed" i "po"** — zamiast opisywać, pokazuj
+- **Edge cases explicite** — każdy feature ma 2-3 edge cases rozwiązane z góry
+- **Test manualny na końcu** — konkretna procedura weryfikacji którą Claude Code ma wykonać
+- **Screenshot obecnego stanu** — jeśli Jarek dał screena, dołączamy go do briefu jako "stan przed"
+- **`npm run build` po każdej grupie zmian** — obowiązkowe w każdym briefie
+
+### Narzędzia podłączone do Claude
+- **Notion** — backlog "PostujTo — backlog" (14 zadań z priorytetami)
+  - Kolumny: Zadanie | Status | Priorytet | Kategoria | Notatki
+  - Na początku każdej sesji: Claude czyta Notion i wie co jest aktualne
+- **GitHub** — Claude może czytać rzeczywisty kod z repozytorium
+  - Briefs pisane na podstawie aktualnego kodu, nie opisów z pamięci
+- **Claude in Chrome** — rozszerzenie chwilowo wyłączone (wersja beta, ryzyko bezpieczeństwa)
+
+### Pliki briefów (wszystkie w /mnt/user-data/outputs/)
+- `kontekst.md` — główny kontekst projektu (ten plik)
+- `security-audit.md` — audyt bezpieczeństwa
+- `user-data-isolation.md` — pełna izolacja danych ✅ wdrożone
+- `calendar-multi-platform.md` — kalendarz multi-platforma ✅ wdrożone
+- `calendar-list-view-platforms.md` — widok listy z zakładkami ✅ wdrożone
+- `calendar-bulk-generation-skip.md` — bulk generation pomija wygenerowane ✅ wdrożone
+- `ux-fixes.md` — 13 zadań UX
+- `code-optimization.md` — optymalizacja kodu (priorytet: zadania 1 i 5)
+- `usage-monitoring.md` — monitoring użycia
+- `industries-and-onboarding.md` — branże + onboarding
+- `brandkit-improvements.md` — ulepszenia Brand Kit
+
+## Logika biznesowa — ważne decyzje
+
+### Kredyty i unlimited
+- Starter/Pro mają 9999 kredytów = de facto unlimited
+- **Nigdzie nie pokazujemy komunikatów o kredytach** użytkownikom Starter/Pro
+- Jeśli ktoś zużyje 9999 kredytów — prawdopodobnie bot, zabezpieczenie osobnym mechanizmem
+
+### Kalendarz multi-platforma — tryby generowania
+- **Starter:** tryb "Kopia" — 1 wywołanie API, reszta platform dostaje kopię. Notka pod postem: "Ten post to kopia z Facebook. W Pro dostaniesz wersję napisaną pod algorytm Instagram."
+- **Pro:** tryb "Dostosowane" — osobne wywołanie API per platforma, content zoptymalizowany
+- Wybór trybu: modal przed bulk generation gdy >1 platforma
+
+### Tiers (filozofia Hormoziego)
+- Free → sprawdź narzędzie
+- Starter → oszczędność czasu
+- Pro → lepsze wyniki (content natywny per platforma)
+
+
 
 **Strona główna (`app/page.tsx`) to benchmark** — każda nowa strona i komponent muszą być z nią spójne:
 - Efekty hover na kartach: `translateY(-8px)`, `border-color rgba(99,102,241,...)`, transition `0.2s ease` na konkretnych właściwościach (nie `all`)
@@ -332,7 +370,7 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 - Logo: `Postuj<span className="gradient-text">To</span>`, fontSize 22, fontWeight 800, color #fff
 - gradient-text: `linear-gradient(135deg, #6366f1, #a855f7, #ec4899)`
 - Sticky header: `background: rgba(10,10,15,0.9)`, `backdropFilter: blur(20px)`, `borderBottom: 1px solid rgba(255,255,255,0.06)`, height 68-72px
-- Nawigacja: avatar z dropdownem (useUser + useClerk) zamiast UserButton
+- `<UserButton />` bez deprecated `afterSignOutUrl` prop
 
 ## Do sprawdzenia po włączeniu płatności
 - Czy modal przed Stripe w `/pricing` poprawnie zapisuje `terms_accepted_at`
@@ -393,3 +431,4 @@ Wstawić w `app/page.tsx` między `{/* HOW IT WORKS */}` a `{/* FEATURES */}`. D
     </div>
   </div>
 </section>
+```
