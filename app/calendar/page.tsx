@@ -229,6 +229,7 @@ useEffect(() => {
   const [planTermsChecked, setPlanTermsChecked] = useState(false);
   const [planCheckoutLoading, setPlanCheckoutLoading] = useState(false);
   const [upgradeError, setUpgradeError] = useState<string | null>(null);
+  const [showReplanConfirm, setShowReplanConfirm] = useState(false);
 
   // ─── UPGRADE CHECKOUT ─────────────────────────────────────────────────────
   const handleUpgradeStarter = async () => {
@@ -964,7 +965,7 @@ useEffect(() => {
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <button onClick={generatePlan} disabled={status === 'planning' || status === 'generating'} className="btn-primary"
+                <button onClick={() => { if (generatedCount > 0) { setShowReplanConfirm(true); } else { generatePlan(); } }} disabled={status === 'planning' || status === 'generating'} className="btn-primary"
                   style={{ padding: '12px', borderRadius: 12, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none' }}>
                   {status === 'planning'
                     ? <><svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3"/><path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round"/></svg> Planuję tematy...</>
@@ -1240,6 +1241,49 @@ useEffect(() => {
             </button>
             <button onClick={() => setShowPlanTermsModal(false)}
               style={{ width: '100%', padding: '12px', borderRadius: 12, fontSize: 14, fontWeight: 600, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'rgba(240,240,245,0.4)', cursor: 'pointer' }}>
+              Anuluj
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* REPLAN CONFIRM MODAL */}
+      {showReplanConfirm && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 1100,
+          background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24
+        }}>
+          <div style={{
+            background: '#13131a', border: '1px solid rgba(239,68,68,0.3)',
+            borderRadius: 24, padding: 40, maxWidth: 440, width: '100%', textAlign: 'center'
+          }}>
+            <div style={{ fontSize: 44, marginBottom: 16 }}>⚠️</div>
+            <h3 style={{ fontSize: 20, fontWeight: 800, color: '#f0f0f5', marginBottom: 12 }}>
+              Nadpisać istniejące posty?
+            </h3>
+            <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.55)', lineHeight: 1.7, marginBottom: 28 }}>
+              Masz już <strong style={{ color: '#f87171' }}>{generatedCount} wygenerowanych postów</strong> w tym miesiącu.
+              Nowe planowanie usunie wszystkie tematy i posty. Tej operacji nie można cofnąć.
+            </p>
+            <button
+              onClick={() => { setShowReplanConfirm(false); generatePlan(); }}
+              style={{
+                width: '100%', padding: '14px', borderRadius: 12, fontSize: 15,
+                fontWeight: 700, border: 'none', cursor: 'pointer', marginBottom: 10,
+                background: 'linear-gradient(135deg, #ef4444, #dc2626)', color: '#fff'
+              }}
+            >
+              Tak, zaplanuj od nowa
+            </button>
+            <button
+              onClick={() => setShowReplanConfirm(false)}
+              style={{
+                width: '100%', padding: '12px', borderRadius: 12, fontSize: 14,
+                fontWeight: 600, border: '1px solid rgba(255,255,255,0.1)',
+                background: 'transparent', color: 'rgba(240,240,245,0.4)', cursor: 'pointer'
+              }}
+            >
               Anuluj
             </button>
           </div>
