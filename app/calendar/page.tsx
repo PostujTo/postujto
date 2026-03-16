@@ -806,6 +806,13 @@ useEffect(() => {
                     style={{ padding: '8px 16px', borderRadius: 10, fontSize: 13, border: `2px solid ${activePlatform === pl ? PLATFORM_COLORS[pl] : 'rgba(255,255,255,0.1)'}`, background: activePlatform === pl ? `${PLATFORM_COLORS[pl]}22` : 'rgba(255,255,255,0.03)', color: activePlatform === pl ? PLATFORM_COLORS[pl] : 'rgba(240,240,245,0.5)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontWeight: activePlatform === pl ? 600 : 400, transition: 'all 0.2s' }}>
                     {pl === 'facebook' ? <FacebookIcon /> : pl === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
                     {pl === 'facebook' ? 'Facebook' : pl === 'instagram' ? 'Instagram' : 'TikTok'}
+                    {availablePlatforms.length > 1 && (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 14, height: 14, borderRadius: 3, border: activePlatform === pl ? '1.5px solid rgba(255,255,255,0.8)' : '1.5px solid rgba(255,255,255,0.3)', background: activePlatform === pl ? 'rgba(255,255,255,0.2)' : 'transparent', marginLeft: 2, flexShrink: 0 }}>
+                        {activePlatform === pl && (
+                          <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        )}
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -841,7 +848,7 @@ useEffect(() => {
                       {day.isCurrentMonth && (day.platforms?.length > 0 || day.generated) && (
                         <div style={{ position: 'absolute', bottom: 5, right: 4, display: 'flex', gap: 2 }}>
                           {(day.platforms?.length > 0 ? day.platforms : [day.platform]).map(pl => (
-                            <div key={pl} style={{ width: 5, height: 5, borderRadius: '50%', background: day.generated_platforms?.[pl] ? '#4ade80' : 'rgba(255,255,255,0.2)', border: activePlatform === pl && selectedPlatforms.length > 1 ? `1px solid ${PLATFORM_COLORS[pl]}` : 'none' }} />
+                            <div key={pl} style={{ width: 5, height: 5, borderRadius: '50%', background: day.generated_platforms?.[pl] ? (PLATFORM_COLORS[pl] || '#4ade80') : 'rgba(255,255,255,0.2)', border: activePlatform === pl && selectedPlatforms.length > 1 ? `1px solid ${PLATFORM_COLORS[pl]}` : 'none' }} />
                           ))}
                         </div>
                       )}
@@ -879,6 +886,13 @@ useEffect(() => {
                         style={{ padding: '8px 16px', borderRadius: 10, fontSize: 13, border: `2px solid ${activePlatform === pl ? PLATFORM_COLORS[pl] : 'rgba(255,255,255,0.1)'}`, background: activePlatform === pl ? `${PLATFORM_COLORS[pl]}22` : 'rgba(255,255,255,0.03)', color: activePlatform === pl ? PLATFORM_COLORS[pl] : 'rgba(240,240,245,0.5)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontWeight: activePlatform === pl ? 600 : 400, transition: 'all 0.2s' }}>
                         {pl === 'facebook' ? <FacebookIcon /> : pl === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
                         {pl === 'facebook' ? 'Facebook' : pl === 'instagram' ? 'Instagram' : 'TikTok'}
+                      {availablePlatforms.length > 1 && (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 14, height: 14, borderRadius: 3, border: activePlatform === pl ? '1.5px solid rgba(255,255,255,0.8)' : '1.5px solid rgba(255,255,255,0.3)', background: activePlatform === pl ? 'rgba(255,255,255,0.2)' : 'transparent', marginLeft: 2, flexShrink: 0 }}>
+                          {activePlatform === pl && (
+                            <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                          )}
+                        </span>
+                      )}
                       </button>
                     ))}
                   </div>
