@@ -6,6 +6,20 @@ function pluralPL(n: number, one: string, few: string, many: string): string {
   return many;
 }
 
+function weekRangeLabel(weekDays: CalendarDay[]): string {
+  const monthDays = weekDays.filter(d => d.isCurrentMonth);
+  if (monthDays.length === 0) return '';
+  const first = monthDays[0];
+  const last = monthDays[monthDays.length - 1];
+  const firstDay = parseInt(first.fullKey.split('-')[2]);
+  const lastDay = parseInt(last.fullKey.split('-')[2]);
+  const monthNames = ['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'];
+  const monthIdx = parseInt(first.fullKey.split('-')[1]) - 1;
+  const monthStr = monthNames[monthIdx];
+  if (firstDay === lastDay) return `${firstDay} ${monthStr}`;
+  return `${firstDay}–${lastDay} ${monthStr}`;
+}
+
 import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
@@ -958,11 +972,11 @@ useEffect(() => {
                 </button>
 
                 {/* Kopiuj serie na tydzien */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 {[0, 1, 2, 3].map(weekIdx => {
                   const weekDays = currentDays.slice(weekIdx * 7, weekIdx * 7 + 7);
                   const weekGenerated = weekDays.filter(d => d.generated);
                   if (weekGenerated.length === 0) return null;
-                  const weekLabel = `${weekDays[0].dayOfMonth}–${weekDays[weekDays.length - 1].dayOfMonth} ${MONTH_NAMES_PL[currentMonth]}`;
                   return (
                     <button key={weekIdx}
                       onClick={() => {
@@ -976,10 +990,11 @@ useEffect(() => {
                       className="btn-ghost"
                       style={{ padding: '11px', borderRadius: 12, fontSize: 13 }}
                     >
-                      {copiedWeek === weekIdx ? '✅ Skopiowano!' : `📋 Kopiuj tydzień ${weekIdx + 1} (${weekGenerated.length} postów)`}
+                      {copiedWeek === weekIdx ? '✅ Skopiowano!' : `📋 Tydz. ${weekIdx + 1} · ${weekRangeLabel(weekDays)}`}
                     </button>
                   );
                 })}
+                </div>
               </div>
 
               {/* Progress */}
