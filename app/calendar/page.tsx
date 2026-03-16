@@ -184,6 +184,14 @@ const BEST_TIMES: Record<string, { times: string[]; tip: string }> = {
   },
 };
 
+function chunkArray<T>(arr: T[], size: number): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) {
+    chunks.push(arr.slice(i, i + size));
+  }
+  return chunks;
+}
+
 export default function CalendarPage() {
   const { user } = useUser();
   const { signOut } = useClerk();
@@ -456,84 +464,66 @@ useEffect(() => {
   };
 
   const doGenerateAllPosts = async (mode: 'copy' | 'adapted') => {
-    // Skip days already generated for the active platform
     const toGenerate = currentDays.filter(d => d.topic && !d.generated_platforms?.[activePlatform]);
     if (toGenerate.length === 0) return;
 
     setStatus('generating');
     setProgress(0);
 
-    for (let i = 0; i < toGenerate.length; i++) {
-      const day = toGenerate[i];
+    const processDay = async (day: CalendarDay) => {
       const dayPlatforms = day.platforms.length > 0 ? day.platforms : [day.platform];
       const platformsToGenerate = dayPlatforms.filter(pl => !day.generated_platforms?.[pl]);
 
-      setProgressLabel(`Generuję post ${i + 1}/${toGenerate.length}: ${day.topic.slice(0, 40)}...`);
-      setProgress(Math.round((i / toGenerate.length) * 100));
-
       if (mode === 'copy' || dayPlatforms.length === 1) {
-        // Generate once for first platform, copy to rest
         const primaryPlatform = platformsToGenerate[0] || dayPlatforms[0];
-        try {
-          const res = await fetch('/api/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ topic: day.topic, platform: primaryPlatform, tone: defaultTone, length: 'medium', scheduled_date: day.fullKey }),
-          });
-          const data = await res.json();
-          if (res.status === 403) {
-            setStatus('error');
-            setProgressLabel('Brak kredytów. Przejdź na plan Starter aby generować bez limitu.');
-            setUpgradeModal({ generated: i, remaining: toGenerate.length - i });
-            break;
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ topic: day.topic, platform: primaryPlatform, tone: defaultTone, length: 'medium', scheduled_date: day.fullKey }),
+        });
+        const data = await res.json();
+        if (res.status === 403) {
+          const err403 = new Error('403') as Error & { status: number };
+          err403.status = 403;
+          throw err403;
+        }
+        if (res.ok && data.posts?.[0]) {
+          const post = data.posts[0];
+          const newGenPlatforms: Partial<Record<string, boolean>> = { ...(day.generated_platforms || {}) };
+          const newPostsByPlatform: Partial<Record<string, { text: string; hashtags: string[] }>> = { ...(day.postsByPlatform || {}) };
+          for (const pl of dayPlatforms) {
+            newGenPlatforms[pl] = true;
+            newPostsByPlatform[pl] = { text: post.text, hashtags: post.hashtags || [] };
           }
-          if (res.ok && data.posts?.[0]) {
-            const post = data.posts[0];
-            const newGenPlatforms: Partial<Record<string, boolean>> = { ...(day.generated_platforms || {}) };
-            const newPostsByPlatform: Partial<Record<string, { text: string; hashtags: string[] }>> = { ...(day.postsByPlatform || {}) };
-            for (const pl of dayPlatforms) {
-              newGenPlatforms[pl] = true;
-              newPostsByPlatform[pl] = { text: post.text, hashtags: post.hashtags || [] };
-            }
-            setDays(prev => prev.map(d =>
-              d.fullKey === day.fullKey
-                ? { ...d, generated: true, generated_platforms: newGenPlatforms, postsByPlatform: newPostsByPlatform, postText: post.text, hashtags: post.hashtags }
-                : d
-            ));
-            setCredits(prev => prev ? { ...prev, remaining: data.creditsRemaining } : prev);
-            saveTopics([{ date: day.fullKey, topic: day.topic, platform: dayPlatforms[0], platforms: dayPlatforms, generated: true, generated_platforms: newGenPlatforms, post_text: post.text, hashtags: post.hashtags, posts_by_platform: newPostsByPlatform }]);
-          }
-        } catch (err) {
-          console.error(`Error generating post for ${day.fullKey}:`, err);
+          setDays(prev => prev.map(d =>
+            d.fullKey === day.fullKey
+              ? { ...d, generated: true, generated_platforms: newGenPlatforms, postsByPlatform: newPostsByPlatform, postText: post.text, hashtags: post.hashtags }
+              : d
+          ));
+          setCredits(prev => prev ? { ...prev, remaining: data.creditsRemaining } : prev);
+          saveTopics([{ date: day.fullKey, topic: day.topic, platform: dayPlatforms[0], platforms: dayPlatforms, generated: true, generated_platforms: newGenPlatforms, post_text: post.text, hashtags: post.hashtags, posts_by_platform: newPostsByPlatform }]);
         }
       } else {
         // Adapted mode (Pro): generate separately for each platform
         const newGenPlatforms: Partial<Record<string, boolean>> = { ...(day.generated_platforms || {}) };
         const newPostsByPlatform: Partial<Record<string, { text: string; hashtags: string[] }>> = { ...(day.postsByPlatform || {}) };
         for (const pl of platformsToGenerate) {
-          setProgressLabel(`Generuję post ${i + 1}/${toGenerate.length} (${pl}): ${day.topic.slice(0, 30)}...`);
-          try {
-            const res = await fetch('/api/generate', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ topic: day.topic, platform: pl, tone: defaultTone, length: 'medium', scheduled_date: day.fullKey }),
-            });
-            const data = await res.json();
-            if (res.status === 403) {
-              setStatus('error');
-              setProgressLabel('Brak kredytów. Przejdź na plan Starter aby generować bez limitu.');
-              setUpgradeModal({ generated: i, remaining: toGenerate.length - i });
-              break;
-            }
-            if (res.ok && data.posts?.[0]) {
-              const post = data.posts[0];
-              newGenPlatforms[pl] = true;
-              newPostsByPlatform[pl] = { text: post.text, hashtags: post.hashtags || [] };
-              setCredits(prev => prev ? { ...prev, remaining: data.creditsRemaining } : prev);
-            }
-            await new Promise(r => setTimeout(r, 500));
-          } catch (err) {
-            console.error(`Error generating ${pl} post for ${day.fullKey}:`, err);
+          const res = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ topic: day.topic, platform: pl, tone: defaultTone, length: 'medium', scheduled_date: day.fullKey }),
+          });
+          const data = await res.json();
+          if (res.status === 403) {
+            const err403 = new Error('403') as Error & { status: number };
+            err403.status = 403;
+            throw err403;
+          }
+          if (res.ok && data.posts?.[0]) {
+            const post = data.posts[0];
+            newGenPlatforms[pl] = true;
+            newPostsByPlatform[pl] = { text: post.text, hashtags: post.hashtags || [] };
+            setCredits(prev => prev ? { ...prev, remaining: data.creditsRemaining } : prev);
           }
         }
         setDays(prev => prev.map(d =>
@@ -543,14 +533,48 @@ useEffect(() => {
         ));
         saveTopics([{ date: day.fullKey, topic: day.topic, platform: dayPlatforms[0], platforms: dayPlatforms, generated: Object.values(newGenPlatforms).some(Boolean), generated_platforms: newGenPlatforms, posts_by_platform: newPostsByPlatform }]);
       }
+    };
 
-      await new Promise(r => setTimeout(r, 500));
+    const BATCH_SIZE = 5;
+    const batches = chunkArray(toGenerate, BATCH_SIZE);
+    let completedCount = 0;
+    let abort403 = false;
+
+    for (const batch of batches) {
+      if (abort403) break;
+
+      setProgressLabel(`Generuję posty ${completedCount + 1}–${Math.min(completedCount + batch.length, toGenerate.length)}/${toGenerate.length}...`);
+      setProgress(Math.round((completedCount / toGenerate.length) * 100));
+
+      const results = await Promise.allSettled(batch.map(day => processDay(day)));
+
+      for (const result of results) {
+        if (result.status === 'fulfilled') {
+          completedCount++;
+        } else {
+          const err = result.reason as { status?: number; message?: string };
+          if (err?.status === 403 || err?.message?.includes('403')) {
+            abort403 = true;
+          } else {
+            console.error('Błąd generowania:', err);
+          }
+        }
+      }
+
+      if (abort403) {
+        setStatus('error');
+        setProgressLabel('Brak kredytów. Przejdź na plan Starter aby generować bez limitu.');
+        setUpgradeModal({ generated: completedCount, remaining: toGenerate.length - completedCount });
+        break;
+      }
     }
 
-    setProgress(100);
-    setProgressLabel('Wszystkie posty wygenerowane! 🎉');
-    setStatus('done');
-    fetch('/api/credits').then(r => r.ok ? r.json() : null).then(data => { if (data) setCredits(data); }).catch(() => {});
+    if (!abort403) {
+      setProgress(100);
+      setProgressLabel('Wszystkie posty wygenerowane! 🎉');
+      setStatus('done');
+      fetch('/api/credits').then(r => r.ok ? r.json() : null).then(data => { if (data) setCredits(data); }).catch(() => {});
+    }
   };
 
   const exportCSV = () => {
