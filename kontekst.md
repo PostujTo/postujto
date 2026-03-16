@@ -87,7 +87,10 @@ _Ostatnia aktualizacja: 2026-03-16_
 - Bulk generation wszystkich postów (pomija już wygenerowane — brief: calendar-bulk-generation-skip.md ✅)
 - Generowanie pojedynczego posta z panelu bocznego
 - Eksport CSV z BOM (UTF-8) + kolumna `platforms`
-- Kopiuj serię na tydzień (4 przyciski)
+- Kopiuj serię na tydzień — przyciski w układzie 2×2 (brief: calendar-copy-week-layout.md ✅)
+- Grupowanie tygodni Pon–Nd z mergowaniem dni skrajnych ≤2 (brief: calendar-copy-week-groups.md ✅)
+  - Dni skrajne miesiąca z ≤2 dniami dołączane do sąsiedniego tygodnia
+  - Etykieta przycisku: `Tydz. N · DD–DD mmc` (np. "Tydz. 1 · 1–8 mar")
 - Zapis z datą (scheduled_date) do Supabase
 - Best time to post w panelu dnia
 - Edycja tematu i platformy per dzień
@@ -105,6 +108,13 @@ _Ostatnia aktualizacja: 2026-03-16_
 - Widok listy: zakładki platform jak w siatce, przyciski Generuj/Kopiuj inline (brief: calendar-list-view-platforms.md ✅)
 - Izolacja danych: każdy użytkownik widzi tylko swoje dane (brief: user-data-isolation.md ✅)
 - Modal upgrade: bezpośredni Stripe checkout bez przekierowania na /pricing (brief: modal-upgrade-direct-checkout.md ✅)
+  - Weryfikacja terms_accepted_at: jeśli brak → modal regulaminu → potem Stripe
+  - Link "Plan Pro — 199 zł/msc →" pod przyciskiem głównym
+  - Stan `upgradeError` wyświetla błąd w modalu (brak biblioteki toast w tym pliku)
+- Sekcja "Miesiąc w liczbach" przeniesiona pod siatkę kalendarza (była w prawym panelu)
+  - Kafelki układają się poziomo w jednym rzędzie (4 kolumny)
+  - Odmiana polska: funkcja `pluralPL(n, one, few, many)` — obsługuje 1/2–4/5+
+  - Przykłady: "1 post", "2 posty", "5 postów", "1 temat", "2 tematy", "5 tematów"
 
 ### Onboarding (/onboarding)
 - Wizard 5 kroków: Witaj → Firma → Platformy → Ton → Start
@@ -234,29 +244,10 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 
 ## Znane błędy do naprawy (priorytet)
 
-### 🔴 Persistence kalendarza
-- Tematy zaplanowane przez Claude i wygenerowane posty znikają po odświeżeniu strony
-- Stan kalendarza żyje tylko w React state — nie jest zapisywany do Supabase
-- Potrzebna nowa tabela `calendar_topics` w Supabase:
-  ```sql
-  calendar_topics:
-    id, user_id, date (YYYY-MM-DD), topic (text), platform, generated (boolean),
-    post_text (text), hashtags (jsonb), created_at
-  ```
-- Przy załadowaniu strony — fetch tematów z Supabase
-- Przy zapisaniu/zmianie tematu — upsert do Supabase
-- Wygenerowane posty — zapis do `calendar_topics` (nie tylko do `generations`)
-
 ### 🔴 Kredyty nie odświeżają się po odświeżeniu strony
 - `/api/generate` poprawnie odejmuje kredyt w Supabase
 - Ale stan `credits` w React nie jest aktualizowany po generowaniu
 - Fix: re-fetch `/api/credits` po zakończeniu generowania całej pętli
-
-### Modal upgrade przy wyczerpaniu kredytów — WDROŻONE ✅
-- Modal wyświetlany gdy Free user wyczerpie kredyty podczas bulk generation
-- Przycisk "Przejdź na Starter" → bezpośrednio do Stripe checkout (bez przekierowania na /pricing)
-- Weryfikacja terms_accepted_at: jeśli brak → modal regulaminu → potem Stripe
-- Link "Plan Pro — 199 zł/msc →" pod przyciskiem głównym
 
 ## Roadmap — zaplanowane funkcje
 
@@ -285,15 +276,13 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 > Na początku sesji poproś Claude o sprawdzenie Notion zamiast czytać tę sekcję.
 
 ### 🔴 Krytyczne
-- [ ] Stripe — włączyć płatności po konsultacji prawnej
-- [x] Modal upgrade przy wyczerpaniu kredytów w kalendarzu — ✅ wdrożone
+- [ ] Stripe — włączyć płatności po konsultacji prawnej (Jarek robi sam)
 
 ### 🟡 Ważne
 - [ ] Regulamin §1 — zaktualizować po rejestracji JDG (nazwa firmy, NIP, REGON, adres)
 - [ ] Polityka prywatności — doprecyzować "standardowe klauzule umowne"
 - [ ] Regulamin — doprecyzować czy 5 kredytów Free wygasa
 - [ ] Cloudflare cache konfiguracja (0% Percent Cached)
-- [ ] Screenshoty z apki na landing page (generator, dashboard, kalendarz)
 
 ### 🟢 Backlog
 - [ ] Social proof — wstawić po zebraniu min. 3 prawdziwych opinii (kod gotowy poniżej)
@@ -324,12 +313,17 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 - **`npm run build` po każdej grupie zmian** — obowiązkowe w każdym briefie
 
 ### Narzędzia podłączone do Claude
-- **Notion** — backlog "PostujTo — backlog" (14 zadań z priorytetami)
+- **Notion MCP** — działa bezpośrednio w rozmowie (nie przez widget/artifact)
+  - Backlog "PostujTo — backlog" (zadania z priorytetami)
   - Kolumny: Zadanie | Status | Priorytet | Kategoria | Notatki
   - Na początku każdej sesji: Claude czyta Notion i wie co jest aktualne
-- **GitHub** — Claude może czytać rzeczywisty kod z repozytorium
-  - Briefs pisane na podstawie aktualnego kodu, nie opisów z pamięci
-- **Claude in Chrome** — rozszerzenie chwilowo wyłączone (wersja beta, ryzyko bezpieczeństwa)
+  - Statusy: Not started / Done (używane w tym projekcie)
+- **Claude in Chrome** — rozszerzenie działa gdy Jarek wklei link w przeglądarce z rozszerzeniem
+  - Claude może wtedy sterować przeglądarką (klikać, czytać kod, aktualizować Notion UI)
+  - Wymaga aktywnej sesji w przeglądarce z rozszerzeniem
+- **GitHub** — Claude czyta rzeczywisty kod przez przeglądarkę (commits, diff, raw)
+  - Sprawdza każde wdrożenie po commicie przez `.diff` URL
+  - Repo: PostujTo/postujto
 
 ### Pliki briefów (wszystkie w /mnt/user-data/outputs/)
 - `kontekst.md` — główny kontekst projektu (ten plik)
@@ -338,6 +332,10 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 - `calendar-multi-platform.md` — kalendarz multi-platforma ✅ wdrożone
 - `calendar-list-view-platforms.md` — widok listy z zakładkami ✅ wdrożone
 - `calendar-bulk-generation-skip.md` — bulk generation pomija wygenerowane ✅ wdrożone
+- `modal-upgrade-direct-checkout.md` — modal upgrade → bezpośredni Stripe checkout ✅ wdrożone
+- `calendar-stats-layout.md` — sekcja "Miesiąc w liczbach" pod kalendarzem + pluralPL ✅ wdrożone
+- `calendar-copy-week-layout.md` — przyciski Kopiuj tydzień 2×2 + zakres dat ✅ wdrożone
+- `calendar-copy-week-groups.md` — grupowanie tygodni Pon–Nd z mergowaniem ✅ wdrożone
 - `ux-fixes.md` — 13 zadań UX
 - `code-optimization.md` — optymalizacja kodu (priorytet: zadania 1 i 5)
 - `usage-monitoring.md` — monitoring użycia
@@ -351,9 +349,23 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 - **Nigdzie nie pokazujemy komunikatów o kredytach** użytkownikom Starter/Pro
 - Jeśli ktoś zużyje 9999 kredytów — prawdopodobnie bot, zabezpieczenie osobnym mechanizmem
 
+### Modal upgrade przy wyczerpaniu kredytów — WDROŻONE ✅
+- Pokazuje się gdy Free user wyczerpie kredyty podczas bulk generation w kalendarzu
+- Treść: "Wygenerowałeś X/31 postów. Zostało Ci Y dni bez treści."
+- Przycisk główny → bezpośrednio Stripe checkout (plan Starter), nie /pricing
+- Pod przyciskiem: mały link "Potrzebujesz więcej? Plan Pro — 199 zł/msc →" → /pricing
+- Weryfikacja terms_accepted_at przed Stripe: jeśli brak → modal regulaminu → Stripe
+- Błędy: lokalny stan `upgradeError` (brak biblioteki toast w `app/calendar/page.tsx`)
+
+### Kalendarz — tygodnie do kopiowania
+- Tygodnie liczone Pon–Nd, tylko dni bieżącego miesiąca
+- Wiersze siatki z ≤2 dniami bieżącego miesiąca → merge z sąsiednim tygodniem
+- Wynik dla marca 2026: 4 przyciski (1–8, 9–15, 16–22, 23–31 mar)
+- Funkcja `buildWeekGroups(currentDays)` w `app/calendar/page.tsx`
+
 ### Kalendarz multi-platforma — tryby generowania
-- **Starter:** tryb "Kopia" — 1 wywołanie API, reszta platform dostaje kopię. Notka pod postem: "Ten post to kopia z Facebook. W Pro dostaniesz wersję napisaną pod algorytm Instagram."
-- **Pro:** tryb "Dostosowane" — osobne wywołanie API per platforma, content zoptymalizowany
+- **Starter:** tryb "Kopia" — 1 wywołanie API, reszta platform dostaje kopię
+- **Pro:** tryb "Dostosowane" — osobne wywołanie API per platforma
 - Wybór trybu: modal przed bulk generation gdy >1 platforma
 
 ### Tiers (filozofia Hormoziego)
@@ -361,23 +373,22 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 - Starter → oszczędność czasu
 - Pro → lepsze wyniki (content natywny per platforma)
 
-
-
 **Strona główna (`app/page.tsx`) to benchmark** — każda nowa strona i komponent muszą być z nią spójne:
-- Efekty hover na kartach: `translateY(-8px)`, `border-color rgba(99,102,241,...)`, transition `0.2s ease` na konkretnych właściwościach (nie `all`)
-- Przyciski primary: gradient `linear-gradient(135deg, #6366f1, #a855f7)`, hover `brightness(1.25) + translateY(-1px)`, tekst w `<span>` dla z-index
-- Przyciski secondary: `background: rgba(255,255,255,0.05)`, `border: 1px solid rgba(255,255,255,0.15)`, hover `rgba(255,255,255,0.1)`
+- Efekty hover na kartach: `translateY(-8px)`, `border-color rgba(99,102,241,...)`, transition `0.2s ease`
+- Przyciski primary: gradient `linear-gradient(135deg, #6366f1, #a855f7)`, hover `brightness(1.25) + translateY(-1px)`
+- Przyciski secondary: `background: rgba(255,255,255,0.05)`, `border: 1px solid rgba(255,255,255,0.15)`
 - Kolory tła: `#0a0a0f`, karty `rgba(255,255,255,0.03)`, border `rgba(255,255,255,0.08)`
 - Typografia: Poppins (nagłówki), DM Sans (tekst)
 - Logo: `Postuj<span className="gradient-text">To</span>`, fontSize 22, fontWeight 800, color #fff
 - gradient-text: `linear-gradient(135deg, #6366f1, #a855f7, #ec4899)`
-- Sticky header: `background: rgba(10,10,15,0.9)`, `backdropFilter: blur(20px)`, `borderBottom: 1px solid rgba(255,255,255,0.06)`, height 68-72px
+- Sticky header: `background: rgba(10,10,15,0.9)`, `backdropFilter: blur(20px)`, height 68-72px
 - `<UserButton />` bez deprecated `afterSignOutUrl` prop
 
 ## Do sprawdzenia po włączeniu płatności
 - Czy modal przed Stripe w `/pricing` poprawnie zapisuje `terms_accepted_at`
 - Czy checkbox blokuje przycisk „Akceptuję — przejdź do płatności →" dopóki niezaznaczony
 - Czy użytkownicy którzy zaakceptowali regulamin przez `/app` lub onboarding nie widzą ponownie modala
+- Czy przycisk w modalu upgrade kalendarza trafia bezpośrednio do Stripe (nie /pricing)
 
 ## Kod do użycia później — Social Proof
 
