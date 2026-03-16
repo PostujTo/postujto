@@ -624,7 +624,7 @@ useEffect(() => {
   };
 
   const selectedDayData = days.find(d => d.fullKey === selectedDay);
-  const generatedCount = currentDays.filter(d => d.generated).length;
+  const generatedCount = currentDays.filter(d => d.generated_platforms ? !!d.generated_platforms[activePlatform] : d.generated).length;
   const topicCount = currentDays.filter(d => d.topic).length;
 
   return (
@@ -857,7 +857,7 @@ useEffect(() => {
                   {[
                     { color: 'rgba(99,102,241,0.4)', label: 'Dzisiaj' },
                     { color: 'rgba(34,197,94,0.15)', label: 'Ma temat' },
-                    { color: '#4ade80', label: 'Wygenerowany', dot: true },
+                    { color: PLATFORM_COLORS[activePlatform] || '#4ade80', label: 'Wygenerowany', dot: true },
                   ].map(l => (
                     <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       {l.dot
@@ -973,14 +973,21 @@ useEffect(() => {
               {(() => {
                 const occasionsCount = Object.keys(POLISH_OCCASIONS).filter(k => { const [m] = k.split('-'); return parseInt(m) === currentMonth + 1; }).length;
                 return [
-                  { value: currentDays.length, label: pluralPL(currentDays.length, 'dzień', 'dni', 'dni'), color: 'rgba(240,240,245,0.6)' },
-                  { value: occasionsCount, label: pluralPL(occasionsCount, 'okazja', 'okazje', 'okazji'), color: '#fbbf24' },
-                  { value: topicCount, label: pluralPL(topicCount, 'temat', 'tematy', 'tematów'), color: '#60a5fa' },
-                  { value: generatedCount, label: pluralPL(generatedCount, 'post', 'posty', 'postów'), color: '#4ade80' },
+                  { value: currentDays.length, label: pluralPL(currentDays.length, 'dzień', 'dni', 'dni'), color: 'rgba(240,240,245,0.6)', platformIcon: false },
+                  { value: occasionsCount, label: pluralPL(occasionsCount, 'okazja', 'okazje', 'okazji'), color: '#fbbf24', platformIcon: false },
+                  { value: topicCount, label: pluralPL(topicCount, 'temat', 'tematy', 'tematów'), color: '#60a5fa', platformIcon: false },
+                  { value: generatedCount, label: pluralPL(generatedCount, 'post', 'posty', 'postów'), color: PLATFORM_COLORS[activePlatform] || '#4ade80', platformIcon: availablePlatforms.length > 1 },
                 ].map((s, i) => (
                   <div key={i} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '12px 14px', textAlign: 'center' }}>
                     <div className="font-display" style={{ fontSize: 24, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
-                    <div style={{ fontSize: 11, color: 'rgba(240,240,245,0.35)', marginTop: 4 }}>{s.label}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(240,240,245,0.35)', marginTop: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3 }}>
+                      {s.platformIcon && (
+                        <span style={{ opacity: 0.6, display: 'flex', alignItems: 'center' }}>
+                          {activePlatform === 'facebook' ? <FacebookIcon /> : activePlatform === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
+                        </span>
+                      )}
+                      {s.label}
+                    </div>
                   </div>
                 ));
               })()}
