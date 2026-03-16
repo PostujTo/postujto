@@ -928,7 +928,7 @@ useEffect(() => {
                     })
                     .map((day) => {
                       const dayPlats = day.platforms?.length > 0 ? day.platforms : [day.platform];
-                      const isActiveGenerated = !!day.generated_platforms?.[activePlatform];
+                      const isActiveGenerated = day.generated_platforms ? !!day.generated_platforms[activePlatform] : day.generated;
                       const activePost = day.postsByPlatform?.[activePlatform];
                       return (
                         <div key={day.fullKey}
@@ -1002,7 +1002,7 @@ useEffect(() => {
           {/* MIESIĄC W LICZBACH */}
           <div className="fade-up glass-card" style={{ padding: '20px 24px', marginTop: 20 }}>
             <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>MIESIĄC W LICZBACH</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, willChange: 'contents' }}>
               {(() => {
                 return [
                   { value: currentDays.length, label: pluralPL(currentDays.length, 'dzień', 'dni', 'dni'), color: 'rgba(240,240,245,0.6)', platformIcon: false },
@@ -1120,7 +1120,7 @@ useEffect(() => {
 
             {/* Selected day detail */}
             {selectedDayData && selectedDayData.isCurrentMonth && (
-              <div className="fade-up glass-card" style={{ padding: '20px 24px' }}>
+              <div className="fade-up glass-card" style={{ padding: '20px 24px', minHeight: 420 }}>
                 {(() => {
                   const idx = daysWithTopic.findIndex(d => d.fullKey === selectedDay);
                   const prevDay = idx > 0 ? daysWithTopic[idx - 1] : null;
@@ -1128,7 +1128,7 @@ useEffect(() => {
                   return (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                       <button onClick={() => prevDay && setSelectedDay(prevDay.fullKey)} disabled={!prevDay}
-                        style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '4px 10px', color: prevDay ? 'rgba(240,240,245,0.7)' : 'rgba(240,240,245,0.2)', cursor: prevDay ? 'pointer' : 'not-allowed', fontSize: 16 }}>←</button>
+                        className="btn-ghost" style={{ width: 36, height: 36, borderRadius: 9, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, paddingBottom: 2, opacity: prevDay ? 1 : 0.3 }}>‹</button>
                       <div style={{ textAlign: 'center' }}>
                         <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.75)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>
                           {selectedDayData.dayOfMonth} {MONTH_NAMES_PL[currentMonth]}
@@ -1138,7 +1138,7 @@ useEffect(() => {
                         )}
                       </div>
                       <button onClick={() => nextDay && setSelectedDay(nextDay.fullKey)} disabled={!nextDay}
-                        style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '4px 10px', color: nextDay ? 'rgba(240,240,245,0.7)' : 'rgba(240,240,245,0.2)', cursor: nextDay ? 'pointer' : 'not-allowed', fontSize: 16 }}>→</button>
+                        className="btn-ghost" style={{ width: 36, height: 36, borderRadius: 9, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, paddingBottom: 2, opacity: nextDay ? 1 : 0.3 }}>›</button>
                     </div>
                   );
                 })()}
@@ -1177,7 +1177,7 @@ useEffect(() => {
                 {(() => {
                   const dayPlats = selectedDayData.platforms?.length > 0 ? selectedDayData.platforms : [selectedDayData.platform];
                   const activePost = selectedDayData.postsByPlatform?.[activePlatform];
-                  const isActiveGenerated = !!selectedDayData.generated_platforms?.[activePlatform];
+                  const isActiveGenerated = selectedDayData.generated_platforms ? !!selectedDayData.generated_platforms[activePlatform] : selectedDayData.generated;
                   return isActiveGenerated && activePost ? (
                     <div>
                       <label style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', display: 'block', marginBottom: 8 }}>
@@ -1228,7 +1228,7 @@ useEffect(() => {
                       } catch (err) { console.error(err); }
                       setStatus('idle'); setProgressLabel('');
                     }} className="btn-primary" style={{ width: '100%', padding: '10px', borderRadius: 10, fontSize: 13 }}>
-                      {availablePlatforms.length === 1 ? '✨ Wygeneruj post' : `✨ Wygeneruj post (${activePlatform})`}
+                      ✨ Wygeneruj post
                     </button>
                   ) : null;
                 })()}
