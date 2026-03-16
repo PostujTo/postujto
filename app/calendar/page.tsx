@@ -239,7 +239,6 @@ useEffect(() => {
   const [progressLabel, setProgressLabel] = useState('');
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(['facebook']);
   const [activePlatform, setActivePlatform] = useState<string>('facebook');
-  const [dayPanelPlatform, setDayPanelPlatform] = useState<string>('facebook');
   const [showGenerateModeModal, setShowGenerateModeModal] = useState(false);
   const [generateMode, setGenerateMode] = useState<'copy' | 'adapted'>('copy');
   const [defaultTone, setDefaultTone] = useState<'professional' | 'casual' | 'humorous' | 'sales'>('professional');
@@ -636,6 +635,7 @@ useEffect(() => {
     [currentDays, activePlatform]
   );
   const topicCount = useMemo(() => currentDays.filter(d => d.topic).length, [currentDays]);
+  const daysWithTopic = useMemo(() => currentDays.filter(d => d.topic), [currentDays]);
   const occasionsCount = useMemo(
     () => Object.keys(POLISH_OCCASIONS).filter(k => { const [m] = k.split('-'); return parseInt(m) === currentMonth + 1; }).length,
     [currentMonth]
@@ -658,7 +658,7 @@ useEffect(() => {
         .option-btn.active { background: rgba(99,102,241,0.2); border-color: rgba(99,102,241,0.6); color: #a5b4fc; }
         .cal-day { transition: all 0.2s ease; cursor: pointer; border-radius: 12px; border: 1px solid transparent; }
         .cal-day:hover { background: rgba(99,102,241,0.08); border-color: rgba(99,102,241,0.2); }
-        .cal-day.selected { background: rgba(99,102,241,0.15); border-color: rgba(99,102,241,0.5); }
+        .cal-day.selected { background: rgba(99,102,241,0.15); border: 2px solid rgba(99,102,241,0.8); }
         .cal-day.today { border-color: rgba(99,102,241,0.4); }
         .cal-day.has-topic { background: rgba(34,197,94,0.06); }
         .cal-day.has-topic.generated { background: rgba(34,197,94,0.12); }
@@ -836,7 +836,7 @@ useEffect(() => {
               <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
                 {selectedPlatforms.map(pl => (
                   <button key={pl} onClick={() => setActivePlatform(pl)}
-                    style={{ padding: '6px 14px', borderRadius: 20, fontSize: 13, border: activePlatform === pl ? `2px solid ${PLATFORM_COLORS[pl] || 'rgba(255,255,255,0.3)'}` : '1px solid rgba(255,255,255,0.12)', background: activePlatform === pl ? 'rgba(255,255,255,0.06)' : 'transparent', color: activePlatform === pl ? '#fff' : 'rgba(240,240,245,0.55)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontWeight: activePlatform === pl ? 600 : 400, transition: 'all 0.15s ease' }}>
+                    style={{ padding: '6px 14px', borderRadius: 20, fontSize: 13, border: activePlatform === pl ? `2px solid ${PLATFORM_COLORS[pl] || 'rgba(255,255,255,0.3)'}` : '1px solid rgba(255,255,255,0.12)', background: activePlatform === pl ? 'rgba(255,255,255,0.06)' : 'transparent', color: activePlatform === pl ? '#fff' : 'rgba(240,240,245,0.8)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontWeight: activePlatform === pl ? 600 : 400, transition: 'all 0.15s ease' }}>
                     {pl === 'facebook' ? <FacebookIcon /> : pl === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
                     {pl === 'facebook' ? 'Facebook' : pl === 'instagram' ? 'Instagram' : 'TikTok'}
                   </button>
@@ -857,7 +857,7 @@ useEffect(() => {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
                   {days.map((day, i) => (
                     <div key={i}
-                      onClick={() => { if (!day.isCurrentMonth) return; setSelectedDay(day.fullKey === selectedDay ? null : day.fullKey); setDayPanelPlatform(activePlatform); }}
+                      onClick={() => { if (!day.isCurrentMonth) return; setSelectedDay(day.fullKey === selectedDay ? null : day.fullKey); }}
                       className={`cal-day ${day.isCurrentMonth ? '' : ''} ${day.isToday ? 'today' : ''} ${day.fullKey === selectedDay ? 'selected' : ''} ${day.topic ? 'has-topic' : ''} ${day.generated_platforms ? (day.generated_platforms[activePlatform] ? 'generated' : '') : (day.generated ? 'generated' : '')}`}
                       style={{ padding: '8px 6px', minHeight: 72, opacity: day.isCurrentMonth ? 1 : 0.25, cursor: day.isCurrentMonth ? 'pointer' : 'default', position: 'relative', transition: 'background-color 0.15s ease, border-color 0.15s ease' }}
                     >
@@ -912,7 +912,7 @@ useEffect(() => {
                   <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
                     {selectedPlatforms.map(pl => (
                       <button key={pl} onClick={() => setActivePlatform(pl)}
-                        style={{ padding: '6px 14px', borderRadius: 20, fontSize: 13, border: activePlatform === pl ? `2px solid ${PLATFORM_COLORS[pl] || 'rgba(255,255,255,0.3)'}` : '1px solid rgba(255,255,255,0.12)', background: activePlatform === pl ? 'rgba(255,255,255,0.06)' : 'transparent', color: activePlatform === pl ? '#fff' : 'rgba(240,240,245,0.55)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontWeight: activePlatform === pl ? 600 : 400, transition: 'all 0.15s ease' }}>
+                        style={{ padding: '6px 14px', borderRadius: 20, fontSize: 13, border: activePlatform === pl ? `2px solid ${PLATFORM_COLORS[pl] || 'rgba(255,255,255,0.3)'}` : '1px solid rgba(255,255,255,0.12)', background: activePlatform === pl ? 'rgba(255,255,255,0.06)' : 'transparent', color: activePlatform === pl ? '#fff' : 'rgba(240,240,245,0.8)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontWeight: activePlatform === pl ? 600 : 400, transition: 'all 0.15s ease' }}>
                         {pl === 'facebook' ? <FacebookIcon /> : pl === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
                         {pl === 'facebook' ? 'Facebook' : pl === 'instagram' ? 'Instagram' : 'TikTok'}
                       </button>
@@ -932,7 +932,7 @@ useEffect(() => {
                       const activePost = day.postsByPlatform?.[activePlatform];
                       return (
                         <div key={day.fullKey}
-                          onClick={() => { setSelectedDay(day.fullKey === selectedDay ? null : day.fullKey); setDayPanelPlatform(activePlatform); }}
+                          onClick={() => { setSelectedDay(day.fullKey === selectedDay ? null : day.fullKey); }}
                           className="glass-card"
                           style={{ padding: '14px 20px', cursor: 'pointer', border: day.fullKey === selectedDay ? '1px solid rgba(99,102,241,0.5)' : undefined, transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 14 }}
                         >
@@ -1121,14 +1121,27 @@ useEffect(() => {
             {/* Selected day detail */}
             {selectedDayData && selectedDayData.isCurrentMonth && (
               <div className="fade-up glass-card" style={{ padding: '20px 24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.75)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                    {selectedDayData.dayOfMonth} {MONTH_NAMES_PL[currentMonth]}
-                  </p>
-                  {selectedDayData.occasion && (
-                    <span style={{ fontSize: 13, color: '#fbbf24' }}>{selectedDayData.occasion.emoji} {selectedDayData.occasion.name}</span>
-                  )}
-                </div>
+                {(() => {
+                  const idx = daysWithTopic.findIndex(d => d.fullKey === selectedDay);
+                  const prevDay = idx > 0 ? daysWithTopic[idx - 1] : null;
+                  const nextDay = idx < daysWithTopic.length - 1 ? daysWithTopic[idx + 1] : null;
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                      <button onClick={() => prevDay && setSelectedDay(prevDay.fullKey)} disabled={!prevDay}
+                        style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '4px 10px', color: prevDay ? 'rgba(240,240,245,0.7)' : 'rgba(240,240,245,0.2)', cursor: prevDay ? 'pointer' : 'not-allowed', fontSize: 16 }}>←</button>
+                      <div style={{ textAlign: 'center' }}>
+                        <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.75)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>
+                          {selectedDayData.dayOfMonth} {MONTH_NAMES_PL[currentMonth]}
+                        </p>
+                        {selectedDayData.occasion && (
+                          <span style={{ fontSize: 12, color: '#fbbf24' }}>{selectedDayData.occasion.emoji} {selectedDayData.occasion.name}</span>
+                        )}
+                      </div>
+                      <button onClick={() => nextDay && setSelectedDay(nextDay.fullKey)} disabled={!nextDay}
+                        style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '4px 10px', color: nextDay ? 'rgba(240,240,245,0.7)' : 'rgba(240,240,245,0.2)', cursor: nextDay ? 'pointer' : 'not-allowed', fontSize: 16 }}>→</button>
+                    </div>
+                  );
+                })()}
 
                 {/* Editable topic */}
                 <label style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', display: 'block', marginBottom: 6 }}>Temat posta</label>
@@ -1137,48 +1150,38 @@ useEffect(() => {
                   onChange={e => setDays(prev => prev.map(d => d.fullKey === selectedDayData.fullKey ? { ...d, topic: e.target.value } : d))}
                   onBlur={e => { if (e.target.value) saveTopics([{ date: selectedDayData.fullKey, topic: e.target.value, platform: selectedDayData.platform }]); }}
                   placeholder="Wpisz temat lub zaplanuj automatycznie..."
+                  spellCheck={false}
                   style={{ width: '100%', padding: '10px 12px', borderRadius: 10, fontSize: 13, lineHeight: 1.6, marginBottom: 12 }}
                 />
 
-                {/* Platform for this day */}
-                <label style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', display: 'block', marginBottom: 6 }}>Platforma</label>
-                <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-                  {availablePlatforms.map(pl => {
-                    const dayPlats = selectedDayData.platforms?.length > 0 ? selectedDayData.platforms : [selectedDayData.platform];
-                    const isSelected = dayPlats.includes(pl);
-                    return (
-                      <button key={pl} onClick={() => {
-                        setDayPanelPlatform(pl);
-                        if (!isSelected) return; // only switch view, not assignment when multi-select
-                      }}
-                        className={`option-btn ${dayPanelPlatform === pl ? 'active' : ''}`}
-                        style={{ flex: 1, padding: '6px', borderRadius: 8, fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, opacity: isSelected ? 1 : 0.4 }}>
-                        {pl === 'facebook' ? <FacebookIcon /> : pl === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
-                        {pl === 'facebook' ? 'FB' : pl === 'instagram' ? 'IG' : 'TT'}
-                      </button>
-                    );
-                  })}
+                {/* Platform for this day — static, follows activePlatform */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+                  <span style={{ fontSize: 11, color: 'rgba(240,240,245,0.4)' }}>Platforma:</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: PLATFORM_COLORS[activePlatform], display: 'flex', alignItems: 'center', gap: 4 }}>
+                    {activePlatform === 'facebook' ? <FacebookIcon /> : activePlatform === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
+                    {activePlatform === 'facebook' ? 'Facebook' : activePlatform === 'instagram' ? 'Instagram' : 'TikTok'}
+                  </span>
                 </div>
 
                 {/* Best time to post */}
                 <div style={{ padding: '10px 12px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 10, marginBottom: 16 }}>
                   <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>⏰ Najlepsza godzina publikacji</p>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
-                    {BEST_TIMES[dayPanelPlatform] && BEST_TIMES[dayPanelPlatform].times.map((t, i) => (
+                    {BEST_TIMES[activePlatform] && BEST_TIMES[activePlatform].times.map((t, i) => (
                       <span key={i} style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: 6, color: '#a5b4fc', fontWeight: 500 }}>{t}</span>
                     ))}
                   </div>
-                  <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.35)', lineHeight: 1.5, margin: 0 }}>{BEST_TIMES[dayPanelPlatform]?.tip}</p>
+                  <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.35)', lineHeight: 1.5, margin: 0 }}>{BEST_TIMES[activePlatform]?.tip}</p>
                 </div>
 
                 {(() => {
                   const dayPlats = selectedDayData.platforms?.length > 0 ? selectedDayData.platforms : [selectedDayData.platform];
-                  const activePost = selectedDayData.postsByPlatform?.[dayPanelPlatform];
-                  const isActiveGenerated = !!selectedDayData.generated_platforms?.[dayPanelPlatform];
+                  const activePost = selectedDayData.postsByPlatform?.[activePlatform];
+                  const isActiveGenerated = !!selectedDayData.generated_platforms?.[activePlatform];
                   return isActiveGenerated && activePost ? (
                     <div>
                       <label style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', display: 'block', marginBottom: 8 }}>
-                        Wygenerowany post {dayPlats.length > 1 && <span style={{ color: PLATFORM_COLORS[dayPanelPlatform], fontWeight: 600 }}>({dayPanelPlatform})</span>}
+                        Wygenerowany post {dayPlats.length > 1 && <span style={{ color: PLATFORM_COLORS[activePlatform], fontWeight: 600 }}>({activePlatform})</span>}
                       </label>
                       <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '12px 14px', marginBottom: 10 }}>
                         <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.8)', lineHeight: 1.7, marginBottom: 10 }}>{activePost.text}</p>
@@ -1190,10 +1193,10 @@ useEffect(() => {
                       </div>
                       <button onClick={() => {
                         navigator.clipboard.writeText(`${activePost.text}\n\n${(activePost.hashtags || []).join(' ')}`);
-                        setCopiedKey(selectedDayData.fullKey + '_' + dayPanelPlatform);
+                        setCopiedKey(selectedDayData.fullKey + '_' + activePlatform);
                         setTimeout(() => setCopiedKey(null), 2000);
                       }} className="btn-ghost" style={{ width: '100%', padding: '9px', borderRadius: 10, fontSize: 13 }}>
-                        {copiedKey === selectedDayData.fullKey + '_' + dayPanelPlatform ? '✅ Skopiowano!' : '📋 Kopiuj post'}
+                        {copiedKey === selectedDayData.fullKey + '_' + activePlatform ? '✅ Skopiowano!' : '📋 Kopiuj post'}
                       </button>
                       {generateMode === 'copy' && dayPlats.length > 1 && credits?.plan !== 'premium' && (
                         <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.3)', marginTop: 8, lineHeight: 1.5 }}>
@@ -1204,7 +1207,7 @@ useEffect(() => {
                   ) : selectedDayData.topic ? (
                     <button onClick={async () => {
                       setStatus('generating');
-                      const generatingPlatform = dayPanelPlatform;
+                      const generatingPlatform = activePlatform;
                       setProgressLabel(`Generuję post dla ${selectedDayData.dayOfMonth} ${MONTH_NAMES_PL[currentMonth]} (${generatingPlatform})...`);
                       try {
                         const res = await fetch('/api/generate', {
@@ -1221,12 +1224,11 @@ useEffect(() => {
                             : d));
                           saveTopics([{ date: selectedDayData.fullKey, topic: selectedDayData.topic, platform: dayPlats[0], platforms: dayPlats, generated: true, generated_platforms: newGenPlatforms, post_text: post.text, hashtags: post.hashtags, posts_by_platform: newPostsByPlatform }]);
                           if (data.creditsRemaining !== undefined) setCredits(prev => prev ? { ...prev, remaining: data.creditsRemaining } : prev);
-                          setDayPanelPlatform(generatingPlatform);
                         }
                       } catch (err) { console.error(err); }
                       setStatus('idle'); setProgressLabel('');
                     }} className="btn-primary" style={{ width: '100%', padding: '10px', borderRadius: 10, fontSize: 13 }}>
-                      ✨ Wygeneruj post ({dayPanelPlatform})
+                      {availablePlatforms.length === 1 ? '✨ Wygeneruj post' : `✨ Wygeneruj post (${activePlatform})`}
                     </button>
                   ) : null;
                 })()}
