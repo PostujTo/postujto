@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     if (!user) return NextResponse.json({ error: 'Nie znaleziono użytkownika' }, { status: 404 });
 
     const body = await req.json();
-    const { company_name, colors, style, tone, slogan, logo_url, sample_posts, platforms } = body;
+    const { company_name, colors, style, tone, length, slogan, logo_url, sample_posts, platforms } = body;
 
     // Walidacja
     if (company_name !== undefined && (typeof company_name !== 'string' || company_name.length > 100)) {
@@ -76,6 +76,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Nieprawidłowy ton' }, { status: 400 });
     }
 
+    const ALLOWED_LENGTHS = ['short', 'medium', 'long'];
+    if (length !== undefined && !ALLOWED_LENGTHS.includes(length)) {
+      return NextResponse.json({ error: 'Nieprawidłowa długość' }, { status: 400 });
+    }
+
     if (logo_url !== undefined && typeof logo_url === 'string' && logo_url.length > 500) {
       return NextResponse.json({ error: 'Nieprawidłowy URL logo' }, { status: 400 });
     }
@@ -98,6 +103,7 @@ export async function POST(req: Request) {
       colors,
       style,
       tone,
+      length,
       logo_url,
       sample_posts: sample_posts?.replace(/<[^>]*>/g, '').trim(),
       platforms,
@@ -111,6 +117,7 @@ export async function POST(req: Request) {
         colors: sanitized.colors,
         style: sanitized.style,
         tone: sanitized.tone,
+        length: sanitized.length,
         slogan: sanitized.slogan,
         logo_url: sanitized.logo_url,
         sample_posts: sanitized.sample_posts,

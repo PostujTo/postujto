@@ -219,6 +219,12 @@ useEffect(() => {
         setAvailablePlatforms(bkPlatforms);
         setSelectedPlatforms(bkPlatforms);
         setActivePlatform(bkPlatforms[0]);
+        if (data.tone && ['professional', 'casual', 'humorous', 'sales'].includes(data.tone)) {
+          setDefaultTone(data.tone as 'professional' | 'casual' | 'humorous' | 'sales');
+        }
+        if (data.length && ['short', 'medium', 'long'].includes(data.length)) {
+          setDefaultLength(data.length as 'short' | 'medium' | 'long');
+        }
       }
     })
     .catch(() => {});
@@ -237,6 +243,7 @@ useEffect(() => {
   const [showGenerateModeModal, setShowGenerateModeModal] = useState(false);
   const [generateMode, setGenerateMode] = useState<'copy' | 'adapted'>('copy');
   const [defaultTone, setDefaultTone] = useState<'professional' | 'casual' | 'humorous' | 'sales'>('professional');
+  const [defaultLength, setDefaultLength] = useState<'short' | 'medium' | 'long'>('medium');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [copiedWeek, setCopiedWeek] = useState<number | null>(null);
   const [view, setView] = useState<'calendar' | 'list'>('calendar');
@@ -489,7 +496,7 @@ useEffect(() => {
         const res = await fetch('/api/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ topic: day.topic, platform: primaryPlatform, tone: defaultTone, length: 'medium', scheduled_date: day.fullKey }),
+          body: JSON.stringify({ topic: day.topic, platform: primaryPlatform, tone: defaultTone, length: defaultLength, scheduled_date: day.fullKey }),
         });
         const data = await res.json();
         if (res.status === 403) {
@@ -521,7 +528,7 @@ useEffect(() => {
           const res = await fetch('/api/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ topic: day.topic, platform: pl, tone: defaultTone, length: 'medium', scheduled_date: day.fullKey }),
+            body: JSON.stringify({ topic: day.topic, platform: pl, tone: defaultTone, length: defaultLength, scheduled_date: day.fullKey }),
           });
           const data = await res.json();
           if (res.status === 403) {
@@ -774,8 +781,8 @@ useEffect(() => {
                 </div>
               </div>
 
-              {/* Dolny rząd: tony */}
-              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              {/* Dolny rząd: tony + długość */}
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
                 {(['professional', 'casual', 'humorous', 'sales'] as const).map(t => (
                   <button key={t} onClick={() => setDefaultTone(t)} className={`option-btn ${defaultTone === t ? 'active' : ''}`}
                     style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12 }}>
@@ -783,6 +790,18 @@ useEffect(() => {
                     {' '}{t === 'professional' ? 'Profesjonalny' : t === 'casual' ? 'Swobodny' : t === 'humorous' ? 'Humorystyczny' : 'Sprzedażowy'}
                   </button>
                 ))}
+
+                <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.1)', margin: '0 2px' }} />
+
+                {(['short', 'medium', 'long'] as const).map(l => {
+                  const lLabels = { short: 'Krótki', medium: 'Średni', long: 'Długi' };
+                  return (
+                    <button key={l} onClick={() => setDefaultLength(l)} className={`option-btn ${defaultLength === l ? 'active' : ''}`}
+                      style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12 }}>
+                      {lLabels[l]}
+                    </button>
+                  );
+                })}
 
                 <div style={{ flex: 1 }} />
 
@@ -796,6 +815,13 @@ useEffect(() => {
                   ))}
                 </div>
               </div>
+              {hasBrandKit && credits?.plan !== 'free' && (
+                <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.35)', marginTop: 6, lineHeight: 1.5 }}>
+                  💡 Ton i długość pobrane z{' '}
+                  <a href="/settings" style={{ color: 'rgba(165,180,252,0.7)', textDecoration: 'none' }}>Brand Kitu</a>
+                  {' '}— możesz zmienić dla tego miesiąca.
+                </p>
+              )}
             </div>
 
             {/* PLATFORM TABS — shown when >1 platform selected */}
@@ -941,7 +967,7 @@ useEffect(() => {
                                 <button onClick={async () => {
                                   setProgressLabel(`Generuję post dla ${day.dayOfMonth} ${MONTH_NAMES_PL[currentMonth]}...`);
                                   try {
-                                    const res = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic: day.topic, platform: activePlatform, tone: defaultTone, length: 'medium', scheduled_date: day.fullKey }) });
+                                    const res = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ topic: day.topic, platform: activePlatform, tone: defaultTone, length: defaultLength, scheduled_date: day.fullKey }) });
                                     const data = await res.json();
                                     if (res.ok && data.posts?.[0]) {
                                       const post = data.posts[0];
@@ -1177,7 +1203,7 @@ useEffect(() => {
                       try {
                         const res = await fetch('/api/generate', {
                           method: 'POST', headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ topic: selectedDayData.topic, platform: generatingPlatform, tone: defaultTone, length: 'medium', scheduled_date: selectedDayData.fullKey }),
+                          body: JSON.stringify({ topic: selectedDayData.topic, platform: generatingPlatform, tone: defaultTone, length: defaultLength, scheduled_date: selectedDayData.fullKey }),
                         });
                         const data = await res.json();
                         if (res.ok && data.posts?.[0]) {

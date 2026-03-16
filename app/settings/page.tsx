@@ -95,6 +95,7 @@ export default function SettingsPage() {
     logo_url: '',
     sample_posts: '',
     platforms: [] as string[],
+    length: 'medium',
   });
 
   useEffect(() => {
@@ -112,6 +113,7 @@ export default function SettingsPage() {
             logo_url: data.brandKit.logo_url || '',
             sample_posts: data.brandKit.sample_posts || '',
             platforms: data.brandKit.platforms || [],
+            length: data.brandKit.length || 'medium',
           });
         }
       });
@@ -346,6 +348,27 @@ export default function SettingsPage() {
                   style={{ padding: '10px 22px', borderRadius: 50, fontWeight: 600, fontSize: 14, cursor: 'pointer', transition: 'all 0.2s', background: brandKit.tone === tone.id ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(255,255,255,0.05)', border: brandKit.tone === tone.id ? '1px solid transparent' : '1px solid rgba(255,255,255,0.1)', color: brandKit.tone === tone.id ? '#fff' : 'rgba(240,240,245,0.6)' }}
                 >
                   {tone.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Długość postów */}
+          <div style={s.card}>
+            <label style={{ ...s.label, marginBottom: 12 }}>Domyślna długość postów</label>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {[
+                { value: 'short', label: 'Krótki', desc: '~100 słów' },
+                { value: 'medium', label: 'Średni', desc: '~250 słów' },
+                { value: 'long', label: 'Długi', desc: '~500 słów' },
+              ].map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => setBrandKit(prev => ({ ...prev, length: opt.value }))}
+                  style={{ padding: '10px 20px', borderRadius: 12, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', background: brandKit.length === opt.value ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(255,255,255,0.05)', border: brandKit.length === opt.value ? '1px solid transparent' : '1px solid rgba(255,255,255,0.1)', color: brandKit.length === opt.value ? '#fff' : 'rgba(240,240,245,0.6)' }}
+                >
+                  {opt.label}
+                  <span style={{ fontSize: 11, display: 'block', opacity: 0.6, fontWeight: 400 }}>{opt.desc}</span>
                 </button>
               ))}
             </div>
