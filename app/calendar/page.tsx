@@ -180,6 +180,54 @@ useEffect(() => {
   const [copiedWeek, setCopiedWeek] = useState<number | null>(null);
   const [view, setView] = useState<'calendar' | 'list'>('calendar');
   const [upgradeModal, setUpgradeModal] = useState<{ generated: number; remaining: number } | null>(null);
+  const [isUpgradeLoading, setIsUpgradeLoading] = useState(false);
+  const [showPlanTermsModal, setShowPlanTermsModal] = useState(false);
+  const [planTermsChecked, setPlanTermsChecked] = useState(false);
+  const [planCheckoutLoading, setPlanCheckoutLoading] = useState(false);
+
+  // ─── UPGRADE CHECKOUT ─────────────────────────────────────────────────────
+  const handleUpgradeStarter = async () => {
+    setIsUpgradeLoading(true);
+    try {
+      const termsRes = await fetch('/api/user/terms-status');
+      const { terms_accepted_at } = await termsRes.json();
+      if (!terms_accepted_at) {
+        setPlanTermsChecked(false);
+        setShowPlanTermsModal(true);
+        setIsUpgradeLoading(false);
+        return;
+      }
+      const res = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD }),
+      });
+      const { url } = await res.json();
+      if (url) window.location.href = url;
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsUpgradeLoading(false);
+    }
+  };
+
+  const handleConfirmPlanTerms = async () => {
+    setPlanCheckoutLoading(true);
+    try {
+      await fetch('/api/user/accept-terms', { method: 'POST' });
+      const res = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD }),
+      });
+      const { url } = await res.json();
+      if (url) window.location.href = url;
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPlanCheckoutLoading(false);
+    }
+  };
 
   // ─── PERSISTENCE ──────────────────────────────────────────────────────────
   const applyTopics = useCallback((topics: any[], prevDays: CalendarDay[]) => {
@@ -1111,6 +1159,36 @@ useEffect(() => {
         </div>
       )}
 
+      {/* PLAN TERMS MODAL */}
+      {showPlanTermsModal && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 1100, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div style={{ background: '#13131a', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 24, padding: 40, maxWidth: 480, width: '100%', textAlign: 'center' }}>
+            <div style={{ fontSize: 44, marginBottom: 16 }}>📋</div>
+            <h3 style={{ fontSize: 22, fontWeight: 800, color: '#f0f0f5', marginBottom: 12 }}>Zanim przejdziesz do płatności</h3>
+            <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.55)', lineHeight: 1.7, marginBottom: 28 }}>Prosimy o zapoznanie się z dokumentami prawnymi serwisu PostujTo.</p>
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer', padding: '16px 20px', background: planTermsChecked ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.02)', border: `1px solid ${planTermsChecked ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.08)'}`, borderRadius: 14, marginBottom: 24, transition: 'all 0.2s', textAlign: 'left' }}>
+              <input type="checkbox" checked={planTermsChecked} onChange={e => setPlanTermsChecked(e.target.checked)}
+                style={{ width: 18, height: 18, marginTop: 2, accentColor: '#6366f1', flexShrink: 0, cursor: 'pointer' }} />
+              <span style={{ fontSize: 13, color: 'rgba(240,240,245,0.65)', lineHeight: 1.6 }}>
+                Zapoznałem/am się z{' '}
+                <a href="/terms" target="_blank" style={{ color: '#a5b4fc', textDecoration: 'underline' }}>Regulaminem</a>
+                {' '}i{' '}
+                <a href="/privacy" target="_blank" style={{ color: '#a5b4fc', textDecoration: 'underline' }}>Polityką prywatności</a>
+                {' '}serwisu PostujTo i akceptuję ich treść. Wyrażam zgodę na natychmiastowe rozpoczęcie świadczenia usługi.
+              </span>
+            </label>
+            <button onClick={handleConfirmPlanTerms} disabled={!planTermsChecked || planCheckoutLoading}
+              style={{ width: '100%', padding: '14px', borderRadius: 12, fontSize: 15, fontWeight: 700, border: 'none', cursor: planTermsChecked ? 'pointer' : 'not-allowed', background: planTermsChecked ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(255,255,255,0.05)', color: planTermsChecked ? '#fff' : 'rgba(240,240,245,0.3)', transition: 'all 0.2s', marginBottom: 12 }}>
+              {planCheckoutLoading ? 'Ładowanie...' : 'Akceptuję — przejdź do płatności →'}
+            </button>
+            <button onClick={() => setShowPlanTermsModal(false)}
+              style={{ width: '100%', padding: '12px', borderRadius: 12, fontSize: 14, fontWeight: 600, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'rgba(240,240,245,0.4)', cursor: 'pointer' }}>
+              Anuluj
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* UPGRADE MODAL */}
       {upgradeModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
@@ -1123,11 +1201,25 @@ useEffect(() => {
               Zostało Ci <strong style={{ color: '#f87171' }}>{upgradeModal.remaining} dni</strong> bez treści w tym miesiącu.<br />
               Plan Starter odblokuje nielimitowane generowanie za <strong style={{ color: '#a5b4fc' }}>79 zł/msc</strong>.
             </p>
-            <Link href="/pricing" onClick={() => setUpgradeModal(null)} style={{ display: 'block', marginBottom: 10 }}>
-              <button className="btn-primary" style={{ width: '100%', padding: '14px', borderRadius: 12, fontSize: 15, border: 'none' }}>
-                <span>✨ Przejdź na Starter — 79 zł/msc</span>
-              </button>
-            </Link>
+            <button
+              onClick={handleUpgradeStarter}
+              disabled={isUpgradeLoading}
+              className="btn-primary"
+              style={{ width: '100%', padding: '14px', borderRadius: 12, fontSize: 15, border: 'none', marginBottom: 10 }}
+            >
+              <span>{isUpgradeLoading ? 'Przekierowuję...' : '✨ Przejdź na Starter — 79 zł/msc'}</span>
+            </button>
+            <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', textAlign: 'center', marginBottom: 10 }}>
+              Potrzebujesz więcej?{' '}
+              <a
+                href="/pricing"
+                style={{ color: 'rgba(168,85,247,0.8)', textDecoration: 'none' }}
+                onMouseOver={e => (e.currentTarget.style.color = '#a855f7')}
+                onMouseOut={e => (e.currentTarget.style.color = 'rgba(168,85,247,0.8)')}
+              >
+                Plan Pro — 199 zł/msc →
+              </a>
+            </p>
             <button onClick={() => setUpgradeModal(null)} className="btn-ghost" style={{ width: '100%', padding: '12px', borderRadius: 12, fontSize: 14 }}>
               Może później
             </button>

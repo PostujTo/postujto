@@ -104,6 +104,7 @@ _Ostatnia aktualizacja: 2026-03-16_
 - Multi-platforma: selektor platform jako multi-select checkboxy, zakładki platform nad siatką i listą (brief: calendar-multi-platform.md ✅)
 - Widok listy: zakładki platform jak w siatce, przyciski Generuj/Kopiuj inline (brief: calendar-list-view-platforms.md ✅)
 - Izolacja danych: każdy użytkownik widzi tylko swoje dane (brief: user-data-isolation.md ✅)
+- Modal upgrade: bezpośredni Stripe checkout bez przekierowania na /pricing (brief: modal-upgrade-direct-checkout.md ✅)
 
 ### Onboarding (/onboarding)
 - Wizard 5 kroków: Witaj → Firma → Platformy → Ton → Start
@@ -251,10 +252,11 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 - Ale stan `credits` w React nie jest aktualizowany po generowaniu
 - Fix: re-fetch `/api/credits` po zakończeniu generowania całej pętli
 
-### 🟡 Modal upgrade przy wyczerpaniu kredytów
-- Gdy użytkownik (Free) wyczerpie 5 kredytów podczas bulk generation
-- Pokazać modal: "Wygenerowałeś X/31 postów. Zostało Ci Y dni bez treści. Plan Starter odblokuje wszystkie za 79 zł/msc."
-- Przycisk "Przejdź na Starter" → Stripe checkout
+### Modal upgrade przy wyczerpaniu kredytów — WDROŻONE ✅
+- Modal wyświetlany gdy Free user wyczerpie kredyty podczas bulk generation
+- Przycisk "Przejdź na Starter" → bezpośrednio do Stripe checkout (bez przekierowania na /pricing)
+- Weryfikacja terms_accepted_at: jeśli brak → modal regulaminu → potem Stripe
+- Link "Plan Pro — 199 zł/msc →" pod przyciskiem głównym
 
 ## Roadmap — zaplanowane funkcje
 
@@ -284,7 +286,7 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 
 ### 🔴 Krytyczne
 - [ ] Stripe — włączyć płatności po konsultacji prawnej
-- [ ] Modal upgrade przy wyczerpaniu kredytów w kalendarzu
+- [x] Modal upgrade przy wyczerpaniu kredytów w kalendarzu — ✅ wdrożone
 
 ### 🟡 Ważne
 - [ ] Regulamin §1 — zaktualizować po rejestracji JDG (nazwa firmy, NIP, REGON, adres)
