@@ -94,6 +94,7 @@ export default function SettingsPage() {
     slogan: '',
     logo_url: '',
     sample_posts: '',
+    platforms: [] as string[],
   });
 
   useEffect(() => {
@@ -110,6 +111,7 @@ export default function SettingsPage() {
             slogan: data.brandKit.slogan || '',
             logo_url: data.brandKit.logo_url || '',
             sample_posts: data.brandKit.sample_posts || '',
+            platforms: data.brandKit.platforms || [],
           });
         }
       });
@@ -347,6 +349,34 @@ export default function SettingsPage() {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Platformy */}
+          <div style={s.card}>
+            <label style={{ ...s.label, marginBottom: 12 }}>Aktywne platformy</label>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              {(['facebook', 'instagram', 'tiktok'] as const).map(pl => {
+                const labels = { facebook: 'Facebook', instagram: 'Instagram', tiktok: 'TikTok' };
+                const isSelected = brandKit.platforms.includes(pl);
+                return (
+                  <button
+                    key={pl}
+                    onClick={() => setBrandKit(prev => ({
+                      ...prev,
+                      platforms: isSelected
+                        ? prev.platforms.filter(p => p !== pl)
+                        : [...prev.platforms, pl],
+                    }))}
+                    style={{ padding: '10px 22px', borderRadius: 50, fontWeight: 600, fontSize: 14, cursor: 'pointer', transition: 'all 0.2s', background: isSelected ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(255,255,255,0.05)', border: isSelected ? '1px solid transparent' : '1px solid rgba(255,255,255,0.1)', color: isSelected ? '#fff' : 'rgba(240,240,245,0.6)' }}
+                  >
+                    {labels[pl]}
+                  </button>
+                );
+              })}
+            </div>
+            <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.35)', marginTop: 10 }}>
+              Kalendarz treści będzie generował posty tylko na wybrane platformy.
+            </p>
           </div>
 
           {/* Logo */}

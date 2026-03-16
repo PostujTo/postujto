@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     if (!user) return NextResponse.json({ error: 'Nie znaleziono użytkownika' }, { status: 404 });
 
     const body = await req.json();
-    const { company_name, colors, style, tone, slogan, logo_url, sample_posts } = body;
+    const { company_name, colors, style, tone, slogan, logo_url, sample_posts, platforms } = body;
 
     // Walidacja
     if (company_name !== undefined && (typeof company_name !== 'string' || company_name.length > 100)) {
@@ -84,6 +84,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Przykładowe posty są za długie (max 10000 znaków)' }, { status: 400 });
     }
 
+    const ALLOWED_PLATFORMS = ['facebook', 'instagram', 'tiktok'];
+    if (platforms !== undefined) {
+      if (!Array.isArray(platforms) || platforms.some((p: any) => !ALLOWED_PLATFORMS.includes(p))) {
+        return NextResponse.json({ error: 'Nieprawidłowe platformy' }, { status: 400 });
+      }
+    }
+
     // Sanityzacja
     const sanitized = {
       company_name: company_name?.replace(/<[^>]*>/g, '').trim(),
@@ -93,6 +100,7 @@ export async function POST(req: Request) {
       tone,
       logo_url,
       sample_posts: sample_posts?.replace(/<[^>]*>/g, '').trim(),
+      platforms,
     };
 
     const { data, error } = await supabase
@@ -106,6 +114,7 @@ export async function POST(req: Request) {
         slogan: sanitized.slogan,
         logo_url: sanitized.logo_url,
         sample_posts: sanitized.sample_posts,
+        platforms: sanitized.platforms,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' })
       .select()

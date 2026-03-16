@@ -212,7 +212,15 @@ useEffect(() => {
 
   fetch('/api/brand-kit')
     .then(r => r.ok ? r.json() : null)
-    .then(data => { if (data) setHasBrandKit(!!data.company_name); })
+    .then(data => {
+      if (data) {
+        setHasBrandKit(!!data.company_name);
+        const bkPlatforms: string[] = data.platforms?.length > 0 ? data.platforms : ['facebook', 'instagram', 'tiktok'];
+        setAvailablePlatforms(bkPlatforms);
+        setSelectedPlatforms(bkPlatforms);
+        setActivePlatform(bkPlatforms[0]);
+      }
+    })
     .catch(() => {});
 }, [user?.id]);
   const today = new Date();
@@ -238,6 +246,7 @@ useEffect(() => {
   const [planCheckoutLoading, setPlanCheckoutLoading] = useState(false);
   const [upgradeError, setUpgradeError] = useState<string | null>(null);
   const [showReplanConfirm, setShowReplanConfirm] = useState(false);
+  const [availablePlatforms, setAvailablePlatforms] = useState<string[]>(['facebook', 'instagram', 'tiktok']);
 
   // ─── UPGRADE CHECKOUT ─────────────────────────────────────────────────────
   const handleUpgradeStarter = async () => {
@@ -747,7 +756,7 @@ useEffect(() => {
 
                 {/* Platform multi-select */}
                 <div style={{ display: 'flex', gap: 6 }}>
-                  {PLATFORMS.map(pl => {
+                  {availablePlatforms.map(pl => {
                     const isSelected = selectedPlatforms.includes(pl);
                     const isLast = isSelected && selectedPlatforms.length === 1;
                     return (

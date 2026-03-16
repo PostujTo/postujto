@@ -67,6 +67,7 @@ export default function OnboardingPage() {
           slogan: '',
           logo_url: '',
           sample_posts: '',
+          platforms: selectedPlatforms,
         }),
       });
 
