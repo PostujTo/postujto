@@ -750,6 +750,8 @@ useEffect(() => {
           </div>
         </header>
 
+        {/* alignItems: 'start' is critical here — prevents column height synchronization
+             when the right column changes size (day panel open/close). Do not remove. */}
         <main style={{ flex: 1, maxWidth: 1400, margin: '0 auto', width: '100%', padding: '40px 24px 80px', display: 'grid', gridTemplateColumns: '1fr 380px', gap: 28, alignItems: 'start' }}>
 
           {/* LEFT */}
