@@ -20,6 +20,30 @@ function weekRangeLabel(weekDays: CalendarDay[]): string {
   return `${firstDay}–${lastDay} ${monthStr}`;
 }
 
+function buildWeekGroups(currentDays: CalendarDay[]): CalendarDay[][] {
+  const rows: CalendarDay[][] = [];
+  for (let i = 0; i < currentDays.length; i += 7) {
+    rows.push(currentDays.slice(i, i + 7));
+  }
+  const monthRows = rows
+    .map(row => row.filter(d => d.isCurrentMonth))
+    .filter(row => row.length > 0);
+  const merged: CalendarDay[][] = [];
+  for (let i = 0; i < monthRows.length; i++) {
+    const row = monthRows[i];
+    if (row.length <= 2) {
+      if (merged.length === 0) {
+        monthRows[i + 1] = [...row, ...monthRows[i + 1]];
+      } else {
+        merged[merged.length - 1] = [...merged[merged.length - 1], ...row];
+      }
+    } else {
+      merged.push([...row]);
+    }
+  }
+  return merged;
+}
+
 import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
@@ -972,29 +996,35 @@ useEffect(() => {
                 </button>
 
                 {/* Kopiuj serie na tydzien */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                {[0, 1, 2, 3].map(weekIdx => {
-                  const weekDays = currentDays.slice(weekIdx * 7, weekIdx * 7 + 7);
-                  const weekGenerated = weekDays.filter(d => d.generated);
-                  if (weekGenerated.length === 0) return null;
+                {(() => {
+                  const weekGroups = buildWeekGroups(currentDays);
+                  const groupsWithPosts = weekGroups.filter(group => group.some(d => d.generated));
+                  if (groupsWithPosts.length === 0) return null;
                   return (
-                    <button key={weekIdx}
-                      onClick={() => {
-                        const text = weekGenerated.map(d =>
-                          `📅 ${d.fullKey} [${d.platform.toUpperCase()}]\n${d.postText}\n${(d.hashtags || []).join(' ')}`
-                        ).join('\n\n---\n\n');
-                        navigator.clipboard.writeText(text);
-                        setCopiedWeek(weekIdx);
-                        setTimeout(() => setCopiedWeek(null), 2000);
-                      }}
-                      className="btn-ghost"
-                      style={{ padding: '11px', borderRadius: 12, fontSize: 13 }}
-                    >
-                      {copiedWeek === weekIdx ? '✅ Skopiowano!' : `📋 Tydz. ${weekIdx + 1} · ${weekRangeLabel(weekDays)}`}
-                    </button>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                      {weekGroups.map((group, weekIdx) => {
+                        const weekGenerated = group.filter(d => d.generated);
+                        if (weekGenerated.length === 0) return null;
+                        return (
+                          <button key={weekIdx}
+                            onClick={() => {
+                              const text = weekGenerated.map(d =>
+                                `📅 ${d.fullKey} [${d.platform.toUpperCase()}]\n${d.postText}\n${(d.hashtags || []).join(' ')}`
+                              ).join('\n\n---\n\n');
+                              navigator.clipboard.writeText(text);
+                              setCopiedWeek(weekIdx);
+                              setTimeout(() => setCopiedWeek(null), 2000);
+                            }}
+                            className="btn-ghost"
+                            style={{ padding: '11px', borderRadius: 12, fontSize: 13 }}
+                          >
+                            {copiedWeek === weekIdx ? '✅ Skopiowano!' : `📋 Tydz. ${weekIdx + 1} · ${weekRangeLabel(group)}`}
+                          </button>
+                        );
+                      })}
+                    </div>
                   );
-                })}
-                </div>
+                })()}
               </div>
 
               {/* Progress */}
