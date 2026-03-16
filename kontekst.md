@@ -66,6 +66,7 @@ _Ostatnia aktualizacja: 2026-03-16_
 - Logo (upload do Supabase Storage)
 - Przykładowe posty (sample_posts — nauka stylu przez Claude)
 - Presety stylów: Lokalny biznes, Korporacja, Eko, Premium, Młodzieżowy, Minimalizm
+- **Aktywne platformy** (multi-select: Facebook / Instagram / TikTok) — zapisywane do `brand_kits.platforms`, używane do ograniczania dostępnych platform w kalendarzu
 
 ### Dashboard (/dashboard)
 - Historia wszystkich postów
@@ -107,6 +108,11 @@ _Ostatnia aktualizacja: 2026-03-16_
 - Multi-platforma: selektor platform jako multi-select checkboxy, zakładki platform nad siatką i listą (brief: calendar-multi-platform.md ✅)
 - Widok listy: zakładki platform jak w siatce, przyciski Generuj/Kopiuj inline (brief: calendar-list-view-platforms.md ✅)
 - Izolacja danych: każdy użytkownik widzi tylko swoje dane (brief: user-data-isolation.md ✅)
+- Platformy ograniczone do Brand Kitu (brief: calendar-platforms-from-brandkit.md ✅)
+  - Brand Kit z 1 platformą → kalendarz pokazuje tylko tę platformę
+  - Brak Brand Kitu / puste platforms → fallback do wszystkich 3 platform
+  - Free → zawsze wszystkie 3 platformy
+  - Stan `availablePlatforms` inicjalizowany z `brand_kits.platforms` przy ładowaniu kalendarza
 - Modal upgrade: bezpośredni Stripe checkout bez przekierowania na /pricing (brief: modal-upgrade-direct-checkout.md ✅)
   - Weryfikacja terms_accepted_at: jeśli brak → modal regulaminu → potem Stripe
   - Link "Plan Pro — 199 zł/msc →" pod przyciskiem głównym
@@ -158,6 +164,7 @@ brand_kits:
   - colors (jsonb), style, tone
   - logo_url
   - sample_posts (text, max 10k znaków)
+  - platforms (text[]) — np. ["facebook", "instagram"] — aktywne platformy użytkownika
 
 calendar_topics:
   - id, user_id, date (YYYY-MM-DD), topic (text)
@@ -244,6 +251,15 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 
 ## Znane błędy do naprawy (priorytet)
 
+### 🔴 Responsywność mobilna — PRIORYTET przed launchem
+- Strona nie jest dostosowana do urządzeń mobilnych
+- Część UI wychodzi poza ekran telefonu (elementy "uciekają" za krawędź)
+- Komponenty i przyciski rozciągają się nieproporcjonalnie
+- Dotyczy wszystkich stron: `/`, `/app`, `/dashboard`, `/calendar`, `/settings`
+- **Kiedy wdrożyć:** przed launchem — pierwsi użytkownicy będą wchodzić z mobile
+- **Zakres prac:** audyt każdej strony + dodanie breakpointów CSS, `max-width`, `flex-wrap`, font-size scaling, dotykowe cele minimum 44px
+- Brief do napisania przed wdrożeniem
+
 ### 🔴 Kredyty nie odświeżają się po odświeżeniu strony
 - `/api/generate` poprawnie odejmuje kredyt w Supabase
 - Ale stan `credits` w React nie jest aktualizowany po generowaniu
@@ -277,6 +293,7 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 
 ### 🔴 Krytyczne
 - [ ] Stripe — włączyć płatności po konsultacji prawnej (Jarek robi sam)
+- [ ] Responsywność mobilna — dostosowanie UI do urządzeń mobilnych (przed launchem)
 
 ### 🟡 Ważne
 - [ ] Regulamin §1 — zaktualizować po rejestracji JDG (nazwa firmy, NIP, REGON, adres)
@@ -362,6 +379,12 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 - Wiersze siatki z ≤2 dniami bieżącego miesiąca → merge z sąsiednim tygodniem
 - Wynik dla marca 2026: 4 przyciski (1–8, 9–15, 16–22, 23–31 mar)
 - Funkcja `buildWeekGroups(currentDays)` w `app/calendar/page.tsx`
+
+### Kalendarz — platformy z Brand Kitu — WDROŻONE ✅
+- Użytkownik Starter z Brand Kitem widzi w kalendarzu tylko zadeklarowane platformy
+- Brak Brand Kitu / puste platforms → fallback do wszystkich 3 platform
+- Platformy wybierane w /settings (Brand Kit) i zapisywane przy onboardingu
+- Walidacja server-side: tylko facebook/instagram/tiktok dozwolone
 
 ### Kalendarz multi-platforma — tryby generowania
 - **Starter:** tryb "Kopia" — 1 wywołanie API, reszta platform dostaje kopię
