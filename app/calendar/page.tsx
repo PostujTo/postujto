@@ -1,5 +1,11 @@
 'use client';
 
+function pluralPL(n: number, one: string, few: string, many: string): string {
+  if (n === 1) return one;
+  if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) return few;
+  return many;
+}
+
 import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
@@ -883,28 +889,31 @@ useEffect(() => {
                 </div>
               </div>
             )}
-          </div>
 
-          {/* RIGHT PANEL */}
-          <div style={{ position: 'sticky', top: 88, display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-            {/* Stats */}
-            <div className="fade-up glass-card" style={{ padding: '20px 24px', animationDelay: '0.1s' }}>
-              <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16 }}>Miesiąc w liczbach</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                {[
-                  { value: currentDays.length, label: 'Dni', color: 'rgba(240,240,245,0.6)' },
-                  { value: Object.keys(POLISH_OCCASIONS).filter(k => { const [m] = k.split('-'); return parseInt(m) === currentMonth + 1; }).length, label: 'Okazji', color: '#fbbf24' },
-                  { value: topicCount, label: 'Tematów', color: '#60a5fa' },
-                  { value: generatedCount, label: 'Postów', color: '#4ade80' },
+          {/* MIESIĄC W LICZBACH */}
+          <div className="fade-up glass-card" style={{ padding: '20px 24px', marginTop: 20 }}>
+            <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>MIESIĄC W LICZBACH</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+              {(() => {
+                const occasionsCount = Object.keys(POLISH_OCCASIONS).filter(k => { const [m] = k.split('-'); return parseInt(m) === currentMonth + 1; }).length;
+                return [
+                  { value: currentDays.length, label: pluralPL(currentDays.length, 'dzień', 'dni', 'dni'), color: 'rgba(240,240,245,0.6)' },
+                  { value: occasionsCount, label: pluralPL(occasionsCount, 'okazja', 'okazje', 'okazji'), color: '#fbbf24' },
+                  { value: topicCount, label: pluralPL(topicCount, 'temat', 'tematy', 'tematów'), color: '#60a5fa' },
+                  { value: generatedCount, label: pluralPL(generatedCount, 'post', 'posty', 'postów'), color: '#4ade80' },
                 ].map((s, i) => (
                   <div key={i} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: '12px 14px', textAlign: 'center' }}>
                     <div className="font-display" style={{ fontSize: 24, fontWeight: 700, color: s.color, lineHeight: 1 }}>{s.value}</div>
                     <div style={{ fontSize: 11, color: 'rgba(240,240,245,0.35)', marginTop: 4 }}>{s.label}</div>
                   </div>
-                ))}
-              </div>
+                ));
+              })()}
             </div>
+          </div>
+          </div>
+
+          {/* RIGHT PANEL */}
+          <div style={{ position: 'sticky', top: 88, display: 'flex', flexDirection: 'column', gap: 16 }}>
 
             {/* Actions */}
             <div className="fade-up glass-card" style={{ padding: '20px 24px', animationDelay: '0.15s' }}>
