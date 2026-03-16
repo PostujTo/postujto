@@ -63,6 +63,7 @@ _Ostatnia aktualizacja: 2026-03-16_
 - Kolory marki (max 5, HEX/RGB/CMYK)
 - Styl graficzny (7 opcji)
 - Ton komunikacji (4 opcje)
+- **Domyślna długość postów** (Krótki ~100 / Średni ~250 / Długi ~500 słów)
 - Logo (upload do Supabase Storage)
 - Przykładowe posty (sample_posts — nauka stylu przez Claude)
 - Presety stylów: Lokalny biznes, Korporacja, Eko, Premium, Młodzieżowy, Minimalizm
@@ -113,6 +114,41 @@ _Ostatnia aktualizacja: 2026-03-16_
   - Brak Brand Kitu / puste platforms → fallback do wszystkich 3 platform
   - Free → zawsze wszystkie 3 platformy
   - Stan `availablePlatforms` inicjalizowany z `brand_kits.platforms` przy ładowaniu kalendarza
+- Panel dnia — 3 bugi naprawione (brief: calendar-day-panel-platforms.md ✅)
+  - Zakładki platformy w panelu dnia ograniczone do `availablePlatforms`
+  - Rozdzielone stany: `activePlatform` (górne zakładki + bulk) i `dayPanelPlatform` (panel dnia)
+  - Po wygenerowaniu posta zakładka panelu dnia przeskakuje na platformę generowania
+  - Kliknięcie nowego dnia resetuje `dayPanelPlatform` do `activePlatform`
+- Zakładki platform — pill style z kolorowym obramowaniem + kropki per platforma (brief: calendar-platform-tabs-colored.md ✅)
+  - Aktywna zakładka: `border: 2px solid PLATFORM_COLORS[pl]` (FB #1877F2, IG #E1306C, TT #FFFFFF)
+  - Nieaktywna zakładka: neutralny szary border, przezroczyste tło
+  - Kropka na kafelku dnia: kolor aktywnej platformy, tylko gdy ta platforma wygenerowana
+  - Klasa `generated` (zielone tło kafelka) per aktywna platforma
+  - Fallback dla starych danych bez `generated_platforms` → zielona kropka
+- Legenda i "Miesiąc w liczbach" per aktywna platforma (brief: calendar-legend-stats-per-platform.md ✅)
+  - Kropka "Wygenerowany" w legendzie: `PLATFORM_COLORS[activePlatform]`
+  - Kafelek "postów": liczy tylko posty na aktywnej platformie, kolor = `PLATFORM_COLORS[activePlatform]`
+  - Kafelek "postów": ikonka platformy przy etykiecie gdy `availablePlatforms.length > 1`
+  - Kafelki Dni i Okazje: bez zmian
+- Selektor długości + ton i długość z Brand Kitu (brief: calendar-length-tone-brandkit.md ✅)
+  - Nowy stan `defaultLength` ('short'/'medium'/'long'), domyślnie 'medium'
+  - Selektor Krótki/Średni/Długi w wierszu z tonami (oddzielony pionową linią)
+  - Pre-fill `defaultTone` i `defaultLength` z Brand Kitu przy ładowaniu kalendarza
+  - Wszystkie wywołania API używają `defaultLength` zamiast hardcoded 'medium'
+  - Info message: "Ton i długość pobrane z Brand Kitu" dla Starter/Pro z Brand Kitem
+  - Brand Kit (/settings): nowa sekcja "Domyślna długość postów" (Krótki/Średni/Długi z opisem)
+  - API `/api/brand-kit`: walidacja i zapis pola `length`
+  - Supabase: kolumna `length text DEFAULT 'medium'` dodana do `brand_kits`
+- Memoizacja obliczeń kalendarza (brief: calendar-platform-switch-memoization.md ✅)
+  - `useMemo` na `currentDays`, `generatedCount`, `topicCount`, `occasionsCount`, `daysWithTopic`
+  - CSS `transition: background-color 0.15s ease, border-color 0.15s ease` na kafelkach dni
+  - Eliminuje skok/miganie przy przełączaniu zakładek platform
+- Panel dnia — 5 fixów UX (brief: calendar-day-panel-ux-fixes.md ✅)
+  - Fix 1: usunięte zakładki platform z panelu dnia, zastąpione statyczną etykietą w kolorze `PLATFORM_COLORS[activePlatform]`; stan `dayPanelPlatform` usunięty — wszystko opiera się na `activePlatform`
+  - Fix 2: nieaktywne zakładki platform `color: rgba(240,240,245,0.8)` (było 0.55) — wyraźniej klikalne
+  - Fix 3: przycisk generowania bez nazwy platformy gdy `availablePlatforms.length === 1`
+  - Fix 4: `spellCheck={false}` na textarea z tematem posta
+  - Fix 5: nawigacja strzałkami ← → przez dni z tematem; `daysWithTopic` zmemoizowany; aktywny dzień ma `border: 2px solid rgba(99,102,241,0.8)`
 - Modal upgrade: bezpośredni Stripe checkout bez przekierowania na /pricing (brief: modal-upgrade-direct-checkout.md ✅)
   - Weryfikacja terms_accepted_at: jeśli brak → modal regulaminu → potem Stripe
   - Link "Plan Pro — 199 zł/msc →" pod przyciskiem głównym
@@ -165,6 +201,7 @@ brand_kits:
   - logo_url
   - sample_posts (text, max 10k znaków)
   - platforms (text[]) — np. ["facebook", "instagram"] — aktywne platformy użytkownika
+  - length (text) — 'short'/'medium'/'long', domyślnie 'medium'
 
 calendar_topics:
   - id, user_id, date (YYYY-MM-DD), topic (text)
@@ -294,8 +331,11 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 ### 🔴 Krytyczne
 - [ ] Stripe — włączyć płatności po konsultacji prawnej (Jarek robi sam)
 - [ ] Responsywność mobilna — dostosowanie UI do urządzeń mobilnych (przed launchem)
+- [ ] 4 bugi kalendarza: strzałki jak przy miesiącu, przycisk bez platformy, skakanie po zmianie platformy, dzień 13 mar utracił status wygenerowanego (brief: calendar-4-bugs-fix.md)
 
 ### 🟡 Ważne
+- [ ] Emoji okazji w kafelkach + stabilna wysokość panelu dnia (brief: calendar-occasion-emoji-panel-height.md)
+- [ ] Skakanie layoutu — diagnoza root cause dwóch kolumn (brief: calendar-layout-root-cause.md)
 - [ ] Regulamin §1 — zaktualizować po rejestracji JDG (nazwa firmy, NIP, REGON, adres)
 - [ ] Polityka prywatności — doprecyzować "standardowe klauzule umowne"
 - [ ] Regulamin — doprecyzować czy 5 kredytów Free wygasa
@@ -353,7 +393,19 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 - `calendar-stats-layout.md` — sekcja "Miesiąc w liczbach" pod kalendarzem + pluralPL ✅ wdrożone
 - `calendar-copy-week-layout.md` — przyciski Kopiuj tydzień 2×2 + zakres dat ✅ wdrożone
 - `calendar-copy-week-groups.md` — grupowanie tygodni Pon–Nd z mergowaniem ✅ wdrożone
-- `ux-fixes.md` — 13 zadań UX
+- `calendar-replan-guard.md` — blokada ponownego planowania gdy posty wygenerowane ✅ wdrożone
+- `calendar-parallel-generation.md` — bulk generation równoległy batch=5, ~5x szybciej ✅ wdrożone
+- `calendar-platforms-from-brandkit.md` — platformy kalendarza z Brand Kitu ✅ wdrożone
+- `calendar-day-panel-platforms.md` — 3 bugi panelu dnia (zakładki, desync, tekst przycisku) ✅ wdrożone
+- `calendar-platform-tabs-colored.md` — zakładki pill z kolorowym borderem + kropki per platforma ✅ wdrożone
+- `calendar-legend-stats-per-platform.md` — legenda i statystyki per aktywna platforma ✅ wdrożone
+- `calendar-length-tone-brandkit.md` — selektor długości + ton/długość z Brand Kitu ✅ wdrożone
+- `calendar-platform-switch-memoization.md` — useMemo eliminuje skakanie przy zmianie platformy ✅ wdrożone
+- `calendar-day-panel-ux-fixes.md` — 5 fixów UX panelu dnia (strzałki, spellcheck, platformy) ✅ wdrożone
+- `calendar-4-bugs-fix.md` — 4 bugi po ostatnich zmianach (strzałki, przycisk, skakanie, dane) ⏳ do wdrożenia
+- `calendar-occasion-emoji-panel-height.md` — emoji okazji + stabilna wysokość panelu ⏳ do wdrożenia
+- `calendar-layout-root-cause.md` — diagnoza root cause skakania layoutu (dwie kolumny) ⏳ do wdrożenia
+- `ux-fixes.md` — 13 zadań UX (archiwalne, nieaktualne)
 - `code-optimization.md` — optymalizacja kodu (priorytet: zadania 1 i 5)
 - `usage-monitoring.md` — monitoring użycia
 - `industries-and-onboarding.md` — branże + onboarding
