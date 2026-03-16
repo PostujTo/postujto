@@ -803,16 +803,9 @@ useEffect(() => {
               <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
                 {selectedPlatforms.map(pl => (
                   <button key={pl} onClick={() => setActivePlatform(pl)}
-                    style={{ padding: '8px 16px', borderRadius: 10, fontSize: 13, border: `2px solid ${activePlatform === pl ? PLATFORM_COLORS[pl] : 'rgba(255,255,255,0.1)'}`, background: activePlatform === pl ? `${PLATFORM_COLORS[pl]}22` : 'rgba(255,255,255,0.03)', color: activePlatform === pl ? PLATFORM_COLORS[pl] : 'rgba(240,240,245,0.5)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontWeight: activePlatform === pl ? 600 : 400, transition: 'all 0.2s' }}>
+                    style={{ padding: '6px 14px', borderRadius: 20, fontSize: 13, border: activePlatform === pl ? `2px solid ${PLATFORM_COLORS[pl] || 'rgba(255,255,255,0.3)'}` : '1px solid rgba(255,255,255,0.12)', background: activePlatform === pl ? 'rgba(255,255,255,0.06)' : 'transparent', color: activePlatform === pl ? '#fff' : 'rgba(240,240,245,0.55)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontWeight: activePlatform === pl ? 600 : 400, transition: 'all 0.15s ease' }}>
                     {pl === 'facebook' ? <FacebookIcon /> : pl === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
                     {pl === 'facebook' ? 'Facebook' : pl === 'instagram' ? 'Instagram' : 'TikTok'}
-                    {availablePlatforms.length > 1 && (
-                      <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 14, height: 14, borderRadius: 3, border: activePlatform === pl ? '1.5px solid rgba(255,255,255,0.8)' : '1.5px solid rgba(255,255,255,0.3)', background: activePlatform === pl ? 'rgba(255,255,255,0.2)' : 'transparent', marginLeft: 2, flexShrink: 0 }}>
-                        {activePlatform === pl && (
-                          <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                        )}
-                      </span>
-                    )}
                   </button>
                 ))}
               </div>
@@ -832,7 +825,7 @@ useEffect(() => {
                   {days.map((day, i) => (
                     <div key={i}
                       onClick={() => { if (!day.isCurrentMonth) return; setSelectedDay(day.fullKey === selectedDay ? null : day.fullKey); setDayPanelPlatform(activePlatform); }}
-                      className={`cal-day ${day.isCurrentMonth ? '' : ''} ${day.isToday ? 'today' : ''} ${day.fullKey === selectedDay ? 'selected' : ''} ${day.topic ? 'has-topic' : ''} ${day.generated ? 'generated' : ''}`}
+                      className={`cal-day ${day.isCurrentMonth ? '' : ''} ${day.isToday ? 'today' : ''} ${day.fullKey === selectedDay ? 'selected' : ''} ${day.topic ? 'has-topic' : ''} ${day.generated_platforms ? (day.generated_platforms[activePlatform] ? 'generated' : '') : (day.generated ? 'generated' : '')}`}
                       style={{ padding: '8px 6px', minHeight: 72, opacity: day.isCurrentMonth ? 1 : 0.25, cursor: day.isCurrentMonth ? 'pointer' : 'default', position: 'relative' }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
@@ -844,12 +837,15 @@ useEffect(() => {
                           {day.topic}
                         </p>
                       )}
-                      {/* Per-platform status dots */}
-                      {day.isCurrentMonth && (day.platforms?.length > 0 || day.generated) && (
-                        <div style={{ position: 'absolute', bottom: 5, right: 4, display: 'flex', gap: 2 }}>
-                          {(day.platforms?.length > 0 ? day.platforms : [day.platform]).map(pl => (
-                            <div key={pl} style={{ width: 5, height: 5, borderRadius: '50%', background: day.generated_platforms?.[pl] ? (PLATFORM_COLORS[pl] || '#4ade80') : 'rgba(255,255,255,0.2)', border: activePlatform === pl && selectedPlatforms.length > 1 ? `1px solid ${PLATFORM_COLORS[pl]}` : 'none' }} />
-                          ))}
+                      {/* Status dot — active platform only */}
+                      {day.isCurrentMonth && (
+                        <div style={{ position: 'absolute', bottom: 5, right: 4 }}>
+                          {day.generated_platforms?.[activePlatform] && (
+                            <span style={{ width: 6, height: 6, borderRadius: '50%', background: PLATFORM_COLORS[activePlatform] || '#4ade80', display: 'block', flexShrink: 0 }} />
+                          )}
+                          {!day.generated_platforms && day.generated && (
+                            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', display: 'block' }} />
+                          )}
                         </div>
                       )}
                     </div>
@@ -883,16 +879,9 @@ useEffect(() => {
                   <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
                     {selectedPlatforms.map(pl => (
                       <button key={pl} onClick={() => setActivePlatform(pl)}
-                        style={{ padding: '8px 16px', borderRadius: 10, fontSize: 13, border: `2px solid ${activePlatform === pl ? PLATFORM_COLORS[pl] : 'rgba(255,255,255,0.1)'}`, background: activePlatform === pl ? `${PLATFORM_COLORS[pl]}22` : 'rgba(255,255,255,0.03)', color: activePlatform === pl ? PLATFORM_COLORS[pl] : 'rgba(240,240,245,0.5)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontWeight: activePlatform === pl ? 600 : 400, transition: 'all 0.2s' }}>
+                        style={{ padding: '6px 14px', borderRadius: 20, fontSize: 13, border: activePlatform === pl ? `2px solid ${PLATFORM_COLORS[pl] || 'rgba(255,255,255,0.3)'}` : '1px solid rgba(255,255,255,0.12)', background: activePlatform === pl ? 'rgba(255,255,255,0.06)' : 'transparent', color: activePlatform === pl ? '#fff' : 'rgba(240,240,245,0.55)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontWeight: activePlatform === pl ? 600 : 400, transition: 'all 0.15s ease' }}>
                         {pl === 'facebook' ? <FacebookIcon /> : pl === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
                         {pl === 'facebook' ? 'Facebook' : pl === 'instagram' ? 'Instagram' : 'TikTok'}
-                      {availablePlatforms.length > 1 && (
-                        <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 14, height: 14, borderRadius: 3, border: activePlatform === pl ? '1.5px solid rgba(255,255,255,0.8)' : '1.5px solid rgba(255,255,255,0.3)', background: activePlatform === pl ? 'rgba(255,255,255,0.2)' : 'transparent', marginLeft: 2, flexShrink: 0 }}>
-                          {activePlatform === pl && (
-                            <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 4l2 2 4-4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                          )}
-                        </span>
-                      )}
                       </button>
                     ))}
                   </div>
