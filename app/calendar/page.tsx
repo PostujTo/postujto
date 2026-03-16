@@ -863,7 +863,7 @@ useEffect(() => {
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
                         <span style={{ fontSize: 13, fontWeight: day.isToday ? 700 : 500, color: day.isToday ? '#a5b4fc' : 'rgba(240,240,245,0.75)' }}>{day.dayOfMonth}</span>
-                        {day.occasion && <span style={{ fontSize: 15 }}>{day.occasion.emoji}</span>}
+                        {day.occasion && <span style={{ fontSize: 12, lineHeight: 1, flexShrink: 0 }}>{day.occasion.emoji}</span>}
                       </div>
                       {day.topic && (
                         <p style={{ fontSize: 10, color: 'rgba(240,240,245,0.55)', lineHeight: 1.4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
@@ -1126,16 +1126,16 @@ useEffect(() => {
                   const prevDay = idx > 0 ? daysWithTopic[idx - 1] : null;
                   const nextDay = idx < daysWithTopic.length - 1 ? daysWithTopic[idx + 1] : null;
                   return (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, minHeight: 44 }}>
                       <button onClick={() => prevDay && setSelectedDay(prevDay.fullKey)} disabled={!prevDay}
                         className="btn-ghost" style={{ width: 36, height: 36, borderRadius: 9, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, paddingBottom: 2, opacity: prevDay ? 1 : 0.3 }}>‹</button>
-                      <div style={{ textAlign: 'center' }}>
+                      <div style={{ textAlign: 'center', minHeight: 36 }}>
                         <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.75)', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>
                           {selectedDayData.dayOfMonth} {MONTH_NAMES_PL[currentMonth]}
                         </p>
-                        {selectedDayData.occasion && (
-                          <span style={{ fontSize: 12, color: '#fbbf24' }}>{selectedDayData.occasion.emoji} {selectedDayData.occasion.name}</span>
-                        )}
+                        <span style={{ fontSize: 12, color: '#fbbf24', display: 'block', minHeight: 18, visibility: selectedDayData.occasion ? 'visible' : 'hidden' }}>
+                          {selectedDayData.occasion ? `${selectedDayData.occasion.emoji} ${selectedDayData.occasion.name}` : 'placeholder'}
+                        </span>
                       </div>
                       <button onClick={() => nextDay && setSelectedDay(nextDay.fullKey)} disabled={!nextDay}
                         className="btn-ghost" style={{ width: 36, height: 36, borderRadius: 9, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, paddingBottom: 2, opacity: nextDay ? 1 : 0.3 }}>›</button>
