@@ -184,6 +184,7 @@ useEffect(() => {
   const [showPlanTermsModal, setShowPlanTermsModal] = useState(false);
   const [planTermsChecked, setPlanTermsChecked] = useState(false);
   const [planCheckoutLoading, setPlanCheckoutLoading] = useState(false);
+  const [upgradeError, setUpgradeError] = useState<string | null>(null);
 
   // ─── UPGRADE CHECKOUT ─────────────────────────────────────────────────────
   const handleUpgradeStarter = async () => {
@@ -206,6 +207,7 @@ useEffect(() => {
       if (url) window.location.href = url;
     } catch (err) {
       console.error(err);
+      setUpgradeError('Wystąpił błąd. Spróbuj ponownie.');
     } finally {
       setIsUpgradeLoading(false);
     }
@@ -224,6 +226,7 @@ useEffect(() => {
       if (url) window.location.href = url;
     } catch (err) {
       console.error(err);
+      setUpgradeError('Wystąpił błąd. Spróbuj ponownie.');
     } finally {
       setPlanCheckoutLoading(false);
     }
@@ -1209,6 +1212,11 @@ useEffect(() => {
             >
               <span>{isUpgradeLoading ? 'Przekierowuję...' : '✨ Przejdź na Starter — 79 zł/msc'}</span>
             </button>
+            {upgradeError && (
+              <p style={{ fontSize: 12, color: '#f87171', textAlign: 'center', marginBottom: 8 }}>
+                {upgradeError}
+              </p>
+            )}
             <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', textAlign: 'center', marginBottom: 10 }}>
               Potrzebujesz więcej?{' '}
               <a
@@ -1220,7 +1228,7 @@ useEffect(() => {
                 Plan Pro — 199 zł/msc →
               </a>
             </p>
-            <button onClick={() => setUpgradeModal(null)} className="btn-ghost" style={{ width: '100%', padding: '12px', borderRadius: 12, fontSize: 14 }}>
+            <button onClick={() => { setUpgradeModal(null); setUpgradeError(null); }} className="btn-ghost" style={{ width: '100%', padding: '12px', borderRadius: 12, fontSize: 14 }}>
               Może później
             </button>
           </div>
