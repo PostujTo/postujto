@@ -331,11 +331,8 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 ### 🔴 Krytyczne
 - [ ] Stripe — włączyć płatności po konsultacji prawnej (Jarek robi sam)
 - [ ] Responsywność mobilna — dostosowanie UI do urządzeń mobilnych (przed launchem)
-- [ ] 4 bugi kalendarza: strzałki jak przy miesiącu, przycisk bez platformy, skakanie po zmianie platformy, dzień 13 mar utracił status wygenerowanego (brief: calendar-4-bugs-fix.md)
 
 ### 🟡 Ważne
-- [ ] Emoji okazji w kafelkach + stabilna wysokość panelu dnia (brief: calendar-occasion-emoji-panel-height.md)
-- [ ] Skakanie layoutu — diagnoza root cause dwóch kolumn (brief: calendar-layout-root-cause.md)
 - [ ] Regulamin §1 — zaktualizować po rejestracji JDG (nazwa firmy, NIP, REGON, adres)
 - [ ] Polityka prywatności — doprecyzować "standardowe klauzule umowne"
 - [ ] Regulamin — doprecyzować czy 5 kredytów Free wygasa
@@ -402,9 +399,7 @@ WHERE user_id = (SELECT id FROM users WHERE email = 'EMAIL_KLIENTA');
 - `calendar-length-tone-brandkit.md` — selektor długości + ton/długość z Brand Kitu ✅ wdrożone
 - `calendar-platform-switch-memoization.md` — useMemo eliminuje skakanie przy zmianie platformy ✅ wdrożone
 - `calendar-day-panel-ux-fixes.md` — 5 fixów UX panelu dnia (strzałki, spellcheck, platformy) ✅ wdrożone
-- `calendar-4-bugs-fix.md` — 4 bugi po ostatnich zmianach (strzałki, przycisk, skakanie, dane) ⏳ do wdrożenia
-- `calendar-occasion-emoji-panel-height.md` — emoji okazji + stabilna wysokość panelu ⏳ do wdrożenia
-- `calendar-layout-root-cause.md` — diagnoza root cause skakania layoutu (dwie kolumny) ⏳ do wdrożenia
+- `calendar-sticky-panel-no-jump.md` — panel Akcji sticky + eliminacja skoków przy zmianie platformy ✅ wdrożone
 - `ux-fixes.md` — 13 zadań UX (archiwalne, nieaktualne)
 - `code-optimization.md` — optymalizacja kodu (priorytet: zadania 1 i 5)
 - `usage-monitoring.md` — monitoring użycia
