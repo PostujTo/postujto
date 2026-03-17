@@ -834,7 +834,8 @@ useEffect(() => {
             </div>
 
             {/* PLATFORM TABS — always in DOM, hidden when ≤1 platform (prevents layout shift on Brand Kit load) */}
-            <div style={{ display: 'flex', gap: 6, marginBottom: 12, minHeight: 35, visibility: selectedPlatforms.length > 1 ? 'visible' : 'hidden' }}>
+            {/* display:none in list view — list view has its own identical tabs set below */}
+            <div style={{ display: view === 'list' ? 'none' : 'flex', gap: 6, marginBottom: 12, minHeight: 35, visibility: selectedPlatforms.length > 1 ? 'visible' : 'hidden' }}>
               {selectedPlatforms.map(pl => (
                 <button key={pl} onClick={() => setActivePlatform(pl)}
                   style={{ padding: '6px 14px', borderRadius: 20, fontSize: 13, border: activePlatform === pl ? `2px solid ${PLATFORM_COLORS[pl] || 'rgba(255,255,255,0.3)'}` : '1px solid rgba(255,255,255,0.12)', background: activePlatform === pl ? 'rgba(255,255,255,0.06)' : 'transparent', color: activePlatform === pl ? '#fff' : 'rgba(240,240,245,0.8)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontWeight: activePlatform === pl ? 600 : 400, transition: 'all 0.15s ease' }}>
