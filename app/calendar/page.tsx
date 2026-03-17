@@ -653,6 +653,7 @@ useEffect(() => {
     if (credits?.plan === 'free') return monthsDiff === 0;
     return monthsDiff <= 1;
   };
+  const isProcessing = status === 'planning' || status === 'generating';
 
   return (
     <>
@@ -775,11 +776,11 @@ useEffect(() => {
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
                 {/* Month nav */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <button onClick={() => navigateMonth(-1)} className="btn-ghost" style={{ width: 36, height: 36, borderRadius: 9, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, paddingBottom: 2 }}>‹</button>
+                  <button onClick={() => navigateMonth(-1)} disabled={isProcessing} className="btn-ghost" style={{ width: 36, height: 36, borderRadius: 9, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, paddingBottom: 2, opacity: isProcessing ? 0.3 : 1, cursor: isProcessing ? 'not-allowed' : 'pointer' }}>‹</button>
                   <span className="font-display" style={{ fontSize: 18, fontWeight: 700, minWidth: 180, textAlign: 'center' }}>
                     {MONTH_NAMES_PL[currentMonth]} {currentYear}
                   </span>
-                  <button onClick={() => navigateMonth(1)} className="btn-ghost" style={{ width: 36, height: 36, borderRadius: 9, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, paddingBottom: 2 }}>›</button>
+                  <button onClick={() => navigateMonth(1)} disabled={isProcessing} className="btn-ghost" style={{ width: 36, height: 36, borderRadius: 9, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, paddingBottom: 2, opacity: isProcessing ? 0.3 : 1, cursor: isProcessing ? 'not-allowed' : 'pointer' }}>›</button>
                 </div>
 
                 <div style={{ flex: 1 }} />
@@ -790,9 +791,10 @@ useEffect(() => {
                     const isSelected = selectedPlatforms.includes(pl);
                     const isLast = isSelected && selectedPlatforms.length === 1;
                     return (
-                      <button key={pl} onClick={() => !isLast && togglePlatform(pl)}
+                      <button key={pl} onClick={() => !isLast && !isProcessing && togglePlatform(pl)}
+                        disabled={isProcessing}
                         className={`option-btn ${isSelected ? 'active' : ''}`}
-                        style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, opacity: isLast ? 0.7 : 1 }}
+                        style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, display: 'flex', alignItems: 'center', gap: 6, opacity: isProcessing ? 0.4 : (isLast ? 0.7 : 1), cursor: isProcessing ? 'not-allowed' : 'pointer' }}
                         title={isLast ? 'Minimum 1 platforma wymagana' : ''}>
                         {pl === 'facebook' ? <FacebookIcon /> : pl === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
                         {pl === 'facebook' ? 'Facebook' : pl === 'instagram' ? 'Instagram' : 'TikTok'}
@@ -830,8 +832,9 @@ useEffect(() => {
                 {/* View toggle */}
                 <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 9, padding: 3 }}>
                   {(['calendar', 'list'] as const).map(v => (
-                    <button key={v} onClick={() => setView(v)}
-                      style={{ padding: '5px 12px', borderRadius: 7, fontSize: 12, cursor: 'pointer', border: 'none', fontFamily: "'DM Sans', sans-serif", transition: 'all 0.2s', background: view === v ? 'rgba(99,102,241,0.25)' : 'transparent', color: view === v ? '#a5b4fc' : 'rgba(240,240,245,0.45)' }}>
+                    <button key={v} onClick={() => !isProcessing && setView(v)}
+                      disabled={isProcessing}
+                      style={{ padding: '5px 12px', borderRadius: 7, fontSize: 12, cursor: isProcessing ? 'not-allowed' : 'pointer', border: 'none', fontFamily: "'DM Sans', sans-serif", transition: 'all 0.2s', background: view === v ? 'rgba(99,102,241,0.25)' : 'transparent', color: view === v ? '#a5b4fc' : 'rgba(240,240,245,0.45)', opacity: isProcessing ? 0.4 : 1 }}>
                       {v === 'calendar' ? '📅 Siatka' : '📋 Lista'}
                     </button>
                   ))}
@@ -850,8 +853,9 @@ useEffect(() => {
             {/* display:none in list view — list view has its own identical tabs set below */}
             <div style={{ display: view === 'list' ? 'none' : 'flex', gap: 6, marginBottom: 12, minHeight: 35, visibility: selectedPlatforms.length > 1 ? 'visible' : 'hidden' }}>
               {selectedPlatforms.map(pl => (
-                <button key={pl} onClick={() => setActivePlatform(pl)}
-                  style={{ padding: '6px 14px', borderRadius: 20, fontSize: 13, border: activePlatform === pl ? `2px solid ${PLATFORM_COLORS[pl] || 'rgba(255,255,255,0.3)'}` : '1px solid rgba(255,255,255,0.12)', background: activePlatform === pl ? 'rgba(255,255,255,0.06)' : 'transparent', color: activePlatform === pl ? '#fff' : 'rgba(240,240,245,0.8)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontWeight: activePlatform === pl ? 600 : 400, transition: 'all 0.15s ease' }}>
+                <button key={pl} onClick={() => !isProcessing && setActivePlatform(pl)}
+                  disabled={isProcessing}
+                  style={{ padding: '6px 14px', borderRadius: 20, fontSize: 13, border: activePlatform === pl ? `2px solid ${PLATFORM_COLORS[pl] || 'rgba(255,255,255,0.3)'}` : '1px solid rgba(255,255,255,0.12)', background: activePlatform === pl ? 'rgba(255,255,255,0.06)' : 'transparent', color: activePlatform === pl ? '#fff' : 'rgba(240,240,245,0.8)', cursor: isProcessing ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontWeight: activePlatform === pl ? 600 : 400, transition: 'all 0.15s ease', opacity: isProcessing ? 0.4 : 1 }}>
                   {pl === 'facebook' ? <FacebookIcon /> : pl === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
                   {pl === 'facebook' ? 'Facebook' : pl === 'instagram' ? 'Instagram' : 'TikTok'}
                 </button>
@@ -924,8 +928,9 @@ useEffect(() => {
                 {/* Platform tabs for list view — always in DOM, hidden when ≤1 platform (prevents layout shift on Brand Kit load) */}
                 <div style={{ display: 'flex', gap: 6, marginBottom: 12, minHeight: 35, visibility: selectedPlatforms.length > 1 ? 'visible' : 'hidden' }}>
                   {selectedPlatforms.map(pl => (
-                    <button key={pl} onClick={() => setActivePlatform(pl)}
-                      style={{ padding: '6px 14px', borderRadius: 20, fontSize: 13, border: activePlatform === pl ? `2px solid ${PLATFORM_COLORS[pl] || 'rgba(255,255,255,0.3)'}` : '1px solid rgba(255,255,255,0.12)', background: activePlatform === pl ? 'rgba(255,255,255,0.06)' : 'transparent', color: activePlatform === pl ? '#fff' : 'rgba(240,240,245,0.8)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontWeight: activePlatform === pl ? 600 : 400, transition: 'all 0.15s ease' }}>
+                    <button key={pl} onClick={() => !isProcessing && setActivePlatform(pl)}
+                      disabled={isProcessing}
+                      style={{ padding: '6px 14px', borderRadius: 20, fontSize: 13, border: activePlatform === pl ? `2px solid ${PLATFORM_COLORS[pl] || 'rgba(255,255,255,0.3)'}` : '1px solid rgba(255,255,255,0.12)', background: activePlatform === pl ? 'rgba(255,255,255,0.06)' : 'transparent', color: activePlatform === pl ? '#fff' : 'rgba(240,240,245,0.8)', cursor: isProcessing ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'DM Sans', sans-serif", fontWeight: activePlatform === pl ? 600 : 400, transition: 'all 0.15s ease', opacity: isProcessing ? 0.4 : 1 }}>
                       {pl === 'facebook' ? <FacebookIcon /> : pl === 'instagram' ? <InstagramIcon /> : <TikTokIcon />}
                       {pl === 'facebook' ? 'Facebook' : pl === 'instagram' ? 'Instagram' : 'TikTok'}
                     </button>
@@ -1106,6 +1111,7 @@ useEffect(() => {
                         if (weekGenerated.length === 0) return null;
                         return (
                           <button key={weekIdx}
+                            disabled={isProcessing}
                             onClick={() => {
                               const text = weekGenerated.map(d =>
                                 `📅 ${d.fullKey} [${d.platform.toUpperCase()}]\n${d.postText}\n${(d.hashtags || []).join(' ')}`
