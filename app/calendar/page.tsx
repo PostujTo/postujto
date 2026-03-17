@@ -1030,7 +1030,7 @@ useEffect(() => {
           </div>
 
           {/* RIGHT PANEL */}
-          <div style={{ position: 'sticky', top: 88, display: 'flex', flexDirection: 'column', gap: 16, maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
+          <div style={{ position: 'sticky', top: 88, alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
             {/* Actions */}
             <div className="fade-up glass-card" style={{ padding: '20px 24px', animationDelay: '0.15s' }}>
@@ -1121,7 +1121,7 @@ useEffect(() => {
 
             {/* Selected day detail */}
             {selectedDayData && selectedDayData.isCurrentMonth && (
-              <div className="fade-up glass-card" style={{ padding: '20px 24px', minHeight: 420 }}>
+              <div className="fade-up glass-card" style={{ padding: '20px 24px', minHeight: 480 }}>
                 {(() => {
                   const idx = daysWithTopic.findIndex(d => d.fullKey === selectedDay);
                   const prevDay = idx > 0 ? daysWithTopic[idx - 1] : null;
