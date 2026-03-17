@@ -640,6 +640,20 @@ useEffect(() => {
     [currentMonth]
   );
 
+  // Limit helpers — todayYear/todayMonth = real current date, currentYear/currentMonth = viewed month
+  const todayYear = new Date().getFullYear();
+  const todayMonth = new Date().getMonth();
+  const isWithinPlanningLimit = (year: number, month: number): boolean => {
+    const monthsDiff = (year - todayYear) * 12 + (month - todayMonth);
+    if (credits?.plan === 'free') return monthsDiff === 0;
+    return monthsDiff <= 2;
+  };
+  const isWithinGenerationLimit = (year: number, month: number): boolean => {
+    const monthsDiff = (year - todayYear) * 12 + (month - todayMonth);
+    if (credits?.plan === 'free') return monthsDiff === 0;
+    return monthsDiff <= 1;
+  };
+
   return (
     <>
       <style jsx global>{`
@@ -1034,18 +1048,26 @@ useEffect(() => {
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <button onClick={() => { if (generatedCount > 0) { setShowReplanConfirm(true); } else { generatePlan(); } }} disabled={status === 'planning' || status === 'generating'} className="btn-primary"
-                  style={{ padding: '12px', borderRadius: 12, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none' }}>
+                <button onClick={() => { if (!isWithinPlanningLimit(currentYear, currentMonth)) return; if (generatedCount > 0) { setShowReplanConfirm(true); } else { generatePlan(); } }} disabled={status === 'planning' || status === 'generating' || !isWithinPlanningLimit(currentYear, currentMonth)} className="btn-primary"
+                  style={{ padding: '12px', borderRadius: 12, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', opacity: isWithinPlanningLimit(currentYear, currentMonth) ? 1 : 0.4, cursor: isWithinPlanningLimit(currentYear, currentMonth) ? 'pointer' : 'not-allowed' }}>
                   {status === 'planning'
                     ? <><svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3"/><path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round"/></svg> Planuję tematy...</>
                     : <span>🗓️ Zaplanuj tematy na miesiąc</span>
                   }
                 </button>
+                {!isWithinPlanningLimit(currentYear, currentMonth) && (
+                  <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.5)', textAlign: 'center', marginTop: -4 }}>
+                    {credits?.plan === 'free'
+                      ? <><span>Planowanie tylko w bieżącym miesiącu. </span><Link href="/pricing" style={{ color: '#a78bfa' }}>Przejdź na Starter →</Link></>
+                      : 'Planowanie dostępne do 3 miesięcy do przodu'
+                    }
+                  </p>
+                )}
 
                 <button onClick={generateAllPosts}
-                  disabled={topicCount === 0 || status === 'planning' || status === 'generating' || (credits?.plan === 'free' && credits.remaining === 0) || currentDays.filter(d => d.topic && !d.generated_platforms?.[activePlatform]).length === 0}
+                  disabled={topicCount === 0 || status === 'planning' || status === 'generating' || (credits?.plan === 'free' && credits.remaining === 0) || currentDays.filter(d => d.topic && !d.generated_platforms?.[activePlatform]).length === 0 || !isWithinGenerationLimit(currentYear, currentMonth)}
                   className="btn-primary"
-                  style={{ padding: '12px', borderRadius: 12, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', minHeight: 52, opacity: (topicCount === 0 || (credits?.plan === 'free' && credits.remaining === 0) || currentDays.filter(d => d.topic && !d.generated_platforms?.[activePlatform]).length === 0) ? 0.4 : 1 }}>
+                  style={{ padding: '12px', borderRadius: 12, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', minHeight: 52, opacity: (topicCount === 0 || (credits?.plan === 'free' && credits.remaining === 0) || currentDays.filter(d => d.topic && !d.generated_platforms?.[activePlatform]).length === 0 || !isWithinGenerationLimit(currentYear, currentMonth)) ? 0.4 : 1 }}>
                   {status === 'generating'
                     ? <><svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3"/><path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round"/></svg> Generuję posty...</>
                     : credits?.plan === 'free' && credits.remaining === 0
@@ -1059,6 +1081,14 @@ useEffect(() => {
                       })()
                   }
                 </button>
+                {!isWithinGenerationLimit(currentYear, currentMonth) && (
+                  <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.5)', textAlign: 'center', marginTop: -4 }}>
+                    {credits?.plan === 'free'
+                      ? <><span>Generowanie tylko w bieżącym miesiącu. </span><Link href="/pricing" style={{ color: '#a78bfa' }}>Przejdź na Starter →</Link></>
+                      : <><span>Generowanie dostępne do 2 miesięcy do przodu. </span><Link href="/pricing" style={{ color: '#a78bfa' }}>Przejdź na Pro →</Link></>
+                    }
+                  </p>
+                )}
 
                 <button onClick={exportCSV} disabled={generatedCount === 0}
                   style={{ padding: '11px', borderRadius: 12, fontSize: 14, cursor: generatedCount === 0 ? 'not-allowed' : 'pointer', border: '1px solid rgba(255,255,255,0.15)', background: generatedCount === 0 ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.08)', color: generatedCount === 0 ? 'rgba(240,240,245,0.3)' : 'rgba(240,240,245,0.8)', transition: 'all 0.2s', width: '100%' }}>
@@ -1108,6 +1138,12 @@ useEffect(() => {
               {status === 'error' && (
                 <p style={{ marginTop: 12, fontSize: 12, color: '#f87171' }}>{progressLabel}</p>
               )}
+              <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.4)', lineHeight: 1.5, marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                {credits?.plan === 'free'
+                  ? 'Plan Free: planowanie i generowanie tylko w bieżącym miesiącu.'
+                  : 'Planowanie: do 3 msc do przodu · Generowanie: do 2 msc do przodu'
+                }
+              </p>
             </div>
 
             {/* Selected day detail */}
@@ -1219,7 +1255,7 @@ useEffect(() => {
                         }
                       } catch (err) { console.error(err); }
                       setStatus('idle'); setProgressLabel('');
-                    }} className="btn-primary" style={{ width: '100%', padding: '10px', borderRadius: 10, fontSize: 13 }}>
+                    }} className="btn-primary" disabled={!isWithinGenerationLimit(currentYear, currentMonth)} style={{ width: '100%', padding: '10px', borderRadius: 10, fontSize: 13, opacity: isWithinGenerationLimit(currentYear, currentMonth) ? 1 : 0.4, cursor: isWithinGenerationLimit(currentYear, currentMonth) ? 'pointer' : 'not-allowed' }}>
                       ✨ Wygeneruj post
                     </button>
                   ) : null;
