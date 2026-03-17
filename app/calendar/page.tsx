@@ -20,6 +20,23 @@ function weekRangeLabel(weekDays: CalendarDay[]): string {
   return `${firstDay}–${lastDay} ${monthStr}`;
 }
 
+const MONTH_ABBR_PL = ['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'];
+
+function getWeekMonthAbbr(group: CalendarDay[]): string {
+  const days = group.filter(d => d.isCurrentMonth);
+  if (days.length === 0) return '';
+  const monthIdx = parseInt(days[0].fullKey.split('-')[1]) - 1;
+  return MONTH_ABBR_PL[monthIdx];
+}
+
+function getWeekDayRange(group: CalendarDay[]): string {
+  const days = group.filter(d => d.isCurrentMonth);
+  if (days.length === 0) return '';
+  const first = parseInt(days[0].fullKey.split('-')[2]);
+  const last = parseInt(days[days.length - 1].fullKey.split('-')[2]);
+  return first === last ? `${first}` : `${first}–${last}`;
+}
+
 function buildWeekGroups(currentDays: CalendarDay[]): CalendarDay[][] {
   const rows: CalendarDay[][] = [];
   for (let i = 0; i < currentDays.length; i += 7) {
@@ -1154,9 +1171,20 @@ useEffect(() => {
                               setTimeout(() => setCopiedWeek(null), 2000);
                             }}
                             className="btn-ghost"
-                            style={{ padding: '11px', borderRadius: 12, fontSize: 13 }}
+                            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, padding: '8px 12px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', minHeight: 52, width: '100%' }}
                           >
-                            {copiedWeek === weekIdx ? '✅ Skopiowano!' : `📋 Tydz. ${weekIdx + 1} · ${weekRangeLabel(group)}`}
+                            {copiedWeek === weekIdx ? (
+                              <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(240,240,245,0.85)' }}>✅ Skopiowano!</span>
+                            ) : (
+                              <>
+                                <span style={{ fontSize: 10, fontWeight: 500, color: 'rgba(240,240,245,0.45)', textTransform: 'uppercase', letterSpacing: '0.08em', lineHeight: 1 }}>
+                                  {getWeekMonthAbbr(group)}
+                                </span>
+                                <span style={{ fontSize: 13, fontWeight: 600, color: 'rgba(240,240,245,0.85)', lineHeight: 1 }}>
+                                  {getWeekDayRange(group)}
+                                </span>
+                              </>
+                            )}
                           </button>
                         );
                       })}
