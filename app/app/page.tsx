@@ -28,7 +28,7 @@ function getUpcomingOccasions() {
     if (occasionDate < today) occasionDate = new Date(year + 1, month - 1, day);
     const daysLeft = Math.ceil((occasionDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
     return { ...occasion, days: daysLeft };
-  }).filter(o => o.days <= 30).sort((a, b) => a.days - b.days).slice(0, 5);
+  }).filter(o => o.days >= 0 && o.days <= 30).sort((a, b) => a.days - b.days).slice(0, 5);
 }
 
 const BEST_TIMES: Record<string, { times: string[]; tip: string }> = {
