@@ -600,8 +600,7 @@ useEffect(() => {
     const headers = ['Data', 'Platformy', 'Temat', 'Okazja', 'Tekst', 'Hashtagi'];
     const rows = generated.map(d => {
       const dayPlatforms = d.platforms?.length ? d.platforms : [d.platform];
-      const firstGenPlatform = dayPlatforms.find(pl => d.generated_platforms?.[pl]) || dayPlatforms[0];
-      const postContent = d.postsByPlatform?.[firstGenPlatform] || { text: d.postText || '', hashtags: d.hashtags || [] };
+      const postContent = d.postsByPlatform?.[activePlatform] || { text: d.postText || '', hashtags: d.hashtags || [] };
       return [
         d.fullKey,
         dayPlatforms.join(','),
