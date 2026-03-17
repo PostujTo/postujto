@@ -1030,7 +1030,7 @@ useEffect(() => {
           </div>
 
           {/* RIGHT PANEL */}
-          <div style={{ position: 'sticky', top: 88, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ position: 'sticky', top: 88, display: 'flex', flexDirection: 'column', gap: 16, maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
 
             {/* Actions */}
             <div className="fade-up glass-card" style={{ padding: '20px 24px', animationDelay: '0.15s' }}>
@@ -1054,7 +1054,7 @@ useEffect(() => {
                 <button onClick={generateAllPosts}
                   disabled={topicCount === 0 || status === 'planning' || status === 'generating' || (credits?.plan === 'free' && credits.remaining === 0) || currentDays.filter(d => d.topic && !d.generated_platforms?.[activePlatform]).length === 0}
                   className="btn-primary"
-                  style={{ padding: '12px', borderRadius: 12, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', opacity: (topicCount === 0 || (credits?.plan === 'free' && credits.remaining === 0) || currentDays.filter(d => d.topic && !d.generated_platforms?.[activePlatform]).length === 0) ? 0.4 : 1 }}>
+                  style={{ padding: '12px', borderRadius: 12, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, border: 'none', minHeight: 52, opacity: (topicCount === 0 || (credits?.plan === 'free' && credits.remaining === 0) || currentDays.filter(d => d.topic && !d.generated_platforms?.[activePlatform]).length === 0) ? 0.4 : 1 }}>
                   {status === 'generating'
                     ? <><svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3"/><path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="3" strokeLinecap="round"/></svg> Generuję posty...</>
                     : credits?.plan === 'free' && credits.remaining === 0
@@ -1078,9 +1078,8 @@ useEffect(() => {
                 {(() => {
                   const weekGroups = buildWeekGroups(currentDays);
                   const groupsWithPosts = weekGroups.filter(group => group.some(d => d.generated));
-                  if (groupsWithPosts.length === 0) return null;
                   return (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, minHeight: 88, visibility: groupsWithPosts.length > 0 ? 'visible' : 'hidden' }}>
                       {weekGroups.map((group, weekIdx) => {
                         const weekGenerated = group.filter(d => d.generated);
                         if (weekGenerated.length === 0) return null;
