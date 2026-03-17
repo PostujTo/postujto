@@ -919,14 +919,9 @@ useEffect(() => {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {currentDays
-                    .filter(day => {
-                      if (selectedPlatforms.length <= 1) return true; // show all when 1 platform
-                      const dayPlats = day.platforms?.length > 0 ? day.platforms : [day.platform];
-                      return dayPlats.includes(activePlatform);
-                    })
                     .map((day) => {
                       const dayPlats = day.platforms?.length > 0 ? day.platforms : [day.platform];
-                      const isActiveGenerated = day.generated_platforms ? !!day.generated_platforms[activePlatform] : day.generated;
+                      const isActiveGenerated = day.generated_platforms ? !!day.generated_platforms[activePlatform] : (day.generated && activePlatform === 'facebook');
                       const activePost = day.postsByPlatform?.[activePlatform];
                       return (
                         <div key={day.fullKey}
