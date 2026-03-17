@@ -11,7 +11,11 @@ export async function POST(req: NextRequest) {
   const { year, month, monthName, occasions, platform, platforms, tone, daysCount } = await req.json();
   const primaryPlatform = (platforms && platforms.length > 0) ? platforms[0] : (platform || 'facebook');
 
-  const prompt = `Jesteś ekspertem od social media marketingu dla polskich firm.
+  const now = new Date();
+  const dateStr = `${now.getDate()}.${now.getMonth() + 1}.${now.getFullYear()}`;
+  const prompt = `Aktualna data: ${dateStr}. Rok: ${now.getFullYear()}.
+
+Jesteś ekspertem od social media marketingu dla polskich firm.
 Zaplanuj kalendarz treści na ${monthName} ${year} (${daysCount} dni).
 
 Polskie okazje w tym miesiącu:

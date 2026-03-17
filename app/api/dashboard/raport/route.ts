@@ -44,7 +44,11 @@ export async function POST(req: Request) {
   const topRated = summary.filter(g => g.avgRating && parseFloat(g.avgRating) >= 4);
   const withPerformance = summary.filter(g => g.performance && Object.keys(g.performance).length > 0);
 
-  const prompt = `Jesteś ekspertem od social media marketingu. Przeanalizuj dane o postach z tego miesiąca i napisz zwięzły raport po polsku.
+  const nowDate = new Date();
+  const dateStr = `${nowDate.getDate()}.${nowDate.getMonth() + 1}.${nowDate.getFullYear()}`;
+  const prompt = `Aktualna data: ${dateStr}. Rok: ${nowDate.getFullYear()}.
+
+Jesteś ekspertem od social media marketingu. Przeanalizuj dane o postach z tego miesiąca i napisz zwięzły raport po polsku.
 
 DANE Z MIESIĄCA (${gens.length} postów):
 ${JSON.stringify(summary.slice(0, 20), null, 2)}

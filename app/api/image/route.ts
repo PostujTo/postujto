@@ -107,7 +107,9 @@ const brandContext = detectedBrand
       max_tokens: 500,
       messages: [{
         role: 'user',
-        content: `Jesteś ekspertem od reklam social media. Na podstawie poniższych danych wybierz najlepszy styl Recraft V3 i stwórz zoptymalizowany prompt po angielsku.
+        content: `Aktualna data: ${new Date().getDate()}.${new Date().getMonth() + 1}.${new Date().getFullYear()}. Rok: ${new Date().getFullYear()}.
+
+Jesteś ekspertem od reklam social media. Na podstawie poniższych danych wybierz najlepszy styl Recraft V3 i stwórz zoptymalizowany prompt po angielsku.
 
 TEMAT: ${topic}
 PLATFORMA: ${platform}

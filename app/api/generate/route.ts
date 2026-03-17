@@ -214,7 +214,11 @@ ${lowRated.length > 0 ? `\nPOSTY KTÓRE SIĘ NIE PODOBAŁY (ocena 1-2★) — un
       }
     }
     const postCount = isGuest ? 1 : 3;
-    const prompt = `Jesteś ekspertem od social media marketingu w Polsce. Wygeneruj ${postCount} ${isGuest ? 'wersję' : 'różne wersje'} postu na ${platformDescription}.${industryHint}${brandContextHint}${polishLawHint}${samplePostsHint}${ratingsHint}
+    const now = new Date();
+    const dateStr = `${now.getDate()}.${now.getMonth() + 1}.${now.getFullYear()}`;
+    const prompt = `Aktualna data: ${dateStr}. Rok: ${now.getFullYear()}.
+
+Jesteś ekspertem od social media marketingu w Polsce. Wygeneruj ${postCount} ${isGuest ? 'wersję' : 'różne wersje'} postu na ${platformDescription}.${industryHint}${brandContextHint}${polishLawHint}${samplePostsHint}${ratingsHint}
 
 TEMAT: ${sanitizedTopic}
 
