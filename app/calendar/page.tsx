@@ -1225,13 +1225,41 @@ useEffect(() => {
                           ))}
                         </div>
                       </div>
-                      <button onClick={() => {
-                        navigator.clipboard.writeText(`${activePost.text}\n\n${(activePost.hashtags || []).join(' ')}`);
-                        setCopiedKey(selectedDayData.fullKey + '_' + activePlatform);
-                        setTimeout(() => setCopiedKey(null), 2000);
-                      }} className="btn-ghost" style={{ width: '100%', padding: '9px', borderRadius: 10, fontSize: 13 }}>
-                        {copiedKey === selectedDayData.fullKey + '_' + activePlatform ? '✅ Skopiowano!' : '📋 Kopiuj post'}
-                      </button>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button onClick={() => {
+                          navigator.clipboard.writeText(`${activePost.text}\n\n${(activePost.hashtags || []).join(' ')}`);
+                          setCopiedKey(selectedDayData.fullKey + '_' + activePlatform);
+                          setTimeout(() => setCopiedKey(null), 2000);
+                        }} className="btn-ghost" style={{ flex: 1, padding: '9px', borderRadius: 10, fontSize: 13 }}>
+                          {copiedKey === selectedDayData.fullKey + '_' + activePlatform ? '✅ Skopiowano!' : '📋 Kopiuj post'}
+                        </button>
+                        <button onClick={async () => {
+                          setStatus('generating');
+                          const generatingPlatform = activePlatform;
+                          setProgressLabel(`Generuję post dla ${selectedDayData.dayOfMonth} ${MONTH_NAMES_PL[currentMonth]} (${generatingPlatform})...`);
+                          try {
+                            const res = await fetch('/api/generate', {
+                              method: 'POST', headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ topic: selectedDayData.topic, platform: generatingPlatform, tone: defaultTone, length: defaultLength, scheduled_date: selectedDayData.fullKey }),
+                            });
+                            const data = await res.json();
+                            if (res.ok && data.posts?.[0]) {
+                              const post = data.posts[0];
+                              const newGenPlatforms = { ...(selectedDayData.generated_platforms || {}), [generatingPlatform]: true };
+                              const newPostsByPlatform = { ...(selectedDayData.postsByPlatform || {}), [generatingPlatform]: { text: post.text, hashtags: post.hashtags || [] } };
+                              setDays(prev => prev.map(d => d.fullKey === selectedDayData.fullKey
+                                ? { ...d, generated: true, generated_platforms: newGenPlatforms, postsByPlatform: newPostsByPlatform, postText: post.text, hashtags: post.hashtags }
+                                : d));
+                              saveTopics([{ date: selectedDayData.fullKey, topic: selectedDayData.topic, platform: dayPlats[0], platforms: dayPlats, generated: true, generated_platforms: newGenPlatforms, post_text: post.text, hashtags: post.hashtags, posts_by_platform: newPostsByPlatform }]);
+                              if (data.creditsRemaining !== undefined) setCredits(prev => prev ? { ...prev, remaining: data.creditsRemaining } : prev);
+                            }
+                          } catch (err) { console.error(err); }
+                          setStatus('idle'); setProgressLabel('');
+                        }} disabled={isProcessing || !isWithinGenerationLimit(currentYear, currentMonth) || (credits?.plan === 'free' && (credits.remaining ?? 0) <= 0)}
+                        className="btn-ghost" style={{ padding: '10px 14px', borderRadius: 10, fontSize: 13, opacity: (isProcessing || !isWithinGenerationLimit(currentYear, currentMonth) || (credits?.plan === 'free' && (credits.remaining ?? 0) <= 0)) ? 0.4 : 1, cursor: (isProcessing || !isWithinGenerationLimit(currentYear, currentMonth) || (credits?.plan === 'free' && (credits.remaining ?? 0) <= 0)) ? 'not-allowed' : 'pointer' }}>
+                          {isProcessing ? '⏳' : '🔄'} Wygeneruj ponownie
+                        </button>
+                      </div>
                       {generateMode === 'copy' && dayPlats.length > 1 && credits?.plan !== 'premium' && (
                         <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.3)', marginTop: 8, lineHeight: 1.5 }}>
                           💡 Ten post to kopia z {dayPlats[0]}. W <Link href="/pricing" style={{ color: '#a5b4fc' }}>planie Pro</Link> dostaniesz wersję dopasowaną do każdej platformy.
