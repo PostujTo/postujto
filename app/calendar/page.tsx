@@ -98,6 +98,8 @@ interface CalendarDay {
   postsByPlatform: Record<string, { text: string; hashtags: string[] } | undefined>; // per-platform content
   postText?: string; // alias: postsByPlatform[platforms[0]]?.text (backward compat)
   hashtags?: string[]; // alias: postsByPlatform[platforms[0]]?.hashtags (backward compat)
+  generation_id_per_platform?: Record<string, string | null>;
+  is_favorite_per_platform?: Record<string, boolean>;
 }
 
 type GenerationStatus = 'idle' | 'planning' | 'generating' | 'done' | 'error';
@@ -319,6 +321,8 @@ useEffect(() => {
         generated: Object.values(savedGenPlatforms).some(Boolean),
         postText: savedPostsByPlatform[savedPlatforms[0]]?.text,
         hashtags: savedPostsByPlatform[savedPlatforms[0]]?.hashtags,
+        generation_id_per_platform: saved.generation_id_per_platform || {},
+        is_favorite_per_platform: saved.is_favorite_per_platform || {},
       };
     });
   }, []);
@@ -353,6 +357,7 @@ useEffect(() => {
       generated_platforms?: Partial<Record<string, boolean>>;
       post_text?: string; hashtags?: string[];
       posts_by_platform?: Partial<Record<string, { text: string; hashtags: string[] }>>;
+      generation_id_per_platform?: Record<string, string | null>;
     }>
   ) => {
     if (!user || !items.length) return;
@@ -507,22 +512,25 @@ useEffect(() => {
           const post = data.posts[0];
           const newGenPlatforms: Partial<Record<string, boolean>> = { ...(day.generated_platforms || {}) };
           const newPostsByPlatform: Partial<Record<string, { text: string; hashtags: string[] }>> = { ...(day.postsByPlatform || {}) };
+          const newGenIdPerPlatform: Record<string, string | null> = { ...(day.generation_id_per_platform || {}) };
           for (const pl of dayPlatforms) {
             newGenPlatforms[pl] = true;
             newPostsByPlatform[pl] = { text: post.text, hashtags: post.hashtags || [] };
+            newGenIdPerPlatform[pl] = data.generationId || null;
           }
           setDays(prev => prev.map(d =>
             d.fullKey === day.fullKey
-              ? { ...d, generated: true, generated_platforms: newGenPlatforms, postsByPlatform: newPostsByPlatform, postText: post.text, hashtags: post.hashtags }
+              ? { ...d, generated: true, generated_platforms: newGenPlatforms, postsByPlatform: newPostsByPlatform, postText: post.text, hashtags: post.hashtags, generation_id_per_platform: newGenIdPerPlatform }
               : d
           ));
           setCredits(prev => prev ? { ...prev, remaining: data.creditsRemaining } : prev);
-          saveTopics([{ date: day.fullKey, topic: day.topic, platform: dayPlatforms[0], platforms: dayPlatforms, generated: true, generated_platforms: newGenPlatforms, post_text: post.text, hashtags: post.hashtags, posts_by_platform: newPostsByPlatform }]);
+          saveTopics([{ date: day.fullKey, topic: day.topic, platform: dayPlatforms[0], platforms: dayPlatforms, generated: true, generated_platforms: newGenPlatforms, post_text: post.text, hashtags: post.hashtags, posts_by_platform: newPostsByPlatform, generation_id_per_platform: newGenIdPerPlatform }]);
         }
       } else {
         // Adapted mode (Pro): generate separately for each platform
         const newGenPlatforms: Partial<Record<string, boolean>> = { ...(day.generated_platforms || {}) };
         const newPostsByPlatform: Partial<Record<string, { text: string; hashtags: string[] }>> = { ...(day.postsByPlatform || {}) };
+        const newGenIdPerPlatform: Record<string, string | null> = { ...(day.generation_id_per_platform || {}) };
         for (const pl of platformsToGenerate) {
           const res = await fetch('/api/generate', {
             method: 'POST',
@@ -539,15 +547,16 @@ useEffect(() => {
             const post = data.posts[0];
             newGenPlatforms[pl] = true;
             newPostsByPlatform[pl] = { text: post.text, hashtags: post.hashtags || [] };
+            newGenIdPerPlatform[pl] = data.generationId || null;
             setCredits(prev => prev ? { ...prev, remaining: data.creditsRemaining } : prev);
           }
         }
         setDays(prev => prev.map(d =>
           d.fullKey === day.fullKey
-            ? { ...d, generated: Object.values(newGenPlatforms).some(Boolean), generated_platforms: newGenPlatforms, postsByPlatform: newPostsByPlatform, postText: newPostsByPlatform[dayPlatforms[0]]?.text, hashtags: newPostsByPlatform[dayPlatforms[0]]?.hashtags }
+            ? { ...d, generated: Object.values(newGenPlatforms).some(Boolean), generated_platforms: newGenPlatforms, postsByPlatform: newPostsByPlatform, postText: newPostsByPlatform[dayPlatforms[0]]?.text, hashtags: newPostsByPlatform[dayPlatforms[0]]?.hashtags, generation_id_per_platform: newGenIdPerPlatform }
             : d
         ));
-        saveTopics([{ date: day.fullKey, topic: day.topic, platform: dayPlatforms[0], platforms: dayPlatforms, generated: Object.values(newGenPlatforms).some(Boolean), generated_platforms: newGenPlatforms, posts_by_platform: newPostsByPlatform }]);
+        saveTopics([{ date: day.fullKey, topic: day.topic, platform: dayPlatforms[0], platforms: dayPlatforms, generated: Object.values(newGenPlatforms).some(Boolean), generated_platforms: newGenPlatforms, posts_by_platform: newPostsByPlatform, generation_id_per_platform: newGenIdPerPlatform }]);
       }
     };
 
@@ -652,6 +661,29 @@ useEffect(() => {
     const monthsDiff = (year - todayYear) * 12 + (month - todayMonth);
     if (credits?.plan === 'free') return monthsDiff === 0;
     return monthsDiff <= 1;
+  };
+  const toggleFavoriteCalendar = async (day: CalendarDay, platform: string) => {
+    const genId = day.generation_id_per_platform?.[platform];
+    if (!genId) return;
+    const currentFavorite = day.is_favorite_per_platform?.[platform] ?? false;
+    const newFavorite = !currentFavorite;
+    setDays(prev => prev.map(d =>
+      d.fullKey === day.fullKey
+        ? { ...d, is_favorite_per_platform: { ...(d.is_favorite_per_platform || {}), [platform]: newFavorite } }
+        : d
+    ));
+    const res = await fetch('/api/dashboard/favorite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: genId, is_favorite: newFavorite }),
+    });
+    if (!res.ok) {
+      setDays(prev => prev.map(d =>
+        d.fullKey === day.fullKey
+          ? { ...d, is_favorite_per_platform: { ...(d.is_favorite_per_platform || {}), [platform]: currentFavorite } }
+          : d
+      ));
+    }
   };
   const isProcessing = status === 'planning' || status === 'generating';
 
@@ -992,8 +1024,9 @@ useEffect(() => {
                                       const post = data.posts[0];
                                       const newGenPlatforms = { ...(day.generated_platforms || {}), [activePlatform]: true };
                                       const newPostsByPlatform = { ...(day.postsByPlatform || {}), [activePlatform]: { text: post.text, hashtags: post.hashtags || [] } };
-                                      setDays(prev => prev.map(d => d.fullKey === day.fullKey ? { ...d, generated: true, generated_platforms: newGenPlatforms, postsByPlatform: newPostsByPlatform } : d));
-                                      saveTopics([{ date: day.fullKey, topic: day.topic, platform: dayPlats[0], platforms: dayPlats, generated: true, generated_platforms: newGenPlatforms, posts_by_platform: newPostsByPlatform }]);
+                                      const newGenIdPerPlatform = { ...(day.generation_id_per_platform || {}), [activePlatform]: data.generationId || null };
+                                      setDays(prev => prev.map(d => d.fullKey === day.fullKey ? { ...d, generated: true, generated_platforms: newGenPlatforms, postsByPlatform: newPostsByPlatform, generation_id_per_platform: newGenIdPerPlatform } : d));
+                                      saveTopics([{ date: day.fullKey, topic: day.topic, platform: dayPlats[0], platforms: dayPlats, generated: true, generated_platforms: newGenPlatforms, posts_by_platform: newPostsByPlatform, generation_id_per_platform: newGenIdPerPlatform }]);
                                       if (data.creditsRemaining !== undefined) setCredits(prev => prev ? { ...prev, remaining: data.creditsRemaining } : prev);
                                     }
                                   } catch (err) { console.error(err); }
@@ -1214,9 +1247,20 @@ useEffect(() => {
                   const isActiveGenerated = selectedDayData.generated_platforms ? !!selectedDayData.generated_platforms[activePlatform] : selectedDayData.generated;
                   return isActiveGenerated && activePost ? (
                     <div>
-                      <label style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', display: 'block', marginBottom: 8 }}>
-                        Wygenerowany post {dayPlats.length > 1 && <span style={{ color: PLATFORM_COLORS[activePlatform], fontWeight: 600 }}>({activePlatform})</span>}
-                      </label>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                        <label style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)' }}>
+                          Wygenerowany post {dayPlats.length > 1 && <span style={{ color: PLATFORM_COLORS[activePlatform], fontWeight: 600 }}>({activePlatform})</span>}
+                        </label>
+                        {selectedDayData.generation_id_per_platform?.[activePlatform] && (
+                          <button
+                            onClick={() => toggleFavoriteCalendar(selectedDayData, activePlatform)}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, padding: 4, opacity: 0.8, transition: 'transform 0.15s ease, opacity 0.15s ease' }}
+                            title={selectedDayData.is_favorite_per_platform?.[activePlatform] ? 'Usuń z ulubionych' : 'Dodaj do ulubionych'}
+                          >
+                            {selectedDayData.is_favorite_per_platform?.[activePlatform] ? '❤️' : '🤍'}
+                          </button>
+                        )}
+                      </div>
                       <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '12px 14px', marginBottom: 10 }}>
                         <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.8)', lineHeight: 1.7, marginBottom: 10 }}>{activePost.text}</p>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
@@ -1247,10 +1291,11 @@ useEffect(() => {
                               const post = data.posts[0];
                               const newGenPlatforms = { ...(selectedDayData.generated_platforms || {}), [generatingPlatform]: true };
                               const newPostsByPlatform = { ...(selectedDayData.postsByPlatform || {}), [generatingPlatform]: { text: post.text, hashtags: post.hashtags || [] } };
+                              const newGenIdPerPlatform = { ...(selectedDayData.generation_id_per_platform || {}), [generatingPlatform]: data.generationId || null };
                               setDays(prev => prev.map(d => d.fullKey === selectedDayData.fullKey
-                                ? { ...d, generated: true, generated_platforms: newGenPlatforms, postsByPlatform: newPostsByPlatform, postText: post.text, hashtags: post.hashtags }
+                                ? { ...d, generated: true, generated_platforms: newGenPlatforms, postsByPlatform: newPostsByPlatform, postText: post.text, hashtags: post.hashtags, generation_id_per_platform: newGenIdPerPlatform }
                                 : d));
-                              saveTopics([{ date: selectedDayData.fullKey, topic: selectedDayData.topic, platform: dayPlats[0], platforms: dayPlats, generated: true, generated_platforms: newGenPlatforms, post_text: post.text, hashtags: post.hashtags, posts_by_platform: newPostsByPlatform }]);
+                              saveTopics([{ date: selectedDayData.fullKey, topic: selectedDayData.topic, platform: dayPlats[0], platforms: dayPlats, generated: true, generated_platforms: newGenPlatforms, post_text: post.text, hashtags: post.hashtags, posts_by_platform: newPostsByPlatform, generation_id_per_platform: newGenIdPerPlatform }]);
                               if (data.creditsRemaining !== undefined) setCredits(prev => prev ? { ...prev, remaining: data.creditsRemaining } : prev);
                             }
                           } catch (err) { console.error(err); }
@@ -1281,10 +1326,11 @@ useEffect(() => {
                           const post = data.posts[0];
                           const newGenPlatforms = { ...(selectedDayData.generated_platforms || {}), [generatingPlatform]: true };
                           const newPostsByPlatform = { ...(selectedDayData.postsByPlatform || {}), [generatingPlatform]: { text: post.text, hashtags: post.hashtags || [] } };
+                          const newGenIdPerPlatform = { ...(selectedDayData.generation_id_per_platform || {}), [generatingPlatform]: data.generationId || null };
                           setDays(prev => prev.map(d => d.fullKey === selectedDayData.fullKey
-                            ? { ...d, generated: true, generated_platforms: newGenPlatforms, postsByPlatform: newPostsByPlatform, postText: post.text, hashtags: post.hashtags }
+                            ? { ...d, generated: true, generated_platforms: newGenPlatforms, postsByPlatform: newPostsByPlatform, postText: post.text, hashtags: post.hashtags, generation_id_per_platform: newGenIdPerPlatform }
                             : d));
-                          saveTopics([{ date: selectedDayData.fullKey, topic: selectedDayData.topic, platform: dayPlats[0], platforms: dayPlats, generated: true, generated_platforms: newGenPlatforms, post_text: post.text, hashtags: post.hashtags, posts_by_platform: newPostsByPlatform }]);
+                          saveTopics([{ date: selectedDayData.fullKey, topic: selectedDayData.topic, platform: dayPlats[0], platforms: dayPlats, generated: true, generated_platforms: newGenPlatforms, post_text: post.text, hashtags: post.hashtags, posts_by_platform: newPostsByPlatform, generation_id_per_platform: newGenIdPerPlatform }]);
                           if (data.creditsRemaining !== undefined) setCredits(prev => prev ? { ...prev, remaining: data.creditsRemaining } : prev);
                         }
                       } catch (err) { console.error(err); }

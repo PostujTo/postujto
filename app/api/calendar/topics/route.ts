@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
 
   const { data, error } = await supabase
     .from('calendar_topics')
-    .select('date, topic, platform, platforms, generated, generated_platforms, post_text, hashtags, posts_by_platform')
+    .select('date, topic, platform, platforms, generated, generated_platforms, post_text, hashtags, posts_by_platform, generation_id_per_platform, is_favorite_per_platform')
     .eq('user_id', supabaseUserId)
     .gte('date', from)
     .lte('date', to);
@@ -65,6 +65,7 @@ export async function POST(req: NextRequest) {
     post_text?: string;
     hashtags?: string[];
     posts_by_platform?: Record<string, { text: string; hashtags: string[] }>;
+    generation_id_per_platform?: Record<string, string | null>;
   }> = body.topics;
 
   if (!Array.isArray(topics) || topics.length === 0) {
@@ -85,6 +86,7 @@ export async function POST(req: NextRequest) {
     post_text: t.post_text ?? null,
     hashtags: t.hashtags ?? [],
     posts_by_platform: t.posts_by_platform ?? {},
+    generation_id_per_platform: t.generation_id_per_platform ?? {},
   }));
 
   const { error } = await supabase
