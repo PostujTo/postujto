@@ -44,3 +44,19 @@ body {
     display: flex !important;
   }
 }
+
+/* ─── GENERATOR MOBILE ───────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .bg-blobs {
+    display: none;
+  }
+
+  .generator-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  .generator-main {
+    padding: 24px 16px 80px !important;
+  }
+}

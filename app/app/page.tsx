@@ -600,7 +600,7 @@ const handleConfirmPlanTerms = async () => {
       </div>
 
       {/* Background */}
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+      <div className="bg-blobs" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
         <div style={{ position: 'absolute', top: '10%', right: '5%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)' }} />
         <div style={{ position: 'absolute', bottom: '10%', left: '5%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(168,85,247,0.07) 0%, transparent 70%)' }} />
       </div>
@@ -610,7 +610,7 @@ const handleConfirmPlanTerms = async () => {
         <AppHeader activePage="generator" credits={credits} onPortalClick={handleCustomerPortal} portalLoading={portalLoading} />
 
         {/* MAIN */}
-        <main style={{ flex: 1, maxWidth: 1200, margin: '0 auto', width: '100%', padding: '48px 24px 80px' }}>
+        <main className="generator-main" style={{ flex: 1, maxWidth: 1200, margin: '0 auto', width: '100%', padding: '48px 24px 80px' }}>
 
           {/* Page title */}
           <div className="fade-up" style={{ marginBottom: 40, textAlign: 'center' }}>
@@ -622,7 +622,7 @@ const handleConfirmPlanTerms = async () => {
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 32, alignItems: 'start' }}>
+          <div className="generator-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 32, alignItems: 'start' }}>
 
             {/* LEFT — Form */}
             <div className="fade-up glass-card" style={{ padding: 32, animationDelay: '0.1s' }}>
