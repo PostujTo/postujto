@@ -64,7 +64,7 @@ function buildWeekGroups(currentDays: CalendarDay[]): CalendarDay[][] {
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
-import { useClerk } from '@clerk/nextjs';
+import { AppHeader } from '@/components/AppHeader';
 
 // ─── POLSKIE OKAZJE ───────────────────────────────────────────────────────────
 const POLISH_OCCASIONS: Record<string, { name: string; emoji: string }> = {
@@ -213,8 +213,6 @@ function chunkArray<T>(arr: T[], size: number): T[][] {
 
 export default function CalendarPage() {
   const { user } = useUser();
-  const { signOut } = useClerk();
-  const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const [credits, setCredits] = useState<{ plan: string; remaining: number; total: number } | null>(() => {
     if (typeof window === 'undefined') return null;
     try { const d = localStorage.getItem('dash_credits'); return d ? JSON.parse(d) : null; } catch { return null; }
@@ -747,71 +745,7 @@ useEffect(() => {
 
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
-        {/* HEADER */}
-        <header style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(10,10,15,0.85)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100 }}>
-          <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 24px', height: 68, display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center' }}>
-            <Link href="/" style={{ textDecoration: 'none' }}>
-              <span className="font-display" style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', color: '#fff' }}>
-                Postuj<span className="gradient-text">To</span>
-              </span>
-            </Link>
-
-            {/* Tabs */}
-            <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: 4 }}>
-              <Link href="/app" style={{ textDecoration: 'none' }}>
-                <button className="btn-ghost" style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, border: 'none', background: 'transparent', color: 'rgba(240,240,245,0.5)' }}>
-                  ✨ Generator
-                </button>
-              </Link>
-              <button style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.4)', color: '#a5b4fc', cursor: 'default', fontFamily: "'DM Sans', sans-serif", fontWeight: 600 }}>
-                📅 Kalendarz
-              </button>
-              <Link href="/dashboard" style={{ textDecoration: 'none' }}>
-                <button className="btn-ghost" style={{ padding: '7px 18px', borderRadius: 9, fontSize: 13, border: 'none', background: 'transparent', color: 'rgba(240,240,245,0.5)' }}>
-                  📊 Dashboard
-                </button>
-              </Link>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-end' }}>
-              {credits && (
-                <>
-                  <span style={{ padding: '6px 10px', borderRadius: 100, fontSize: 11, fontWeight: 600, background: 'rgba(255,255,255,0.05)', color: 'rgba(240,240,245,0.5)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    {credits.plan === 'free' ? 'FREE' : credits.plan === 'standard' ? 'STARTER' : 'PRO'}
-                  </span>
-                  {credits.plan === 'free' && (
-                    <span style={{ padding: '6px 10px', borderRadius: 100, fontSize: 11, background: credits.remaining === 0 ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)', color: credits.remaining === 0 ? '#f87171' : 'rgba(240,240,245,0.5)' }}>
-                      {credits.remaining}/{credits.total} kredytów
-                    </span>
-                  )}
-                </>
-              )}
-<div style={{ position: 'relative' }}>
-                {user?.imageUrl
-                  ? <img src={user.imageUrl} alt="Avatar" onClick={() => setAvatarMenuOpen(o => !o)} style={{ width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', border: '2px solid rgba(99,102,241,0.4)' }} />
-                  : <div onClick={() => setAvatarMenuOpen(o => !o)} style={{ width: 36, height: 36, borderRadius: '50%', cursor: 'pointer', border: '2px solid rgba(99,102,241,0.4)', background: 'rgba(99,102,241,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>👤</div>
-                }
-                {avatarMenuOpen && (
-                  <div style={{ position: 'absolute', top: '100%', right: 0, marginTop: 8, background: '#16162a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: 8, minWidth: 180, zIndex: 100, boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
-                    <Link href="/settings" style={{ textDecoration: 'none' }} onClick={() => setAvatarMenuOpen(false)}>
-                      <div style={{ padding: '10px 14px', borderRadius: 8, fontSize: 14, color: 'rgba(240,240,245,0.8)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 }}
-                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                        🎨 Brand Kit
-                      </div>
-                    </Link>
-                    <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '4px 0' }} />
-                    <button onClick={() => signOut({ redirectUrl: '/' })} style={{ width: '100%', padding: '10px 14px', borderRadius: 8, fontSize: 14, color: 'rgba(240,240,245,0.6)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, background: 'transparent', border: 'none', fontFamily: 'inherit', textAlign: 'left' }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.06)'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                      ↪ Wyloguj
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </header>
+        <AppHeader activePage="calendar" credits={credits} />
 
         {/* alignItems: 'start' is critical here — prevents column height synchronization
              when the right column changes size (day panel open/close). Do not remove. */}
