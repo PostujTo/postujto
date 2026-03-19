@@ -301,7 +301,7 @@ const deleteAccount = async () => {
       `}</style>
 
       {/* Background blobs */}
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+      <div className="bg-blobs" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
         <div style={{ position: 'absolute', top: '5%', right: '10%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 70%)' }} />
         <div style={{ position: 'absolute', bottom: '10%', left: '5%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(168,85,247,0.06) 0%, transparent 70%)' }} />
       </div>
@@ -310,7 +310,7 @@ const deleteAccount = async () => {
 
         <AppHeader activePage="dashboard" credits={credits} />
 
-        <main style={{ flex: 1, maxWidth: 1200, margin: '0 auto', width: '100%', padding: '48px 24px 80px' }}>
+        <main className="dashboard-main" style={{ flex: 1, maxWidth: 1200, margin: '0 auto', width: '100%', padding: '48px 24px 80px' }}>
 
           {/* Page title */}
           <div className="fade-up" style={{ marginBottom: 40 }}>
@@ -322,7 +322,7 @@ const deleteAccount = async () => {
 
           {/* STATS */}
           {stats && (
-            <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 14, marginBottom: 36, animationDelay: '0.05s' }}>
+            <div className="fade-up dashboard-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 14, marginBottom: 36, animationDelay: '0.05s' }}>
               {[
                 { value: stats.total, label: 'Postów', color: '#a5b4fc', bg: 'rgba(99,102,241,0.1)', border: 'rgba(99,102,241,0.2)' },
                 { value: stats.favorites, label: 'Ulubionych', color: '#fbbf24', bg: 'rgba(251,191,36,0.08)', border: 'rgba(251,191,36,0.2)' },
@@ -339,7 +339,7 @@ const deleteAccount = async () => {
           )}
 
           {/* CHART + REPORT */}
-          <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 20, marginBottom: 20, animationDelay: '0.07s' }}>
+          <div className="fade-up dashboard-chart-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 20, marginBottom: 20, animationDelay: '0.07s' }}>
             <div className="glass-card" style={{ padding: '20px 24px' }}>
               <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16 }}>Aktywność — ostatnie 12 tygodni</p>
               <ResponsiveContainer width="100%" height={160}>
@@ -387,7 +387,7 @@ const deleteAccount = async () => {
 
           {/* INSIGHTS */}
           {insights && (insights.platform || insights.tone || insights.day) && (
-            <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 24, animationDelay: '0.09s' }}>
+            <div className="fade-up dashboard-insights-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 24, animationDelay: '0.09s' }}>
               {insights.platform && (
                 <div style={{ background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 14, padding: '16px 20px' }}>
                   <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.3)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>📱 Najlepsza platforma</p>

@@ -69,3 +69,23 @@ body {
     gap: 16px !important;
   }
 }
+
+/* ─── DASHBOARD MOBILE ───────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .dashboard-main {
+    padding: 24px 16px 80px !important;
+  }
+
+  .dashboard-stats-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .dashboard-chart-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .dashboard-insights-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
