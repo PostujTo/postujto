@@ -263,6 +263,8 @@ useEffect(() => {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [copiedWeek, setCopiedWeek] = useState<number | null>(null);
   const [view, setView] = useState<'calendar' | 'list'>('calendar');
+  // Switch to list view on mobile (after hydration — no SSR mismatch)
+  useEffect(() => { if (typeof window !== 'undefined' && window.innerWidth < 768) setView('list'); }, []);
   const [upgradeModal, setUpgradeModal] = useState<{ generated: number; remaining: number } | null>(null);
   const [isUpgradeLoading, setIsUpgradeLoading] = useState(false);
   const [showPlanTermsModal, setShowPlanTermsModal] = useState(false);
@@ -738,7 +740,7 @@ useEffect(() => {
       `}</style>
 
       {/* BG */}
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+      <div className="bg-blobs" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
         <div style={{ position: 'absolute', top: '5%', right: '8%', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 70%)' }} />
         <div style={{ position: 'absolute', bottom: '10%', left: '5%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(168,85,247,0.06) 0%, transparent 70%)' }} />
       </div>
@@ -749,7 +751,7 @@ useEffect(() => {
 
         {/* alignItems: 'start' is critical here — prevents column height synchronization
              when the right column changes size (day panel open/close). Do not remove. */}
-        <main style={{ flex: 1, maxWidth: 1400, margin: '0 auto', width: '100%', padding: '40px 24px 80px', display: 'grid', gridTemplateColumns: '1fr 380px', gap: 28, alignItems: 'start' }}>
+        <main className="calendar-main-grid" style={{ flex: 1, maxWidth: 1400, margin: '0 auto', width: '100%', padding: '40px 24px 80px', display: 'grid', gridTemplateColumns: '1fr 380px', gap: 28, alignItems: 'start' }}>
 
           {/* LEFT */}
           <div>

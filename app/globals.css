@@ -60,3 +60,12 @@ body {
     padding: 24px 16px 80px !important;
   }
 }
+
+/* ─── CALENDAR MOBILE ────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .calendar-main-grid {
+    grid-template-columns: 1fr !important;
+    padding: 20px 16px 80px !important;
+    gap: 16px !important;
+  }
+}
