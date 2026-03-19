@@ -161,9 +161,9 @@ export default function GeneratorPage() {
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
   const [isGuestResult, setIsGuestResult] = useState(false);
-  const [addWatermark, setAddWatermark] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('lastAddWatermark') === 'true' : false);
-  const [useBrandColors, setUseBrandColors] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('lastUseBrandColors') !== 'false' : true);
-  const [useBrandVoice, setUseBrandVoice] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('lastUseBrandVoice') !== 'false' : true);
+  const [addWatermark, setAddWatermark] = useState(() => typeof window !== 'undefined' ? localStorage.getItem('gen_useLogo') === 'true' : false);
+  const [useBrandColors, setUseBrandColors] = useState(() => typeof window !== 'undefined' ? localStorage.getItem('gen_useBrandKit') !== 'false' : true);
+  const [useBrandVoice, setUseBrandVoice] = useState(() => typeof window !== 'undefined' ? localStorage.getItem('gen_useMyStyle') !== 'false' : true);
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
   const [hasBrandKit, setHasBrandKit] = useState(false);
   const [showLazyOnboarding, setShowLazyOnboarding] = useState(false);
@@ -237,9 +237,9 @@ const handleConfirmPlanTerms = async () => {
     setSuggestions(TOPIC_SUGGESTIONS[platform].sort(() => Math.random() - 0.5).slice(0, 3));
   }, [platform]);
   useEffect(() => {
-    sessionStorage.setItem('lastAddWatermark', String(addWatermark));
-    sessionStorage.setItem('lastUseBrandColors', String(useBrandColors));
-    sessionStorage.setItem('lastUseBrandVoice', String(useBrandVoice));
+    localStorage.setItem('gen_useLogo', String(addWatermark));
+    localStorage.setItem('gen_useBrandKit', String(useBrandColors));
+    localStorage.setItem('gen_useMyStyle', String(useBrandVoice));
   }, [addWatermark, useBrandColors, useBrandVoice]);
 
   useEffect(() => {
