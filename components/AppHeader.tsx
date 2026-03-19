@@ -11,7 +11,7 @@ const PLAN_COLORS: Record<string, { bg: string; text: string; label: string }> =
 };
 
 type HeaderProps = {
-  activePage: 'generator' | 'calendar' | 'dashboard';
+  activePage: 'generator' | 'calendar' | 'dashboard' | 'settings';
   credits?: { plan: string; remaining: number; total: number } | null;
   onPortalClick?: () => void;
   portalLoading?: boolean;

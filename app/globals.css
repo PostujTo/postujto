@@ -89,3 +89,23 @@ body {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* ─── SETTINGS + ONBOARDING MOBILE ──────────────────────────────────────── */
+@media (max-width: 768px) {
+  .settings-content {
+    padding: 24px 16px !important;
+  }
+
+  .settings-form-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .onboarding-wrapper {
+    padding: 24px 16px !important;
+  }
+
+  .onboarding-card {
+    padding: 24px 20px 24px !important;
+    border-radius: 16px !important;
+  }
+}

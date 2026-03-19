@@ -130,12 +130,12 @@ export default function OnboardingPage() {
       `}</style>
 
       {/* Background blobs */}
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+      <div className="bg-blobs" style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
         <div style={{ position: 'absolute', top: '10%', right: '10%', width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%)' }} />
         <div style={{ position: 'absolute', bottom: '5%', left: '5%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(168,85,247,0.08) 0%, transparent 70%)' }} />
       </div>
 
-      <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
+      <div className="onboarding-wrapper" style={{ position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
 
         {/* Logo */}
         <div className="fade-up" style={{ marginBottom: 48 }}>
@@ -162,7 +162,7 @@ export default function OnboardingPage() {
         </div>
 
         {/* Card */}
-        <div key={step} className="step-enter" style={{ width: '100%', maxWidth: 560, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: '40px 40px 36px', backdropFilter: 'blur(20px)' }}>
+        <div key={step} className="step-enter onboarding-card" style={{ width: '100%', maxWidth: 560, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: '40px 40px 36px', backdropFilter: 'blur(20px)' }}>
 
           {/* STEP 0 — Witaj */}
           {step === 0 && (
