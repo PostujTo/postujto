@@ -174,13 +174,13 @@ export default function OnboardingPage() {
               <p style={{ fontSize: 15, color: 'rgba(240,240,245,0.5)', lineHeight: 1.7, marginBottom: 32 }}>
                 Skonfigurujemy PostujTo pod Twoją firmę w ciągu <strong style={{ color: '#a5b4fc' }}>2 minut</strong>. Dzięki temu Claude będzie generował posty idealnie dopasowane do Twojego biznesu.
               </p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 36 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 36, alignItems: 'stretch' }}>
                 {[
                   { emoji: '🎯', label: 'Dopasowane posty', desc: 'Do Twojej branży i stylu' },
                   { emoji: '⚡', label: '30 sekund', desc: 'Na gotowy post AI' },
                   { emoji: '🇵🇱', label: 'Po polsku', desc: 'Z polskim prawem reklamowym' },
                 ].map((item, i) => (
-                  <div key={i} style={{ padding: '16px 12px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 14, textAlign: 'center' }}>
+                  <div key={i} style={{ padding: '16px 12px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 14, textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start' }}>
                     <div style={{ fontSize: 24, marginBottom: 8 }}>{item.emoji}</div>
                     <p className="font-display" style={{ fontSize: 13, fontWeight: 700, marginBottom: 4, color: '#f0f0f5' }}>{item.label}</p>
                     <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.4)' }}>{item.desc}</p>
