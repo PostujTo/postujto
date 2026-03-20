@@ -45,12 +45,71 @@ export default function OnboardingPage() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [selectedTone, setSelectedTone] = useState<string | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  
+  const [slogan, setSlogan] = useState('');
+
+  // Magic Import state
+  const [magicInput, setMagicInput] = useState('');
+  const [magicLoading, setMagicLoading] = useState(false);
+  const [magicError, setMagicError] = useState('');
+  const [magicDone, setMagicDone] = useState(false);
+  const [magicSkipped, setMagicSkipped] = useState(false);
+
 
   const togglePlatform = (id: string) => {
     setSelectedPlatforms(prev =>
       prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
     );
+  };
+
+  const VALID_INDUSTRY_IDS = ['restaurant','catering','bakery','food','beauty','hairdresser','fitness','medical','veterinary','fashion','ecommerce','crafts','florist','construction','carpenter','photography','automotive','tutoring','education','realestate','tourism'];
+  const VALID_TONE_IDS = ['professional','casual','humorous','sales'];
+
+  const handleMagicImport = async () => {
+    if (!magicInput.trim()) return;
+
+    // Rate limiting via localStorage
+    const RATE_KEY = 'magic_import_attempts';
+    const RATE_WINDOW = 60 * 60 * 1000;
+    const now = Date.now();
+    const stored: number[] = JSON.parse(typeof window !== 'undefined' ? localStorage.getItem(RATE_KEY) || '[]' : '[]');
+    const recent = stored.filter(ts => now - ts < RATE_WINDOW);
+    if (recent.length >= 5) {
+      setMagicError('Przekroczono limit prób. Spróbuj za godzinę lub wpisz dane ręcznie.');
+      return;
+    }
+
+    setMagicLoading(true);
+    setMagicError('');
+
+    try {
+      const res = await fetch('/api/onboarding/magic-import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input: magicInput }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setMagicError(data.error || 'Coś poszło nie tak.');
+        return;
+      }
+
+      if (data.name) setCompanyName(data.name);
+      if (data.slogan) setSlogan(data.slogan);
+      if (data.industry && VALID_INDUSTRY_IDS.includes(data.industry)) setSelectedIndustry(data.industry);
+      if (data.tone && VALID_TONE_IDS.includes(data.tone)) setSelectedTone(data.tone);
+
+      // Zapisz timestamp po sukcesie
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(RATE_KEY, JSON.stringify([...recent, now]));
+      }
+
+      setMagicDone(true);
+    } catch {
+      setMagicError('Błąd połączenia. Spróbuj opisać firmę ręcznie.');
+    } finally {
+      setMagicLoading(false);
+    }
   };
 
   const handleFinish = async () => {
@@ -64,7 +123,7 @@ export default function OnboardingPage() {
           tone: selectedTone ?? 'professional',
           style: 'realistic',
           colors: ['', '', '', '', ''],
-          slogan: '',
+          slogan: slogan,
           logo_url: '',
           sample_posts: '',
           platforms: selectedPlatforms,
@@ -200,6 +259,41 @@ export default function OnboardingPage() {
           {/* STEP 1 — Nazwa firmy + branża */}
           {step === 1 && (
             <div>
+              {/* Magic Import block */}
+              {!magicSkipped && (
+                <div style={{ marginBottom: 28, padding: 20, background: 'rgba(99,102,241,0.08)', borderRadius: 14, border: '1px solid rgba(99,102,241,0.25)' }}>
+                  <p style={{ fontSize: 14, fontWeight: 700, marginBottom: 4, color: '#a5b4fc' }}>✨ Skonfigurujemy Cię automatycznie</p>
+                  <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.5)', marginBottom: 12, lineHeight: 1.5 }}>
+                    Wklej link do swojej strony www lub opisz firmę w kilku zdaniach — resztę zrobimy za Ciebie.
+                  </p>
+                  <textarea
+                    placeholder={`np. https://piekarnia-kowalski.pl\n\nlub: Prowadzę piekarnię rzemieślniczą w Krakowie. Specjalizujemy się w chlebach na zakwasie.`}
+                    value={magicInput}
+                    onChange={e => setMagicInput(e.target.value)}
+                    rows={3}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.05)', color: '#fff', fontSize: 12, resize: 'vertical', marginBottom: 10, boxSizing: 'border-box', lineHeight: 1.5, fontFamily: "'DM Sans', sans-serif" } as React.CSSProperties}
+                  />
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
+                    <button
+                      onClick={handleMagicImport}
+                      disabled={magicLoading || !magicInput.trim()}
+                      className="btn-primary"
+                      style={{ padding: '9px 16px', fontSize: 13, borderRadius: 8, opacity: (!magicInput.trim() || magicLoading) ? 0.5 : 1, cursor: (!magicInput.trim() || magicLoading) ? 'not-allowed' : 'pointer' }}
+                    >
+                      {magicLoading ? '⏳ Analizuję...' : '✨ Uzupełnij automatycznie'}
+                    </button>
+                    <button
+                      onClick={() => setMagicSkipped(true)}
+                      style={{ padding: '9px 14px', background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, color: 'rgba(240,240,245,0.4)', fontSize: 13, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" }}
+                    >
+                      Wolę wpisać ręcznie →
+                    </button>
+                  </div>
+                  {magicError && <p style={{ fontSize: 12, color: '#f87171', marginTop: 8 }}>⚠️ {magicError}</p>}
+                  {magicDone && !magicError && <p style={{ fontSize: 12, color: '#4ade80', marginTop: 8 }}>✓ Formularz uzupełniony! Przejrzyj poniżej i popraw jeśli coś się nie zgadza.</p>}
+                </div>
+              )}
+
               <h2 className="font-display" style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Twoja firma</h2>
               <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.45)', marginBottom: 28 }}>Podaj nazwę i wybierz branżę — to pomoże Claude pisać trafniej.</p>
 
