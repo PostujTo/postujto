@@ -614,10 +614,10 @@ const deleteAccount = async () => {
                   <div key={gen.id} className="gen-card fade-up" style={{ animationDelay: `${0.1 + gi * 0.04}s` }}>
 
                     {/* Card header */}
-                    <div style={{ padding: '20px 24px', display: 'flex', alignItems: 'flex-start', gap: 16, justifyContent: 'space-between' }}>
+                    <div className="gen-card-header" style={{ padding: '20px 24px', display: 'flex', alignItems: 'flex-start', gap: 16, justifyContent: 'space-between' }}>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         {/* Topic */}
-                        <p className="font-display" style={{ fontSize: 16, fontWeight: 700, color: '#f0f0f5', marginBottom: 10, lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <p className="gen-card-title font-display" style={{ fontSize: 16, fontWeight: 700, color: '#f0f0f5', marginBottom: 10, lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {gen.topic}
                         </p>
                         {/* Tags */}
@@ -631,13 +631,18 @@ const deleteAccount = async () => {
                           <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 100, background: 'rgba(255,255,255,0.05)', color: 'rgba(240,240,245,0.45)', border: '1px solid rgba(255,255,255,0.08)' }}>
                             {lengthLabel[gen.length]}
                           </span>
-                          <span style={{ fontSize: 11, color: 'rgba(240,240,245,0.25)', marginLeft: 4 }}>
-                            {new Date(gen.created_at).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short', year: 'numeric' })}
-                            {' '}
-                            {new Date(gen.created_at).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}
+                          <span className="gen-date" style={{ fontSize: 11, color: 'rgba(240,240,245,0.25)', marginLeft: 4, whiteSpace: 'nowrap' }}>
+                            {(() => {
+                              const d = new Date(gen.created_at);
+                              const day = d.getDate().toString().padStart(2, '0');
+                              const month = (d.getMonth() + 1).toString().padStart(2, '0');
+                              const year = d.getFullYear().toString().slice(2);
+                              const time = `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+                              return `${day}.${month}.${year}, ${time}`;
+                            })()}
                           </span>
                           {(gen as any).scheduled_date && (
-                            <span style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', color: '#a5b4fc' }}>
+                            <span className="gen-calendar-link" style={{ fontSize: 11, padding: '4px 8px', borderRadius: 6, background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', color: '#a5b4fc' }}>
                               {'📅 '}{new Date((gen as any).scheduled_date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' })}
                             </span>
                           )}
@@ -645,7 +650,7 @@ const deleteAccount = async () => {
                       </div>
 
                       {/* Actions */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                      <div className="gen-card-actions" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
                         <button onClick={() => toggleFavorite(gen.id, gen.is_favorite)}
                           style={{ fontSize: 20, background: 'none', border: 'none', cursor: 'pointer', transition: 'transform 0.2s', lineHeight: 1 }}
                           onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.2)')}
