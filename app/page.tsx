@@ -427,13 +427,13 @@ const handleConfirmTerms = async () => {
       </nav>
 
       {/* HERO */}
-      <section className="mesh-bg" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', padding: '120px 24px 80px', position: 'relative', overflow: 'hidden' }}>
+      <section className="landing-hero mesh-bg" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', padding: '120px 24px 80px', position: 'relative', overflow: 'hidden' }}>
 
         {/* Floating orbs */}
         <div className="animate-float" style={{ position: 'absolute', top: '15%', right: '8%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div className="animate-float-reverse" style={{ position: 'absolute', bottom: '10%', left: '5%', width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(168,85,247,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
-        <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }}>
+        <div className="landing-hero-grid" style={{ maxWidth: 1200, margin: '0 auto', width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }}>
 
           {/* Left */}
           <div style={{ animation: 'fadeUp 0.8s ease-out forwards' }}>
@@ -610,9 +610,9 @@ const handleConfirmTerms = async () => {
             <div style={{ display: "inline-block", fontSize: 12, fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", color: "#6366f1", marginBottom: 16 }}>Podglad aplikacji</div>
             <h2 className="font-display" style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, letterSpacing: "-0.02em" }}>Wszystko w jednym miejscu</h2>
           </div>
-          <div className={`section-reveal from-up ${isVisible("preview") ? "visible" : ""}`} style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, transitionDelay: "0.1s" }}>
+          <div className={`app-preview-grid section-reveal from-up ${isVisible("preview") ? "visible" : ""}`} style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, transitionDelay: "0.1s" }}>
             
-            <div style={{ borderRadius: 20, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
+            <div className="app-preview-card" style={{ borderRadius: 20, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
               
               <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ display: "flex", gap: 6 }}>
@@ -640,7 +640,7 @@ const handleConfirmTerms = async () => {
               <div style={{ padding: "10px 20px", borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(99,102,241,0.05)", fontSize: 11, fontWeight: 600, color: "#4ade80" }}>Wygenerowano w 4 sek</div>
             </div>
             
-            <div style={{ borderRadius: 20, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
+            <div className="app-preview-card" style={{ borderRadius: 20, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
               
               <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ display: "flex", gap: 6 }}>
@@ -664,7 +664,7 @@ const handleConfirmTerms = async () => {
               </div>
             </div>
             
-            <div style={{ borderRadius: 20, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
+            <div className="app-preview-card" style={{ borderRadius: 20, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
               
               <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{ display: "flex", gap: 6 }}>
