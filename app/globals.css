@@ -109,3 +109,12 @@ body {
     border-radius: 16px !important;
   }
 }
+
+/* ─── PUBLIC PAGES MOBILE ────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .pricing-hero-container {
+    overflow: hidden;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}

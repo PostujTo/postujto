@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUser, SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import { useUser } from '@clerk/nextjs';
+import { AppHeader } from '@/components/AppHeader';
 import Link from 'next/link';
 
 export default function PricingPage() {
@@ -169,38 +170,7 @@ const plans = [
   </div>
 )}
 
-      {/* NAV */}
-      <nav style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '0 24px', position: 'sticky', top: 0, zIndex: 100, background: 'rgba(10,10,15,0.9)', backdropFilter: 'blur(20px)' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 72 }}>
-          <Link href="/" style={{ textDecoration: 'none' }}>
-            <span style={{ fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>
-              Postuj<span className="gradient-text">To</span>
-            </span>
-          </Link>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <SignedOut>
-              <SignInButton mode="modal" forceRedirectUrl="/app">
-                <button className="btn-secondary" style={{ padding: '10px 20px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
-                  Zaloguj się
-                </button>
-              </SignInButton>
-              <Link href="/app">
-                <button className="btn-primary" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
-                  Wypróbuj za darmo
-                </button>
-              </Link>
-            </SignedOut>
-            <SignedIn>
-              <Link href="/app">
-                <button className="btn-primary" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
-                  Otwórz generator
-                </button>
-              </Link>
-              <UserButton afterSignOutUrl="/" />
-            </SignedIn>
-          </div>
-        </div>
-      </nav>
+      <AppHeader />
 
       {/* HEADER */}
       <div style={{ textAlign: 'center', padding: '80px 24px 60px' }}>

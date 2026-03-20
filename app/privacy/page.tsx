@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
+import { AppHeader } from '@/components/AppHeader';
 
 const LAST_UPDATED = '6 marca 2026';
 const EMAIL = 'hello@postujto.com';
@@ -40,49 +40,7 @@ export default function PrivacyPage() {
       </div>
 
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <nav style={{
-  position: 'sticky', top: 0, zIndex: 100,
-  background: 'rgba(10,10,15,0.9)',
-  backdropFilter: 'blur(20px)',
-  borderBottom: '1px solid rgba(255,255,255,0.06)',
-  padding: '0 24px',
-}}>
-  <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 72 }}>
-    <Link href="/" style={{ textDecoration: 'none' }}>
-      <span className="font-display" style={{ fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>
-        Postuj<span className="gradient-text">To</span>
-      </span>
-    </Link>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-      <Link href="/pricing"
-        style={{ fontSize: 14, color: 'rgba(240,240,245,0.6)', textDecoration: 'none', transition: 'color 0.2s' }}
-        onMouseEnter={e => (e.currentTarget.style.color = '#a5b4fc')}
-        onMouseLeave={e => (e.currentTarget.style.color = 'rgba(240,240,245,0.6)')}>
-        Cennik
-      </Link>
-      <SignedOut>
-        <SignInButton mode="modal" forceRedirectUrl="/app">
-          <button className="btn-secondary" style={{ padding: '10px 20px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
-            Zaloguj się
-          </button>
-        </SignInButton>
-        <Link href="/app">
-          <button className="btn-primary" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
-            <span>Wypróbuj za darmo</span>
-          </button>
-        </Link>
-      </SignedOut>
-      <SignedIn>
-        <Link href="/app">
-          <button className="btn-primary" style={{ padding: '10px 24px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
-            <span>Otwórz generator</span>
-          </button>
-        </Link>
-        <UserButton afterSignOutUrl="/" />
-      </SignedIn>
-    </div>
-  </div>
-</nav>
+        <AppHeader />
 
         <main style={{ flex: 1, maxWidth: 760, margin: '0 auto', width: '100%', padding: '56px 24px 100px' }}>
           <div style={{ marginBottom: 48 }}>
