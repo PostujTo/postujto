@@ -872,12 +872,12 @@ const handleConfirmPlanTerms = async () => {
               {results && !hasBrandKit && !lazyOnboardingDismissed && user && (
                 <div className="fade-up" style={{ animationDelay: '0.1s' }}>
                   {!showLazyOnboarding ? (
-                    <div style={{ margin: '0 0 16px', padding: '14px 16px', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                    <div className="company-name-card-inner" style={{ margin: '0 0 16px', padding: '14px 16px', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                       <div>
                         <p style={{ fontSize: 14, color: '#f0f0f5', margin: '0 0 3px', fontWeight: 600 }}>💡 Podaj nazwę swojej firmy — Claude napisze trafniej</p>
                         <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.45)', margin: 0 }}>Jedno pole. Zajmie 10 sekund.</p>
                       </div>
-                      <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                      <div className="company-name-btns" style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
                         <button onClick={() => setShowLazyOnboarding(true)} style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, background: 'rgba(99,102,241,0.3)', border: '1px solid rgba(99,102,241,0.5)', color: '#a5b4fc', cursor: 'pointer', fontWeight: 600, fontFamily: "'DM Sans', sans-serif" }}>
                           Podaj nazwę →
                         </button>
