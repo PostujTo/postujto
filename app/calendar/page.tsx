@@ -754,18 +754,18 @@ useEffect(() => {
         <main className="calendar-main-grid" style={{ flex: 1, maxWidth: 1400, margin: '0 auto', width: '100%', padding: '40px 24px 80px', display: 'grid', gridTemplateColumns: '1fr 380px', gap: 28, alignItems: 'start' }}>
 
           {/* LEFT */}
-          <div>
+          <div className="calendar-left-panel">
             {/* Controls */}
             <div className="fade-up glass-card" style={{ padding: '20px 24px', marginBottom: 20 }}>
               {/* Górny rząd: miesiąc + platformy + siatka/lista */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+              <div className="calendar-controls-row" style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
                 {/* Month nav */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <button onClick={() => navigateMonth(-1)} disabled={isProcessing} className="btn-ghost" style={{ width: 36, height: 36, borderRadius: 9, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, paddingBottom: 2, opacity: isProcessing ? 0.3 : 1, cursor: isProcessing ? 'not-allowed' : 'pointer' }}>‹</button>
-                  <span className="font-display" style={{ fontSize: 18, fontWeight: 700, minWidth: 180, textAlign: 'center' }}>
+                  <button onClick={() => navigateMonth(-1)} disabled={isProcessing} className="btn-ghost day-panel-nav" style={{ width: 36, height: 36, borderRadius: 9, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, paddingBottom: 2, opacity: isProcessing ? 0.3 : 1, cursor: isProcessing ? 'not-allowed' : 'pointer' }}>‹</button>
+                  <span className="calendar-month-label font-display" style={{ fontSize: 18, fontWeight: 700, minWidth: 180, textAlign: 'center' }}>
                     {MONTH_NAMES_PL[currentMonth]} {currentYear}
                   </span>
-                  <button onClick={() => navigateMonth(1)} disabled={isProcessing} className="btn-ghost" style={{ width: 36, height: 36, borderRadius: 9, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, paddingBottom: 2, opacity: isProcessing ? 0.3 : 1, cursor: isProcessing ? 'not-allowed' : 'pointer' }}>›</button>
+                  <button onClick={() => navigateMonth(1)} disabled={isProcessing} className="btn-ghost day-panel-nav-next" style={{ width: 36, height: 36, borderRadius: 9, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, paddingBottom: 2, opacity: isProcessing ? 0.3 : 1, cursor: isProcessing ? 'not-allowed' : 'pointer' }}>›</button>
                 </div>
 
                 <div style={{ flex: 1 }} />
@@ -792,6 +792,7 @@ useEffect(() => {
 
               {/* Dolny rząd: tony + długość */}
               <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+                <div className="tone-selector" style={{ display: 'contents' }}>
                 {(['professional', 'casual', 'humorous', 'sales'] as const).map(t => (
                   <button key={t} onClick={() => setDefaultTone(t)} className={`option-btn ${defaultTone === t ? 'active' : ''}`}
                     style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12 }}>
@@ -800,8 +801,10 @@ useEffect(() => {
                   </button>
                 ))}
 
+                </div>
                 <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.1)', margin: '0 2px' }} />
 
+                <div className="length-selector" style={{ display: 'contents' }}>
                 {(['short', 'medium', 'long'] as const).map(l => {
                   const lLabels = { short: 'Krótki', medium: 'Średni', long: 'Długi' };
                   return (
@@ -812,10 +815,11 @@ useEffect(() => {
                   );
                 })}
 
+                </div>
                 <div style={{ flex: 1 }} />
 
                 {/* View toggle */}
-                <div style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 9, padding: 3 }}>
+                <div className="view-toggle-btn" style={{ display: 'flex', gap: 4, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 9, padding: 3 }}>
                   {(['calendar', 'list'] as const).map(v => (
                     <button key={v} onClick={() => !isProcessing && setView(v)}
                       disabled={isProcessing}
@@ -849,7 +853,7 @@ useEffect(() => {
 
             {/* CALENDAR GRID */}
             {view === 'calendar' && (
-              <div className="fade-up glass-card" style={{ padding: 20, animationDelay: '0.05s' }}>
+              <div className="calendar-grid-view fade-up glass-card" style={{ padding: 20, animationDelay: '0.05s' }}>
                 {/* Day names */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, marginBottom: 8 }}>
                   {DAY_NAMES_PL.map(d => (
@@ -909,7 +913,7 @@ useEffect(() => {
 
             {/* LIST VIEW */}
             {view === 'list' && (
-              <div className="fade-up" style={{ animationDelay: '0.05s' }}>
+              <div className="calendar-list-view fade-up" style={{ animationDelay: '0.05s' }}>
                 {/* Platform tabs for list view — always in DOM, hidden when ≤1 platform (prevents layout shift on Brand Kit load) */}
                 <div style={{ display: 'flex', gap: 6, marginBottom: 12, minHeight: 35, visibility: selectedPlatforms.length > 1 ? 'visible' : 'hidden' }}>
                   {selectedPlatforms.map(pl => (
@@ -930,7 +934,7 @@ useEffect(() => {
                       return (
                         <div key={day.fullKey}
                           onClick={() => { setSelectedDay(day.fullKey === selectedDay ? null : day.fullKey); }}
-                          className="glass-card"
+                          className="list-day-row glass-card"
                           style={{ padding: '14px 20px', cursor: 'pointer', border: day.fullKey === selectedDay ? '1px solid rgba(99,102,241,0.5)' : undefined, transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 14 }}
                         >
                           <div style={{ width: 44, textAlign: 'center', flexShrink: 0 }}>
@@ -947,13 +951,13 @@ useEffect(() => {
 
                           <div style={{ flex: 1, minWidth: 0 }}>
                             {day.topic ? (
-                              <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.8)', lineHeight: 1.5, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{day.topic}</p>
+                              <p className="list-day-topic" style={{ fontSize: 14, color: 'rgba(240,240,245,0.8)', lineHeight: 1.5, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{day.topic}</p>
                             ) : (
                               <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.2)', fontStyle: 'italic' }}>Brak tematu</p>
                             )}
                           </div>
 
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+                          <div className="list-day-actions" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }} onClick={e => e.stopPropagation()}>
                             {isActiveGenerated && activePost ? (
                               <>
                                 <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'rgba(34,197,94,0.15)', color: '#4ade80' }}>✓ Gotowy</span>
@@ -1000,7 +1004,7 @@ useEffect(() => {
           {/* MIESIĄC W LICZBACH */}
           <div className="fade-up glass-card" style={{ padding: '20px 24px', marginTop: 20 }}>
             <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>MIESIĄC W LICZBACH</p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, willChange: 'contents' }}>
+            <div className="month-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, willChange: 'contents' }}>
               {(() => {
                 return [
                   { value: currentDays.length, label: pluralPL(currentDays.length, 'dzień', 'dni', 'dni'), color: 'rgba(240,240,245,0.6)', platformIcon: false },
@@ -1026,7 +1030,7 @@ useEffect(() => {
           </div>
 
           {/* RIGHT PANEL */}
-          <div style={{ position: 'sticky', top: 88, alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="calendar-right-panel" style={{ position: 'sticky', top: 88, alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
             {/* Actions */}
             <div className="fade-up glass-card" style={{ padding: '20px 24px', animationDelay: '0.15s' }}>
@@ -1197,9 +1201,9 @@ useEffect(() => {
                 {/* Best time to post */}
                 <div style={{ padding: '10px 12px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 10, marginBottom: 16 }}>
                   <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>⏰ Najlepsza godzina publikacji</p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
+                  <div className="best-time-tags" style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
                     {BEST_TIMES[activePlatform] && BEST_TIMES[activePlatform].times.map((t, i) => (
-                      <span key={i} style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: 6, color: '#a5b4fc', fontWeight: 500 }}>{t}</span>
+                      <span key={i} className="best-time-tag" style={{ fontSize: 11, padding: '2px 8px', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: 6, color: '#a5b4fc', fontWeight: 500 }}>{t}</span>
                     ))}
                   </div>
                   <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.35)', lineHeight: 1.5, margin: 0 }}>{BEST_TIMES[activePlatform]?.tip}</p>

@@ -118,3 +118,165 @@ body {
     padding-right: 16px;
   }
 }
+
+/* ─── CALENDAR MOBILE (K1-K6) ────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* K4 — stack columns vertically */
+  .calendar-left-panel { order: 1; }
+  .calendar-right-panel {
+    order: 2;
+    position: static !important;
+    width: 100% !important;
+  }
+
+  /* K1 — hide grid view, show list by default */
+  .calendar-grid-view { display: none !important; }
+  .calendar-list-view { display: block !important; }
+  .view-toggle-btn { display: none !important; }
+
+  /* K2 — tone/length selectors wrap on mobile */
+  .tone-selector {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .length-selector {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tone-selector button,
+  .length-selector button {
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+  }
+
+  /* K3 — month stats 2 columns instead of 4 */
+  .month-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* K5 — list day row text overflow */
+  .list-day-row {
+    display: grid !important;
+    grid-template-columns: 48px 1fr auto !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 10px 12px !important;
+  }
+  .list-day-topic {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 13px !important;
+  }
+  .list-day-actions {
+    display: flex !important;
+    gap: 6px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* K6a — best time tags wrap */
+  .best-time-tags {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+  .best-time-tag {
+    font-size: 11px !important;
+    padding: 4px 8px !important;
+    white-space: nowrap !important;
+  }
+
+  /* K6b — month nav controls row doesn't overflow, arrows always visible */
+  .calendar-controls-row {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    overflow: visible !important;
+  }
+  .calendar-month-label {
+    min-width: 0 !important;
+    font-size: 16px !important;
+  }
+  .day-panel-nav,
+  .day-panel-nav-next {
+    display: flex !important;
+    visibility: visible !important;
+  }
+}
+
+/* ─── LANDING PAGE MOBILE (L1+L2) ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* L1 — hero section height + grid stack */
+  .landing-hero {
+    height: auto !important;
+    min-height: auto !important;
+    padding-top: 80px !important;
+    padding-bottom: 48px !important;
+  }
+  .landing-hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: 40px !important;
+  }
+
+  /* L2 — app preview cards horizontal scroll with snap */
+  .app-preview-grid {
+    overflow-x: auto !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: 12px !important;
+    display: flex !important;
+  }
+  .app-preview-card {
+    min-width: 260px !important;
+    scroll-snap-align: start !important;
+    flex-shrink: 0 !important;
+  }
+}
+
+/* ─── DASHBOARD MOBILE (D1+D2+D3) ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* D1 — card header wraps, title full width */
+  .gen-card-header {
+    flex-wrap: wrap !important;
+  }
+  .gen-card-title {
+    width: 100% !important;
+    flex: none !important;
+    font-size: 14px !important;
+    -webkit-line-clamp: 2 !important;
+    display: -webkit-box !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    white-space: normal !important;
+  }
+  .gen-card-actions {
+    width: 100% !important;
+    justify-content: flex-end !important;
+  }
+
+  /* D3 — scheduled date badge smaller */
+  .gen-calendar-link {
+    font-size: 11px !important;
+    padding: 4px 8px !important;
+  }
+}
+
+/* D2 — date nowrap (applies globally, not just mobile) */
+.gen-date {
+  font-size: 12px !important;
+  white-space: nowrap !important;
+}
+
+/* ─── GENERATOR MOBILE (G1) ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .company-name-card-inner {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  .company-name-btns {
+    width: 100% !important;
+  }
+  .company-name-btns button {
+    flex: 1 !important;
+  }
+}
