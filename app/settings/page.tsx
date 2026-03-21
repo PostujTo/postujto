@@ -85,6 +85,8 @@ export default function SettingsPage() {
   const [showTip, setShowTip] = useState(false);
   const [saved, setSaved] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [currentPlan, setCurrentPlan] = useState<string>('free');
+  const [portalLoading, setPortalLoading] = useState(false);
   const [magicInput, setMagicInput] = useState('');
   const [magicLoading, setMagicLoading] = useState(false);
   const [magicError, setMagicError] = useState('');
@@ -103,6 +105,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (!user) return;
+    fetch('/api/user/plan').then(r => r.json()).then(d => setCurrentPlan(d.plan || 'free'));
     fetch('/api/brand-kit')
       .then(r => r.json())
       .then(data => {
@@ -173,6 +176,17 @@ export default function SettingsPage() {
     }
   };
 
+  const handlePortal = async () => {
+    setPortalLoading(true);
+    try {
+      const res = await fetch('/api/stripe/customer-portal', { method: 'POST' });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+    } finally {
+      setPortalLoading(false);
+    }
+  };
+
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -236,7 +250,7 @@ export default function SettingsPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0f', fontFamily: '"DM Sans", sans-serif', color: '#f0f0f5' }}>
-      <AppHeader activePage="settings" />
+      <AppHeader activePage="settings" credits={{ plan: currentPlan, remaining: 0, total: 0 }} onPortalClick={handlePortal} portalLoading={portalLoading} />
 
       <div className="settings-content" style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px' }}>
         {/* Title */}
@@ -518,6 +532,36 @@ export default function SettingsPage() {
               <span style={{ fontSize: 11, color: brandKit.sample_posts.length > 9000 ? '#f87171' : 'rgba(240,240,245,0.2)' }}>
                 {brandKit.sample_posts.length} / 10 000 znaków
               </span>
+            </div>
+          </div>
+
+
+          {/* Twój plan */}
+          <div style={{ ...s.card, borderColor: 'rgba(99,102,241,0.2)' }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(240,240,245,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>Twój plan</p>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' as const }}>
+              <div>
+                <span style={{ fontSize: 15, fontWeight: 700, color: '#f0f0f5', textTransform: 'capitalize' }}>
+                  {currentPlan === 'standard' ? 'Starter' : currentPlan === 'premium' ? 'Pro' : 'Free'}
+                </span>
+                {currentPlan === 'free' && (
+                  <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', marginTop: 4 }}>Przejdź na Starter lub Pro by odblokować unlimited generowanie</p>
+                )}
+              </div>
+              {currentPlan !== 'free' ? (
+                <button
+                  onClick={handlePortal}
+                  disabled={portalLoading}
+                  className="btn-ghost"
+                  style={{ padding: '8px 16px', borderRadius: 10, fontSize: 13, opacity: portalLoading ? 0.6 : 1 }}
+                >
+                  {portalLoading ? '...' : 'Zarządzaj subskrypcją →'}
+                </button>
+              ) : (
+                <a href="/pricing" style={{ padding: '8px 16px', borderRadius: 10, fontSize: 13, background: 'linear-gradient(135deg, #6366f1, #a855f7)', color: '#fff', fontWeight: 600, textDecoration: 'none', display: 'inline-block' }}>
+                  Ulepsz plan →
+                </a>
+              )}
             </div>
           </div>
 
