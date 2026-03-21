@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { AppHeader } from '@/components/AppHeader';
 
-const LAST_UPDATED = '6 marca 2026';
+const LAST_UPDATED = '21 marca 2026';
 const COMPANY = 'PostujTo';
 const EMAIL = 'hello@postujto.com';
 const DOMAIN = 'postujto.com';
@@ -114,6 +114,7 @@ export default function TermsPage() {
               <li><strong style={{color:'#f0f0f5'}}>Starter</strong> — 79 zł brutto miesięcznie, unlimited generowanie postów, obrazy AI, Brand Kit.</li>
               <li><strong style={{color:'#f0f0f5'}}>Pro</strong> — 199 zł brutto miesięcznie, wszystkie funkcje Starter + auto obrazy, logo watermark, priorytetowe generowanie.</li>
             </ul>
+            <p>Kredyty przyznane w planie Free są ważne przez 12 miesięcy od daty rejestracji. Niewykorzystane kredyty wygasają po upływie tego okresu bez możliwości ich przywrócenia.</p>
             <p>Płatności obsługiwane są przez Stripe. Ceny podane są w złotych polskich (PLN) i zawierają podatek VAT.</p>
             <p>Subskrypcja jest odnawiana automatycznie co 30 dni, chyba że Użytkownik ją anuluje przed datą odnowienia.</p>
             <p>Usługodawca zastrzega sobie prawo do zmiany cennika z 30-dniowym wyprzedzeniem. Zmiana nie dotyczy bieżącego, opłaconego okresu rozliczeniowego.</p>
