@@ -91,6 +91,7 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<string>('free');
+  const [isAnnual, setIsAnnual] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
   const [magicInput, setMagicInput] = useState('');
   const [magicLoading, setMagicLoading] = useState(false);
@@ -117,7 +118,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (!user) return;
-    fetch('/api/user/plan').then(r => r.json()).then(d => setCurrentPlan(d.plan || 'free'));
+    fetch('/api/user/plan').then(r => r.json()).then(d => { setCurrentPlan(d.plan || 'free'); setIsAnnual(d.is_annual === true); });
     fetch('/api/brand-kit')
       .then(r => r.json())
       .then(data => {
@@ -672,6 +673,11 @@ export default function SettingsPage() {
                   <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', marginTop: 4 }}>Przejdź na Starter lub Pro by odblokować unlimited generowanie</p>
                 )}
               </div>
+              {isAnnual && (
+                <a href="/audit" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 600, background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.25)', color: '#a5b4fc', textDecoration: 'none', marginBottom: 12 }}>
+                  🔍 Audyt profilu przez AI →
+                </a>
+              )}
               {currentPlan !== 'free' ? (
                 <button
                   onClick={handlePortal}

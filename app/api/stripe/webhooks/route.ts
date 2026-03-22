@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
-import { sendNewSubscriptionAlert, sendCancellationAlert, sendPaymentFailedAlert } from '@/lib/email'; // NOWE
+import { sendNewSubscriptionAlert, sendCancellationAlert, sendPaymentFailedAlert, sendAuditWelcomeEmail } from '@/lib/email'; // NOWE
 import { createInvoice, sendInvoiceByEmail } from '@/lib/infakt';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
@@ -62,6 +62,7 @@ export async function POST(req: Request) {
           subscription_plan: plan,
           subscription_status: 'active',
           stripe_subscription_id: subscriptionId,
+          subscription_price_id: priceId,
           credits_total: credits,
           credits_remaining: credits,
         })
@@ -70,6 +71,19 @@ export async function POST(req: Request) {
       if (error) {
         console.error('❌ Supabase update error:', error);
         return NextResponse.json({ error: 'Database error' }, { status: 500 });
+      }
+
+      // Wyślij email z info o audycie dla planów rocznych
+      const annualPriceIds = [
+        process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD_ANNUAL,
+        process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM_ANNUAL,
+      ].filter(Boolean);
+      if (annualPriceIds.includes(priceId) && session.customer_email) {
+        try {
+          await sendAuditWelcomeEmail({ email: session.customer_email });
+        } catch (emailErr) {
+          console.error('Audit welcome email error:', emailErr);
+        }
       }
 
       // NOWE: alert email o nowej subskrypcji
@@ -153,6 +167,7 @@ try {
         .update({
           subscription_plan: plan,
           subscription_status: subscription.status === 'active' ? 'active' : subscription.status,
+          subscription_price_id: priceId,
           credits_total: 999999,
           credits_remaining: 999999,
         })
@@ -170,6 +185,7 @@ try {
           subscription_plan: 'free',
           subscription_status: 'canceled',
           stripe_subscription_id: null,
+          subscription_price_id: null,
           credits_total: 5,
           credits_remaining: 5,
         })

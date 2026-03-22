@@ -103,6 +103,35 @@ export async function sendPaymentFailedAlert(data: {
   });
 }
 
+export async function sendAuditWelcomeEmail(data: { email: string }) {
+  await getResend().emails.send({
+    from: 'PostujTo <hello@postujto.com>',
+    to: data.email,
+    subject: '🔍 Twój bonus planu rocznego — Audyt profilu przez AI',
+    html: baseTemplate(
+      'Audyt profilu przez AI',
+      '#6366f1',
+      `<p style="font-size:15px;color:rgba(240,240,245,0.8);line-height:1.7;margin:0 0 16px">
+        Dziękujemy za zakup planu rocznego PostujTo!
+      </p>
+      <p style="font-size:15px;color:rgba(240,240,245,0.8);line-height:1.7;margin:0 0 16px">
+        Jako bonus masz dostęp do bezpłatnego <strong style="color:#f0f0f5">Audytu profilu przez AI</strong>.
+        Claude przeanalizuje Twoje ostatnie posty i da Ci spersonalizowane wskazówki jak pisać lepiej dla swojej branży.
+      </p>
+      <div style="text-align:center;margin:28px 0">
+        <a href="https://postujto.com/audit"
+           style="display:inline-block;padding:14px 32px;background:linear-gradient(135deg,#6366f1,#a855f7);
+                  color:#fff;font-weight:700;font-size:15px;text-decoration:none;border-radius:12px;letter-spacing:-0.01em">
+          Przejdź do audytu →
+        </a>
+      </div>
+      <p style="font-size:13px;color:rgba(240,240,245,0.35);line-height:1.6;margin:0">
+        Limit: 1 audyt co 3 miesiące. Link ważny przez cały czas trwania subskrypcji.
+      </p>`
+    ),
+  });
+}
+
 export async function sendAnthropicCostAlert(data: {
   cost: number; threshold: number; period: string;
 }) {
