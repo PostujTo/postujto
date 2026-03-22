@@ -439,17 +439,17 @@ const handleConfirmTerms = async () => {
           <div style={{ animation: 'fadeUp 0.8s ease-out forwards' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 100, marginBottom: 32 }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#6366f1', display: 'inline-block', boxShadow: '0 0 8px #6366f1' }} />
-              <span style={{ fontSize: 13, color: '#a5b4fc', fontWeight: 500, letterSpacing: '0.05em' }}>AI dla polskich firm</span>
+              <span style={{ fontSize: 13, color: '#a5b4fc', fontWeight: 500, letterSpacing: '0.05em' }}>Autopilot Marketingowy dla Polskich Firm</span>
             </div>
 
             <h1 className="font-display" style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 24 }}>
-              Twój dział<br />
-              social media<br />
-              <span className="text-shimmer">z AI po polsku</span>
+              Twój profil<br />
+              <span className="text-shimmer">nigdy nie będzie pusty</span>
             </h1>
 
             <p style={{ fontSize: 18, color: 'rgba(240,240,245,0.6)', lineHeight: 1.7, marginBottom: 40, maxWidth: 480 }}>
-              30 postów na Facebook, Instagram i TikTok w 5 minut. Oszczędzasz <strong style={{ color: '#a5b4fc' }}>10 godzin tygodniowo</strong> i zawsze masz pełny kalendarz treści.
+              Właściciele firm tracą średnio <strong style={{ color: '#a5b4fc' }}>10 godzin tygodniowo</strong> na wymyślanie postów — albo rezygnują i profil stoi martwy.<br />
+              PostujTo generuje 30 gotowych postów na FB, IG i TikTok w 5 minut, dopasowanych do Twojej branży i stylu.
             </p>
 
             <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 48 }}>
@@ -542,10 +542,10 @@ const handleConfirmTerms = async () => {
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2 }}>
             {[
-              { value: '10h', label: 'oszczędności tygodniowo' },
+              { value: '10h', label: 'tygodniowo odzyskanych' },
               { value: '30', label: 'postów w 5 minut' },
               { value: '3', label: 'platformy jednocześnie' },
-              { value: '21', label: 'branż z gotowymi wskazówkami' },
+              { value: '21', label: 'branż, każda z własnym stylem' },
             ].map((stat, i) => (
               <div
                 key={i}
@@ -572,8 +572,8 @@ const handleConfirmTerms = async () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 32 }}>
             {[
-                  { step: '01', title: 'Ustaw markę', desc: 'Wpisz nazwę firmy, wybierz branżę i ustaw kolory w Brand Kit. Zrób to raz — AI zawsze będzie pisać w Twoim stylu.', delay: 0 },
-                  { step: '02', title: 'Wpisz temat', desc: 'Podaj o czym ma być post lub wybierz z kalendarza polskich okazji. AI dobiera ton, długość i platformę.', delay: 0.15 },
+                  { step: '01', title: 'Ustaw markę', desc: 'Wpisz nazwę firmy, wklej link do swojej strony WWW — AI sam wypełni Brand Kit. Zrób to raz, a każdy post będzie brzmieć jak Ty.', delay: 0 },
+                  { step: '02', title: 'Wpisz temat', desc: 'Wybierz gotowy temat z inspiracji dla Twojej branży albo wpisz własny. AI dobiera strukturę, ton i długość pod każdą platformę.', delay: 0.15 },
                   { step: '03', title: 'Publikuj', desc: 'Dostaniesz 3 gotowe wersje tekstu z hashtagami i grafiką AI. Kopiuj i wrzucaj bezpośrednio na platformy.', delay: 0.3 },
                   ].map((item, i) => (
               <div key={i} className={`section-reveal from-up ${isVisible('how') ? 'visible' : ''}`} style={{ transitionDelay: `${item.delay}s` }}>
@@ -692,7 +692,7 @@ const handleConfirmTerms = async () => {
       <section style={{ padding: '80px 24px', background: 'rgba(255,255,255,0.015)', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)' }} id="features" data-animate>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div className={`section-reveal from-up ${isVisible('features') ? 'visible' : ''}`} style={{ textAlign: 'center', marginBottom: 72 }}>
-            <div style={{ display: 'inline-block', fontSize: 12, fontWeight: 600, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#6366f1', marginBottom: 16 }}>Co wyróżnia PostujTo</div>
+            <div style={{ display: 'inline-block', fontSize: 14, fontWeight: 600, letterSpacing: '0.03em', color: '#6366f1', marginBottom: 16 }}>Zaprojektowany żeby działał — nie żebyś się uczył</div>
             <h2 className="font-display" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 800, letterSpacing: '-0.02em' }}>
               Zaprojektowane<br /><span className="gradient-text">dla polskiego rynku</span>
             </h2>
@@ -984,10 +984,10 @@ const handleConfirmTerms = async () => {
             style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(168,85,247,0.1))', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 28, padding: '72px 48px' }}
           >
             <h2 className="font-display" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 20 }}>
-              Gotowy żeby przestać<br /><span className="gradient-text">tracić czas na posty?</span>
+              Twój profil<br /><span className="gradient-text">nigdy więcej nie będzie stał pusty.</span>
             </h2>
             <p style={{ fontSize: 17, color: 'rgba(240,240,245,0.55)', marginBottom: 40, lineHeight: 1.7 }}>
-              Zacznij za darmo, bez karty kredytowej.<br />Pierwszy post wygenerujesz w mniej niż minutę.
+              Zacznij za darmo — bez karty kredytowej.<br />Dołącz do właścicieli firm, którzy odzyskali czas i mają aktywny profil każdego dnia.
             </p>
             <Link href="/app">
               <button className="btn-primary animate-glow" style={{ padding: '18px 40px', borderRadius: 14, fontSize: 17, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 12 }}>

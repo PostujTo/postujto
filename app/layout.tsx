@@ -19,8 +19,8 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'PostujTo.pl - Generator postów AI',
-  description: 'Generuj profesjonalne posty dla Facebook i Instagram w sekundę',
+  title: 'PostujTo — Autopilot Marketingowy dla Polskich Firm',
+  description: 'Twój profil na FB, IG i TikTok zawsze aktywny. 30 postów w 5 minut, bez agencji, bez stresu. Zacznij za darmo.',
 };
 
 export default function RootLayout({
