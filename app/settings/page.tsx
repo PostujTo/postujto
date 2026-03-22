@@ -102,6 +102,9 @@ export default function SettingsPage() {
     platforms: [] as string[],
     length: 'medium',
     tone_source: 'manual' as 'manual' | 'imported',
+    usp: '',
+    pain_point: '',
+    dream_outcome: '',
   });
 
   useEffect(() => {
@@ -122,6 +125,9 @@ export default function SettingsPage() {
             platforms: data.brandKit.platforms || [],
             length: data.brandKit.length || 'medium',
             tone_source: (data.brandKit.tone_source || 'manual') as 'manual' | 'imported',
+            usp: data.brandKit.usp || '',
+            pain_point: data.brandKit.pain_point || '',
+            dream_outcome: data.brandKit.dream_outcome || '',
           });
         }
       });
@@ -164,6 +170,9 @@ export default function SettingsPage() {
         ...(data.name ? { company_name: data.name } : {}),
         ...(data.slogan ? { slogan: data.slogan } : {}),
         ...(data.tone && VALID_TONE_IDS.includes(data.tone) ? { tone: data.tone, tone_source: 'imported' as const } : {}),
+        ...(data.unique_mechanism ? { usp: data.unique_mechanism } : {}),
+        ...(data.pain_point ? { pain_point: data.pain_point } : {}),
+        ...(data.dream_outcome ? { dream_outcome: data.dream_outcome } : {}),
       }));
 
       if (typeof window !== 'undefined') {
@@ -355,6 +364,48 @@ export default function SettingsPage() {
               spellCheck={false}
               style={s.input}
             />
+          </div>
+
+          {/* USP / Wyróżnik */}
+          <div style={s.card}>
+            <label style={s.label}>Wyróżnik firmy (USP) <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 'normal', fontSize: 11 }}>(opcjonalnie)</span></label>
+            <input
+              type="text"
+              value={brandKit.usp}
+              onChange={e => setBrandKit(prev => ({ ...prev, usp: e.target.value }))}
+              placeholder="np. 30-minutowe metamorfozy bez umawiania, Dostawa w 2h w całym mieście..."
+              spellCheck={false}
+              style={s.input}
+            />
+            <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.25)', marginTop: 8 }}>Co Cię wyróżnia na tle konkurencji? AI wplecie to w każdy post.</p>
+          </div>
+
+          {/* Ból klientów */}
+          <div style={s.card}>
+            <label style={s.label}>Główny problem klientów <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 'normal', fontSize: 11 }}>(opcjonalnie)</span></label>
+            <input
+              type="text"
+              value={brandKit.pain_point}
+              onChange={e => setBrandKit(prev => ({ ...prev, pain_point: e.target.value }))}
+              placeholder="np. Klientki boją się eksperymentować z kolorem, Faceci nie lubią czekać..."
+              spellCheck={false}
+              style={s.input}
+            />
+            <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.25)', marginTop: 8 }}>Największy ból Twoich klientów — AI użyje go jako haczyka w postach.</p>
+          </div>
+
+          {/* Wymarzony rezultat */}
+          <div style={s.card}>
+            <label style={s.label}>Wymarzony rezultat klienta <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 'normal', fontSize: 11 }}>(opcjonalnie)</span></label>
+            <input
+              type="text"
+              value={brandKit.dream_outcome}
+              onChange={e => setBrandKit(prev => ({ ...prev, dream_outcome: e.target.value }))}
+              placeholder="np. Wychodzi z salonu z nowym 'vibe' i pewnością siebie, Dom jak z marzeń gotowy na czas..."
+              spellCheck={false}
+              style={s.input}
+            />
+            <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.25)', marginTop: 8 }}>Co Twój klient naprawdę chce osiągnąć? To wzmocni przekaz każdego posta.</p>
           </div>
 
           {/* Kolory marki */}

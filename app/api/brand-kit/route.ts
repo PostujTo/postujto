@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     if (!user) return NextResponse.json({ error: 'Nie znaleziono użytkownika' }, { status: 404 });
 
     const body = await req.json();
-    const { company_name, colors, style, tone, length, slogan, logo_url, sample_posts, platforms, tone_source } = body;
+    const { company_name, colors, style, tone, length, slogan, logo_url, sample_posts, platforms, tone_source, usp, pain_point, dream_outcome } = body;
 
     // Walidacja
     if (company_name !== undefined && (typeof company_name !== 'string' || company_name.length > 100)) {
@@ -94,6 +94,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Przykładowe posty są za długie (max 10000 znaków)' }, { status: 400 });
     }
 
+    if (usp !== undefined && (typeof usp !== 'string' || usp.length > 300)) {
+      return NextResponse.json({ error: 'USP jest za długi (max 300 znaków)' }, { status: 400 });
+    }
+
+    if (pain_point !== undefined && (typeof pain_point !== 'string' || pain_point.length > 300)) {
+      return NextResponse.json({ error: 'Opis bólu klientów jest za długi (max 300 znaków)' }, { status: 400 });
+    }
+
+    if (dream_outcome !== undefined && (typeof dream_outcome !== 'string' || dream_outcome.length > 300)) {
+      return NextResponse.json({ error: 'Wymarzony rezultat jest za długi (max 300 znaków)' }, { status: 400 });
+    }
+
     const ALLOWED_PLATFORMS = ['facebook', 'instagram', 'tiktok'];
     if (platforms !== undefined) {
       if (!Array.isArray(platforms) || platforms.some((p: any) => !ALLOWED_PLATFORMS.includes(p))) {
@@ -113,6 +125,9 @@ export async function POST(req: Request) {
       sample_posts: sample_posts?.replace(/<[^>]*>/g, '').trim(),
       platforms,
       tone_source,
+      usp: usp?.replace(/<[^>]*>/g, '').trim(),
+      pain_point: pain_point?.replace(/<[^>]*>/g, '').trim(),
+      dream_outcome: dream_outcome?.replace(/<[^>]*>/g, '').trim(),
     };
 
     const { data, error } = await supabase
@@ -129,6 +144,9 @@ export async function POST(req: Request) {
         sample_posts: sanitized.sample_posts,
         platforms: sanitized.platforms,
         tone_source: sanitized.tone_source,
+        usp: sanitized.usp,
+        pain_point: sanitized.pain_point,
+        dream_outcome: sanitized.dream_outcome,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' })
       .select()

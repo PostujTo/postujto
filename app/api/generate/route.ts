@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 import { rateLimit } from '@/lib/rateLimit';
-import { GOLDEN_PATTERNS, LP_SLUG_BY_INDUSTRY_ID } from '@/lib/prompts';
+import { GOLDEN_PATTERNS, LP_SLUG_BY_INDUSTRY_ID, buildSystemPrompt } from '@/lib/prompts';
 import { sendUsageAlert } from '@/lib/alerts';
 
 // Server-side Supabase client z service role
@@ -168,14 +168,16 @@ POLSKIE PRAWO REKLAMOWE - przestrzegaj tych zasad:
 `;
 
 // Pobierz Brand Kit (dla głosu marki i/lub fallback kontekstu)
+    let fetchedBrandKit: any = null;
     let samplePostsHint = '';
     let brandContextHint = '';
     if (!isGuest) {
       const { data: brandKit } = await supabase
         .from('brand_kits')
-        .select('sample_posts, company_name, tone, tone_source')
+        .select('sample_posts, company_name, tone, tone_source, industry, usp, pain_point, dream_outcome')
         .eq('user_id', user!.id)
         .single();
+      fetchedBrandKit = brandKit;
 
       if (use_brand_voice && brandKit?.sample_posts && brandKit.sample_posts.trim().length > 0) {
         samplePostsHint = `
@@ -236,7 +238,7 @@ ${lowRated.length > 0 ? `\nPOSTY KTÓRE SIĘ NIE PODOBAŁY (ocena 1-2★) — un
     const dateStr = `${now.getDate()}.${now.getMonth() + 1}.${now.getFullYear()}`;
     const prompt = `Aktualna data: ${dateStr}. Rok: ${now.getFullYear()}.
 
-Jesteś ekspertem od social media marketingu w Polsce. Wygeneruj ${postCount} ${isGuest ? 'wersję' : 'różne wersje'} postu na ${platformDescription}.${industryHint}${goldenPatternSection}${brandContextHint}${polishLawHint}${samplePostsHint}${ratingsHint}
+Wygeneruj ${postCount} ${isGuest ? 'wersję' : 'różne wersje'} postu na ${platformDescription}.${brandContextHint}${polishLawHint}${samplePostsHint}${ratingsHint}
 
 TEMAT: ${sanitizedTopic}
 
@@ -264,10 +266,21 @@ ZWRÓĆ ODPOWIEDŹ W FORMACIE JSON (bez markdown backticks):
 
 WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy czy markdown formatowania.`;
 
+    // System prompt — hierarchia priorytetów (Mega-Prompt)
+    const systemPrompt = buildSystemPrompt({
+      company_name: fetchedBrandKit?.company_name,
+      industry: fetchedBrandKit?.industry || (industryId as string) || undefined,
+      tone: fetchedBrandKit?.tone,
+      usp: fetchedBrandKit?.usp,
+      pain_point: fetchedBrandKit?.pain_point,
+      dream_outcome: fetchedBrandKit?.dream_outcome,
+    }, platform as 'facebook' | 'instagram' | 'tiktok');
+
     // Wywołanie Claude API
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 2000,
+      system: systemPrompt,
       messages: [
         {
           role: 'user',

@@ -50,3 +50,104 @@ export const LP_SLUG_BY_INDUSTRY_ID: Record<string, string> = {
   realestate:   'nieruchomosci',
   tourism:      'turystyka',
 };
+
+const TONE_LABELS: Record<string, string> = {
+  professional: 'profesjonalny, formalny, biznesowy',
+  casual: 'swobodny, przyjazny, nieformalny',
+  humorous: 'humorystyczny, zabawny, lekki',
+  sales: 'sprzedażowy, przekonujący, zachęcający do akcji',
+};
+
+export function getPlatformStructure(platform: 'facebook' | 'instagram' | 'tiktok'): string {
+  switch (platform) {
+    case 'facebook':
+      return `Struktura PAS (Pain → Agitation → Solution):
+1. HOOK (1 zdanie) — uderz w ból lub zaskocz. Pierwsze zdanie decyduje czy ktoś czyta dalej.
+2. AGITACJA (1-2 zdania) — rozwiń ból, pokaż konsekwencje. Czytelnik ma poczuć "tak, to mój problem".
+3. ROZWIĄZANIE (1-2 zdania) — jak ta konkretna firma rozwiązuje ten problem.
+4. CTA (1 zdanie) — jedno konkretne wezwanie do działania (zadzwoń, napisz, przyjdź, kliknij link).`;
+
+    case 'instagram':
+      return `Struktura AIDA (Attention → Interest → Desire → Action):
+1. UWAGA (1 zdanie) — wizualny lub emocjonalny hook. Czytelnik scrolluje — zatrzymaj go.
+2. ZAINTERESOWANIE (1 zdanie) — rozwiń temat, podaj konkretny fakt lub korzyść.
+3. PRAGNIENIE (1-2 zdania) — pokaż rezultat, transformację, efekt "wow".
+4. AKCJA (1 zdanie) — CTA + hashtagi (5-10 trafnych, mix popularnych i niszowych).`;
+
+    case 'tiktok':
+      return `Struktura Hook → Story → CTA:
+1. HOOK (1 zdanie, MAX 5 słów) — kontrowersyjne pytanie, zaskakujące stwierdzenie lub obietnica. Pierwsze 3 sekundy decydują.
+2. HISTORIA (1-2 zdania) — szybka, konkretna historia lub fakt. Bez owijania w bawełnę.
+3. CTA (1 zdanie) — co zrobić teraz. Krótko i konkretnie.
+Post na TikTok musi być dynamiczny i mówiony — wyobraź sobie że to caption pod filmem, nie artykuł.`;
+  }
+}
+
+type BrandKitForPrompt = {
+  company_name?: string | null;
+  industry?: string | null;
+  tone?: string | null;
+  usp?: string | null;
+  pain_point?: string | null;
+  dream_outcome?: string | null;
+};
+
+export function buildSystemPrompt(brandKit: BrandKitForPrompt, platform: 'facebook' | 'instagram' | 'tiktok'): string {
+  const goldenKey = brandKit.industry ? LP_SLUG_BY_INDUSTRY_ID[brandKit.industry] : undefined;
+  const pattern = goldenKey ? GOLDEN_PATTERNS[goldenKey] : undefined;
+  const toneLabel = brandKit.tone ? (TONE_LABELS[brandKit.tone] || brandKit.tone) : 'swobodny, przyjazny';
+
+  return `Jesteś ekspertem od marketingu w mediach społecznościowych dla polskich małych firm.
+Generujesz post na ${platform} dla konkretnej firmy. Stosuj się ściśle do poniższej hierarchii.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## PRIORYTET 1 — KIM JEST TA FIRMA (najważniejsze)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Nazwa firmy: ${brandKit.company_name || 'nie podano'}
+Branża: ${brandKit.industry || 'nie podano'}
+Ton komunikacji: ${toneLabel}
+USP (unikalny wyróżnik): ${brandKit.usp || 'nie podano'}
+Główny ból klientów tej firmy: ${brandKit.pain_point || 'nie podano'}
+Wymarzony rezultat klientów: ${brandKit.dream_outcome || 'nie podano'}
+
+➤ Ten blok ma NAJWYŻSZY priorytet. Każde zdanie posta musi odzwierciedlać tę konkretną firmę.
+➤ Jeśli firma podała własny ból klientów — używaj JEGO, nie generycznego bólu branżowego.
+➤ USP firmy musi być wyczuwalny w poście, nawet jeśli nie jest wymieniony wprost.
+➤ Ton komunikacji stosuj konsekwentnie przez cały post.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## PRIORYTET 2 — STYL BRANŻY (tło i kontekst)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${pattern ? `Branżowy Ból klienta końcowego: ${pattern.pain}
+Branżowy Wymarzony Rezultat: ${pattern.dream}
+Kluczowy Styl dla tej branży: ${pattern.style}
+
+➤ Używaj wiedzy o branży jako TŁA — żeby post brzmiał znajomo dla odbiorcy z tej branży.
+➤ Jeśli firma podała własny ból (Priorytet 1) — branżowy jest tylko uzupełnieniem, nie zastępuje.
+➤ Styl branżowy stosuj gdy firma nie określiła własnego tonu.` : '➤ Brak wzorca dla tej branży — opieraj się wyłącznie na danych firmy z Priorytetu 1.'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## PRIORYTET 3 — STRUKTURA POSTA (format platformy)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${getPlatformStructure(platform)}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## PRIORYTET 4 — CZEGO ABSOLUTNIE NIE ROBIĆ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Zakazane frazy i style:
+- NIE używaj: "innowacyjny", "kompleksowy", "wychodzimy naprzeciw", "w trosce o klienta"
+- NIE używaj kalków z angielskiego: "jesteśmy passionate", "deliverujemy", "skalujemy"
+- NIE pisz korporacyjnym językiem — to mała polska firma, nie korporacja
+- NIE zaczynaj posta od nazwy firmy
+- NIE używaj więcej niż 3 emoji w jednym poście (chyba że ton firmy jest bardzo ekspresyjny)
+- NIE pisz ogólników — każde zdanie musi być konkretne i specyficzne dla TEJ firmy
+- NIE kopiuj szablonów — post ma brzmieć jak napisany przez właściciela, nie przez AI
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## ZASADY KOŃCOWE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Długość: dostosuj do platformy (FB: 3-5 zdań, IG: 2-4 zdania + hashtagi, TikTok: 1-2 zdania hook)
+- Język: polski, naturalny, bez błędów
+- Głos: pierwsza osoba liczby mnogiej ("robimy", "oferujemy") LUB bezpośredni ("Twój", "dla Ciebie") — zależnie od tonu firmy
+- Post ma brzmieć jak napisany przez właściciela firmy, nie przez marketera`.trim();
+}
