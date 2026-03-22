@@ -174,7 +174,7 @@ POLSKIE PRAWO REKLAMOWE - przestrzegaj tych zasad:
     if (!isGuest) {
       const { data: brandKit } = await supabase
         .from('brand_kits')
-        .select('sample_posts, company_name, tone, tone_source, industry, usp, pain_point, dream_outcome')
+        .select('sample_posts, company_name, tone, tone_source, industry, usp, usp_source, pain_point, pain_point_source, dream_outcome, dream_outcome_source')
         .eq('user_id', user!.id)
         .single();
       fetchedBrandKit = brandKit;
@@ -271,9 +271,13 @@ WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy c
       company_name: fetchedBrandKit?.company_name,
       industry: fetchedBrandKit?.industry || (industryId as string) || undefined,
       tone: fetchedBrandKit?.tone,
+      tone_source: fetchedBrandKit?.tone_source,
       usp: fetchedBrandKit?.usp,
+      usp_source: fetchedBrandKit?.usp_source,
       pain_point: fetchedBrandKit?.pain_point,
+      pain_point_source: fetchedBrandKit?.pain_point_source,
       dream_outcome: fetchedBrandKit?.dream_outcome,
+      dream_outcome_source: fetchedBrandKit?.dream_outcome_source,
     }, platform as 'facebook' | 'instagram' | 'tiktok');
 
     // Wywołanie Claude API

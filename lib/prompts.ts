@@ -87,15 +87,23 @@ type BrandKitForPrompt = {
   company_name?: string | null;
   industry?: string | null;
   tone?: string | null;
+  tone_source?: string | null;
   usp?: string | null;
+  usp_source?: string | null;
   pain_point?: string | null;
+  pain_point_source?: string | null;
   dream_outcome?: string | null;
+  dream_outcome_source?: string | null;
 };
 
 export function buildSystemPrompt(brandKit: BrandKitForPrompt, platform: 'facebook' | 'instagram' | 'tiktok'): string {
   const goldenKey = brandKit.industry ? LP_SLUG_BY_INDUSTRY_ID[brandKit.industry] : undefined;
   const pattern = goldenKey ? GOLDEN_PATTERNS[goldenKey] : undefined;
   const toneLabel = brandKit.tone ? (TONE_LABELS[brandKit.tone] || brandKit.tone) : 'swobodny, przyjazny';
+  const toneNote = brandKit.tone_source === 'manual' ? ' (ustawiony ręcznie — priorytet absolutny)' : brandKit.tone_source === 'imported' ? ' (wykryty z WWW — stosuj, ręczne ustawienia mają pierwszeństwo)' : '';
+  const uspNote = brandKit.usp_source === 'manual' ? ' (podany ręcznie — priorytet absolutny)' : brandKit.usp_source === 'imported' ? ' (wykryty z WWW — stosuj jako wskazówkę)' : '';
+  const painNote = brandKit.pain_point_source === 'manual' ? ' (podany ręcznie — priorytet absolutny)' : brandKit.pain_point_source === 'imported' ? ' (wykryty z WWW — stosuj jako wskazówkę)' : '';
+  const dreamNote = brandKit.dream_outcome_source === 'manual' ? ' (podany ręcznie — priorytet absolutny)' : brandKit.dream_outcome_source === 'imported' ? ' (wykryty z WWW — stosuj jako wskazówkę)' : '';
 
   return `Jesteś ekspertem od marketingu w mediach społecznościowych dla polskich małych firm.
 Generujesz post na ${platform} dla konkretnej firmy. Stosuj się ściśle do poniższej hierarchii.
@@ -105,15 +113,15 @@ Generujesz post na ${platform} dla konkretnej firmy. Stosuj się ściśle do pon
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Nazwa firmy: ${brandKit.company_name || 'nie podano'}
 Branża: ${brandKit.industry || 'nie podano'}
-Ton komunikacji: ${toneLabel}
-USP (unikalny wyróżnik): ${brandKit.usp || 'nie podano'}
-Główny ból klientów tej firmy: ${brandKit.pain_point || 'nie podano'}
-Wymarzony rezultat klientów: ${brandKit.dream_outcome || 'nie podano'}
+Ton komunikacji${toneNote}: ${toneLabel}
+USP (unikalny wyróżnik)${uspNote}: ${brandKit.usp || 'nie podano'}
+Główny ból klientów${painNote}: ${brandKit.pain_point || 'nie podano'}
+Wymarzony rezultat klientów${dreamNote}: ${brandKit.dream_outcome || 'nie podano'}
 
 ➤ Ten blok ma NAJWYŻSZY priorytet. Każde zdanie posta musi odzwierciedlać tę konkretną firmę.
-➤ Jeśli firma podała własny ból klientów — używaj JEGO, nie generycznego bólu branżowego.
-➤ USP firmy musi być wyczuwalny w poście, nawet jeśli nie jest wymieniony wprost.
-➤ Ton komunikacji stosuj konsekwentnie przez cały post.
+➤ Pola oznaczone "priorytet absolutny" — stosuj ZAWSZE, nawet jeśli opis firmy sugeruje inny styl.
+➤ Pola oznaczone "wskazówka" — stosuj jeśli nie ma konfliktu z ręcznymi ustawieniami.
+➤ Jeśli ton ręczny to "profesjonalny" — NIE pisz swobodnie, nawet jeśli opis z WWW brzmi casualowo.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ## PRIORYTET 2 — STYL BRANŻY (tło i kontekst)

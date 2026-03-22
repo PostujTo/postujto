@@ -103,8 +103,11 @@ export default function SettingsPage() {
     length: 'medium',
     tone_source: 'manual' as 'manual' | 'imported',
     usp: '',
+    usp_source: 'manual' as 'manual' | 'imported',
     pain_point: '',
+    pain_point_source: 'manual' as 'manual' | 'imported',
     dream_outcome: '',
+    dream_outcome_source: 'manual' as 'manual' | 'imported',
   });
 
   useEffect(() => {
@@ -126,8 +129,11 @@ export default function SettingsPage() {
             length: data.brandKit.length || 'medium',
             tone_source: (data.brandKit.tone_source || 'manual') as 'manual' | 'imported',
             usp: data.brandKit.usp || '',
+            usp_source: (data.brandKit.usp_source || 'manual') as 'manual' | 'imported',
             pain_point: data.brandKit.pain_point || '',
+            pain_point_source: (data.brandKit.pain_point_source || 'manual') as 'manual' | 'imported',
             dream_outcome: data.brandKit.dream_outcome || '',
+            dream_outcome_source: (data.brandKit.dream_outcome_source || 'manual') as 'manual' | 'imported',
           });
         }
       });
@@ -170,9 +176,9 @@ export default function SettingsPage() {
         ...(data.name ? { company_name: data.name } : {}),
         ...(data.slogan ? { slogan: data.slogan } : {}),
         ...(data.tone && VALID_TONE_IDS.includes(data.tone) ? { tone: data.tone, tone_source: 'imported' as const } : {}),
-        ...(data.unique_mechanism ? { usp: data.unique_mechanism } : {}),
-        ...(data.pain_point ? { pain_point: data.pain_point } : {}),
-        ...(data.dream_outcome ? { dream_outcome: data.dream_outcome } : {}),
+        ...(data.unique_mechanism ? { usp: data.unique_mechanism, usp_source: 'imported' as const } : {}),
+        ...(data.pain_point ? { pain_point: data.pain_point, pain_point_source: 'imported' as const } : {}),
+        ...(data.dream_outcome ? { dream_outcome: data.dream_outcome, dream_outcome_source: 'imported' as const } : {}),
       }));
 
       if (typeof window !== 'undefined') {
@@ -372,12 +378,17 @@ export default function SettingsPage() {
             <input
               type="text"
               value={brandKit.usp}
-              onChange={e => setBrandKit(prev => ({ ...prev, usp: e.target.value }))}
+              onChange={e => setBrandKit(prev => ({ ...prev, usp: e.target.value, usp_source: 'manual' }))}
               placeholder="np. 30-minutowe metamorfozy bez umawiania, Dostawa w 2h w całym mieście..."
               spellCheck={false}
               style={s.input}
             />
-            <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.25)', marginTop: 8 }}>Co Cię wyróżnia na tle konkurencji? AI wplecie to w każdy post.</p>
+            {brandKit.usp_source === 'imported' && (
+              <p style={{ fontSize: 11, color: '#a5b4fc', margin: '8px 0 0', lineHeight: 1.5 }}>✨ Wykryty automatycznie z Twojej strony — zmień jeśli nie pasuje.</p>
+            )}
+            {brandKit.usp_source !== 'imported' && (
+              <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.25)', marginTop: 8 }}>Co Cię wyróżnia na tle konkurencji? AI wplecie to w każdy post.</p>
+            )}
           </div>
 
           {/* Ból klientów */}
@@ -386,12 +397,17 @@ export default function SettingsPage() {
             <input
               type="text"
               value={brandKit.pain_point}
-              onChange={e => setBrandKit(prev => ({ ...prev, pain_point: e.target.value }))}
+              onChange={e => setBrandKit(prev => ({ ...prev, pain_point: e.target.value, pain_point_source: 'manual' }))}
               placeholder="np. Klientki boją się eksperymentować z kolorem, Faceci nie lubią czekać..."
               spellCheck={false}
               style={s.input}
             />
-            <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.25)', marginTop: 8 }}>Największy ból Twoich klientów — AI użyje go jako haczyka w postach.</p>
+            {brandKit.pain_point_source === 'imported' && (
+              <p style={{ fontSize: 11, color: '#a5b4fc', margin: '8px 0 0', lineHeight: 1.5 }}>✨ Wykryty automatycznie z Twojej strony — zmień jeśli nie pasuje.</p>
+            )}
+            {brandKit.pain_point_source !== 'imported' && (
+              <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.25)', marginTop: 8 }}>Największy ból Twoich klientów — AI użyje go jako haczyka w postach.</p>
+            )}
           </div>
 
           {/* Wymarzony rezultat */}
@@ -400,12 +416,17 @@ export default function SettingsPage() {
             <input
               type="text"
               value={brandKit.dream_outcome}
-              onChange={e => setBrandKit(prev => ({ ...prev, dream_outcome: e.target.value }))}
+              onChange={e => setBrandKit(prev => ({ ...prev, dream_outcome: e.target.value, dream_outcome_source: 'manual' }))}
               placeholder="np. Wychodzi z salonu z nowym 'vibe' i pewnością siebie, Dom jak z marzeń gotowy na czas..."
               spellCheck={false}
               style={s.input}
             />
-            <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.25)', marginTop: 8 }}>Co Twój klient naprawdę chce osiągnąć? To wzmocni przekaz każdego posta.</p>
+            {brandKit.dream_outcome_source === 'imported' && (
+              <p style={{ fontSize: 11, color: '#a5b4fc', margin: '8px 0 0', lineHeight: 1.5 }}>✨ Wykryty automatycznie z Twojej strony — zmień jeśli nie pasuje.</p>
+            )}
+            {brandKit.dream_outcome_source !== 'imported' && (
+              <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.25)', marginTop: 8 }}>Co Twój klient naprawdę chce osiągnąć? To wzmocni przekaz każdego posta.</p>
+            )}
           </div>
 
           {/* Kolory marki */}
