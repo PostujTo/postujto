@@ -4,4 +4,6 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
+Disallow: /dla/
+
 Sitemap: https://postujto.com/sitemap.xml

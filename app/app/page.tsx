@@ -178,6 +178,7 @@ export default function GeneratorPage() {
   const [loadingCredits, setLoadingCredits] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [inspirations, setInspirations] = useState<{ title: string; type: 'pain' | 'result' | 'relation' }[]>([]);
   const [showTermsModal, setShowTermsModal] = useState(false);
 const [termsChecked, setTermsChecked] = useState(false);
 const [appBilling, setAppBilling] = useState<'monthly' | 'annual'>('monthly');
@@ -232,6 +233,26 @@ const handleConfirmPlanTerms = async () => {
   }, []);
 
   useEffect(() => { sessionStorage.setItem('lastTopic', topic); }, [topic]);
+
+  // Deep link: /app?topic=...&industry=... (z Landing Pages)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const urlTopic = params.get('topic');
+    const urlIndustry = params.get('industry');
+    if (urlTopic) setTopic(urlTopic);
+    if (urlIndustry) setSelectedIndustry(urlIndustry);
+    if (urlTopic || urlIndustry) window.history.replaceState({}, '', '/app');
+  }, []);
+
+  // Fetch inspiracji branżowych gdy użytkownik wybierze branżę
+  useEffect(() => {
+    if (!selectedIndustry) { setInspirations([]); return; }
+    fetch(`/api/inspirations?industry=${selectedIndustry}`)
+      .then(r => r.json())
+      .then(data => setInspirations(Array.isArray(data) ? data : []))
+      .catch(() => setInspirations([]));
+  }, [selectedIndustry]);
   useEffect(() => {
     setSuggestions(TOPIC_SUGGESTIONS[platform].sort(() => Math.random() - 0.5).slice(0, 3));
   }, [platform]);
@@ -386,7 +407,7 @@ const handleConfirmPlanTerms = async () => {
     try {
       const res = await fetch('/api/generate', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic, platform, tone, length, industry: selectedIndustry ? INDUSTRIES.find(i => i.id === selectedIndustry)?.hint : null, use_brand_voice: useBrandVoice }),
+        body: JSON.stringify({ topic, platform, tone, length, industry: selectedIndustry ? INDUSTRIES.find(i => i.id === selectedIndustry)?.hint : null, industryId: selectedIndustry, use_brand_voice: useBrandVoice }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -668,6 +689,27 @@ const handleConfirmPlanTerms = async () => {
                   ))}
                 </div>
               </div>
+
+              {/* Inspiracje branżowe */}
+              {inspirations.length > 0 && (
+                <div style={{ marginBottom: 16 }}>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(240,240,245,0.35)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 8 }}>
+                    Potrzebujesz inspiracji?
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {inspirations.map((ins, i) => {
+                      const typeLabel = ({ pain: '🔴 Ból', result: '🟢 Rezultat', relation: '🟡 Kulisy' })[ins.type] ?? '';
+                      return (
+                        <button key={i} onClick={() => setTopic(ins.title)}
+                          style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, color: 'rgba(240,240,245,0.75)', fontSize: 12, textAlign: 'left', cursor: 'pointer', lineHeight: 1.4, fontFamily: "'DM Sans', sans-serif", transition: 'border-color 0.15s' }}>
+                          <span style={{ flexShrink: 0, fontSize: 10, color: 'rgba(240,240,245,0.3)', marginTop: 1 }}>{typeLabel}</span>
+                          <span>{ins.title}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Topic */}
               <div style={{ marginBottom: 24 }}>

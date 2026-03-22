@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 import { rateLimit } from '@/lib/rateLimit';
+import { GOLDEN_PATTERNS, LP_SLUG_BY_INDUSTRY_ID } from '@/lib/prompts';
 import { sendUsageAlert } from '@/lib/alerts';
 
 // Server-side Supabase client z service role
@@ -63,7 +64,7 @@ if (!allowed) {
     }
 
     const body = await request.json();
-const { topic, platform, tone, length, industry, scheduled_date, use_brand_voice } = body;
+const { topic, platform, tone, length, industry, industryId, scheduled_date, use_brand_voice } = body;
 
 // Walidacja obecności
 if (!topic || !platform || !tone || !length) {
@@ -135,6 +136,23 @@ const sanitizedTopic = topic.replace(/<[^>]*>/g, '').trim();
     const industryHint = industry 
   ? `\nBRANŻA: ${industry} - dostosuj język, styl i treść do tej branży.`
   : '';
+
+    // Złoty Wzorzec — wstrzykiwany gdy użytkownik wybrał branżę w generatorze
+    const goldenKey = industryId ? LP_SLUG_BY_INDUSTRY_ID[industryId as string] : undefined;
+    const goldenPattern = goldenKey ? GOLDEN_PATTERNS[goldenKey] : undefined;
+    const goldenPatternSection = goldenPattern ? `
+
+## Złoty Wzorzec dla tej branży
+Zastosuj w każdym wygenerowanym poście:
+- Główny Ból klienta końcowego: ${goldenPattern.pain}
+- Wymarzony Rezultat: ${goldenPattern.dream}
+- Kluczowy Styl postów: ${goldenPattern.style}
+
+Zasady:
+1. Użyj Bólu jako haczyka w postach sprzedażowych.
+2. Wyeksponuj Wymarzony Rezultat jako główną korzyść.
+3. Dla branż usługowych — buduj zaufanie przez konkret i dowody.
+4. Dla branż wizualnych — buduj pragnienie przez opis sensoryczny.` : '';
 
 const polishLawHint = `
 POLSKIE PRAWO REKLAMOWE - przestrzegaj tych zasad:
@@ -218,7 +236,7 @@ ${lowRated.length > 0 ? `\nPOSTY KTÓRE SIĘ NIE PODOBAŁY (ocena 1-2★) — un
     const dateStr = `${now.getDate()}.${now.getMonth() + 1}.${now.getFullYear()}`;
     const prompt = `Aktualna data: ${dateStr}. Rok: ${now.getFullYear()}.
 
-Jesteś ekspertem od social media marketingu w Polsce. Wygeneruj ${postCount} ${isGuest ? 'wersję' : 'różne wersje'} postu na ${platformDescription}.${industryHint}${brandContextHint}${polishLawHint}${samplePostsHint}${ratingsHint}
+Jesteś ekspertem od social media marketingu w Polsce. Wygeneruj ${postCount} ${isGuest ? 'wersję' : 'różne wersje'} postu na ${platformDescription}.${industryHint}${goldenPatternSection}${brandContextHint}${polishLawHint}${samplePostsHint}${ratingsHint}
 
 TEMAT: ${sanitizedTopic}
 
