@@ -157,6 +157,10 @@ export default function GeneratorPage() {
   });
   const [generationId, setGenerationId] = useState<string | null>(() => typeof window !== 'undefined' ? sessionStorage.getItem('lastGenerationId') : null);
   const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
+  const [feedbackOpen, setFeedbackOpen] = useState<number | null>(null);
+  const [feedbackNote, setFeedbackNote] = useState('');
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState<Set<number>>(new Set());
+  const [todayCount, setTodayCount] = useState<number | null>(null);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
   const [isGuestResult, setIsGuestResult] = useState(false);
@@ -247,11 +251,14 @@ const handleConfirmPlanTerms = async () => {
 
   // Fetch inspiracji branżowych gdy użytkownik wybierze branżę
   useEffect(() => {
-    if (!selectedIndustry) { setInspirations([]); return; }
+    if (!selectedIndustry) { setInspirations([]); setTodayCount(null); return; }
     fetch(`/api/inspirations?industry=${selectedIndustry}`)
       .then(r => r.json())
       .then(data => setInspirations(Array.isArray(data) ? data : []))
       .catch(() => setInspirations([]));
+    fetch(`/api/stats/industry?industry=${selectedIndustry}`)
+      .then(r => r.json())
+      .then(data => setTodayCount(data.count || null));
   }, [selectedIndustry]);
   useEffect(() => {
     setSuggestions(TOPIC_SUGGESTIONS[platform].sort(() => Math.random() - 0.5).slice(0, 3));
@@ -417,6 +424,9 @@ const handleConfirmPlanTerms = async () => {
       setGenerationId(data.generationId || null);
       setIsGuestResult(data.isGuest || false);
       setLikedPosts(new Set());
+      setFeedbackOpen(null);
+      setFeedbackNote('');
+      setFeedbackSubmitted(new Set());
       sessionStorage.setItem('lastGenerationId', data.generationId || '');
       const newResults = data.posts.map((post: any) => ({ text: post.text, hashtags: post.hashtags, imagePrompt: post.imagePrompt }));
       setResults(newResults);
@@ -689,6 +699,13 @@ const handleConfirmPlanTerms = async () => {
                   ))}
                 </div>
               </div>
+
+              {/* Social Proof */}
+              {todayCount && selectedIndustry && (
+                <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.3)', marginBottom: 12, marginTop: -16 }}>
+                  ✨ Dziś w tej branży wygenerowano już <strong style={{ color: 'rgba(240,240,245,0.55)' }}>{todayCount}</strong> postów przez PostujTo
+                </p>
+              )}
 
               {/* Inspiracje branżowe */}
               {inspirations.length > 0 && (
@@ -1176,6 +1193,40 @@ const handleConfirmPlanTerms = async () => {
                           </button>
                         )}
                       </div>
+
+                      {/* Feedback */}
+                      {!isGuestResult && generationId && (
+                        <div style={{ marginTop: 12 }}>
+                          {feedbackSubmitted.has(idx) ? (
+                            <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.3)' }}>✓ Feedback zapisany</p>
+                          ) : feedbackOpen === idx ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                              <input
+                                placeholder="Co było nie tak? (opcjonalnie)"
+                                value={feedbackNote}
+                                onChange={e => setFeedbackNote(e.target.value)}
+                                style={{ fontSize: 12, padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#f0f0f5', outline: 'none' }}
+                              />
+                              <div style={{ display: 'flex', gap: 6 }}>
+                                <button onClick={async () => {
+                                  await fetch('/api/generation/feedback', {
+                                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ generationId, note: feedbackNote }),
+                                  });
+                                  setFeedbackSubmitted(prev => new Set(prev).add(idx));
+                                  setFeedbackOpen(null);
+                                  setFeedbackNote('');
+                                }} className="btn-ghost" style={{ fontSize: 12, padding: '5px 12px', borderRadius: 8 }}>Wyślij</button>
+                                <button onClick={() => { setFeedbackOpen(null); setFeedbackNote(''); }} className="btn-ghost" style={{ fontSize: 12, padding: '5px 12px', borderRadius: 8 }}>Anuluj</button>
+                              </div>
+                            </div>
+                          ) : (
+                            <button onClick={() => setFeedbackOpen(idx)} className="btn-ghost" style={{ fontSize: 12, padding: '5px 12px', borderRadius: 8, color: 'rgba(240,240,245,0.35)' }}>
+                              🙅 To nie mój styl
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

@@ -183,7 +183,7 @@ type BrandKitForPrompt = {
   dream_outcome_source?: string | null;
 };
 
-export function buildSystemPrompt(brandKit: BrandKitForPrompt, platform: 'facebook' | 'instagram' | 'tiktok'): string {
+export function buildSystemPrompt(brandKit: BrandKitForPrompt, platform: 'facebook' | 'instagram' | 'tiktok', feedbackHint?: string): string {
   const goldenKey = brandKit.industry ? LP_SLUG_BY_INDUSTRY_ID[brandKit.industry] : undefined;
   const pattern = goldenKey ? GOLDEN_PATTERNS[goldenKey] : undefined;
   const toneLabel = brandKit.tone ? (TONE_LABELS[brandKit.tone] || brandKit.tone) : 'swobodny, przyjazny';
@@ -232,7 +232,7 @@ ${fewShotSection}━━━━━━━━━━━━━━━━━━━━━
 ## PRIORYTET 3 — STRUKTURA POSTA (format platformy)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${getPlatformStructure(platform)}
-
+${feedbackHint || ''}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ## PRIORYTET 4 — CZEGO ABSOLUTNIE NIE ROBIĆ
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

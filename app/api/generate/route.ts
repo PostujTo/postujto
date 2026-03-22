@@ -64,7 +64,7 @@ if (!allowed) {
     }
 
     const body = await request.json();
-const { topic, platform, tone, length, industry, industryId, scheduled_date, use_brand_voice } = body;
+const { topic, platform, tone, length, industry, industryId, scheduled_date, use_brand_voice, isPreview, brandKitOverride } = body;
 
 // Walidacja obecności
 if (!topic || !platform || !tone || !length) {
@@ -177,7 +177,7 @@ POLSKIE PRAWO REKLAMOWE - przestrzegaj tych zasad:
         .select('sample_posts, company_name, tone, tone_source, industry, usp, usp_source, pain_point, pain_point_source, dream_outcome, dream_outcome_source')
         .eq('user_id', user!.id)
         .single();
-      fetchedBrandKit = brandKit;
+      fetchedBrandKit = (isPreview && brandKitOverride) ? brandKitOverride : brandKit;
 
       if (use_brand_voice && brandKit?.sample_posts && brandKit.sample_posts.trim().length > 0) {
         samplePostsHint = `
@@ -233,7 +233,24 @@ ${lowRated.length > 0 ? `\nPOSTY KTÓRE SIĘ NIE PODOBAŁY (ocena 1-2★) — un
         }
       }
     }
-    const postCount = isGuest ? 1 : 3;
+    let feedbackHint = '';
+    if (!isGuest) {
+      const { data: negFeedbacks } = await supabase
+        .from('generations')
+        .select('feedback_note')
+        .eq('user_id', user!.id)
+        .eq('feedback', 'not_my_style')
+        .not('feedback_note', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(3);
+      if (negFeedbacks?.length) {
+        feedbackHint = '\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n## WAŻNE — Czego unikać (feedback od użytkownika)\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+          + negFeedbacks.map((f: { feedback_note: string }) => `- "${f.feedback_note}"`).join('\n')
+          + '\nUnikaj tych elementów w nowym poście.\n';
+      }
+    }
+
+    const postCount = isGuest || isPreview ? 1 : 3;
     const now = new Date();
     const dateStr = `${now.getDate()}.${now.getMonth() + 1}.${now.getFullYear()}`;
     const prompt = `Aktualna data: ${dateStr}. Rok: ${now.getFullYear()}.
@@ -278,7 +295,7 @@ WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy c
       pain_point_source: fetchedBrandKit?.pain_point_source,
       dream_outcome: fetchedBrandKit?.dream_outcome,
       dream_outcome_source: fetchedBrandKit?.dream_outcome_source,
-    }, platform as 'facebook' | 'instagram' | 'tiktok');
+    }, platform as 'facebook' | 'instagram' | 'tiktok', feedbackHint);
 
     // Wywołanie Claude API
     const message = await anthropic.messages.create({
@@ -324,12 +341,12 @@ WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy c
       };
     }
 
-    // Goście — nie zapisujemy, nie odejmujemy kredytów
-    if (isGuest) {
+    // Goście i preview — nie zapisujemy, nie odejmujemy kredytów
+    if (isGuest || isPreview) {
       return NextResponse.json({
         ...jsonData,
         generationId: null,
-        isGuest: true,
+        isGuest: isGuest,
       });
     }
 
@@ -363,6 +380,7 @@ WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy c
         has_audio: false,
         cost_usd: 0.015,
         scheduled_date: scheduled_date || null,
+        industry: industryId || null,
       })
       .select('id')
       .single();

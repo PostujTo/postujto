@@ -82,6 +82,8 @@ const STYLE_PRESETS = [
 export default function SettingsPage() {
   const { user } = useUser();
   const [saving, setSaving] = useState(false);
+  const [previewPost, setPreviewPost] = useState('');
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [showTip, setShowTip] = useState(false);
   const [saved, setSaved] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -138,6 +140,34 @@ export default function SettingsPage() {
         }
       });
   }, [user]);
+
+  useEffect(() => {
+    if (!brandKit.company_name) return;
+    const timer = setTimeout(async () => {
+      setIsPreviewLoading(true);
+      try {
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            topic: 'Przedstaw naszą firmę i co oferujemy',
+            platform: 'facebook',
+            tone: brandKit.tone || 'professional',
+            length: 'short',
+            isPreview: true,
+            brandKitOverride: brandKit,
+          }),
+        });
+        const data = await res.json();
+        setPreviewPost(data.posts?.[0]?.text || '');
+      } catch {
+        // silent
+      } finally {
+        setIsPreviewLoading(false);
+      }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [brandKit]);
 
   const VALID_INDUSTRY_IDS = ['restaurant','catering','bakery','food','beauty','hairdresser','fitness','medical','veterinary','fashion','ecommerce','crafts','florist','construction','carpenter','photography','automotive','tutoring','education','realestate','tourism'];
   const VALID_TONE_IDS = ['professional','casual','humorous','sales'];
@@ -665,6 +695,19 @@ export default function SettingsPage() {
                   ? ' Styl pisania: Claude przeanalizował Twoje przykładowe posty.'
                   : ' ⚠️ Brak przykładowych postów — posty będą mniej spersonalizowane.'}
               </p>
+            </div>
+          )}
+
+          {/* Live Preview */}
+          {(previewPost || isPreviewLoading) && (
+            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: 20 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(240,240,245,0.25)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>⚡ Podgląd posta</p>
+              {isPreviewLoading ? (
+                <div style={{ height: 80, background: 'rgba(255,255,255,0.03)', borderRadius: 12 }} />
+              ) : (
+                <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.7)', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{previewPost}</p>
+              )}
+              <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.2)', marginTop: 10 }}>Generuje się automatycznie 2s po zmianie</p>
             </div>
           )}
 
