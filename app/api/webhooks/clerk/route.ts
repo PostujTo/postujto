@@ -2,6 +2,7 @@ import { headers } from 'next/headers';
 import { Webhook } from 'svix';
 import { WebhookEvent } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
+import { sendNewRegistrationAlert } from '@/lib/email';
 
 // Server-side Supabase client z service role (pełny dostęp)
 const supabaseAdmin = createClient(
@@ -144,6 +145,16 @@ export async function POST(req: Request) {
       } catch (emailErr) {
         console.error('Błąd wysyłki onboarding email:', emailErr);
         // Nie blokuj rejestracji jeśli email się nie wyśle
+      }
+
+      // Alert do właściciela przy nowej rejestracji
+      try {
+        await sendNewRegistrationAlert({
+          name: `${first_name || ''} ${last_name || ''}`.trim() || 'Nieznany',
+          email: email_addresses[0].email_address,
+        });
+      } catch (alertErr) {
+        console.error('Alert email failed:', alertErr);
       }
 
       return new Response('User created', { status: 200 });

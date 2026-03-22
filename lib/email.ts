@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 
 const FROM = 'PostujTo Alerty <alerty@postujto.com>';
 const getResend = () => new Resend(process.env.RESEND_API_KEY);
-const getTo = () => process.env.ALERT_EMAIL!;
+const getTo = () => process.env.ALERT_EMAIL ?? 'hello@postujto.com';
 
 function baseTemplate(title: string, color: string, body: string): string {
   return `<!DOCTYPE html>
@@ -47,6 +47,23 @@ export async function sendNewSubscriptionAlert(data: {
         <tr><td style="padding:10px 0;color:rgba(240,240,245,0.5);font-size:14px;">Email:</td><td style="padding:10px 0;font-weight:600;text-align:right;">${data.email}</td></tr>
         ${row('Plan', data.plan, '#a5b4fc')}
         ${row('Kwota', `${(data.amount / 100).toFixed(2)} ${data.currency.toUpperCase()}`, '#4ade80')}
+      </table>
+    `),
+  });
+}
+
+export async function sendNewRegistrationAlert(data: {
+  name: string; email: string;
+}) {
+  await getResend().emails.send({
+    from: FROM, to: getTo(),
+    subject: `🎉 Nowy użytkownik: ${data.name}`,
+    html: baseTemplate('Nowa rejestracja', '#6366f1', `
+      <p style="margin:0 0 20px;font-size:20px;font-weight:700;color:#f0f0f5;">Nowy użytkownik w PostujTo! 🎉</p>
+      <table style="width:100%;border-collapse:collapse;">
+        <tr><td style="padding:10px 0;color:rgba(240,240,245,0.5);font-size:14px;">Imię i nazwisko:</td><td style="padding:10px 0;font-weight:600;text-align:right;">${data.name}</td></tr>
+        ${row('Email', data.email)}
+        ${row('Data', new Date().toLocaleString('pl-PL', { timeZone: 'Europe/Warsaw' }))}
       </table>
     `),
   });
