@@ -398,6 +398,12 @@ WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy c
       console.error('Błąd monitoringu użycia:', monitorErr);
     }
 
+    // Aktualizuj last_active_at — fire and forget, nie blokuj odpowiedzi
+    void (supabase
+      .from('users')
+      .update({ last_active_at: new Date().toISOString() })
+      .eq('id', user!.id) as unknown as Promise<void>);
+
     return NextResponse.json({
       ...jsonData,
       generationId: newGen?.id || null,
