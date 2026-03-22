@@ -173,14 +173,14 @@ POLSKIE PRAWO REKLAMOWE - przestrzegaj tych zasad:
     if (!isGuest) {
       const { data: brandKit } = await supabase
         .from('brand_kits')
-        .select('sample_posts, company_name, tone')
+        .select('sample_posts, company_name, tone, tone_source')
         .eq('user_id', user!.id)
         .single();
 
       if (use_brand_voice && brandKit?.sample_posts && brandKit.sample_posts.trim().length > 0) {
         samplePostsHint = `
 GŁOS MARKI — BARDZO WAŻNE:
-Poniżej przykładowe posty tej firmy. Przeanalizuj ich styl, długość zdań, sposób zwracania się do odbiorcy, użycie emoji, interpunkcję i słownictwo. Pisz DOKŁADNIE w tym samym stylu:
+Poniżej przykładowe posty tej firmy. Przeanalizuj ich styl, długość zdań, sposób zwracania się do odbiorcy, użycie emoji, interpunkcję i słownictwo. Pisz DOKŁADNIE w tym samym stylu${brandKit.tone_source === 'manual' || !brandKit.tone_source ? ' — ale TON z sekcji WYMAGANIA poniżej ma priorytet absolutny (ustawiony ręcznie przez właściciela)' : ''}:
 
 ---
 ${brandKit.sample_posts.slice(0, 3000)}

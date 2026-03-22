@@ -101,6 +101,7 @@ export default function SettingsPage() {
     sample_posts: '',
     platforms: [] as string[],
     length: 'medium',
+    tone_source: 'manual' as 'manual' | 'imported',
   });
 
   useEffect(() => {
@@ -120,6 +121,7 @@ export default function SettingsPage() {
             sample_posts: data.brandKit.sample_posts || '',
             platforms: data.brandKit.platforms || [],
             length: data.brandKit.length || 'medium',
+            tone_source: (data.brandKit.tone_source || 'manual') as 'manual' | 'imported',
           });
         }
       });
@@ -161,7 +163,7 @@ export default function SettingsPage() {
         ...prev,
         ...(data.name ? { company_name: data.name } : {}),
         ...(data.slogan ? { slogan: data.slogan } : {}),
-        ...(data.tone && VALID_TONE_IDS.includes(data.tone) ? { tone: data.tone } : {}),
+        ...(data.tone && VALID_TONE_IDS.includes(data.tone) ? { tone: data.tone, tone_source: 'imported' as const } : {}),
       }));
 
       if (typeof window !== 'undefined') {
@@ -310,7 +312,7 @@ export default function SettingsPage() {
             <div className="settings-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               {STYLE_PRESETS.map(preset => (
                 <button key={preset.id}
-                  onClick={() => setBrandKit(prev => ({ ...prev, style: preset.style, tone: preset.tone, colors: preset.colors }))}
+                  onClick={() => setBrandKit(prev => ({ ...prev, style: preset.style, tone: preset.tone, colors: preset.colors, tone_source: 'manual' as 'manual' | 'imported' }))}
                   style={{ padding: 14, borderRadius: 14, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)', textAlign: 'left', cursor: 'pointer', transition: 'all 0.2s' }}
                   onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.12)'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)'; }}
                   onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}>
@@ -399,12 +401,17 @@ export default function SettingsPage() {
 
           {/* Ton komunikacji */}
           <div style={s.card}>
-            <label style={{ ...s.label, marginBottom: 12 }}>Ton komunikacji</label>
+            <label style={{ ...s.label, marginBottom: brandKit.tone_source === 'imported' ? 4 : 12 }}>Ton komunikacji</label>
+            {brandKit.tone_source === 'imported' && (
+              <p style={{ fontSize: 11, color: '#a5b4fc', margin: '0 0 10px', lineHeight: 1.5 }}>
+                ✨ Wykryty automatycznie z Twojej strony — zmień jeśli nie pasuje.
+              </p>
+            )}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
               {BRAND_TONES.map(tone => (
                 <button
                   key={tone.id}
-                  onClick={() => setBrandKit(prev => ({ ...prev, tone: tone.id }))}
+                  onClick={() => setBrandKit(prev => ({ ...prev, tone: tone.id, tone_source: 'manual' as 'manual' | 'imported' }))}
                   style={{ padding: '10px 22px', borderRadius: 50, fontWeight: 600, fontSize: 14, cursor: 'pointer', transition: 'all 0.2s', background: brandKit.tone === tone.id ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(255,255,255,0.05)', border: brandKit.tone === tone.id ? '1px solid transparent' : '1px solid rgba(255,255,255,0.1)', color: brandKit.tone === tone.id ? '#fff' : 'rgba(240,240,245,0.6)' }}
                 >
                   {tone.label}

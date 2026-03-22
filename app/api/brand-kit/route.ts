@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     if (!user) return NextResponse.json({ error: 'Nie znaleziono użytkownika' }, { status: 404 });
 
     const body = await req.json();
-    const { company_name, colors, style, tone, length, slogan, logo_url, sample_posts, platforms } = body;
+    const { company_name, colors, style, tone, length, slogan, logo_url, sample_posts, platforms, tone_source } = body;
 
     // Walidacja
     if (company_name !== undefined && (typeof company_name !== 'string' || company_name.length > 100)) {
@@ -74,6 +74,11 @@ export async function POST(req: Request) {
     const ALLOWED_TONES = ['professional', 'casual', 'humorous', 'sales'];
     if (tone !== undefined && !ALLOWED_TONES.includes(tone)) {
       return NextResponse.json({ error: 'Nieprawidłowy ton' }, { status: 400 });
+    }
+
+    const ALLOWED_SOURCES = ['manual', 'imported'];
+    if (tone_source !== undefined && !ALLOWED_SOURCES.includes(tone_source)) {
+      return NextResponse.json({ error: 'Nieprawidłowe źródło tonu' }, { status: 400 });
     }
 
     const ALLOWED_LENGTHS = ['short', 'medium', 'long'];
@@ -107,6 +112,7 @@ export async function POST(req: Request) {
       logo_url,
       sample_posts: sample_posts?.replace(/<[^>]*>/g, '').trim(),
       platforms,
+      tone_source,
     };
 
     const { data, error } = await supabase
@@ -122,6 +128,7 @@ export async function POST(req: Request) {
         logo_url: sanitized.logo_url,
         sample_posts: sanitized.sample_posts,
         platforms: sanitized.platforms,
+        tone_source: sanitized.tone_source,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' })
       .select()
