@@ -1015,6 +1015,7 @@ const handleConfirmTerms = async () => {
               { label: 'Regulamin', href: '/terms' },
               { label: 'Prywatność', href: '/privacy' },
               { label: 'FAQ', href: '/faq' },
+              { label: 'Status', href: '/status' },
             ].map(link => (
               <Link key={link.label} href={link.href} style={{ fontSize: 14, color: 'rgba(240,240,245,0.4)', textDecoration: 'none', transition: 'color 0.2s' }}
                 onMouseEnter={e => (e.target as HTMLElement).style.color = '#a5b4fc'}

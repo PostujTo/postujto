@@ -85,6 +85,9 @@ export default function SettingsPage() {
   const [previewPost, setPreviewPost] = useState('');
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [showTip, setShowTip] = useState(false);
+  const [tooltip, setTooltip] = useState<string | null>(null);
+  const tipStyle: React.CSSProperties = { position: 'absolute', top: '100%', left: 0, zIndex: 20, marginTop: 6, background: '#1a1a2e', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, padding: '8px 12px', fontSize: 12, color: 'rgba(240,240,245,0.75)', lineHeight: 1.6, width: 260 };
+  const tipIcon: React.CSSProperties = { width: 16, height: 16, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', color: 'rgba(240,240,245,0.45)', fontSize: 10, fontWeight: 700, cursor: 'help', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 };
   const [saved, setSaved] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<string>('free');
@@ -378,7 +381,11 @@ export default function SettingsPage() {
 
           {/* Nazwa firmy */}
           <div style={s.card}>
-            <label style={s.label}>Nazwa firmy</label>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <label style={{ ...s.label, marginBottom: 0 }}>Nazwa firmy</label>
+              <span style={tipIcon} onMouseEnter={() => setTooltip('company_name')} onMouseLeave={() => setTooltip(null)}>?</span>
+              {tooltip === 'company_name' && <span style={tipStyle}>Pełna nazwa Twojej firmy lub marka, tak jak używasz jej na co dzień.</span>}
+            </div>
             <input
               type="text"
               value={brandKit.company_name}
@@ -404,7 +411,11 @@ export default function SettingsPage() {
 
           {/* USP / Wyróżnik */}
           <div style={s.card}>
-            <label style={s.label}>Wyróżnik firmy (USP) <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 'normal', fontSize: 11 }}>(opcjonalnie)</span></label>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <label style={{ ...s.label, marginBottom: 0 }}>Wyróżnik firmy (USP) <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 'normal', fontSize: 11 }}>(opcjonalnie)</span></label>
+              <span style={tipIcon} onMouseEnter={() => setTooltip('usp')} onMouseLeave={() => setTooltip(null)}>?</span>
+              {tooltip === 'usp' && <span style={tipStyle}>Co wyróżnia Cię na tle konkurencji? Np. „30-minutowe realizacje”, „jedyna organiczna kawiarnia w okolicy” — AI wplecie to w każdy post.</span>}
+            </div>
             <input
               type="text"
               value={brandKit.usp}
@@ -503,7 +514,11 @@ export default function SettingsPage() {
 
           {/* Ton komunikacji */}
           <div style={s.card}>
-            <label style={{ ...s.label, marginBottom: brandKit.tone_source === 'imported' ? 4 : 12 }}>Ton komunikacji</label>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8, marginBottom: brandKit.tone_source === 'imported' ? 4 : 12 }}>
+              <label style={{ ...s.label, marginBottom: 0 }}>Ton komunikacji</label>
+              <span style={tipIcon} onMouseEnter={() => setTooltip('tone')} onMouseLeave={() => setTooltip(null)}>?</span>
+              {tooltip === 'tone' && <span style={tipStyle}>Jak chcesz brzmieć dla klientów? Np. „cieły i przyjazny” lub „profesjonalny i ekspercki” — AI dobierze styl języka.</span>}
+            </div>
             {brandKit.tone_source === 'imported' && (
               <p style={{ fontSize: 11, color: '#a5b4fc', margin: '0 0 10px', lineHeight: 1.5 }}>
                 ✨ Wykryty automatycznie z Twojej strony — zmień jeśli nie pasuje.

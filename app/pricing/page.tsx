@@ -197,6 +197,19 @@ const plans = [
           </div>
       </div>
 
+      {process.env.NEXT_PUBLIC_SHOW_TRIAL_OFFER === 'true' && (
+        <div style={{ maxWidth: 640, margin: '-20px auto 40px', padding: '0 24px' }}>
+          <div style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(168,85,247,0.1))', border: '1px solid rgba(99,102,241,0.3)', borderRadius: 16, padding: '18px 24px', textAlign: 'center' }}>
+            <p style={{ fontSize: 15, fontWeight: 700, color: '#f0f0f5', marginBottom: 4 }}>
+              🎁 Zacznij z 14-dniowym próbnym dostępem za 1 zł
+            </p>
+            <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.5)' }}>
+              Pełny Starter bez limitów. Po 14 dniach — automatycznie 79 zł/msc. Anulujesz jednym kliknięciem.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* PRICING CARDS */}
       <div style={{ maxWidth: 1000, margin: '0 auto', padding: '0 24px 80px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, alignItems: 'stretch' }}>
         {plans.map((plan, i) => (
