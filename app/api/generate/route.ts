@@ -51,7 +51,6 @@ if (!allowed) {
       user = userData;
 
       // Kredyty odejmowane atomicznie przez RPC poniżej
-      }
     }
 
     const body = await request.json();
