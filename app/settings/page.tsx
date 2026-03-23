@@ -93,6 +93,8 @@ export default function SettingsPage() {
   const [currentPlan, setCurrentPlan] = useState<string>('free');
   const [isAnnual, setIsAnnual] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [ayrshareProfileKey, setAyrshareProfileKey] = useState<string | null>(null);
+  const [isConnectingZernio, setIsConnectingZernio] = useState(false);
   const [magicInput, setMagicInput] = useState('');
   const [magicLoading, setMagicLoading] = useState(false);
   const [magicError, setMagicError] = useState('');
@@ -120,7 +122,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (!user) return;
-    fetch('/api/user/plan').then(r => r.json()).then(d => { setCurrentPlan(d.plan || 'free'); setIsAnnual(d.is_annual === true); });
+    fetch('/api/user/plan').then(r => r.json()).then(d => { setCurrentPlan(d.plan || 'free'); setIsAnnual(d.is_annual === true); setAyrshareProfileKey(d.ayrshare_profile_key || null); });
     fetch('/api/brand-kit')
       .then(r => r.json())
       .then(data => {
@@ -229,6 +231,20 @@ export default function SettingsPage() {
     } finally {
       setMagicLoading(false);
     }
+  };
+
+  const handleConnectZernio = async () => {
+    setIsConnectingZernio(true);
+    try {
+      const res = await fetch('/api/social/connect', { method: 'POST' });
+      const d = await res.json();
+      if (res.ok && d.profileKey) {
+        setAyrshareProfileKey(d.profileKey);
+      } else {
+        alert(d.error || 'Blad polaczenia z Zernio');
+      }
+    } catch { alert('Blad polaczenia'); }
+    finally { setIsConnectingZernio(false); }
   };
 
   const handlePortal = async () => {
@@ -691,7 +707,43 @@ export default function SettingsPage() {
           </div>
 
 
-          {/* Twój plan */}
+          {/* Social media — Polacz konta */}
+          <div id="social" style={{ ...s.card, border: '1px solid rgba(34,211,238,0.2)', background: 'rgba(34,211,238,0.04)' }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: '#22d3ee', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>Publikacja automatyczna</p>
+            <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', marginBottom: 16, lineHeight: 1.5 }}>
+              Polacz swoje konta social media przez Zernio — publikuj i planuj posty bezposrednio z PostujTo bez kopiowania i wklejania.
+            </p>
+            {!ayrshareProfileKey ? (
+              <button
+                onClick={handleConnectZernio}
+                disabled={isConnectingZernio || currentPlan === 'free'}
+                className="btn-primary"
+                style={{ padding: '10px 20px', borderRadius: 10, fontSize: 13, opacity: (isConnectingZernio || currentPlan === 'free') ? 0.5 : 1, cursor: (isConnectingZernio || currentPlan === 'free') ? 'not-allowed' : 'pointer' }}
+              >
+                {isConnectingZernio ? '⏳ Laczenie...' : '🔗 Polacz social media'}
+              </button>
+            ) : (
+              <div>
+                <p style={{ fontSize: 13, color: '#4ade80', marginBottom: 12 }}>✅ Profil Zernio aktywny</p>
+                <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.5)', marginBottom: 12, lineHeight: 1.5 }}>
+                  Twoj profil jest gotowy. Wejdz na dashboard Zernio, zaloguj sie i polacz konta Facebook, Instagram lub TikTok.
+                </p>
+                <a
+                  href="https://app.zernio.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 600, background: 'rgba(34,211,238,0.1)', border: '1px solid rgba(34,211,238,0.25)', color: '#22d3ee', textDecoration: 'none' }}
+                >
+                  Otworz Zernio Dashboard →
+                </a>
+              </div>
+            )}
+            {currentPlan === 'free' && (
+              <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.35)', marginTop: 12 }}>Dostepne w planie Starter i Pro.</p>
+            )}
+          </div>
+
+          {/* Twoj plan */}
           <div style={{ ...s.card, borderColor: 'rgba(99,102,241,0.2)' }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(240,240,245,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>Twój plan</p>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' as const }}>

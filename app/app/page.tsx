@@ -160,6 +160,8 @@ export default function GeneratorPage() {
   const [feedbackOpen, setFeedbackOpen] = useState<number | null>(null);
   const [feedbackNote, setFeedbackNote] = useState('');
   const [feedbackSubmitted, setFeedbackSubmitted] = useState<Set<number>>(new Set());
+  const [socialConnected, setSocialConnected] = useState(false);
+  const [publishLoading, setPublishLoading] = useState<number | null>(null);
   const [todayCount, setTodayCount] = useState<number | null>(null);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [selectedIndustry, setSelectedIndustry] = useState<string | null>(null);
@@ -192,6 +194,24 @@ const [pendingPriceId, setPendingPriceId] = useState<string | null>(null);
 const [pendingPlanName, setPendingPlanName] = useState<string | null>(null);
 const [planCheckoutLoading, setPlanCheckoutLoading] = useState(false);
 const [termsAcceptedAt, setTermsAcceptedAt] = useState<string | null>(null);
+
+const handlePublish = async (text: string, hashtags: string[], idx: number, scheduled?: string) => {
+    if (!generationId) { showToast('Zapisz wyniki generacji przed publikacją', 'warning'); return; }
+    setPublishLoading(idx);
+    try {
+      const content = hashtags.length ? text + '\n\n' + hashtags.join(' ') : text;
+      const body: Record<string, unknown> = { content, platforms: [platform], generationId };
+      if (scheduled) body.scheduleDate = scheduled;
+      const res = await fetch('/api/social/publish', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const d = await res.json();
+      if (res.ok) { showToast(scheduled ? 'Post zaplanowany!' : 'Post opublikowany!', 'success'); }
+      else { showToast(d.error || 'Blad publikacji', 'error'); }
+    } catch { showToast('Blad polaczenia', 'error'); }
+    finally { setPublishLoading(null); }
+  };
 
 const handlePlanSelect = async (priceId: string, planName: string) => {
   setPendingPriceId(priceId);
@@ -317,6 +337,7 @@ const handleConfirmPlanTerms = async () => {
       if (!res.ok) return;
       const data = await res.json();
       const cred = { remaining: data.remaining, total: data.total, plan: data.plan || 'free' };
+      setSocialConnected(data.social_connected || false);
       setCredits(cred);
       try { localStorage.setItem('dash_credits', JSON.stringify(cred)); } catch {}
       // Fetch recent topics for history
@@ -1101,6 +1122,21 @@ const handleConfirmPlanTerms = async () => {
                           >
                             {likedPosts.has(idx) ? '⭐' : '☆'}
                           </button>
+                          {!isGuestResult && socialConnected && credits?.plan !== 'free' && (
+                            <button
+                              onClick={() => handlePublish(result.text, result.hashtags, idx)}
+                              disabled={publishLoading === idx}
+                              className="btn-ghost"
+                              style={{ padding: '7px 14px', borderRadius: 9, fontSize: 13, opacity: publishLoading === idx ? 0.6 : 1 }}
+                            >
+                              {publishLoading === idx ? '⏳' : '📤 Opublikuj'}
+                            </button>
+                          )}
+                          {!isGuestResult && !socialConnected && credits?.plan !== 'free' && (
+                            <a href="/settings#social" style={{ padding: '7px 14px', borderRadius: 9, fontSize: 13, color: 'rgba(240,240,245,0.5)', border: '1px solid rgba(255,255,255,0.1)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
+                              🔗 Połącz SM
+                            </a>
+                          )}
                         </div>
                       </div>
 

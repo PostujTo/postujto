@@ -24,7 +24,7 @@ export async function GET() {
     // Pobierz użytkownika z Supabase
     const { data: user, error } = await supabaseAdmin
       .from('users')
-      .select('credits_remaining, credits_total, subscription_plan, onboarding_completed')
+      .select('credits_remaining, credits_total, subscription_plan, onboarding_completed, ayrshare_profile_key')
       .eq('clerk_user_id', userId)
       .single();
 
@@ -42,6 +42,7 @@ export async function GET() {
       total: user.credits_total,
       plan: user.subscription_plan,
       onboarding_completed: user.onboarding_completed ?? false,
+      social_connected: !!user.ayrshare_profile_key,
     });
   } catch (error: any) {
     console.error('Błąd API:', error);

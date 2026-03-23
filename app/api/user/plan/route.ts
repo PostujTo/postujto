@@ -13,7 +13,7 @@ export async function GET() {
 
   const { data } = await supabase
     .from('users')
-    .select('subscription_plan, subscription_price_id')
+    .select('subscription_plan, subscription_price_id, ayrshare_profile_key')
     .eq('clerk_user_id', userId)
     .single();
 
@@ -22,5 +22,5 @@ export async function GET() {
     process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM_ANNUAL,
   ].filter(Boolean);
   const isAnnual = annualIds.includes(data?.subscription_price_id ?? '');
-  return NextResponse.json({ plan: data?.subscription_plan || 'free', is_annual: isAnnual });
+  return NextResponse.json({ plan: data?.subscription_plan || 'free', is_annual: isAnnual, ayrshare_profile_key: data?.ayrshare_profile_key || null });
 }
