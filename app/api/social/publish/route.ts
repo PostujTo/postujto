@@ -16,6 +16,9 @@ export async function POST(req: Request) {
   if (!content || !platforms?.length) {
     return NextResponse.json({ error: 'Brakuje tresci lub platform' }, { status: 400 });
   }
+  if (typeof content !== 'string' || content.length > 10000) {
+    return NextResponse.json({ error: 'Treść posta zbyt długa (max 10 000 znaków)' }, { status: 400 });
+  }
 
   const { data: user } = await supabase
     .from('users')

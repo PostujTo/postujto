@@ -33,10 +33,20 @@ export async function POST(request: Request) {
       );
     }
 
+    const VALID_PRICE_IDS = [
+      process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD,
+      process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM,
+      process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD_ANNUAL,
+      process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM_ANNUAL,
+    ].filter(Boolean);
+    if (!VALID_PRICE_IDS.includes(priceId)) {
+      return NextResponse.json({ error: 'Nieprawidłowy plan' }, { status: 400 });
+    }
+
     // Pobierz użytkownika z SupabaseAdmin
 const { data: userData, error: userError } = await supabaseAdmin
   .from('users')
-  .select('*')
+  .select('id, email, stripe_customer_id, subscription_plan')
   .eq('clerk_user_id', userId)
   .single();
 
@@ -51,8 +61,8 @@ if (userError || !user) {
       clerk_user_id: userId,
       email: clerkUser?.emailAddresses[0]?.emailAddress || '',
       subscription_plan: 'free',
-      credits_total: 10,
-      credits_remaining: 10,
+      credits_total: 5,
+      credits_remaining: 5,
     })
     .select()
     .single();
@@ -115,7 +125,7 @@ if (user.subscription_plan && user.subscription_plan !== 'free') {
   } catch (error: any) {
     console.error('Błąd Stripe Checkout:', error);
     return NextResponse.json(
-      { error: 'Błąd podczas tworzenia sesji płatności', details: error.message },
+      { error: 'Błąd podczas tworzenia sesji płatności' },
       { status: 500 }
     );
   }

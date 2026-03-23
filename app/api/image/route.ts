@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   try {
     const { userId } = await auth();
     const rateLimitKey = userId || 'guest';
-const allowed = rateLimit(rateLimitKey, 5, 60000); // max 5 obrazów na minutę
+const allowed = await rateLimit(rateLimitKey, 'image', 5, 60000); // max 5 obrazów na minutę
 if (!allowed) {
   return NextResponse.json(
     { error: 'Zbyt wiele żądań. Spróbuj za chwilę.' },
@@ -86,7 +86,7 @@ const sanitizedImagePrompt = imagePrompt.replace(/<[^>]*>/g, '').trim();
 // Pobierz Brand Kit użytkownika
 const { data: brandKit } = await supabase
   .from('brand_kits')
-  .select('*')
+  .select('company_name, colors, style, slogan, logo_url')
   .eq('user_id', user.id)
   .single();
 
@@ -103,7 +103,7 @@ const brandContext = detectedBrand
 
     // Claude dobiera styl Recraft V3 i generuje zoptymalizowany prompt
     const styleResponse = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 500,
       messages: [{
         role: 'user',

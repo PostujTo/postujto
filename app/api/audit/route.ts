@@ -15,8 +15,15 @@ export async function POST(req: Request) {
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { posts } = await req.json();
-  if (!posts || posts.trim().length < 50) {
+  if (!posts || typeof posts !== 'string') {
     return NextResponse.json({ error: 'Za mało treści do analizy' }, { status: 400 });
+  }
+  const trimmedPosts = posts.trim();
+  if (trimmedPosts.length < 50) {
+    return NextResponse.json({ error: 'Za mało treści do analizy (min. 50 znaków)' }, { status: 400 });
+  }
+  if (trimmedPosts.length > 15000) {
+    return NextResponse.json({ error: 'Treść zbyt długa (max 15 000 znaków)' }, { status: 400 });
   }
 
   const { data: user } = await supabase

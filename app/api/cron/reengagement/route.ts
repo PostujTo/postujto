@@ -7,6 +7,10 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+
+function escHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+}
 export async function GET(req: Request) {
   const authHeader = req.headers.get('authorization');
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -60,13 +64,13 @@ export async function GET(req: Request) {
       await resend.emails.send({
         from: 'PostujTo <hello@postujto.com>',
         to: user.email,
-        subject: `${brandKit.company_name} — masz nowe tematy postów czekające na Ciebie`,
+        subject: `${escHtml(brandKit.company_name)} — masz nowe tematy postów czekające na Ciebie`,
         html: `
           <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 24px;">
             <h2 style="color: #1a1a1a;">Hej! Twój profil czeka 👋</h2>
-            <p style="color: #444;">Przygotowałem 3 tematy postów dla <strong>${brandKit.company_name}</strong> na najbliższe dni:</p>
+            <p style="color: #444;">Przygotowałem 3 tematy postów dla <strong>${escHtml(brandKit.company_name)}</strong> na najbliższe dni:</p>
             <ul style="background: #f9f9f9; border-radius: 8px; padding: 16px 24px; color: #333;">
-              ${topics.map((t: string) => `<li style="margin-bottom: 8px;">${t}</li>`).join('')}
+              ${topics.map((t: string) => `<li style="margin-bottom: 8px;">${escHtml(t)}</li>`).join('')}
             </ul>
             <p style="color: #444;">Każdy post gotowy w 30 sekund — jedno kliknięcie wystarczy.</p>
             <a href="https://www.postujto.com/app"

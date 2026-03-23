@@ -22,7 +22,7 @@ export async function GET() {
 
     const { data: brandKit } = await supabase
       .from('brand_kits')
-      .select('*')
+      .select('company_name, slogan, colors, style, tone, length, logo_url, sample_posts, platforms, tone_source, usp, pain_point, dream_outcome, usp_source, pain_point_source, dream_outcome_source, biggest_pain, unique_mechanism')
       .eq('user_id', user.id)
       .single();
 

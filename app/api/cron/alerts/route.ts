@@ -99,11 +99,11 @@ export async function GET(request: NextRequest) {
       ] = await Promise.all([
         supabase.from('users').select('*', { count: 'exact', head: true }).gte('created_at', weekAgo),
         supabase.from('users').select('*', { count: 'exact', head: true }),
-        supabase.from('users').select('*', { count: 'exact', head: true }).neq('plan', 'free').gte('updated_at', weekAgo),
-        supabase.from('users').select('*', { count: 'exact', head: true }).neq('plan', 'free'),
+        supabase.from('users').select('*', { count: 'exact', head: true }).neq('subscription_plan', 'free').gte('updated_at', weekAgo),
+        supabase.from('users').select('*', { count: 'exact', head: true }).neq('subscription_plan', 'free'),
         supabase.from('generations').select('*', { count: 'exact', head: true }).gte('created_at', weekAgo),
         supabase.from('generations').select('*', { count: 'exact', head: true }),
-        supabase.from('users').select('plan').neq('plan', 'free'),
+        supabase.from('users').select('plan').neq('subscription_plan', 'free'),
       ]);
 
       const revenue = (planCounts || []).reduce((acc: number, u: { plan: string }) =>

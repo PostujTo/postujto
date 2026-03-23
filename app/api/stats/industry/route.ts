@@ -19,5 +19,5 @@ export async function GET(request: Request) {
     .gte('created_at', `${today}T00:00:00Z`);
 
   const displayCount = (count || 0) + Math.floor(Math.random() * 15 + 5);
-  return NextResponse.json({ count: displayCount });
+  return NextResponse.json({ count: displayCount }, { headers: { 'Cache-Control': 'public, max-age=300, s-maxage=300' } });
 }

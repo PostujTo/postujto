@@ -40,7 +40,7 @@ export async function POST() {
   } catch (error: any) {
     console.error('Błąd Customer Portal:', error);
     return NextResponse.json(
-      { error: 'Błąd serwera', details: error.message },
+      { error: 'Błąd serwera' },
       { status: 500 }
     );
   }

@@ -68,6 +68,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ logo_url: publicUrl });
 
   } catch (error: any) {
-    return NextResponse.json({ error: 'Błąd serwera', details: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Błąd serwera' }, { status: 500 });
   }
 }

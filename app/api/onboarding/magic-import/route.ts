@@ -2,6 +2,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import Anthropic from '@anthropic-ai/sdk';
 
+
+function isPrivateUrl(urlStr: string): boolean {
+  try {
+    const { hostname } = new URL(urlStr);
+    return (
+      /^(10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|127\.|0\.0\.0\.0)/.test(hostname) ||
+      hostname === 'localhost' ||
+      hostname === '::1' ||
+      hostname === 'metadata.google.internal' ||
+      hostname.endsWith('.internal') ||
+      hostname.endsWith('.local')
+    );
+  } catch {
+    return true;
+  }
+}
+
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -23,7 +40,9 @@ export async function POST(req: NextRequest) {
 
   if (looksLikeUrl) {
     const url = input.startsWith('http') ? input : `https://${input}`;
-    try {
+    if (isPrivateUrl(url)) {
+      contentToAnalyze = `URL firmy: ${url}`;
+    } else try {
       const response = await fetch(url, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; PostujToBot/1.0)',
@@ -63,7 +82,7 @@ Jeśli nie możesz określić pola: industry="restaurant", tone="casual", reszta
 
   try {
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 600,
       messages: [{ role: 'user', content: prompt }],
     });

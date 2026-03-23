@@ -24,7 +24,7 @@ const isGuest = !userId;
 
 // Rate limiting
 const rateLimitKey = userId || request.headers.get('x-forwarded-for') || 'guest';
-const allowed = rateLimit(rateLimitKey, 10, 60000);
+const allowed = await rateLimit(rateLimitKey, 'generate', 10, 60000);
 if (!allowed) {
   return NextResponse.json(
     { error: 'Zbyt wiele żądań. Spróbuj za chwilę.' },
@@ -37,7 +37,7 @@ if (!allowed) {
     if (!isGuest) {
       const { data: userData, error: userError } = await supabase
         .from('users')
-        .select('*')
+        .select('id, email, credits_remaining, credits_total, subscription_plan')
         .eq('clerk_user_id', userId)
         .single();
 
@@ -50,16 +50,7 @@ if (!allowed) {
 
       user = userData;
 
-      // Sprawdź czy ma kredyty
-      if (user.credits_remaining <= 0) {
-        return NextResponse.json(
-          { 
-            error: 'Brak kredytów',
-            message: 'Wykorzystałeś wszystkie kredyty w tym miesiącu. Przejdź na plan Standard lub Premium!',
-            creditsRemaining: 0
-          },
-          { status: 403 }
-        );
+      // Kredyty odejmowane atomicznie przez RPC poniżej
       }
     }
 
@@ -167,16 +158,38 @@ POLSKIE PRAWO REKLAMOWE - przestrzegaj tych zasad:
 - NIE używaj emoji ani emotikon w tekście postu - tylko czysty tekst
 `;
 
-// Pobierz Brand Kit (dla głosu marki i/lub fallback kontekstu)
+// Pobierz Brand Kit + rated generations + feedback równolegle (#19)
     let fetchedBrandKit: any = null;
     let samplePostsHint = '';
     let brandContextHint = '';
+    let ratingsHint = '';
+    let feedbackHint = '';
     if (!isGuest) {
-      const { data: brandKit } = await supabase
-        .from('brand_kits')
-        .select('sample_posts, company_name, tone, tone_source, industry, usp, usp_source, pain_point, pain_point_source, dream_outcome, dream_outcome_source, biggest_pain, unique_mechanism')
-        .eq('user_id', user!.id)
-        .single();
+      const [brandKitRes, ratedGensRes, negFeedbacksRes] = await Promise.all([
+        supabase
+          .from('brand_kits')
+          .select('sample_posts, company_name, tone, tone_source, industry, usp, usp_source, pain_point, pain_point_source, dream_outcome, dream_outcome_source, biggest_pain, unique_mechanism')
+          .eq('user_id', user!.id)
+          .single(),
+        supabase
+          .from('generations')
+          .select('generated_posts, ratings, platform')
+          .eq('user_id', user!.id)
+          .eq('platform', platform)
+          .not('ratings', 'eq', '{}')
+          .order('created_at', { ascending: false })
+          .limit(10),
+        supabase
+          .from('generations')
+          .select('feedback_note')
+          .eq('user_id', user!.id)
+          .eq('feedback', 'not_my_style')
+          .not('feedback_note', 'is', null)
+          .order('created_at', { ascending: false })
+          .limit(3),
+      ]);
+
+      const brandKit = brandKitRes.data;
       fetchedBrandKit = (isPreview && brandKitOverride) ? brandKitOverride : brandKit;
 
       if (use_brand_voice && brandKit?.sample_posts && brandKit.sample_posts.trim().length > 0) {
@@ -191,7 +204,6 @@ ${brandKit.sample_posts.slice(0, 3000)}
       }
 
       if (!brandKit?.company_name) {
-        // Brak Brand Kitu — fallback kontekst
         brandContextHint = `
 KONTEKST FIRMY: Użytkownik nie skonfigurował profilu. Pisz dla małej polskiej firmy lub freelancera.
 Na podstawie tematu posta postaraj się wywnioskować branżę i dostosuj styl.
@@ -199,19 +211,8 @@ Użyj swobodnego, ale profesjonalnego tonu — jak właściciel małej firmy kt�
 Unikaj korporacyjnego języka i sztucznych zwrotów.
 `;
       }
-    }
-// Pobierz wysoko oceniane posty jako dodatkowy feedback dla Claude
-    let ratingsHint = '';
-    if (!isGuest) {
-      const { data: ratedGens } = await supabase
-        .from('generations')
-        .select('generated_posts, ratings, platform')
-        .eq('user_id', user!.id)
-        .eq('platform', platform)
-        .not('ratings', 'eq', '{}')
-        .order('created_at', { ascending: false })
-        .limit(10);
 
+      const ratedGens = ratedGensRes.data;
       if (ratedGens && ratedGens.length > 0) {
         const highRated: string[] = [];
         const lowRated: string[] = [];
@@ -232,17 +233,8 @@ ${lowRated.length > 0 ? `\nPOSTY KTÓRE SIĘ NIE PODOBAŁY (ocena 1-2★) — un
 `;
         }
       }
-    }
-    let feedbackHint = '';
-    if (!isGuest) {
-      const { data: negFeedbacks } = await supabase
-        .from('generations')
-        .select('feedback_note')
-        .eq('user_id', user!.id)
-        .eq('feedback', 'not_my_style')
-        .not('feedback_note', 'is', null)
-        .order('created_at', { ascending: false })
-        .limit(3);
+
+      const negFeedbacks = negFeedbacksRes.data;
       if (negFeedbacks?.length) {
         feedbackHint = '\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n## WAŻNE — Czego unikać (feedback od użytkownika)\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
           + negFeedbacks.map((f: { feedback_note: string }) => `- "${f.feedback_note}"`).join('\n')
@@ -299,7 +291,7 @@ WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy c
 
     // Wywołanie Claude API
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 2000,
       system: systemPrompt,
       messages: [
@@ -354,16 +346,16 @@ WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy c
     // ODEJMIJ KREDYT I ZAPISZ GENERACJĘ
     // ============================================
     
-    const { error: creditError } = await supabase
-      .from('users')
-      .update({ 
-        credits_remaining: user!.credits_remaining - 1,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', user!.id);
-
-    if (creditError) {
-      console.error('Błąd odejmowania kredytu:', creditError);
+    const { data: newCredits } = await supabase.rpc('decrement_credit', { p_user_id: user!.id });
+    if (newCredits === -1 || newCredits === null) {
+      return NextResponse.json(
+        {
+          error: 'Brak kredytów',
+          message: 'Wykorzystałeś wszystkie kredyty w tym miesiącu. Przejdź na plan Standard lub Premium!',
+          creditsRemaining: 0,
+        },
+        { status: 403 }
+      );
     }
 
     const { data: newGen, error: historyError } = await supabase
@@ -425,7 +417,7 @@ WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy c
     return NextResponse.json({
       ...jsonData,
       generationId: newGen?.id || null,
-      creditsRemaining: user!.credits_remaining - 1,
+      creditsRemaining: newCredits,
       creditsTotal: user!.credits_total,
     });
   } catch (error: any) {

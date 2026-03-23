@@ -7,12 +7,16 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ error: 'Nie zalogowany' }, { status: 401 });
     }
+
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(0, parseInt(searchParams.get('page') ?? '0', 10) || 0);
+    const PAGE_SIZE = 50;
 
     // Pobierz user_id z Supabase
     const { data: user, error: userError } = await supabase
@@ -30,7 +34,8 @@ export async function GET() {
       .from('generations')
       .select('*')
       .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
     if (genError) {
       return NextResponse.json({ error: 'Błąd pobierania historii' }, { status: 500 });
@@ -48,6 +53,6 @@ return NextResponse.json({
   stats: { total, favorites, facebook, instagram, tiktok },
 });
   } catch (error: any) {
-    return NextResponse.json({ error: 'Błąd serwera', details: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Błąd serwera' }, { status: 500 });
   }
 }

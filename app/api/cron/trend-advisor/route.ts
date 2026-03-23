@@ -10,6 +10,10 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+
+function escHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+}
 function groupBy<T>(arr: T[], keyFn: (item: T) => string): Record<string, T[]> {
   return arr.reduce((acc, item) => {
     const key = keyFn(item);
@@ -74,7 +78,8 @@ export async function GET(req: Request) {
       let result: { topic?: string; reason?: string } = {};
       try {
         const raw = message.content[0].type === 'text' ? message.content[0].text : '{}';
-        result = JSON.parse(raw);
+        const cleaned = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        result = JSON.parse(cleaned);
       } catch { continue; }
       if (!result.topic) continue;
 
@@ -84,14 +89,14 @@ export async function GET(req: Request) {
           await resend.emails.send({
             from: 'PostujTo <hello@postujto.com>',
             to: user.email,
-            subject: `Trend dnia dla ${companyName}: ${result.topic}`,
+            subject: `Trend dnia dla ${escHtml(companyName)}: ${escHtml(result.topic ?? '')}`,
             html: `
               <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 24px;">
                 <h2>Trend dnia w Twojej branzy</h2>
                 <p>Dzis warto napisac o:</p>
                 <div style="background: #f0f0ff; border-left: 4px solid #6C47FF; padding: 12px 16px; border-radius: 4px; margin: 16px 0;">
-                  <strong>${result.topic}</strong>
-                  <p style="margin: 8px 0 0; color: #555; font-size: 14px;">${result.reason ?? ''}</p>
+                  <strong>${escHtml(result.topic ?? '')}</strong>
+                  <p style="margin: 8px 0 0; color: #555; font-size: 14px;">${escHtml(result.reason ?? '')}</p>
                 </div>
                 <a href="https://www.postujto.com/app?topic=${encodeURIComponent(result.topic)}&industry=${industry}"
                    style="display: inline-block; background: #6C47FF; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">

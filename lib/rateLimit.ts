@@ -1,18 +1,34 @@
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+import { createClient } from '@supabase/supabase-js';
 
-export function rateLimit(identifier: string, maxRequests = 10, windowMs = 60000): boolean {
-  const now = Date.now();
-  const record = rateLimitMap.get(identifier);
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
-  if (!record || now > record.resetTime) {
-    rateLimitMap.set(identifier, { count: 1, resetTime: now + windowMs });
-    return true; // dozwolone
+/**
+ * Rate limiter backed by Supabase (table: rate_limits).
+ * Works across all serverless instances — no in-memory state.
+ * Fails open on DB error to avoid blocking legitimate requests.
+ */
+export async function rateLimit(
+  identifier: string,
+  endpoint: string,
+  maxRequests = 10,
+  windowMs = 60000
+): Promise<boolean> {
+  const key = `${identifier}:${endpoint}`;
+  try {
+    const { data, error } = await supabase.rpc('check_rate_limit', {
+      p_key: key,
+      p_max_requests: maxRequests,
+      p_window_ms: windowMs,
+    });
+    if (error) {
+      console.error('Rate limit DB error:', error);
+      return true; // fail open
+    }
+    return data === true;
+  } catch {
+    return true; // fail open
   }
-
-  if (record.count >= maxRequests) {
-    return false; // zablokowane
-  }
-
-  record.count++;
-  return true; // dozwolone
 }

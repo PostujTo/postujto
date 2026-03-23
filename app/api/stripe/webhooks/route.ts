@@ -121,19 +121,21 @@ try {
 }
     }
 
-    // Odnowienie subskrypcji co miesiąc
+    // Odnowienie subskrypcji co miesiąc (pomijamy pierwsze — obsługuje checkout.session.completed)
     if (event.type === 'invoice.payment_succeeded') {
       const invoice = event.data.object as Stripe.Invoice;
+      const billingReason = (invoice as any).billing_reason as string;
+      // Pierwsze płatności obsługuje checkout.session.completed — pomijamy
+      if (billingReason === 'subscription_create') {
+        return NextResponse.json({ received: true });
+      }
       const subscriptionId = (invoice as any).subscription as string;
       if (!subscriptionId) return NextResponse.json({ received: true });
 
-      const subscription: any = await stripe.subscriptions.retrieve(subscriptionId);
-      const priceId = subscription.items.data[0].price.id;
-      let credits = 999999;
-
+      // Odnowienie — przedłuż plan (kredyty unlimited nie wymagają resetu, ale aktualizujemy status)
       await supabaseAdmin
         .from('users')
-        .update({ credits_remaining: credits, credits_total: credits })
+        .update({ subscription_status: 'active' })
         .eq('stripe_subscription_id', subscriptionId);
 
     }
@@ -159,8 +161,24 @@ try {
       const subscription = event.data.object as Stripe.Subscription;
       const priceId = subscription.items.data[0].price.id;
 
-      const premiumPriceIds = [process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM, process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM_ANNUAL].filter(Boolean);
-      let plan: 'standard' | 'premium' | 'free' = premiumPriceIds.includes(priceId) ? 'premium' : 'standard';
+      const standardPriceIds = [
+        process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD,
+        process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD_ANNUAL,
+      ].filter(Boolean);
+      const premiumPriceIds = [
+        process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM,
+        process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM_ANNUAL,
+      ].filter(Boolean);
+
+      let plan: 'standard' | 'premium';
+      if (premiumPriceIds.includes(priceId)) {
+        plan = 'premium';
+      } else if (standardPriceIds.includes(priceId)) {
+        plan = 'standard';
+      } else {
+        console.error('customer.subscription.updated: nieznany priceId:', priceId, '— nie zmieniam planu');
+        return NextResponse.json({ received: true });
+      }
 
       await supabaseAdmin
         .from('users')
@@ -168,8 +186,6 @@ try {
           subscription_plan: plan,
           subscription_status: subscription.status === 'active' ? 'active' : subscription.status,
           subscription_price_id: priceId,
-          credits_total: 999999,
-          credits_remaining: 999999,
         })
         .eq('stripe_subscription_id', subscription.id);
 
@@ -210,7 +226,7 @@ try {
   } catch (error: any) {
     console.error('❌ Webhook error:', error);
     return NextResponse.json(
-      { error: 'Webhook handler failed', details: error.message },
+      { error: 'Webhook handler failed' },
       { status: 500 }
     );
   }

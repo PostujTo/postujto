@@ -10,6 +10,10 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+
+function escHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+}
 export async function POST(req: Request) {
   // Pobierz webhook secret z ENV
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
@@ -103,7 +107,7 @@ export async function POST(req: Request) {
     <!-- Hero -->
     <div style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);border-radius:20px;padding:40px 36px;margin-bottom:32px;">
       <p style="font-size:32px;margin:0 0 16px;">👋</p>
-      <h1 style="font-size:26px;font-weight:800;color:#f0f0f5;margin:0 0 12px;line-height:1.2;">Hej ${firstName}!<br/>Witaj w PostujTo.</h1>
+      <h1 style="font-size:26px;font-weight:800;color:#f0f0f5;margin:0 0 12px;line-height:1.2;">Hej ${escHtml(firstName)}!<br/>Witaj w PostujTo.</h1>
       <p style="font-size:16px;color:rgba(240,240,245,0.6);line-height:1.7;margin:0 0 28px;">Właśnie dołączyłeś do grona właścicieli firm, którzy oszczędzają <strong style="color:#a5b4fc;">10 godzin tygodniowo</strong> na tworzeniu treści social media.</p>
       <a href="https://postujto.com/app" style="display:inline-block;background:linear-gradient(135deg,#6366f1,#a855f7);color:white;text-decoration:none;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:700;">✨ Wygeneruj pierwszy post →</a>
     </div>
