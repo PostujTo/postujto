@@ -73,6 +73,9 @@ if (userError || !user) {
   user = newUser;
 }
 // Po pobraniu `user` z Supabase, a przed tworzeniem customerId
+if (!user) {
+  return NextResponse.json({ error: 'Użytkownik nie znaleziony' }, { status: 404 });
+}
 // Sprawdź czy użytkownik już ma aktywną subskrypcję
 if (user.subscription_plan && user.subscription_plan !== 'free') {
   return NextResponse.json(
