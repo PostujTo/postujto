@@ -1,4 +1,5 @@
 import { ClerkProvider } from '@clerk/nextjs';
+import Script from 'next/script';
 import './globals.css';
 import type { Metadata } from 'next';
 import { Poppins, DM_Sans } from 'next/font/google';
@@ -34,6 +35,7 @@ export default function RootLayout({
         <body className={`${poppins.variable} ${dmSans.variable}`}>
           {children}
           <CookieBanner />
+          <Script src="//code.tidio.co/n72cgknm7wuvvfcfhz0dglu7gwkcef2n.js" strategy="afterInteractive" />
         </body>
       </html>
     </ClerkProvider>
