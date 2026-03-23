@@ -181,6 +181,8 @@ type BrandKitForPrompt = {
   pain_point_source?: string | null;
   dream_outcome?: string | null;
   dream_outcome_source?: string | null;
+  biggest_pain?: string | null;
+  unique_mechanism?: string | null;
 };
 
 export function buildSystemPrompt(brandKit: BrandKitForPrompt, platform: 'facebook' | 'instagram' | 'tiktok', feedbackHint?: string): string {
@@ -199,6 +201,18 @@ export function buildSystemPrompt(brandKit: BrandKitForPrompt, platform: 'facebo
       + '\n\n➤ Ucz się z tych przykładów: ich długości, tonu, struktury zdań, użycia emoji.\n➤ NIE kopiuj tematów — generujesz post o INNYM temacie, ale w PODOBNYM stylu.\n'
     : '';
 
+  const hormoziSection = (brandKit.biggest_pain || brandKit.unique_mechanism) ? [
+    '',
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    '## Głębszy kontekst firmy (Grand Slam)',
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    brandKit.biggest_pain ? 'Największy Strach klienta przed zakupem: ' + brandKit.biggest_pain : '',
+    brandKit.unique_mechanism ? 'Unikalny Mechanizm tej firmy: ' + brandKit.unique_mechanism : '',
+    '',
+    '➤ Strach klienta to najsilniejszy hook dla postów sprzedażowych — zacznij od niego.',
+    '➤ Unikalny Mechanizm to dowód wiarygodności — używaj go jako odróżnienia od konkurencji.',
+  ].filter(Boolean).join('\n') : '';
+
   return `Jesteś ekspertem od marketingu w mediach społecznościowych dla polskich małych firm.
 Generujesz post na ${platform} dla konkretnej firmy. Stosuj się ściśle do poniższej hierarchii.
 
@@ -216,6 +230,7 @@ Wymarzony rezultat klientów${dreamNote}: ${brandKit.dream_outcome || 'nie podan
 ➤ Pola oznaczone "priorytet absolutny" — stosuj ZAWSZE, nawet jeśli opis firmy sugeruje inny styl.
 ➤ Pola oznaczone "wskazówka" — stosuj jeśli nie ma konfliktu z ręcznymi ustawieniami.
 ➤ Jeśli ton ręczny to "profesjonalny" — NIE pisz swobodnie, nawet jeśli opis z WWW brzmi casualowo.
+${hormoziSection}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ## PRIORYTET 2 — STYL BRANŻY (tło i kontekst)

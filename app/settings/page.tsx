@@ -114,6 +114,8 @@ export default function SettingsPage() {
     pain_point_source: 'manual' as 'manual' | 'imported',
     dream_outcome: '',
     dream_outcome_source: 'manual' as 'manual' | 'imported',
+    biggest_pain: '',
+    unique_mechanism: '',
   });
 
   useEffect(() => {
@@ -140,6 +142,8 @@ export default function SettingsPage() {
             pain_point_source: (data.brandKit.pain_point_source || 'manual') as 'manual' | 'imported',
             dream_outcome: data.brandKit.dream_outcome || '',
             dream_outcome_source: (data.brandKit.dream_outcome_source || 'manual') as 'manual' | 'imported',
+            biggest_pain: data.brandKit.biggest_pain || '',
+            unique_mechanism: data.brandKit.unique_mechanism || '',
           });
         }
       });
@@ -469,6 +473,32 @@ export default function SettingsPage() {
             {brandKit.dream_outcome_source !== 'imported' && (
               <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.25)', marginTop: 8 }}>Co Twój klient naprawdę chce osiągnąć? To wzmocni przekaz każdego posta.</p>
             )}
+          </div>
+
+          {/* Grand Slam — Poznaj klientow glebiej */}
+          <div style={{ ...s.card, border: '1px solid rgba(168,85,247,0.2)', background: 'rgba(168,85,247,0.04)' }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: '#c084fc', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>Poznaj swoich klientow glebiej</p>
+            <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', marginBottom: 20, lineHeight: 1.5 }}>Te pola sa opcjonalne, ale znaczaco podnierszaja jakosc generowanych tresci. Claude bedzie piszal posty ktore trafiaja w serce klienta.</p>
+
+            {/* Najwiekszy Bol klienta */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <label style={{ ...s.label, marginBottom: 0 }}>Najwiekszy Bol / Strach klienta</label>
+                <span style={tipIcon} onMouseEnter={() => setTooltip('biggest_pain')} onMouseLeave={() => setTooltip(null)}>?</span>
+                {tooltip === 'biggest_pain' && <span style={tipStyle}>Czego Twoj klient sie boi lub co go boli PRZED skorzystaniem z Twojej oferty? Np. "ukrytych kosztow remontu", "ze AI napisze cos glupiego i zawstydze sie przed klientami"</span>}
+              </div>
+              <input type="text" value={brandKit.biggest_pain} onChange={e => setBrandKit(prev => ({ ...prev, biggest_pain: e.target.value }))} placeholder="np. ze posty beda brzmiec sztucznie i klienci od razu poznaja ze to AI" spellCheck={false} style={s.input} />
+            </div>
+
+            {/* Unikalny Mechanizm */}
+            <div>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <label style={{ ...s.label, marginBottom: 0 }}>Unikalny Mechanizm — jak to robisz?</label>
+                <span style={tipIcon} onMouseEnter={() => setTooltip('unique_mechanism')} onMouseLeave={() => setTooltip(null)}>?</span>
+                {tooltip === 'unique_mechanism' && <span style={tipStyle}>Co sprawia ze Twoja oferta dziala? Konkretna metoda, technologia, proces ktory wyroznia Cie od konkurencji. Np. "wlasna flota 50 aut z GPS", "3-etapowy system doboru fryzury do ksztaltu twarzy"</span>}
+              </div>
+              <input type="text" value={brandKit.unique_mechanism} onChange={e => setBrandKit(prev => ({ ...prev, unique_mechanism: e.target.value }))} placeholder="np. AI analizuje styl Twojej firmy i generuje posty ktore brzrmia jak Ty, nie jak robot" spellCheck={false} style={s.input} />
+            </div>
           </div>
 
           {/* Kolory marki */}

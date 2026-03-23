@@ -174,7 +174,7 @@ POLSKIE PRAWO REKLAMOWE - przestrzegaj tych zasad:
     if (!isGuest) {
       const { data: brandKit } = await supabase
         .from('brand_kits')
-        .select('sample_posts, company_name, tone, tone_source, industry, usp, usp_source, pain_point, pain_point_source, dream_outcome, dream_outcome_source')
+        .select('sample_posts, company_name, tone, tone_source, industry, usp, usp_source, pain_point, pain_point_source, dream_outcome, dream_outcome_source, biggest_pain, unique_mechanism')
         .eq('user_id', user!.id)
         .single();
       fetchedBrandKit = (isPreview && brandKitOverride) ? brandKitOverride : brandKit;

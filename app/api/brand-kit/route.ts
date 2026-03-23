@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     if (!user) return NextResponse.json({ error: 'Nie znaleziono użytkownika' }, { status: 404 });
 
     const body = await req.json();
-    const { company_name, colors, style, tone, length, slogan, logo_url, sample_posts, platforms, tone_source, usp, pain_point, dream_outcome, usp_source, pain_point_source, dream_outcome_source } = body;
+    const { company_name, colors, style, tone, length, slogan, logo_url, sample_posts, platforms, tone_source, usp, pain_point, dream_outcome, usp_source, pain_point_source, dream_outcome_source, biggest_pain, unique_mechanism } = body;
 
     // Walidacja
     if (company_name !== undefined && (typeof company_name !== 'string' || company_name.length > 100)) {
@@ -106,6 +106,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Wymarzony rezultat jest za długi (max 300 znaków)' }, { status: 400 });
     }
 
+    if (biggest_pain !== undefined && (typeof biggest_pain !== 'string' || biggest_pain.length > 300)) {
+      return NextResponse.json({ error: 'Opis bólu klienta jest za długi (max 300 znaków)' }, { status: 400 });
+    }
+
+    if (unique_mechanism !== undefined && (typeof unique_mechanism !== 'string' || unique_mechanism.length > 300)) {
+      return NextResponse.json({ error: 'Unikalny mechanizm jest za długi (max 300 znaków)' }, { status: 400 });
+    }
+
     if (usp_source !== undefined && !['manual', 'imported'].includes(usp_source)) {
       return NextResponse.json({ error: 'Nieprawidłowe źródło USP' }, { status: 400 });
     }
@@ -138,6 +146,8 @@ export async function POST(req: Request) {
       usp: usp?.replace(/<[^>]*>/g, '').trim(),
       pain_point: pain_point?.replace(/<[^>]*>/g, '').trim(),
       dream_outcome: dream_outcome?.replace(/<[^>]*>/g, '').trim(),
+      biggest_pain: biggest_pain?.replace(/<[^>]*>/g, '').trim(),
+      unique_mechanism: unique_mechanism?.replace(/<[^>]*>/g, '').trim(),
       usp_source,
       pain_point_source,
       dream_outcome_source,
@@ -160,6 +170,8 @@ export async function POST(req: Request) {
         usp: sanitized.usp,
         pain_point: sanitized.pain_point,
         dream_outcome: sanitized.dream_outcome,
+        biggest_pain: sanitized.biggest_pain || null,
+        unique_mechanism: sanitized.unique_mechanism || null,
         usp_source: sanitized.usp_source,
         pain_point_source: sanitized.pain_point_source,
         dream_outcome_source: sanitized.dream_outcome_source,
