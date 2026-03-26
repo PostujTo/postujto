@@ -771,7 +771,7 @@ useEffect(() => {
                 <div style={{ flex: 1 }} />
 
                 {/* Platform multi-select */}
-                <div style={{ display: 'flex', gap: 6 }}>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   {availablePlatforms.map(pl => {
                     const isSelected = selectedPlatforms.includes(pl);
                     const isLast = isSelected && selectedPlatforms.length === 1;
@@ -840,7 +840,7 @@ useEffect(() => {
 
             {/* PLATFORM TABS — always in DOM, hidden when ≤1 platform (prevents layout shift on Brand Kit load) */}
             {/* display:none in list view — list view has its own identical tabs set below */}
-            <div style={{ display: view === 'list' ? 'none' : 'flex', gap: 6, marginBottom: 12, minHeight: 35, visibility: selectedPlatforms.length > 1 ? 'visible' : 'hidden' }}>
+            <div style={{ display: view === 'list' ? 'none' : 'flex', gap: 6, marginBottom: 12, minHeight: 35, flexWrap: 'wrap', visibility: selectedPlatforms.length > 1 ? 'visible' : 'hidden' }}>
               {selectedPlatforms.map(pl => (
                 <button key={pl} onClick={() => !isProcessing && setActivePlatform(pl)}
                   disabled={isProcessing}
@@ -915,7 +915,7 @@ useEffect(() => {
             {view === 'list' && (
               <div className="calendar-list-view fade-up" style={{ animationDelay: '0.05s' }}>
                 {/* Platform tabs for list view — always in DOM, hidden when ≤1 platform (prevents layout shift on Brand Kit load) */}
-                <div style={{ display: 'flex', gap: 6, marginBottom: 12, minHeight: 35, visibility: selectedPlatforms.length > 1 ? 'visible' : 'hidden' }}>
+                <div style={{ display: 'flex', gap: 6, marginBottom: 12, minHeight: 35, flexWrap: 'wrap', visibility: selectedPlatforms.length > 1 ? 'visible' : 'hidden' }}>
                   {selectedPlatforms.map(pl => (
                     <button key={pl} onClick={() => !isProcessing && setActivePlatform(pl)}
                       disabled={isProcessing}

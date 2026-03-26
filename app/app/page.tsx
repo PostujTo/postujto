@@ -88,35 +88,6 @@ const TikTokIcon = () => (
 );
 
 
-const TOPIC_SUGGESTIONS: Record<string, string[]> = {
-  facebook: [
-    'Pokaż kulisy swojej pracy — co dzieje się za zamkniętymi drzwiami?',
-    'Zadaj pytanie swoim obserwatorom: co chcieliby zobaczyć więcej?',
-    'Historia klienta — jak Twój produkt/usługa mu pomogła',
-    'Poranna rutyna w Twojej firmie — 3 zdjęcia z opisem',
-    'Najczęstsze pytanie które dostajesz — i szczera odpowiedź',
-    'Przed i po — pokaż transformację lub efekt swojej pracy',
-    'Dlaczego zacząłeś ten biznes? Historia założyciela',
-  ],
-  instagram: [
-    'Flat lay Twoich produktów z sezonowym akcentem',
-    '3 rzeczy których nauczyłeś się w tym miesiącu',
-    'Ulubione narzędzie/produkt którego używasz codziennie',
-    'Mini-tutorial w 3 krokach — coś przydatnego dla obserwatorów',
-    'Quote który Cię inspiruje + jak to łączy się z Twoją pracą',
-    'Mały sukces z tego tygodnia — celebruj razem z obserwatorami',
-    'Kulisy procesu tworzenia — od pomysłu do efektu końcowego',
-  ],
-  tiktok: [
-    'POV: jeden dzień z życia [Twój zawód]',
-    'Rzeczy których NIE robię w swojej branży (i dlaczego)',
-    'Najszybszy sposób na [problem który rozwiązujesz]',
-    'Błąd który popełniłem i czego mnie nauczył',
-    'Odpowiedź na najczęstszy mit o [Twoja branża]',
-    '3 rzeczy które bym zrobił inaczej zaczynając od nowa',
-    'Dzień w liczbach — ile naprawdę zajmuje [Twoja praca]',
-  ],
-};
 
 const OCCASION_HINTS: Record<string, string> = {
   'Dzień Kobiet': 'złóż życzenia swoim klientkom i pokaż ofertę specjalną',
@@ -141,9 +112,6 @@ export default function GeneratorPage() {
   const [calendarDate, setCalendarDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [calendarSaving, setCalendarSaving] = useState(false);
   const [platform, setPlatform] = useState<'facebook' | 'instagram' | 'tiktok'>('facebook');
-  const [suggestions, setSuggestions] = useState<string[]>(() =>
-    TOPIC_SUGGESTIONS['facebook'].sort(() => Math.random() - 0.5).slice(0, 3)
-  );
   const [tone, setTone] = useState<'professional' | 'casual' | 'humorous' | 'sales'>('professional');
   const [length, setLength] = useState<'short' | 'medium' | 'long'>('medium');
   const [loading, setLoading] = useState(false);
@@ -185,6 +153,7 @@ export default function GeneratorPage() {
   const [portalLoading, setPortalLoading] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [inspirations, setInspirations] = useState<{ title: string; type: 'pain' | 'result' | 'relation' }[]>([]);
+  const [activeTopicIndex, setActiveTopicIndex] = useState<number | null>(null);
   const [showTermsModal, setShowTermsModal] = useState(false);
 const [termsChecked, setTermsChecked] = useState(false);
 const [appBilling, setAppBilling] = useState<'monthly' | 'annual'>('monthly');
@@ -280,9 +249,6 @@ const handleConfirmPlanTerms = async () => {
       .then(r => r.json())
       .then(data => setTodayCount(data.count || null));
   }, [selectedIndustry]);
-  useEffect(() => {
-    setSuggestions(TOPIC_SUGGESTIONS[platform].sort(() => Math.random() - 0.5).slice(0, 3));
-  }, [platform]);
   useEffect(() => {
     localStorage.setItem('gen_useLogo', String(addWatermark));
     localStorage.setItem('gen_useBrandKit', String(useBrandColors));
@@ -738,8 +704,8 @@ const handleConfirmPlanTerms = async () => {
                     {inspirations.map((ins, i) => {
                       const typeLabel = ({ pain: '🔴 Ból', result: '🟢 Rezultat', relation: '🟡 Kulisy' })[ins.type] ?? '';
                       return (
-                        <button key={i} onClick={() => setTopic(ins.title)}
-                          style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, color: 'rgba(240,240,245,0.75)', fontSize: 12, textAlign: 'left', cursor: 'pointer', lineHeight: 1.4, fontFamily: "'DM Sans', sans-serif", transition: 'border-color 0.15s' }}>
+                        <button key={i} onClick={() => { setTopic(ins.title); setActiveTopicIndex(i); }}
+                          style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 12px', background: activeTopicIndex === i ? 'rgba(108,71,255,0.3)' : 'rgba(255,255,255,0.03)', border: activeTopicIndex === i ? '1px solid rgba(108,71,255,0.8)' : '1px solid rgba(255,255,255,0.08)', borderRadius: 10, color: 'rgba(240,240,245,0.75)', fontSize: 12, textAlign: 'left', cursor: 'pointer', lineHeight: 1.4, fontFamily: "'DM Sans', sans-serif", transition: 'all 0.15s ease' }}>
                           <span style={{ flexShrink: 0, fontSize: 10, color: 'rgba(240,240,245,0.3)', marginTop: 1 }}>{typeLabel}</span>
                           <span>{ins.title}</span>
                         </button>
@@ -757,7 +723,7 @@ const handleConfirmPlanTerms = async () => {
                 <textarea
                   className="textarea-dark"
                   value={topic}
-                  onChange={e => setTopic(e.target.value)}
+                  onChange={e => { setTopic(e.target.value); const idx = inspirations.findIndex(ins => ins.title === e.target.value); setActiveTopicIndex(idx >= 0 ? idx : null); }}
                   placeholder="np. nowa kolekcja butów sportowych, przepis na ciasto czekoladowe..."
                   rows={3}
                   spellCheck={false}
@@ -806,20 +772,8 @@ const handleConfirmPlanTerms = async () => {
                 </div>
               </div>
 
-              {/* Topic suggestions */}
-              <div style={{ marginTop: 8, marginBottom: 20 }}>
-                <p style={{ fontSize: 11, color: 'rgba(240,240,245,0.3)', marginBottom: 6 }}>Potrzebujesz inspiracji?</p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
-                  {suggestions.map((s, i) => (
-                    <button key={i} onClick={() => setTopic(s)}
-                      style={{ padding: '5px 10px', borderRadius: 20, fontSize: 11, cursor: 'pointer', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', color: 'rgba(240,240,245,0.6)', transition: 'all 0.2s', textAlign: 'left' }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.18)'; e.currentTarget.style.color = '#f0f0f5'; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.08)'; e.currentTarget.style.color = 'rgba(240,240,245,0.6)'; }}>
-                      {s.length > 60 ? s.slice(0, 57) + '...' : s}
-                    </button>
-                  ))}
-                </div>
-                {recentTopics.length > 0 && (
+              {/* Recent topics */}
+              {recentTopics.length > 0 && (
                   <details>
                     <summary style={{ fontSize: 11, color: 'rgba(240,240,245,0.3)', cursor: 'pointer', listStyle: 'none', marginBottom: 4 }}>🕐 Ostatnio generowane ▾</summary>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 6 }}>
@@ -833,8 +787,7 @@ const handleConfirmPlanTerms = async () => {
                       ))}
                     </div>
                   </details>
-                )}
-              </div>
+              )}
 
               {/* Platform */}
               <div style={{ marginBottom: 20 }}>

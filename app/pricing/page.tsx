@@ -275,7 +275,8 @@ const plans = [
         <h2 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: 800, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 48 }}>
           Starter vs <span className="gradient-text">Pro</span>
         </h2>
-        <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, overflow: 'hidden' }}>
+        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, overflow: 'hidden', minWidth: 480 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
             <div style={{ padding: '20px 28px' }} />
             {['Starter', 'Pro'].map((plan, i) => (
@@ -321,6 +322,7 @@ const plans = [
           </div>
         </div>
       </div>
+        </div>
 
       {/* FOOTER NOTE */}
       <div style={{ textAlign: 'center', padding: '0 24px 60px', color: 'rgba(240,240,245,0.35)', fontSize: 14 }}>
