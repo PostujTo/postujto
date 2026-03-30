@@ -37,7 +37,7 @@ export function AppHeader({ activePage, credits, onPortalClick, portalLoading }:
     <header style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(10,10,15,0.85)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 100 }}>
       <div className="header-inner" style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 68, display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center' }}>
 
-        <Link href="/" style={{ textDecoration: 'none' }}>
+        <Link href={user ? '/app' : '/'} style={{ textDecoration: 'none' }}>
           <span className="font-display" style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', color: '#fff' }}>
             Postuj<span className="gradient-text">To</span>
           </span>

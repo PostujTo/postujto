@@ -17,6 +17,9 @@ const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
 
 const DAILY_IMAGE_LIMIT = 50;
 
+// Mutex per-user — zapobiega równoległemu generowaniu z tego samego konta
+const generatingUsers = new Set<string>();
+
 export async function POST(req: Request) {
   try {
     const { userId } = await auth();
@@ -31,6 +34,14 @@ if (!allowed) {
     if (!userId) {
       return NextResponse.json({ error: 'Nie zalogowany' }, { status: 401 });
     }
+
+    if (generatingUsers.has(userId)) {
+      return NextResponse.json(
+        { error: 'Poczekaj na zakończenie poprzedniego generowania obrazu.' },
+        { status: 429 }
+      );
+    }
+    generatingUsers.add(userId);
 
     const { data: user, error: userError } = await supabase
       .from('users')
@@ -109,7 +120,7 @@ const brandContext = detectedBrand
         role: 'user',
         content: `Aktualna data: ${new Date().getDate()}.${new Date().getMonth() + 1}.${new Date().getFullYear()}. Rok: ${new Date().getFullYear()}.
 
-Jesteś ekspertem od reklam social media. Na podstawie poniższych danych wybierz najlepszy styl Recraft V3 i stwórz zoptymalizowany prompt po angielsku.
+Jesteś ekspertem od reklam social media. Na podstawie poniższych danych wybierz najlepszy styl Recraft V3 i stwórz zoptymalizowany prompt po polsku.
 
 TEMAT: ${topic}
 PLATFORMA: ${platform}
@@ -139,8 +150,8 @@ ZASADY:
 - Gdy branża to budowlanka/nieruchomości → "realistic_image/enterprise"
 - Gdy platforma to TikTok → "digital_illustration/hand_drawn"
 - W pozostałych przypadkach → "realistic_image"
-- Prompt musi zawierać "Polish people" lub "European appearance" gdy są ludzie
-- Prompt musi być po angielsku, max 200 znaków
+- Prompt musi zawierać "Polacy" lub "europejski wygląd" gdy są ludzie
+- Prompt musi być po polsku, max 200 znaków
 
 Zwróć TYLKO JSON:
 {
@@ -251,5 +262,7 @@ const imageUrl = Array.isArray(output)
   } catch (error: any) {
     console.error('Błąd generowania obrazu:', error);
     return NextResponse.json({ error: 'Błąd serwera' }, { status: 500 });
+  } finally {
+    generatingUsers.delete(userId ?? '');
   }
 }

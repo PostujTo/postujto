@@ -1228,7 +1228,7 @@ const handleConfirmPlanTerms = async () => {
         <footer style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: '24px', textAlign: 'center' }}>
           <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.2)' }}>
             <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>PostujTo.com</Link>
-            {' '}· © 2025 · Wykonane z ❤️ w Polsce
+            {' '}· © 2026 · Wykonane z ❤️ w Polsce
           </p>
         </footer>
       </div>
