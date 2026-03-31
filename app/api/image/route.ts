@@ -21,8 +21,10 @@ const DAILY_IMAGE_LIMIT = 50;
 const generatingUsers = new Set<string>();
 
 export async function POST(req: Request) {
+  let userId = '';
   try {
-    const { userId } = await auth();
+    const { userId: clerkUserId } = await auth();
+    userId = clerkUserId ?? '';
     const rateLimitKey = userId || 'guest';
 const allowed = await rateLimit(rateLimitKey, 'image', 5, 60000); // max 5 obrazów na minutę
 if (!allowed) {
