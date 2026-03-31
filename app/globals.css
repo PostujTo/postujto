@@ -16,6 +16,36 @@ body {
   overflow-x: clip;
   max-width: 100vw;
 }
+
+/* ─── NAWIGACJA RESPONSYWNA (M3) ─────────────────────────────────────────── */
+/* Desktop nav: widoczne domyślnie */
+.desktop-nav   { display: flex !important; }
+/* Desktop-only elementy (badge, kredyty, subskrypcja) */
+.desktop-only  { display: inline-flex !important; }
+/* Mobile-only elementy: ukryte domyślnie */
+.mobile-only   { display: none !important; }
+/* Main content: brak padding-bottom domyślnie */
+.main-content  { padding-bottom: 0; }
+
+@media (max-width: 767px) {
+  .desktop-nav  { display: none !important; }
+  .desktop-only { display: none !important; }
+  .mobile-only  { display: flex !important; }
+
+  /* Padding pod bottom nav na stronach aplikacji */
+  .has-bottom-nav {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Safari iOS safe area */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom);
+    height: calc(64px + env(safe-area-inset-bottom));
+  }
+}
+
 /* ─── MOBILE HEADER ──────────────────────────────────────────────────────── */
 .hamburger-btn {
   display: none;
@@ -63,7 +93,7 @@ body {
   }
 
   .generator-main {
-    padding: 24px 16px 80px !important;
+    padding: 24px 16px 24px !important;
   }
 }
 
@@ -71,7 +101,7 @@ body {
 @media (max-width: 768px) {
   .calendar-main-grid {
     grid-template-columns: 1fr !important;
-    padding: 20px 16px 80px !important;
+    padding: 20px 16px 24px !important;
     gap: 16px !important;
   }
 }
@@ -79,7 +109,7 @@ body {
 /* ─── DASHBOARD MOBILE ───────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .dashboard-main {
-    padding: 24px 16px 80px !important;
+    padding: 24px 16px 24px !important;
   }
 
   .dashboard-stats-grid {

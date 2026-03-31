@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
-import { AppHeader } from '@/components/AppHeader';
 
 export default function AuditPage() {
   const { user } = useUser();
@@ -62,11 +61,7 @@ export default function AuditPage() {
 
   // Loading state
   if (isAnnual === null) {
-    return (
-      <div style={{ minHeight: '100vh', background: '#0a0a0f', fontFamily: '"DM Sans", sans-serif', color: '#f0f0f5' }}>
-        <AppHeader activePage="settings" credits={{ plan: currentPlan, remaining: 0, total: 0 }} />
-      </div>
-    );
+    return <div style={{ minHeight: '100vh', background: '#0a0a0f' }} />;
   }
 
   // No annual plan
@@ -91,7 +86,6 @@ export default function AuditPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0f', fontFamily: '"DM Sans", sans-serif', color: '#f0f0f5' }}>
-      <AppHeader activePage="settings" credits={{ plan: currentPlan, remaining: 0, total: 0 }} />
 
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '40px 24px' }}>
         <div style={{ marginBottom: 32 }}>

@@ -64,7 +64,6 @@ function buildWeekGroups(currentDays: CalendarDay[]): CalendarDay[][] {
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
-import { AppHeader } from '@/components/AppHeader';
 
 // ─── POLSKIE OKAZJE ───────────────────────────────────────────────────────────
 const POLISH_OCCASIONS: Record<string, { name: string; emoji: string }> = {
@@ -747,7 +746,6 @@ useEffect(() => {
 
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
-        <AppHeader activePage="calendar" credits={credits} />
 
         {/* alignItems: 'start' is critical here — prevents column height synchronization
              when the right column changes size (day panel open/close). Do not remove. */}

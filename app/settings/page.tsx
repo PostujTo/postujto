@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
-import { AppHeader } from '@/components/AppHeader';
 import Link from 'next/link';
 
 const BRAND_STYLES = [
@@ -321,7 +320,6 @@ export default function SettingsPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0f', fontFamily: '"DM Sans", sans-serif', color: '#f0f0f5' }}>
-      <AppHeader activePage="settings" credits={{ plan: currentPlan, remaining: 0, total: 0 }} onPortalClick={handlePortal} portalLoading={portalLoading} />
 
       <div className="settings-content" style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px' }}>
         {/* Title */}

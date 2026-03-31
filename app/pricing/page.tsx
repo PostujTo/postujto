@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
-import { AppHeader } from '@/components/AppHeader';
 import Link from 'next/link';
 
 export default function PricingPage() {
@@ -170,7 +169,6 @@ const plans = [
   </div>
 )}
 
-      <AppHeader />
 
       {/* HEADER */}
       <div style={{ textAlign: 'center', padding: '80px 24px 60px' }}>

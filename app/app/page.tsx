@@ -52,7 +52,6 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { SignInButton, SignedIn, SignedOut, useClerk, useUser } from '@clerk/nextjs';
-import { AppHeader } from '@/components/AppHeader';
 
 type Plan = 'free' | 'standard' | 'premium';
 type ToastType = 'error' | 'success' | 'info' | 'warning';
@@ -150,7 +149,6 @@ export default function GeneratorPage() {
     try { const d = localStorage.getItem('dash_credits'); return d ? JSON.parse(d) : null; } catch { return null; }
   });
   const [loadingCredits, setLoadingCredits] = useState(false);
-  const [portalLoading, setPortalLoading] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [inspirations, setInspirations] = useState<{ title: string; type: 'pain' | 'result' | 'relation' }[]>([]);
   const [activeTopicIndex, setActiveTopicIndex] = useState<number | null>(null);
@@ -329,16 +327,6 @@ const handleConfirmPlanTerms = async () => {
     } catch { showToast('Wystąpił błąd. Spróbuj ponownie.', 'error'); }
   };
 
-  const handleCustomerPortal = async () => {
-    setPortalLoading(true);
-    try {
-      const res = await fetch('/api/stripe/customer-portal', { method: 'POST' });
-      const data = await res.json();
-      if (!res.ok) { showToast(data.error || 'Błąd portalu', 'error'); return; }
-      if (data.url) window.location.href = data.url;
-    } catch { showToast('Wystąpił błąd. Spróbuj ponownie.', 'error'); }
-    finally { setPortalLoading(false); }
-  };
 
   const generateImage = async (idx: number) => {
     if (!results) return;
@@ -625,7 +613,6 @@ const handleConfirmPlanTerms = async () => {
 
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
-        <AppHeader activePage="generator" credits={credits} onPortalClick={handleCustomerPortal} portalLoading={portalLoading} />
 
         {/* MAIN */}
         <main className="generator-main" style={{ flex: 1, maxWidth: 1200, margin: '0 auto', width: '100%', padding: '48px 24px 80px' }}>

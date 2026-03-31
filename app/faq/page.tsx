@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { AppHeader } from '@/components/AppHeader';
 
 const FAQ_ITEMS = [
   {
@@ -134,7 +133,6 @@ export default function FAQPage() {
 
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
-        <AppHeader />
 
         <main style={{ flex: 1, maxWidth: 800, margin: '0 auto', width: '100%', padding: '64px 24px 100px' }}>
 

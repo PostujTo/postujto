@@ -4,6 +4,9 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Poppins, DM_Sans } from 'next/font/google';
 import { CookieBanner } from '@/components/CookieBanner';
+import { TopAppBar } from '@/components/nav/TopAppBar';
+import { BottomNavBarConditional } from '@/components/nav/BottomNavBarConditional';
+import { MainWrapper } from '@/components/nav/MainWrapper';
 
 const poppins = Poppins({
   weight: ['600', '700', '800'],
@@ -24,16 +27,14 @@ export const metadata: Metadata = {
   description: 'Twój profil na FB, IG i TikTok zawsze aktywny. 30 postów w 5 minut, bez agencji, bez stresu. Zacznij za darmo.',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
       <html lang="pl">
         <body className={`${poppins.variable} ${dmSans.variable}`}>
-          {children}
+          <TopAppBar />
+          <MainWrapper>{children}</MainWrapper>
+          <BottomNavBarConditional />
           <CookieBanner />
           <Script src="//code.tidio.co/n72cgknm7wuvvfcfhz0dglu7gwkcef2n.js" strategy="afterInteractive" />
         </body>

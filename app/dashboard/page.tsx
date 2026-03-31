@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useUser } from '@clerk/nextjs';
-import { AppHeader } from '@/components/AppHeader';
 import Link from 'next/link';
 
 type Post = { text: string; hashtags: string[]; imagePrompt: string; };
@@ -308,7 +307,6 @@ const deleteAccount = async () => {
 
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
-        <AppHeader activePage="dashboard" credits={credits} />
 
         <main className="dashboard-main" style={{ flex: 1, maxWidth: 1200, margin: '0 auto', width: '100%', padding: '48px 24px 80px' }}>
 

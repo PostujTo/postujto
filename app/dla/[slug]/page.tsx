@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { AppHeader } from '@/components/AppHeader';
 import { industries, INDUSTRY_TOPICS } from '@/lib/industries';
 import { GOLDEN_PATTERNS } from '@/lib/prompts';
 
@@ -40,7 +39,6 @@ export default async function IndustryLandingPage({ params }: { params: Promise<
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0f', fontFamily: '"DM Sans", sans-serif', color: '#f0f0f5' }}>
-      <AppHeader />
 
       {/* ── 1. HERO ── */}
       <section style={{ maxWidth: 760, margin: '0 auto', padding: '80px 24px 56px', textAlign: 'center' }}>
