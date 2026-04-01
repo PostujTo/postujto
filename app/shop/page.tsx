@@ -2,7 +2,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
-import { useSearchParams } from 'next/navigation';
 
 interface Connection {
   id: string;
@@ -75,7 +74,6 @@ const S = {
 export default function ShopPage() {
   const { user, isLoaded } = useUser();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [plan, setPlan] = useState<string>('free');
   const [connections, setConnections] = useState<Connection[]>([]);
   const [loading, setLoading] = useState(true);
@@ -100,11 +98,13 @@ export default function ShopPage() {
   }, [user]);
 
   useEffect(() => {
-    const urlError = searchParams.get('error');
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const urlError = params.get('error');
     if (urlError && ERROR_MESSAGES[urlError]) setError(ERROR_MESSAGES[urlError]);
-    const connected = searchParams.get('connected');
+    const connected = params.get('connected');
     if (connected) loadConnections();
-  }, [searchParams]);
+  }, []);
 
   const loadConnections = useCallback(async () => {
     setLoading(true);
