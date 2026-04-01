@@ -225,15 +225,28 @@ const handleConfirmPlanTerms = async () => {
 
   useEffect(() => { sessionStorage.setItem('lastTopic', topic); }, [topic]);
 
-  // Deep link: /app?topic=...&industry=... (z Landing Pages)
+  // Deep link: /app?topic=...&industry=...&product_id=... (z Landing Pages i Shop)
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
     const urlTopic = params.get('topic');
     const urlIndustry = params.get('industry');
+    const urlProductId = params.get('product_id');
     if (urlTopic) setTopic(urlTopic);
     if (urlIndustry) setSelectedIndustry(urlIndustry);
-    if (urlTopic || urlIndustry) window.history.replaceState({}, '', '/app');
+    if (urlTopic || urlIndustry || urlProductId) window.history.replaceState({}, '', '/app');
+    if (!urlTopic && urlProductId) {
+      fetch('/api/shop/product?id=' + urlProductId)
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (!data?.product) return;
+          const p = data.product;
+          const parts: string[] = [p.name];
+          if (p.price) parts.push('w cenie ' + p.price + ' ' + (p.currency || 'PLN'));
+          setTopic(parts.join(' — '));
+        })
+        .catch(() => {});
+    }
   }, []);
 
   // Fetch inspiracji branżowych gdy użytkownik wybierze branżę

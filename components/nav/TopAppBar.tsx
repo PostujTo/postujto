@@ -71,6 +71,7 @@ export function TopAppBar() {
             <>
               <NavLink href="/app" pathname={pathname}>Generator</NavLink>
               <NavLink href="/calendar" pathname={pathname}>Kalendarz</NavLink>
+              <NavLink href="/shop" pathname={pathname}>Sklep</NavLink>
               <NavLink href="/dashboard" pathname={pathname}>Dashboard</NavLink>
               <NavLink href="/settings" pathname={pathname}>Ustawienia</NavLink>
             </>
