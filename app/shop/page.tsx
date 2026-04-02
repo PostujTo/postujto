@@ -356,7 +356,7 @@ export default function ShopPage() {
           <>
             {connections.length > 0 && (
               <>
-                <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12, color: 'rgba(240,240,245,0.7)' }}>Polaczone sklepy</h2>
+                <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12, color: 'rgba(240,240,245,0.7)' }}>Połączone sklepy</h2>
                 {connections.map(conn => (
                   <div key={conn.id} style={{ ...S.card, display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
                     <div style={{ fontSize: 28 }}>{PLATFORM_ICONS[conn.platform]}</div>
@@ -396,7 +396,7 @@ export default function ShopPage() {
                         onClick={() => key === 'allegro' ? handleAllegroConnect() : setConnectModal(key)}
                         style={{ ...S.btn, ...S.btnPrimary, width: '100%', justifyContent: 'center' }}
                       >
-                        Polacz →
+                        Połącz →
                       </button>
                     </div>
                   ))}
