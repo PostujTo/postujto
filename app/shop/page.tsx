@@ -35,10 +35,10 @@ const PLATFORM_ICONS: Record<string, string> = {
 };
 
 const ERROR_MESSAGES: Record<string, string> = {
-  allegro_auth_failed: 'Autoryzacja Allegro nie powiodla sie. Sprobuj ponownie.',
-  plan_limit: 'Osiagnales limit polaczonych sklepow dla swojego planu.',
-  allegro_callback_failed: 'Blad podczas laczenia z Allegro. Sprobuj ponownie.',
-  user_not_found: 'Nie znaleziono uzytkownika.',
+  allegro_auth_failed: 'Autoryzacja Allegro nie powiodła się. Spróbuj ponownie.',
+  plan_limit: 'Osiągnąłeś limit połączonych sklepów dla swojego planu.',
+  allegro_callback_failed: 'Błąd podczas łączenia z Allegro. Spróbuj ponownie.',
+  user_not_found: 'Nie znaleziono użytkownika.',
 };
 
 function formatSyncTime(isoStr: string | null): string {
@@ -113,7 +113,7 @@ export default function ShopPage() {
       const data = await r.json();
       setConnections(data.connections || []);
     } catch {
-      setError('Blad ladowania polaczen');
+      setError('Błąd ładowania połączeń');
     } finally {
       setLoading(false);
     }
@@ -130,7 +130,7 @@ export default function ShopPage() {
       setProducts(data.products || []);
       setProductsTotal(data.total || 0);
     } catch {
-      setError('Blad ladowania produktow');
+      setError('Błąd ładowania produktów');
     } finally {
       setProductsLoading(false);
     }
@@ -156,7 +156,7 @@ export default function ShopPage() {
         body: JSON.stringify(body),
       });
       const data = await r.json();
-      if (!r.ok) throw new Error(data.error || 'Blad polaczenia');
+      if (!r.ok) throw new Error(data.error || 'Błąd połączenia');
       setConnectModal(null);
       setFormApiKey('');
       setFormShopUrl('');
@@ -190,7 +190,7 @@ export default function ShopPage() {
         body: JSON.stringify({ connection_id: selectedConn.id }),
       });
       const data = await r.json();
-      if (!r.ok) throw new Error(data.error || 'Blad synchronizacji');
+      if (!r.ok) throw new Error(data.error || 'Błąd synchronizacji');
       await loadConnections();
       await loadProducts(selectedConn, search, productsOffset);
     } catch (e: any) {
@@ -201,7 +201,7 @@ export default function ShopPage() {
   };
 
   const handleDisconnect = async (conn: Connection) => {
-    if (!window.confirm('Odlaczyc sklep ' + PLATFORM_LABELS[conn.platform] + '? Wszystkie produkty zostana usuniete z PostujTo.')) return;
+    if (!window.confirm('Odłączyć sklep ' + PLATFORM_LABELS[conn.platform] + '? Wszystkie produkty zostaną usunięte z PostujTo.')) return;
     setError(null);
     try {
       const r = await fetch('/api/shop/disconnect', {
@@ -209,7 +209,7 @@ export default function ShopPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ connection_id: conn.id }),
       });
-      if (!r.ok) { const d = await r.json(); throw new Error(d.error || 'Blad rozlaczania'); }
+      if (!r.ok) { const d = await r.json(); throw new Error(d.error || 'Błąd rozłączania'); }
       if (selectedConn?.id === conn.id) setSelectedConn(null);
       await loadConnections();
     } catch (e: any) {
@@ -240,7 +240,7 @@ export default function ShopPage() {
     <div style={S.page}>
       <div style={S.container}>
         <h1 style={S.title}>Sklep</h1>
-        <p style={S.subtitle}>Polacz sklep i generuj posty produktowe jednym kliknieciem</p>
+        <p style={S.subtitle}>Połącz sklep i generuj posty produktowe jednym kliknięciem</p>
 
         {error && (
           <div style={S.error}>
@@ -254,7 +254,7 @@ export default function ShopPage() {
             <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
             <h2 style={{ fontSize: 22, fontWeight: 700, margin: '0 0 12px' }}>Funkcja dla planow Starter i Pro</h2>
             <p style={{ color: 'rgba(240,240,245,0.5)', margin: '0 0 24px', fontSize: 15 }}>
-              Polacz swoj sklep, importuj produkty i generuj posty AI jednym kliknieciem.
+              Połącz swój sklep, importuj produkty i generuj posty AI jednym kliknięciem.
             </p>
             <a href="/pricing" style={{ ...S.btn, ...S.btnPrimary, textDecoration: 'none', display: 'inline-flex' }}>
               Przejdz na Starter →
@@ -275,7 +275,7 @@ export default function ShopPage() {
                 Sync: {formatSyncTime(selectedConn.last_sync_at)}
               </span>
               <button onClick={handleSync} disabled={syncing} style={{ ...S.btn, ...S.btnGhost, marginLeft: 'auto' }}>
-                {syncing ? 'Synchronizuje...' : '↻ Synchronizuj'}
+                {syncing ? 'Synchronizuję...' : '↻ Synchronizuj'}
               </button>
             </div>
 
@@ -294,7 +294,7 @@ export default function ShopPage() {
             ) : products.length === 0 ? (
               <div style={{ ...S.card, textAlign: 'center', padding: 32 }}>
                 <p style={{ color: 'rgba(240,240,245,0.4)', margin: 0 }}>
-                  {search ? 'Brak produktow dla "' + search + '"' : 'Brak produktow. Kliknij Synchronizuj, aby pobrac produkty.'}
+                  {search ? 'Brak produktów dla "' + search + '"' : 'Brak produktów. Kliknij Synchronizuj, aby pobrać produkty.'}
                 </p>
               </div>
             ) : (
@@ -370,7 +370,7 @@ export default function ShopPage() {
                       Produkty →
                     </button>
                     <button onClick={() => handleDisconnect(conn)} style={{ ...S.btn, ...S.btnDanger }}>
-                      Odlacz
+                      Odłącz
                     </button>
                   </div>
                 ))}
@@ -380,7 +380,7 @@ export default function ShopPage() {
             {(connections.length === 0 || canAddMore) && (
               <>
                 <h2 style={{ fontSize: 16, fontWeight: 600, margin: connections.length > 0 ? '24px 0 12px' : '0 0 12px', color: 'rgba(240,240,245,0.7)' }}>
-                  {connections.length === 0 ? 'Polacz swoj sklep' : 'Dodaj kolejny sklep'}
+                  {connections.length === 0 ? 'Połącz swój sklep' : 'Dodaj kolejny sklep'}
                 </h2>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16 }}>
                   {[
@@ -408,7 +408,7 @@ export default function ShopPage() {
               <div style={{ marginTop: 48, padding: '24px', background: 'rgba(108,71,255,0.06)', borderRadius: 12, border: '1px solid rgba(108,71,255,0.15)' }}>
                 <p style={{ margin: 0, fontSize: 14, color: 'rgba(240,240,245,0.5)', lineHeight: 1.6 }}>
                   <strong style={{ color: 'rgba(240,240,245,0.8)' }}>Jak to dziala?</strong><br />
-                  1. Polacz sklep (Baselinker, Shoper lub Allegro)<br />
+                  1. Połącz sklep (Baselinker, Shoper lub Allegro)<br />
                   2. PostujTo importuje Twoje produkty automatycznie<br />
                   3. Kliknij "Generuj post" przy dowolnym produkcie<br />
                   4. Claude AI tworzy post w stylu Twojej marki z cena jako CTA
@@ -423,7 +423,7 @@ export default function ShopPage() {
       {connectModal === 'baselinker' && (
         <div style={S.overlay} onClick={() => setConnectModal(null)}>
           <div style={S.modal} onClick={e => e.stopPropagation()}>
-            <h2 style={S.modalTitle}>Polacz BaseLinker</h2>
+            <h2 style={S.modalTitle}>Połącz BaseLinker</h2>
             {error && <div style={S.error}>{error}</div>}
             <label style={S.label}>Klucz API BaseLinker</label>
             <input
@@ -442,7 +442,7 @@ export default function ShopPage() {
                 Anuluj
               </button>
               <button onClick={handleConnect} disabled={!formApiKey || connecting} style={{ ...S.btn, ...S.btnPrimary, opacity: (!formApiKey || connecting) ? 0.6 : 1 }}>
-                {connecting ? 'Laczenie...' : 'Polacz i importuj →'}
+                {connecting ? 'Łączenie...' : 'Połącz i importuj →'}
               </button>
             </div>
           </div>
@@ -453,7 +453,7 @@ export default function ShopPage() {
       {connectModal === 'shoper' && (
         <div style={S.overlay} onClick={() => setConnectModal(null)}>
           <div style={S.modal} onClick={e => e.stopPropagation()}>
-            <h2 style={S.modalTitle}>Polacz Shoper</h2>
+            <h2 style={S.modalTitle}>Połącz Shoper</h2>
             {error && <div style={S.error}>{error}</div>}
             <label style={S.label}>Adres sklepu</label>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
@@ -483,7 +483,7 @@ export default function ShopPage() {
                 Anuluj
               </button>
               <button onClick={handleConnect} disabled={!formApiKey || !formShopUrl || connecting} style={{ ...S.btn, ...S.btnPrimary, opacity: (!formApiKey || !formShopUrl || connecting) ? 0.6 : 1 }}>
-                {connecting ? 'Laczenie...' : 'Polacz i importuj →'}
+                {connecting ? 'Łączenie...' : 'Połącz i importuj →'}
               </button>
             </div>
           </div>

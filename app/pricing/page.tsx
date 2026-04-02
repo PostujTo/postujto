@@ -126,6 +126,9 @@ const plans = [
         .pricing-card.featured { background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(168,85,247,0.15)); border-color: rgba(99,102,241,0.5) !important; }
         .gradient-text { background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         body { scrollbar-gutter: stable; }
+        @media (max-width: 767px) {
+          .pricing-grid { grid-template-columns: 1fr !important; }
+        }
       `}</style>
 
       {/* TERMS ALERT MODAL */}
@@ -209,7 +212,7 @@ const plans = [
       )}
 
       {/* PRICING CARDS */}
-      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '0 24px 80px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, alignItems: 'stretch' }}>
+      <div className="pricing-grid" style={{ maxWidth: 1000, margin: '0 auto', padding: '0 24px 80px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, alignItems: 'stretch' }}>
         {plans.map((plan, i) => (
           <div
             key={i}

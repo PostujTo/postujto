@@ -1,12 +1,16 @@
-import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
 async function checkSupabase(): Promise<boolean> {
   try {
-    const res = await fetch(
-      process.env.NEXT_PUBLIC_SUPABASE_URL + '/rest/v1/',
-      { headers: { apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '' }, cache: 'no-store' }
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
-    return res.ok || res.status === 400;
+    const { error } = await supabase
+      .from('users')
+      .select('count', { count: 'exact', head: true })
+      .limit(1);
+    return !error;
   } catch {
     return false;
   }
