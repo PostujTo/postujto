@@ -168,7 +168,7 @@ body {
   /* K1 — hide grid view, show list by default */
   .calendar-grid-view { display: none !important; }
   .calendar-list-view { display: block !important; }
-  .view-toggle-btn { display: none !important; }
+  .view-toggle-btn { display: flex !important; }
 
   /* K2 — tone/length selectors wrap on mobile */
   .tone-selector {
@@ -314,5 +314,13 @@ body {
   }
   .company-name-btns button {
     flex: 1 !important;
+  }
+}
+
+/* Tidio chat widget — przesun powyzej BottomNavBar na mobile */
+@media (max-width: 767px) {
+  #tidio-chat-iframe,
+  #tidio-chat {
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
