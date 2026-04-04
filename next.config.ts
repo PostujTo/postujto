@@ -25,6 +25,23 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: '/(.*)', headers: securityHeaders }];
   },
+  async redirects() {
+    const dlaRedirects = [
+      { from: 'salon-kosmetyczny', to: 'kosmetyczka' },
+      { from: 'sklep-spozywczy',   to: 'sklep' },
+      { from: 'sklep-odziezowy',   to: 'sklep' },
+      { from: 'silownia',          to: 'fitness' },
+      { from: 'rekodzielnik',      to: 'rekodzielnictwo' },
+      { from: 'rzemioslo',         to: 'rekodzielnictwo' },
+      { from: 'it-software',       to: 'uslugi' },
+      { from: 'przychodnia',       to: 'stomatolog' },
+    ];
+    return dlaRedirects.map(({ from, to }) => ({
+      source: `/dla/${from}`,
+      destination: `/dla/${to}`,
+      permanent: true,
+    }));
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
   },
