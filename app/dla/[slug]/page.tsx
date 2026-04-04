@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { industries, INDUSTRY_TOPICS } from '@/lib/industries';
 import { GOLDEN_PATTERNS } from '@/lib/prompts';
+import { PricingSection } from './PricingSection';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -154,28 +155,7 @@ export default async function IndustryLandingPage({ params }: { params: Promise<
       </section>
 
       {/* ── 7. CENNIK / CTA ── */}
-      <section style={s.section}>
-        <h2 style={{ ...s.h2, textAlign: 'center' }}>Wybierz swój plan</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, marginTop: 32 }}>
-          {[
-            { name: 'Free', price: '0 zł', desc: '5 postów po rejestracji', color: 'rgba(255,255,255,0.06)', cta: 'Zacznij za darmo', href: '/sign-up' },
-            { name: 'Starter', price: '97 zł/msc', desc: 'Unlimited posty • Publikacja na 14 platform • Brand Kit • Integracja sklepu', color: 'rgba(99,102,241,0.15)', cta: 'Wybierz Starter', href: '/pricing', highlight: true },
-            { name: 'Pro', price: '247 zł/msc', desc: 'Wszystko ze Starter + AI Trend Advisor • auto-obrazy • audyt profilu', color: 'rgba(168,85,247,0.1)', cta: 'Wybierz Pro', href: '/pricing' },
-          ].map(plan => (
-            <div key={plan.name} style={{ background: plan.color, border: plan.highlight ? '1px solid rgba(99,102,241,0.5)' : '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '24px 20px', textAlign: 'center' }}>
-              <p style={{ fontWeight: 800, fontSize: 18, color: '#fff', marginBottom: 4 }}>{plan.name}</p>
-              <p style={{ fontSize: 24, fontWeight: 700, color: plan.highlight ? '#a5b4fc' : '#fff', marginBottom: 8 }}>{plan.price}</p>
-              <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.45)', marginBottom: 20, lineHeight: 1.5 }}>{plan.desc}</p>
-              <Link href={plan.href} style={{ display: 'block', padding: '10px 16px', background: plan.highlight ? 'linear-gradient(135deg,#6366f1,#a855f7)' : 'rgba(255,255,255,0.08)', borderRadius: 10, color: '#fff', fontWeight: 700, fontSize: 13, textDecoration: 'none' }}>
-                {plan.cta}
-              </Link>
-            </div>
-          ))}
-        </div>
-        <p style={{ textAlign: 'center', fontSize: 13, color: 'rgba(240,240,245,0.3)', marginTop: 20 }}>
-          Nie potrzebujesz karty — zacznij za darmo
-        </p>
-      </section>
+      <PricingSection />
 
       {/* ── 8. FAQ ── */}
       <section style={{ background: 'rgba(255,255,255,0.01)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>

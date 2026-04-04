@@ -366,6 +366,11 @@ body {
   }
 }
 
+/* LP branżowe — karty cenowe mobile */
+@media (max-width: 640px) {
+  .dla-pricing-grid { grid-template-columns: 1fr !important; }
+}
+
 /* Tidio chat widget — przesun powyzej BottomNavBar na mobile */
 @media (max-width: 767px) {
   #tidio-chat-iframe,
