@@ -10,7 +10,7 @@ function FaqAccordion() {
   const items = [
     { q: 'Czy mogę przetestować PostujTo za darmo?', a: 'Tak! Po rejestracji otrzymujesz 5 darmowych kredytów — bez karty kredytowej. Każdy kredyt to jedno generowanie 3 wersji posta.' },
     { q: 'Czy posty są generowane po polsku?', a: 'Tak, wszystkie posty są generowane naturalną polszczyzną, z uwzględnieniem polskich zwrotów marketingowych i prawa reklamowego.' },
-    { q: 'Czym różni się Starter od Pro?', a: 'Starter (79 zł/msc) zawiera unlimited posty, obrazy AI i Brand Kit. Pro (199 zł/msc) dodaje automatyczne 3 obrazy do każdego posta i logo na obrazach.' },
+    { q: 'Czym różni się Starter od Pro?', a: 'Starter (97 zł/msc) zawiera unlimited posty, obrazy AI, Brand Kit i automatyczną publikację na 14 platformach przez Zernio. Pro (247 zł/msc) dodaje auto 3 obrazy do każdego posta, AI Trend Advisor i audyt profilu.' },
     { q: 'Czy mogę anulować subskrypcję?', a: 'Tak, w dowolnym momencie przez Panel → Subskrypcja. Zachowujesz dostęp do końca opłaconego okresu. Odnowienia są bezzwrotne.' },
     { q: 'Czy moje dane są bezpieczne?', a: 'Dane przechowujemy na serwerach w Irlandii (UE). Płatności obsługuje Stripe. Treści generowane przez AI nie są używane do trenowania modeli.' },
   ];
@@ -459,6 +459,7 @@ const handleConfirmTerms = async () => {
                 </button>
               </Link>
             </div>
+            <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.35)', marginTop: -32, marginBottom: 48 }}>Bez karty kredytowej • Pierwsze 5 postów gratis</p>
 
             {/* Social proof mini */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -544,7 +545,7 @@ const handleConfirmTerms = async () => {
             {[
               { value: '10h', label: 'tygodniowo odzyskanych' },
               { value: '30', label: 'postów w 5 minut' },
-              { value: '3', label: 'platformy jednocześnie' },
+              { value: '14', label: 'platform dzięki Zernio' },
               { value: '21', label: 'branż, każda z własnym stylem' },
             ].map((stat, i) => (
               <div
@@ -574,7 +575,7 @@ const handleConfirmTerms = async () => {
             {[
                   { step: '01', title: 'Ustaw markę', desc: 'Wpisz nazwę firmy, wklej link do swojej strony WWW — AI sam wypełni Brand Kit. Zrób to raz, a każdy post będzie brzmieć jak Ty.', delay: 0 },
                   { step: '02', title: 'Wpisz temat', desc: 'Wybierz gotowy temat z inspiracji dla Twojej branży albo wpisz własny. AI dobiera strukturę, ton i długość pod każdą platformę.', delay: 0.15 },
-                  { step: '03', title: 'Publikuj', desc: 'Dostaniesz 3 gotowe wersje tekstu z hashtagami i grafiką AI. Kopiuj i wrzucaj bezpośrednio na platformy.', delay: 0.3 },
+                  { step: '03', title: 'Publikuj automatycznie', desc: 'Dostaniesz 3 gotowe wersje tekstu z hashtagami i grafiką AI. Jeden klik — post trafia automatycznie na 14 platform przez Zernio.', delay: 0.3 },
                   ].map((item, i) => (
               <div key={i} className={`section-reveal from-up ${isVisible('how') ? 'visible' : ''}`} style={{ transitionDelay: `${item.delay}s` }}>
             <div className="card-glass" style={{ borderRadius: 20, padding: 36, height: '100%' }}>
@@ -882,18 +883,18 @@ const handleConfirmTerms = async () => {
     },
     {
       name: 'Starter',
-      price: landingBilling === 'monthly' ? '79' : '63',
-      period: landingBilling === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 756 zł/rok',
-      desc: landingBilling === 'monthly' ? '2,60 zł dziennie' : 'Oszczędzasz 192 zł rocznie',
-      features: ['Unlimited postów', 'Generowanie obrazów AI', 'Brand Kit', 'Głos marki', 'Historia i ulubione', 'Kalendarz polskich okazji'],
+      price: landingBilling === 'monthly' ? '97' : '77',
+      period: landingBilling === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 924 zł/rok',
+      desc: landingBilling === 'monthly' ? '3,20 zł dziennie' : 'Oszczędzasz 240 zł rocznie',
+      features: ['Unlimited postów', 'Brand Kit i głos marki', 'Kalendarz treści', 'Automatyczna publikacja (Zernio)', 'Integracja ze sklepem', 'Generowanie obrazów AI'],
       featured: true, badge: 'NAJPOPULARNIEJSZY', href: '/pricing', cta: 'Wybierz Starter',
     },
     {
       name: 'Pro',
-      price: landingBilling === 'monthly' ? '199' : '159',
-      period: landingBilling === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 1908 zł/rok',
-      desc: landingBilling === 'monthly' ? '6,60 zł dziennie' : 'Oszczędzasz 480 zł rocznie',
-      features: ['Wszystko ze Starter', 'Auto 3 obrazy przy każdym poście', 'Podpis marki na obrazach', 'Priorytetowe generowanie'],
+      price: landingBilling === 'monthly' ? '247' : '197',
+      period: landingBilling === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 2364 zł/rok',
+      desc: landingBilling === 'monthly' ? '8,20 zł dziennie' : 'Oszczędzasz 600 zł rocznie',
+      features: ['Wszystko ze Starter', 'Auto 3 obrazy AI przy każdym poście', 'AI Trend Advisor', 'Audyt profilu AI (co 3 msc)', 'Wsparcie priorytetowe'],
       featured: false, href: '/pricing', cta: 'Wybierz Pro',
     },
   ].map((plan, i) => (

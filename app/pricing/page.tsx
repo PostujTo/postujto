@@ -70,8 +70,8 @@ const handleConfirmTerms = async () => {
   }
 };
 
-  const monthlyPrices = { starter: '79', pro: '199' };
-const annualPrices  = { starter: '63', pro: '159' };
+  const monthlyPrices = { starter: '97', pro: '247' };
+const annualPrices  = { starter: '77', pro: '197' };
 const prices = billing === 'monthly' ? monthlyPrices : annualPrices;
 
 const plans = [
@@ -89,9 +89,9 @@ const plans = [
   {
     name: 'Starter',
     price: prices.starter,
-    period: billing === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 756 zł/rok',
-    desc: billing === 'monthly' ? '2,60 zł dziennie' : 'Oszczędzasz 192 zł rocznie',
-    features: ['Unlimited postów', 'Generowanie obrazów AI', 'Brand Kit', 'Głos marki', 'Historia i ulubione', 'Kalendarz polskich okazji'],
+    period: billing === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 924 zł/rok',
+    desc: billing === 'monthly' ? '3,20 zł dziennie' : 'Oszczędzasz 240 zł rocznie',
+    features: ['Unlimited postów', 'Brand Kit (kolory, ton, głos marki)', 'Generowanie obrazów AI', 'Kalendarz treści z polskimi okazjami', 'Historia i ulubione posty', 'Automatyczna publikacja (Zernio — 14 platform)', 'Integracja ze sklepem (Baselinker / Shoper / Allegro)', 'Eksport CSV'],
     featured: true,
     badge: 'NAJPOPULARNIEJSZY',
     planKey: 'standard',
@@ -102,9 +102,9 @@ const plans = [
   {
     name: 'Pro',
     price: prices.pro,
-    period: billing === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 1908 zł/rok',
-    desc: billing === 'monthly' ? '6,60 zł dziennie' : 'Oszczędzasz 480 zł rocznie',
-    features: ['Wszystko ze Starter', 'Auto 3 obrazy przy każdym poście', 'Podpis marki na obrazach', 'Priorytetowe generowanie'],
+    period: billing === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 2364 zł/rok',
+    desc: billing === 'monthly' ? '8,20 zł dziennie' : 'Oszczędzasz 600 zł rocznie',
+    features: ['Wszystko ze Starter', 'Auto 3 obrazy AI przy każdym poście', 'Podpis marki na obrazach', 'Priorytetowe generowanie', 'AI Trend Advisor — codzienne tematy z branży', 'Audyt profilu AI (co 3 miesiące)', 'Wsparcie priorytetowe'],
     featured: false,
     badge: null,
     planKey: 'premium',
@@ -205,7 +205,7 @@ const plans = [
               🎁 Zacznij z 14-dniowym próbnym dostępem za 1 zł
             </p>
             <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.5)' }}>
-              Pełny Starter bez limitów. Po 14 dniach — automatycznie 79 zł/msc. Anulujesz jednym kliknięciem.
+              Pełny Starter bez limitów. Po 14 dniach — automatycznie 97 zł/msc. Anulujesz jednym kliknięciem.
             </p>
           </div>
         </div>
@@ -283,22 +283,26 @@ const plans = [
             {['Starter', 'Pro'].map((plan, i) => (
               <div key={i} style={{ padding: '20px 24px', textAlign: 'center', background: i === 1 ? 'rgba(99,102,241,0.1)' : 'transparent', borderLeft: '1px solid rgba(255,255,255,0.07)' }}>
                 <p style={{ fontSize: 13, fontWeight: 700, color: '#6366f1', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>{plan}</p>
-                <p style={{ fontSize: 26, fontWeight: 800, color: '#f0f0f5' }}>{i === 0 ? '79' : '199'} <span style={{ fontSize: 14, fontWeight: 500, color: 'rgba(240,240,245,0.4)' }}>zł/msc</span></p>
+                <p style={{ fontSize: 26, fontWeight: 800, color: '#f0f0f5' }}>{i === 0 ? '97' : '247'} <span style={{ fontSize: 14, fontWeight: 500, color: 'rgba(240,240,245,0.4)' }}>zł/msc</span></p>
               </div>
             ))}
           </div>
           {[
             { feature: 'Generowanie postów', starter: 'Unlimited', pro: 'Unlimited' },
             { feature: 'Platformy', starter: 'FB / IG / TikTok', pro: 'FB / IG / TikTok' },
-            { feature: 'Brand Kit (kolory, ton)', starter: '✓', pro: '✓' },
+            { feature: 'Brand Kit', starter: '✓', pro: '✓' },
             { feature: 'Głos marki', starter: '✓', pro: '✓' },
             { feature: 'Kalendarz treści', starter: '✓', pro: '✓' },
             { feature: 'Historia postów', starter: '✓', pro: '✓' },
+            { feature: 'Automatyczna publikacja', starter: '✓ Zernio', pro: '✓ Zernio' },
+            { feature: 'Integracja sklepu', starter: '✓ 1 sklep', pro: '✓ 3 sklepy' },
             { feature: 'Generowanie obrazów AI', starter: 'Ręcznie (1 obraz)', pro: 'Auto 3 obrazy' },
             { feature: 'Podpis marki na obrazach', starter: '✗', pro: '✓' },
             { feature: 'Priorytetowe generowanie', starter: '✗', pro: '✓' },
+            { feature: 'AI Trend Advisor', starter: '✗', pro: '✓' },
+            { feature: 'Audyt profilu AI', starter: '✗', pro: '✓ co 3 msc' },
           ].map((row, i) => (
-            <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', borderBottom: i < 8 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+            <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', borderBottom: i < 12 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
               <div style={{ padding: '16px 28px', fontSize: 14, color: 'rgba(240,240,245,0.65)' }}>{row.feature}</div>
               {[row.starter, row.pro].map((val, j) => (
                 <div key={j} style={{ padding: '16px 24px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.06)', background: j === 1 ? 'rgba(99,102,241,0.05)' : 'transparent', fontSize: 14, fontWeight: val === '✓' ? 700 : 400, color: val === '✓' ? '#4ade80' : val === '✗' ? 'rgba(240,240,245,0.2)' : 'rgba(240,240,245,0.7)' }}>
