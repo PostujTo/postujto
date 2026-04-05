@@ -378,13 +378,15 @@ body {
    ====================================================== */
 
 /* Global overflow guard */
-html, body { overflow-x: hidden; max-width: 100vw; }
+/* overflow-x: clip (nie hidden!) — clip nie blokuje position:fixed */
+html { overflow-x: clip; max-width: 100vw; }
+body { overflow-x: clip; }
 
 @media (max-width: 767px) {
 
   /* ── Global resets ── */
   img, video, iframe, canvas { max-width: 100% !important; height: auto !important; }
-  section { overflow-x: hidden !important; }
+  /* section overflow-x usunięty — hidden na sekcjach może blokować position:fixed dzieci */
 
   /* ── NAV ── */
   nav > div { height: 60px !important; padding: 0 16px !important; }
