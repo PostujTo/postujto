@@ -658,7 +658,7 @@ const handleConfirmTerms = async () => {
                     <div style={{ width: 28, height: 28, borderRadius: 8, background: post.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: "#fff", flexShrink: 0 }}>{post.pl}</div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 11, color: "rgba(240,240,245,0.7)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{post.t}</div>
-                      <div style={{ fontSize: 9, color: "#fbbf24", marginTop: 2 }}>{"star".repeat(post.stars)}</div>
+                      <div style={{ fontSize: 9, color: "#fbbf24", marginTop: 2 }}>{"⭐".repeat(post.stars)}</div>
                     </div>
                   </div>
                 ))}

@@ -371,6 +371,123 @@ body {
   .dla-pricing-grid { grid-template-columns: 1fr !important; }
 }
 
+
+/* ======================================================
+   Landing page — mobile redesign (Material Design 3)
+   ONLY @media (max-width: 767px) — desktop unchanged
+   ====================================================== */
+
+/* Global overflow guard */
+html, body { overflow-x: hidden; max-width: 100vw; }
+
+@media (max-width: 767px) {
+
+  /* ── Global resets ── */
+  img, video, iframe, canvas { max-width: 100% !important; height: auto !important; }
+  section { overflow-x: hidden !important; }
+
+  /* ── NAV ── */
+  nav > div { height: 60px !important; padding: 0 16px !important; }
+  nav > div > div:last-child { gap: 10px !important; }
+  nav > div > div:last-child a:first-child { display: none !important; } /* hide Cennik link */
+
+  /* ── HERO ── */
+  .landing-hero { padding: 72px 16px 48px !important; }
+  .landing-hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+  .landing-hero-grid > div:first-child { order: 1 !important; text-align: center !important; }
+  .landing-hero-grid > div:last-child { order: 2 !important; width: 100% !important; }
+  .landing-hero h1 { font-size: 32px !important; line-height: 1.2 !important; white-space: normal !important; word-break: break-word !important; }
+  .landing-hero p { font-size: 15px !important; line-height: 1.6 !important; max-width: 100% !important; }
+  .landing-hero > div { justify-content: center !important; }
+  /* CTA button full width */
+  .landing-hero-grid > div:first-child > div a,
+  .landing-hero-grid > div:first-child > div a button { width: 100% !important; box-sizing: border-box !important; justify-content: center !important; }
+  /* social proof avatars */
+  .landing-hero-grid > div:first-child > div:last-child { justify-content: center !important; }
+  /* Demo card */
+  .landing-hero-grid > div:last-child > div { padding: 20px !important; }
+  /* Stats row inside hero card */
+  .landing-hero-grid > div:last-child .card-glass > div:last-child {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  /* ── FEATURES PILLS ── */
+  /* already flex-wrap, ensure padding */
+  .landing-hero + div > div { padding: 0 16px !important; }
+
+  /* ── STATS — 2×2 grid ── */
+  #stats > div > div {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0 !important;
+  }
+  #stats > div > div > div {
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+    padding: 28px 12px !important;
+  }
+
+  /* ── HOW IT WORKS — vertical steps ── */
+  #how > div > div:nth-child(2) {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  #how > div > div:nth-child(2) .card-glass { padding: 24px 20px !important; }
+  #how > div > div:nth-child(2) .step-number { font-size: 3rem !important; }
+  /* CTA below steps */
+  #how > div > div:nth-child(3) a button { width: 100% !important; box-sizing: border-box !important; }
+
+  /* ── PRODUCT PREVIEW — single column ── */
+  .app-preview-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  .app-preview-card { width: 100% !important; max-width: 100% !important; }
+  /* hide 2nd and 3rd card on mobile to avoid clutter — show only generator card */
+  /* Actually show all, just stack them */
+
+  /* ── FEATURES — single column ── */
+  #features > div > div:nth-child(2) {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  #features > div > div:nth-child(2) > div { padding: 20px !important; }
+
+  /* ── USE CASES (Dla kogo) — single column ── */
+  #usecases > div > div:nth-child(2) {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  #usecases > div > div:nth-child(2) > div { padding: 20px !important; }
+
+  /* ── SECURITY — single column ── */
+  #security > div > div:nth-child(2) {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  #security > div > div:nth-child(2) > div { padding: 20px !important; }
+
+  /* ── PRICING — single column ── */
+  #pricing > div > div:nth-child(3) {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+  .pricing-card-landing { padding: 28px 20px !important; }
+
+  /* ── CTA section ── */
+  #cta > div > div { padding: 40px 20px !important; }
+  #cta h2 { font-size: 28px !important; }
+  #cta a button { width: 100% !important; box-sizing: border-box !important; justify-content: center !important; font-size: 15px !important; }
+
+  /* ── FOOTER ── */
+  footer > div { flex-direction: column !important; align-items: flex-start !important; gap: 20px !important; }
+  footer > div > div:last-child { flex-wrap: wrap !important; gap: 16px !important; }
+
+}
+
 /* Tidio chat widget — przesun powyzej BottomNavBar na mobile */
 @media (max-width: 767px) {
   #tidio-chat-iframe,
