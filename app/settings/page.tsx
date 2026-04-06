@@ -88,6 +88,8 @@ export default function SettingsPage() {
   const tipStyle: React.CSSProperties = { position: 'absolute', top: '100%', left: 0, zIndex: 20, marginTop: 6, background: '#1a1a2e', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, padding: '8px 12px', fontSize: 12, color: 'rgba(240,240,245,0.75)', lineHeight: 1.6, width: 260 };
   const tipIcon: React.CSSProperties = { width: 16, height: 16, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', color: 'rgba(240,240,245,0.45)', fontSize: 10, fontWeight: 700, cursor: 'help', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 };
   const [saved, setSaved] = useState(false);
+  // Raw values from DB (no React defaults) — used ONLY for completeness score
+  const [dbBrandKit, setDbBrandKit] = useState<Record<string, unknown>>({});
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<string>('free');
   const [isAnnual, setIsAnnual] = useState(false);
@@ -126,6 +128,7 @@ export default function SettingsPage() {
       .then(r => r.json())
       .then(data => {
         if (data.brandKit) {
+          setDbBrandKit(data.brandKit); // raw from DB, no fallbacks — for completeness score
           setBrandKit({
             company_name: data.brandKit.company_name || '',
             colors: Array(5).fill('').map((_, i) => (data.brandKit.colors || [])[i] || ''),
@@ -289,6 +292,7 @@ export default function SettingsPage() {
       });
       if (res.ok) {
         setSaved(true);
+        setDbBrandKit({ ...brandKit }); // sync — user just saved, so DB now matches UI
         setTimeout(() => setSaved(false), 3000);
       }
     } finally {
@@ -303,14 +307,16 @@ export default function SettingsPage() {
     { key: 'colors' as keyof typeof brandKit, label: 'Kolory marki', weight: 15 },
     { key: 'tone' as keyof typeof brandKit, label: 'Ton komunikacji', weight: 10 },
   ];
-  const isBkFilled = (key: string, val: unknown): boolean => {
+  // Completeness uses dbBrandKit (raw DB values), NOT brandKit state (has defaults like tone:'professional')
+  const isBkFilled = (key: string): boolean => {
+    const val = dbBrandKit[key];
     if (key === 'colors') return Array.isArray(val) ? (val as string[]).some(c => c && c !== '#000000' && c !== '') : !!val;
     return !!val && val !== '';
   };
   const completeness = bkFields.reduce((sum, f) => {
-    return isBkFilled(f.key, brandKit[f.key]) ? sum + f.weight : sum;
+    return isBkFilled(f.key) ? sum + f.weight : sum;
   }, 0);
-  const missing = bkFields.filter(f => !isBkFilled(f.key, brandKit[f.key])).map(f => f.label);
+  const missing = bkFields.filter(f => !isBkFilled(f.key)).map(f => f.label);
 
   const s = {
     card: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: 20 } as React.CSSProperties,
