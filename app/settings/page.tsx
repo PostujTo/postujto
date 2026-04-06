@@ -90,6 +90,8 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
   // Raw values from DB (no React defaults) — used ONLY for completeness score
   const [dbBrandKit, setDbBrandKit] = useState<Record<string, unknown>>({});
+  const [isEditing, setIsEditing] = useState(false); // false = VIEW, true = EDIT
+  const [editSnapshot, setEditSnapshot] = useState<typeof brandKit | null>(null); // snapshot for cancel
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<string>('free');
   const [isAnnual, setIsAnnual] = useState(false);
@@ -129,6 +131,8 @@ export default function SettingsPage() {
       .then(data => {
         if (data.brandKit) {
           setDbBrandKit(data.brandKit); // raw from DB, no fallbacks — for completeness score
+          const hasContent = !!(data.brandKit.company_name || data.brandKit.sample_posts || data.brandKit.logo_url || data.brandKit.tone || (Array.isArray(data.brandKit.colors) && (data.brandKit.colors as string[]).some((c: string) => !!c)));
+          setIsEditing(!hasContent); // empty brand kit → edit mode, has data → view mode
           setBrandKit({
             company_name: data.brandKit.company_name || '',
             colors: Array(5).fill('').map((_, i) => (data.brandKit.colors || [])[i] || ''),
@@ -282,6 +286,17 @@ export default function SettingsPage() {
     }
   };
 
+  const handleEdit = () => {
+    setEditSnapshot({ ...brandKit });
+    setIsEditing(true);
+  };
+
+  const handleCancel = () => {
+    if (editSnapshot) setBrandKit(editSnapshot);
+    setEditSnapshot(null);
+    setIsEditing(false);
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -293,6 +308,8 @@ export default function SettingsPage() {
       if (res.ok) {
         setSaved(true);
         setDbBrandKit({ ...brandKit }); // sync — user just saved, so DB now matches UI
+        setEditSnapshot(null);
+        setIsEditing(false); // back to VIEW mode after save
         setTimeout(() => setSaved(false), 3000);
       }
     } finally {
@@ -338,6 +355,8 @@ export default function SettingsPage() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
+          {isEditing && (<>
+
           {/* Magic Import */}
           <div style={{ ...s.card, border: '1px solid rgba(99,102,241,0.25)', background: 'rgba(99,102,241,0.06)' }}>
             <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 4, color: '#a5b4fc' }}>✨ Auto-uzupełnij Brand Kit</p>
@@ -364,6 +383,7 @@ export default function SettingsPage() {
             {magicError && <p style={{ fontSize: 12, color: '#f87171', marginTop: 8 }}>⚠️ {magicError}</p>}
             {magicDone && !magicError && <p style={{ fontSize: 12, color: '#4ade80', marginTop: 8 }}>✓ Pola zaktualizowane! Sprawdź poniżej i zapisz.</p>}
           </div>
+          </>)} {/* end Magic Import edit-only */}
 
           {/* Kompletność */}
           <div style={s.card}>
@@ -377,6 +397,169 @@ export default function SettingsPage() {
             {missing.length > 0 && <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.3)', marginTop: 8 }}>Brakuje: {missing.join(', ')}</p>}
             {completeness === 100 && <p style={{ fontSize: 12, fontWeight: 600, marginTop: 8, color: '#4ade80' }}>✅ Brand Kit w pełni skonfigurowany!</p>}
           </div>
+
+          {/* ── VIEW MODE ── */}
+          {!isEditing && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+              {/* Edit button */}
+              <button
+                onClick={handleEdit}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, alignSelf: 'flex-start', padding: '10px 22px', borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)', color: '#f0f0f5', fontSize: 14, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.15)'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)'; }}
+              >
+                ✏️ Edytuj Brand Kit
+              </button>
+
+              {/* Nazwa firmy */}
+              <div style={s.card}>
+                <span style={s.label}>Nazwa firmy</span>
+                {dbBrandKit.company_name
+                  ? <p style={{ fontSize: 16, fontWeight: 700, color: '#f0f0f5', marginTop: 4 }}>{dbBrandKit.company_name as string}</p>
+                  : <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)', marginTop: 4 }}>— Nie ustawiono</p>}
+              </div>
+
+              {/* Slogan */}
+              <div style={s.card}>
+                <span style={s.label}>Slogan</span>
+                {dbBrandKit.slogan
+                  ? <p style={{ fontSize: 15, color: '#f0f0f5', lineHeight: 1.5, marginTop: 4 }}>{dbBrandKit.slogan as string}</p>
+                  : <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)', marginTop: 4 }}>— Nie ustawiono</p>}
+              </div>
+
+              {/* Ton komunikacji */}
+              <div style={s.card}>
+                <span style={s.label}>Ton komunikacji</span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 8 }}>
+                  {BRAND_TONES.map(tone => {
+                    const isActive = dbBrandKit.tone === tone.id;
+                    return (
+                      <span key={tone.id} style={{ padding: '8px 20px', borderRadius: 50, fontSize: 14, fontWeight: isActive ? 700 : 400, background: isActive ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(255,255,255,0.04)', border: isActive ? '1px solid transparent' : '1px solid rgba(255,255,255,0.07)', color: isActive ? '#fff' : 'rgba(240,240,245,0.3)' }}>
+                        {tone.label}
+                      </span>
+                    );
+                  })}
+                  {!dbBrandKit.tone && <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)' }}>— Nie ustawiono</p>}
+                </div>
+              </div>
+
+              {/* Styl graficzny */}
+              <div style={s.card}>
+                <span style={s.label}>Styl graficzny marki</span>
+                {dbBrandKit.style
+                  ? <p style={{ fontSize: 15, fontWeight: 600, color: '#f0f0f5', marginTop: 4 }}>{BRAND_STYLES.find(bs => bs.id === dbBrandKit.style)?.label || dbBrandKit.style as string}</p>
+                  : <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)', marginTop: 4 }}>— Nie ustawiono</p>}
+              </div>
+
+              {/* Kolory marki */}
+              <div style={s.card}>
+                <span style={s.label}>Kolory marki</span>
+                {Array.isArray(dbBrandKit.colors) && (dbBrandKit.colors as string[]).some(c => !!c) ? (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 8 }}>
+                    {(dbBrandKit.colors as string[]).filter(c => !!c).map((col, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ width: 28, height: 28, borderRadius: '50%', backgroundColor: col, border: '2px solid rgba(255,255,255,0.15)', flexShrink: 0 }} />
+                        <span style={{ fontSize: 12, color: 'rgba(240,240,245,0.55)', fontFamily: 'monospace' }}>{col}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)', marginTop: 4 }}>— Nie ustawiono</p>}
+              </div>
+
+              {/* Logo */}
+              <div style={s.card}>
+                <span style={s.label}>Logo</span>
+                {dbBrandKit.logo_url ? (
+                  <div style={{ width: 80, height: 80, borderRadius: 16, border: '1px solid rgba(255,255,255,0.12)', overflow: 'hidden', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 8 }}>
+                    <img src={dbBrandKit.logo_url as string} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 8 }} />
+                  </div>
+                ) : <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)', marginTop: 4 }}>— Nie ustawiono</p>}
+              </div>
+
+              {/* USP */}
+              <div style={s.card}>
+                <span style={s.label}>Wyróżnik firmy (USP)</span>
+                {dbBrandKit.usp
+                  ? <p style={{ fontSize: 15, color: '#f0f0f5', lineHeight: 1.5, marginTop: 4 }}>{dbBrandKit.usp as string}</p>
+                  : <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)', marginTop: 4 }}>— Nie ustawiono</p>}
+              </div>
+
+              {/* Pain Point */}
+              <div style={s.card}>
+                <span style={s.label}>Główny problem klientów</span>
+                {dbBrandKit.pain_point
+                  ? <p style={{ fontSize: 15, color: '#f0f0f5', lineHeight: 1.5, marginTop: 4 }}>{dbBrandKit.pain_point as string}</p>
+                  : <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)', marginTop: 4 }}>— Nie ustawiono</p>}
+              </div>
+
+              {/* Dream Outcome */}
+              <div style={s.card}>
+                <span style={s.label}>Wymarzony rezultat klienta</span>
+                {dbBrandKit.dream_outcome
+                  ? <p style={{ fontSize: 15, color: '#f0f0f5', lineHeight: 1.5, marginTop: 4 }}>{dbBrandKit.dream_outcome as string}</p>
+                  : <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)', marginTop: 4 }}>— Nie ustawiono</p>}
+              </div>
+
+              {/* Grand Slam — tylko jeśli cokolwiek wypełnione */}
+              {(dbBrandKit.biggest_pain || dbBrandKit.unique_mechanism) && (
+                <div style={{ ...s.card, border: '1px solid rgba(168,85,247,0.2)', background: 'rgba(168,85,247,0.04)' }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: '#c084fc', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>Psychologia klienta</p>
+                  {dbBrandKit.biggest_pain && (
+                    <div style={{ marginBottom: 12 }}>
+                      <span style={s.label}>Największy ból / strach klienta</span>
+                      <p style={{ fontSize: 14, color: '#f0f0f5', lineHeight: 1.5, marginTop: 4 }}>{dbBrandKit.biggest_pain as string}</p>
+                    </div>
+                  )}
+                  {dbBrandKit.unique_mechanism && (
+                    <div>
+                      <span style={s.label}>Unikalny mechanizm</span>
+                      <p style={{ fontSize: 14, color: '#f0f0f5', lineHeight: 1.5, marginTop: 4 }}>{dbBrandKit.unique_mechanism as string}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Przykładowe posty */}
+              <div style={s.card}>
+                <span style={s.label}>Przykładowe posty</span>
+                {dbBrandKit.sample_posts
+                  ? <p style={{ fontSize: 14, color: '#4ade80', fontWeight: 600, marginTop: 4 }}>
+                      {'✅ ' + (dbBrandKit.sample_posts as string).split('\n\n').filter((p: string) => p.trim()).length + ' postów wklejonych — Claude pisze w Twoim stylu'}
+                    </p>
+                  : <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)', marginTop: 4 }}>— Nie ustawiono</p>}
+              </div>
+
+              {/* Platformy */}
+              <div style={s.card}>
+                <span style={s.label}>Aktywne platformy</span>
+                {Array.isArray(dbBrandKit.platforms) && (dbBrandKit.platforms as string[]).length > 0 ? (
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
+                    {(dbBrandKit.platforms as string[]).map((pl: string) => (
+                      <span key={pl} style={{ padding: '7px 18px', borderRadius: 50, fontSize: 13, fontWeight: 600, background: 'linear-gradient(135deg, #6366f1, #a855f7)', color: '#fff' }}>
+                        {({'facebook': 'Facebook', 'instagram': 'Instagram', 'tiktok': 'TikTok'} as Record<string,string>)[pl] || pl}
+                      </span>
+                    ))}
+                  </div>
+                ) : <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)', marginTop: 4 }}>— Nie ustawiono</p>}
+              </div>
+
+              {/* Długość postów */}
+              <div style={s.card}>
+                <span style={s.label}>Domyślna długość postów</span>
+                {dbBrandKit.length
+                  ? <p style={{ fontSize: 15, fontWeight: 600, color: '#f0f0f5', marginTop: 4 }}>
+                      {({'short': 'Krótki (~100 słów)', 'medium': 'Średni (~250 słów)', 'long': 'Długi (~500 słów)'} as Record<string,string>)[dbBrandKit.length as string] || dbBrandKit.length as string}
+                    </p>
+                  : <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)', marginTop: 4 }}>— Nie ustawiono</p>}
+              </div>
+
+            </div>
+          )}
+          {/* ── END VIEW MODE ── */}
+
+          {/* ── EDIT MODE: formularz ── */}
+          {isEditing && <>
 
           {/* Presety */}
           <div style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 20, padding: 20 }}>
@@ -711,6 +894,8 @@ export default function SettingsPage() {
           </div>
 
 
+          </>}{/* ── END EDIT MODE ── */}
+
           {/* Social media — Polacz konta */}
           <div id="social" style={{ ...s.card, border: '1px solid rgba(34,211,238,0.2)', background: 'rgba(34,211,238,0.04)' }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: '#22d3ee', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>Publikacja automatyczna</p>
@@ -781,17 +966,27 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Zapisz */}
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            style={{ width: '100%', padding: 18, background: 'linear-gradient(135deg, #6366f1, #a855f7, #ec4899)', border: 'none', borderRadius: 18, color: '#fff', fontWeight: 700, fontSize: 17, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, transition: 'all 0.2s', fontFamily: '"Poppins", sans-serif' }}
-          >
-            {saving ? '⏳ Zapisuję...' : saved ? '✅ Zapisano!' : 'Zapisz Brand Kit'}
-          </button>
+          {/* Zapisz — tylko w trybie EDIT */}
+          {isEditing && (
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button
+                onClick={handleCancel}
+                style={{ flex: 1, padding: 18, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 18, color: 'rgba(240,240,245,0.6)', fontWeight: 700, fontSize: 16, cursor: 'pointer', transition: 'all 0.2s', fontFamily: '"Poppins", sans-serif' }}
+              >
+                ✕ Anuluj
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                style={{ flex: 2, padding: 18, background: 'linear-gradient(135deg, #6366f1, #a855f7, #ec4899)', border: 'none', borderRadius: 18, color: '#fff', fontWeight: 700, fontSize: 17, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1, transition: 'all 0.2s', fontFamily: '"Poppins", sans-serif' }}
+              >
+                {saving ? '⏳ Zapisuję...' : saved ? '✅ Zapisano!' : 'Zapisz Brand Kit'}
+              </button>
+            </div>
+          )}
 
-          {/* Jak Claude widzi Twoją markę */}
-          {brandKit.company_name && (
+          {/* Jak Claude widzi Twoją markę — tylko w trybie EDIT */}
+          {isEditing && brandKit.company_name && (
             <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: 20 }}>
               <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(240,240,245,0.25)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>👁 Jak Claude widzi Twoją markę</p>
               <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.5)', fontStyle: 'italic', lineHeight: 1.8 }}>
@@ -805,8 +1000,8 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {/* Live Preview */}
-          {(previewPost || isPreviewLoading) && (
+          {/* Live Preview — tylko w trybie EDIT */}
+          {isEditing && (previewPost || isPreviewLoading) && (
             <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: 20 }}>
               <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(240,240,245,0.25)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>⚡ Podgląd posta</p>
               {isPreviewLoading ? (
