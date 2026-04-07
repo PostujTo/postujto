@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 
@@ -111,6 +111,7 @@ export default function SettingsPage() {
   const [dbBrandKit, setDbBrandKit] = useState<BrandKitDB>({});
   const [isEditing, setIsEditing] = useState(false); // false = VIEW, true = EDIT
   const [editSnapshot, setEditSnapshot] = useState<typeof brandKit | null>(null); // snapshot for cancel
+  const editingInitialized = useRef(false); // guards against Clerk user re-renders resetting isEditing
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<string>('free');
   const [isAnnual, setIsAnnual] = useState(false);
@@ -151,7 +152,10 @@ export default function SettingsPage() {
         if (data.brandKit) {
           setDbBrandKit(data.brandKit); // raw from DB, no fallbacks — for completeness score
           const hasContent = !!(data.brandKit.company_name || data.brandKit.sample_posts || data.brandKit.logo_url || data.brandKit.tone || (Array.isArray(data.brandKit.colors) && (data.brandKit.colors as string[]).some((c: string) => !!c)));
-          setIsEditing(!hasContent); // empty brand kit → edit mode, has data → view mode
+          if (!editingInitialized.current) {
+            editingInitialized.current = true;
+            setIsEditing(!hasContent); // only on first load — never override user's manual edit/cancel click
+          }
           setBrandKit({
             company_name: data.brandKit.company_name || '',
             colors: Array(5).fill('').map((_, i) => (data.brandKit.colors || [])[i] || ''),
