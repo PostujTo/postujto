@@ -151,10 +151,9 @@ export default function SettingsPage() {
       .then(data => {
         if (data.brandKit) {
           setDbBrandKit(data.brandKit); // raw from DB, no fallbacks — for completeness score
-          const hasContent = !!(data.brandKit.company_name || data.brandKit.sample_posts || data.brandKit.logo_url || data.brandKit.tone || (Array.isArray(data.brandKit.colors) && (data.brandKit.colors as string[]).some((c: string) => !!c)));
           if (!editingInitialized.current) {
             editingInitialized.current = true;
-            setIsEditing(!hasContent); // only on first load — never override user's manual edit/cancel click
+            setIsEditing(false); // always VIEW on start — user clicks Edit to begin
           }
           setBrandKit({
             company_name: data.brandKit.company_name || '',
