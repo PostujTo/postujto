@@ -78,6 +78,25 @@ const STYLE_PRESETS = [
   },
 ];
 
+interface BrandKitDB {
+  company_name?: string;
+  slogan?: string;
+  tone?: string;
+  style?: string;
+  colors?: string[];
+  logo_url?: string;
+  usp?: string;
+  pain_point?: string;
+  dream_outcome?: string;
+  biggest_pain?: string;
+  unique_mechanism?: string;
+  sample_posts?: string;
+  platforms?: string[];
+  length?: string;
+  industry?: string;
+  [key: string]: unknown;
+}
+
 export default function SettingsPage() {
   const { user } = useUser();
   const [saving, setSaving] = useState(false);
@@ -89,7 +108,7 @@ export default function SettingsPage() {
   const tipIcon: React.CSSProperties = { width: 16, height: 16, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', color: 'rgba(240,240,245,0.45)', fontSize: 10, fontWeight: 700, cursor: 'help', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 };
   const [saved, setSaved] = useState(false);
   // Raw values from DB (no React defaults) — used ONLY for completeness score
-  const [dbBrandKit, setDbBrandKit] = useState<Record<string, unknown>>({});
+  const [dbBrandKit, setDbBrandKit] = useState<BrandKitDB>({});
   const [isEditing, setIsEditing] = useState(false); // false = VIEW, true = EDIT
   const [editSnapshot, setEditSnapshot] = useState<typeof brandKit | null>(null); // snapshot for cancel
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -416,7 +435,7 @@ export default function SettingsPage() {
               <div style={s.card}>
                 <span style={s.label}>Nazwa firmy</span>
                 {dbBrandKit.company_name
-                  ? <p style={{ fontSize: 16, fontWeight: 700, color: '#f0f0f5', marginTop: 4 }}>{dbBrandKit.company_name as string}</p>
+                  ? <p style={{ fontSize: 16, fontWeight: 700, color: '#f0f0f5', marginTop: 4 }}>{dbBrandKit.company_name}</p>
                   : <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)', marginTop: 4 }}>— Nie ustawiono</p>}
               </div>
 
@@ -424,7 +443,7 @@ export default function SettingsPage() {
               <div style={s.card}>
                 <span style={s.label}>Slogan</span>
                 {dbBrandKit.slogan
-                  ? <p style={{ fontSize: 15, color: '#f0f0f5', lineHeight: 1.5, marginTop: 4 }}>{dbBrandKit.slogan as string}</p>
+                  ? <p style={{ fontSize: 15, color: '#f0f0f5', lineHeight: 1.5, marginTop: 4 }}>{dbBrandKit.slogan}</p>
                   : <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)', marginTop: 4 }}>— Nie ustawiono</p>}
               </div>
 
@@ -448,16 +467,16 @@ export default function SettingsPage() {
               <div style={s.card}>
                 <span style={s.label}>Styl graficzny marki</span>
                 {dbBrandKit.style
-                  ? <p style={{ fontSize: 15, fontWeight: 600, color: '#f0f0f5', marginTop: 4 }}>{BRAND_STYLES.find(bs => bs.id === dbBrandKit.style)?.label || dbBrandKit.style as string}</p>
+                  ? <p style={{ fontSize: 15, fontWeight: 600, color: '#f0f0f5', marginTop: 4 }}>{BRAND_STYLES.find(bs => bs.id === dbBrandKit.style)?.label || dbBrandKit.style}</p>
                   : <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)', marginTop: 4 }}>— Nie ustawiono</p>}
               </div>
 
               {/* Kolory marki */}
               <div style={s.card}>
                 <span style={s.label}>Kolory marki</span>
-                {Array.isArray(dbBrandKit.colors) && (dbBrandKit.colors as string[]).some(c => !!c) ? (
+                {Array.isArray(dbBrandKit.colors) && dbBrandKit.colors!.some(c => !!c) ? (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 8 }}>
-                    {(dbBrandKit.colors as string[]).filter(c => !!c).map((col, i) => (
+                    {dbBrandKit.colors!.filter(c => !!c).map((col, i) => (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <div style={{ width: 28, height: 28, borderRadius: '50%', backgroundColor: col, border: '2px solid rgba(255,255,255,0.15)', flexShrink: 0 }} />
                         <span style={{ fontSize: 12, color: 'rgba(240,240,245,0.55)', fontFamily: 'monospace' }}>{col}</span>
@@ -472,7 +491,7 @@ export default function SettingsPage() {
                 <span style={s.label}>Logo</span>
                 {dbBrandKit.logo_url ? (
                   <div style={{ width: 80, height: 80, borderRadius: 16, border: '1px solid rgba(255,255,255,0.12)', overflow: 'hidden', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 8 }}>
-                    <img src={dbBrandKit.logo_url as string} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 8 }} />
+                    <img src={dbBrandKit.logo_url} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 8 }} />
                   </div>
                 ) : <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)', marginTop: 4 }}>— Nie ustawiono</p>}
               </div>
@@ -481,7 +500,7 @@ export default function SettingsPage() {
               <div style={s.card}>
                 <span style={s.label}>Wyróżnik firmy (USP)</span>
                 {dbBrandKit.usp
-                  ? <p style={{ fontSize: 15, color: '#f0f0f5', lineHeight: 1.5, marginTop: 4 }}>{dbBrandKit.usp as string}</p>
+                  ? <p style={{ fontSize: 15, color: '#f0f0f5', lineHeight: 1.5, marginTop: 4 }}>{dbBrandKit.usp}</p>
                   : <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)', marginTop: 4 }}>— Nie ustawiono</p>}
               </div>
 
@@ -489,7 +508,7 @@ export default function SettingsPage() {
               <div style={s.card}>
                 <span style={s.label}>Główny problem klientów</span>
                 {dbBrandKit.pain_point
-                  ? <p style={{ fontSize: 15, color: '#f0f0f5', lineHeight: 1.5, marginTop: 4 }}>{dbBrandKit.pain_point as string}</p>
+                  ? <p style={{ fontSize: 15, color: '#f0f0f5', lineHeight: 1.5, marginTop: 4 }}>{dbBrandKit.pain_point}</p>
                   : <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)', marginTop: 4 }}>— Nie ustawiono</p>}
               </div>
 
@@ -497,7 +516,7 @@ export default function SettingsPage() {
               <div style={s.card}>
                 <span style={s.label}>Wymarzony rezultat klienta</span>
                 {dbBrandKit.dream_outcome
-                  ? <p style={{ fontSize: 15, color: '#f0f0f5', lineHeight: 1.5, marginTop: 4 }}>{dbBrandKit.dream_outcome as string}</p>
+                  ? <p style={{ fontSize: 15, color: '#f0f0f5', lineHeight: 1.5, marginTop: 4 }}>{dbBrandKit.dream_outcome}</p>
                   : <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)', marginTop: 4 }}>— Nie ustawiono</p>}
               </div>
 
@@ -508,13 +527,13 @@ export default function SettingsPage() {
                   {dbBrandKit.biggest_pain && (
                     <div style={{ marginBottom: 12 }}>
                       <span style={s.label}>Największy ból / strach klienta</span>
-                      <p style={{ fontSize: 14, color: '#f0f0f5', lineHeight: 1.5, marginTop: 4 }}>{dbBrandKit.biggest_pain as string}</p>
+                      <p style={{ fontSize: 14, color: '#f0f0f5', lineHeight: 1.5, marginTop: 4 }}>{dbBrandKit.biggest_pain}</p>
                     </div>
                   )}
                   {dbBrandKit.unique_mechanism && (
                     <div>
                       <span style={s.label}>Unikalny mechanizm</span>
-                      <p style={{ fontSize: 14, color: '#f0f0f5', lineHeight: 1.5, marginTop: 4 }}>{dbBrandKit.unique_mechanism as string}</p>
+                      <p style={{ fontSize: 14, color: '#f0f0f5', lineHeight: 1.5, marginTop: 4 }}>{dbBrandKit.unique_mechanism}</p>
                     </div>
                   )}
                 </div>
@@ -525,7 +544,7 @@ export default function SettingsPage() {
                 <span style={s.label}>Przykładowe posty</span>
                 {dbBrandKit.sample_posts
                   ? <p style={{ fontSize: 14, color: '#4ade80', fontWeight: 600, marginTop: 4 }}>
-                      {'✅ ' + (dbBrandKit.sample_posts as string).split('\n\n').filter((p: string) => p.trim()).length + ' postów wklejonych — Claude pisze w Twoim stylu'}
+                      {'✅ ' + dbBrandKit.sample_posts!.split('\n\n').filter((p: string) => p.trim()).length + ' postów wklejonych — Claude pisze w Twoim stylu'}
                     </p>
                   : <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)', marginTop: 4 }}>— Nie ustawiono</p>}
               </div>
@@ -533,9 +552,9 @@ export default function SettingsPage() {
               {/* Platformy */}
               <div style={s.card}>
                 <span style={s.label}>Aktywne platformy</span>
-                {Array.isArray(dbBrandKit.platforms) && (dbBrandKit.platforms as string[]).length > 0 ? (
+                {Array.isArray(dbBrandKit.platforms) && dbBrandKit.platforms!.length > 0 ? (
                   <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
-                    {(dbBrandKit.platforms as string[]).map((pl: string) => (
+                    {dbBrandKit.platforms!.map((pl: string) => (
                       <span key={pl} style={{ padding: '7px 18px', borderRadius: 50, fontSize: 13, fontWeight: 600, background: 'linear-gradient(135deg, #6366f1, #a855f7)', color: '#fff' }}>
                         {({'facebook': 'Facebook', 'instagram': 'Instagram', 'tiktok': 'TikTok'} as Record<string,string>)[pl] || pl}
                       </span>
@@ -549,7 +568,7 @@ export default function SettingsPage() {
                 <span style={s.label}>Domyślna długość postów</span>
                 {dbBrandKit.length
                   ? <p style={{ fontSize: 15, fontWeight: 600, color: '#f0f0f5', marginTop: 4 }}>
-                      {({'short': 'Krótki (~100 słów)', 'medium': 'Średni (~250 słów)', 'long': 'Długi (~500 słów)'} as Record<string,string>)[dbBrandKit.length as string] || dbBrandKit.length as string}
+                      {({'short': 'Krótki (~100 słów)', 'medium': 'Średni (~250 słów)', 'long': 'Długi (~500 słów)'} as Record<string,string>)[dbBrandKit.length ?? ''] || dbBrandKit.length}
                     </p>
                   : <p style={{ fontSize: 14, color: 'rgba(240,240,245,0.25)', marginTop: 4 }}>— Nie ustawiono</p>}
               </div>
