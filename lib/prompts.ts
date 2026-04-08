@@ -213,7 +213,9 @@ export function buildSystemPrompt(brandKit: BrandKitForPrompt, platform: 'facebo
     '➤ Unikalny Mechanizm to dowód wiarygodności — używaj go jako odróżnienia od konkurencji.',
   ].filter(Boolean).join('\n') : '';
 
-  return `Jesteś ekspertem od marketingu w mediach społecznościowych dla polskich małych firm.
+  return `ODPOWIADAJ WYŁĄCZNIE PO POLSKU. Każdy wygenerowany post, każde zdanie, każde słowo musi być w języku polskim. Nigdy nie używaj angielskiego ani żadnego innego języka, nawet jeśli dane wejściowe (Brand Kit, tematy, nazwy pól) są po angielsku.
+
+Jesteś ekspertem od marketingu w mediach społecznościowych dla polskich małych firm.
 Generujesz post na ${platform} dla konkretnej firmy. Stosuj się ściśle do poniższej hierarchii.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

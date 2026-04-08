@@ -269,9 +269,9 @@ export default function SettingsPage() {
       if (res.ok && d.profileKey) {
         setAyrshareProfileKey(d.profileKey);
       } else {
-        alert(d.error || 'Blad polaczenia z Zernio');
+        alert(d.error || 'Błąd połączenia z Zernio');
       }
-    } catch { alert('Blad polaczenia'); }
+    } catch { alert('Błąd połączenia'); }
     finally { setIsConnectingZernio(false); }
   };
 
@@ -702,17 +702,17 @@ export default function SettingsPage() {
 
           {/* Grand Slam — Poznaj klientow glebiej */}
           <div style={{ ...s.card, border: '1px solid rgba(168,85,247,0.2)', background: 'rgba(168,85,247,0.04)' }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: '#c084fc', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>Poznaj swoich klientow glebiej</p>
-            <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', marginBottom: 20, lineHeight: 1.5 }}>Te pola sa opcjonalne, ale znaczaco podnierszaja jakosc generowanych tresci. Claude bedzie piszal posty ktore trafiaja w serce klienta.</p>
+            <p style={{ fontSize: 11, fontWeight: 700, color: '#c084fc', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>Poznaj swoich klientów głębiej</p>
+            <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', marginBottom: 20, lineHeight: 1.5 }}>Te pola są opcjonalne, ale znacząco podnoszą jakość generowanych treści. Claude będzie pisał posty, które trafiają w serce klienta.</p>
 
             {/* Najwiekszy Bol klienta */}
             <div style={{ marginBottom: 16 }}>
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                <label style={{ ...s.label, marginBottom: 0 }}>Najwiekszy Bol / Strach klienta</label>
+                <label style={{ ...s.label, marginBottom: 0 }}>Największy Ból / Strach klienta</label>
                 <span style={tipIcon} onMouseEnter={() => setTooltip('biggest_pain')} onMouseLeave={() => setTooltip(null)}>?</span>
-                {tooltip === 'biggest_pain' && <span style={tipStyle}>Czego Twoj klient sie boi lub co go boli PRZED skorzystaniem z Twojej oferty? Np. "ukrytych kosztow remontu", "ze AI napisze cos glupiego i zawstydze sie przed klientami"</span>}
+                {tooltip === 'biggest_pain' && <span style={tipStyle}>Czego Twój klient się boi lub co go boli PRZED skorzystaniem z Twojej oferty? Np. "ukrytych kosztów remontu", "że AI napisze coś głupiego i zawstydzi się przed klientami"</span>}
               </div>
-              <input type="text" value={brandKit.biggest_pain} onChange={e => setBrandKit(prev => ({ ...prev, biggest_pain: e.target.value }))} placeholder="np. ze posty beda brzmiec sztucznie i klienci od razu poznaja ze to AI" spellCheck={false} style={s.input} />
+              <input type="text" value={brandKit.biggest_pain} onChange={e => setBrandKit(prev => ({ ...prev, biggest_pain: e.target.value }))} placeholder="np. że posty będą brzmieć sztucznie i klienci od razu poznają, że to AI" spellCheck={false} style={s.input} />
             </div>
 
             {/* Unikalny Mechanizm */}
@@ -720,9 +720,9 @@ export default function SettingsPage() {
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <label style={{ ...s.label, marginBottom: 0 }}>Unikalny Mechanizm — jak to robisz?</label>
                 <span style={tipIcon} onMouseEnter={() => setTooltip('unique_mechanism')} onMouseLeave={() => setTooltip(null)}>?</span>
-                {tooltip === 'unique_mechanism' && <span style={tipStyle}>Co sprawia ze Twoja oferta dziala? Konkretna metoda, technologia, proces ktory wyroznia Cie od konkurencji. Np. "wlasna flota 50 aut z GPS", "3-etapowy system doboru fryzury do ksztaltu twarzy"</span>}
+                {tooltip === 'unique_mechanism' && <span style={tipStyle}>Co sprawia, że Twoja oferta działa? Konkretna metoda, technologia, proces, który wyróżnia Cię od konkurencji. Np. "własna flota 50 aut z GPS", "3-etapowy system doboru fryzury do kształtu twarzy"</span>}
               </div>
-              <input type="text" value={brandKit.unique_mechanism} onChange={e => setBrandKit(prev => ({ ...prev, unique_mechanism: e.target.value }))} placeholder="np. AI analizuje styl Twojej firmy i generuje posty ktore brzrmia jak Ty, nie jak robot" spellCheck={false} style={s.input} />
+              <input type="text" value={brandKit.unique_mechanism} onChange={e => setBrandKit(prev => ({ ...prev, unique_mechanism: e.target.value }))} placeholder="np. AI analizuje styl Twojej firmy i generuje posty, które brzmią jak Ty, a nie jak robot" spellCheck={false} style={s.input} />
             </div>
           </div>
 
@@ -922,7 +922,7 @@ export default function SettingsPage() {
           <div id="social" style={{ ...s.card, border: '1px solid rgba(34,211,238,0.2)', background: 'rgba(34,211,238,0.04)' }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: '#22d3ee', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>Publikacja automatyczna</p>
             <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.4)', marginBottom: 16, lineHeight: 1.5 }}>
-              Polacz swoje konta social media przez Zernio — publikuj i planuj posty bezposrednio z PostujTo bez kopiowania i wklejania.
+              Połącz swoje konta social media przez Zernio — publikuj i planuj posty bezpośrednio z PostujTo bez kopiowania i wklejania.
             </p>
             {!ayrshareProfileKey ? (
               <button
@@ -931,13 +931,13 @@ export default function SettingsPage() {
                 className="btn-primary"
                 style={{ padding: '10px 20px', borderRadius: 10, fontSize: 13, opacity: (isConnectingZernio || currentPlan === 'free') ? 0.5 : 1, cursor: (isConnectingZernio || currentPlan === 'free') ? 'not-allowed' : 'pointer' }}
               >
-                {isConnectingZernio ? '⏳ Laczenie...' : '🔗 Polacz social media'}
+                {isConnectingZernio ? '⏳ Łączenie...' : '🔗 Połącz social media'}
               </button>
             ) : (
               <div>
                 <p style={{ fontSize: 13, color: '#4ade80', marginBottom: 12 }}>✅ Profil Zernio aktywny</p>
                 <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.5)', marginBottom: 12, lineHeight: 1.5 }}>
-                  Twoj profil jest gotowy. Wejdz na dashboard Zernio, zaloguj sie i polacz konta Facebook, Instagram lub TikTok.
+                  Twój profil jest gotowy. Wejdź na dashboard Zernio, zaloguj się i połącz konta Facebook, Instagram lub TikTok.
                 </p>
                 <a
                   href="https://app.zernio.com"
@@ -945,12 +945,12 @@ export default function SettingsPage() {
                   rel="noopener noreferrer"
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 10, fontSize: 13, fontWeight: 600, background: 'rgba(34,211,238,0.1)', border: '1px solid rgba(34,211,238,0.25)', color: '#22d3ee', textDecoration: 'none' }}
                 >
-                  Otworz Zernio Dashboard →
+                  Otwórz Zernio Dashboard →
                 </a>
               </div>
             )}
             {currentPlan === 'free' && (
-              <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.35)', marginTop: 12 }}>Dostepne w planie Starter i Pro.</p>
+              <p style={{ fontSize: 12, color: 'rgba(240,240,245,0.35)', marginTop: 12 }}>Dostępne w planie Starter i Pro.</p>
             )}
           </div>
 

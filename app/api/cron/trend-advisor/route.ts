@@ -69,6 +69,7 @@ export async function GET(req: Request) {
       const message = await anthropic.messages.create({
         model: 'claude-sonnet-4-6',
         max_tokens: 300,
+        system: 'ODPOWIADAJ WYŁĄCZNIE PO POLSKU. Każdy wygenerowany post, każde zdanie, każde słowo musi być w języku polskim. Nigdy nie używaj angielskiego ani żadnego innego języka, nawet jeśli dane wejściowe (Brand Kit, tematy, nazwy pól) są po angielsku.',
         messages: [{
           role: 'user',
           content: `Jestes doradca marketingowym dla polskich firm z branzy: ${industry}.\n\nOto dzisiejsze naglowki z branzowych portali:\n${headlines.map((h, i) => `${i + 1}. ${h}`).join('\n')}\n\nWybierz JEDEN temat ktory:\n1. Jest aktualny i relevantny dla tej branzy\n2. Mozna wykorzystac do ciekawego posta na social media\n3. Bedzie interesujacy dla klientow tej branzy\n\nOdpowiedz TYLKO w formacie JSON:\n{"topic": "krotki tytul tematu posta (max 10 slow)", "reason": "dlaczego warto o tym napisac (1 zdanie)"}`,

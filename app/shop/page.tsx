@@ -172,7 +172,7 @@ export default function ShopPage() {
     try {
       const r = await fetch('/api/shop/allegro/authorize');
       const data = await r.json();
-      if (!r.ok) throw new Error(data.error || 'Blad autoryzacji');
+      if (!r.ok) throw new Error(data.error || 'Błąd autoryzacji');
       window.location.href = data.url;
     } catch (e: any) {
       setError(e.message);
@@ -435,7 +435,7 @@ export default function ShopPage() {
               autoFocus
             />
             <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.4)', margin: '0 0 24px' }}>
-              Gdzie znalezc klucz? BaseLinker Dashboard → Moje konto → API
+              Gdzie znaleźć klucz? BaseLinker Dashboard → Moje konto → API
             </p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
               <button onClick={() => { setConnectModal(null); setFormApiKey(''); setError(null); }} style={{ ...S.btn, ...S.btnGhost }}>

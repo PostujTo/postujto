@@ -175,8 +175,8 @@ const handlePublish = async (text: string, hashtags: string[], idx: number, sche
       });
       const d = await res.json();
       if (res.ok) { showToast(scheduled ? 'Post zaplanowany!' : 'Post opublikowany!', 'success'); }
-      else { showToast(d.error || 'Blad publikacji', 'error'); }
-    } catch { showToast('Blad polaczenia', 'error'); }
+      else { showToast(d.error || 'Błąd publikacji', 'error'); }
+    } catch { showToast('Błąd połączenia', 'error'); }
     finally { setPublishLoading(null); }
   };
 

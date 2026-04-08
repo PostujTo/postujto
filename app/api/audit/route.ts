@@ -54,6 +54,7 @@ export async function POST(req: Request) {
   const message = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 1500,
+    system: 'ODPOWIADAJ WYŁĄCZNIE PO POLSKU. Każdy wygenerowany post, każde zdanie, każde słowo musi być w języku polskim. Nigdy nie używaj angielskiego ani żadnego innego języka, nawet jeśli dane wejściowe (Brand Kit, tematy, nazwy pól) są po angielsku.',
     messages: [{
       role: 'user',
       content: `Jesteś ekspertem od marketingu w mediach społecznościowych dla polskich małych firm.
