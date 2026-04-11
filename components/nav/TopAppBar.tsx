@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useUser, useClerk } from '@clerk/nextjs';
+import { useUser, useClerk, SignInButton } from '@clerk/nextjs';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
@@ -79,11 +79,13 @@ export function TopAppBar() {
             <>
               <NavLink href="/pricing" pathname={pathname}>Cennik</NavLink>
               <NavLink href="/faq" pathname={pathname}>FAQ</NavLink>
-              <Link href="/sign-in" style={{
-                color: 'rgba(255,255,255,0.65)', fontWeight: 400, fontSize: '14px',
-                textDecoration: 'none', padding: '6px 12px', borderRadius: '8px',
-                transition: 'all 0.15s ease', whiteSpace: 'nowrap',
-              }}>Zaloguj</Link>
+              <SignInButton mode="modal">
+                <button style={{
+                  color: 'rgba(255,255,255,0.65)', fontWeight: 400, fontSize: '14px',
+                  background: 'none', border: 'none', cursor: 'pointer', padding: '6px 12px', borderRadius: '8px',
+                  transition: 'all 0.15s ease', whiteSpace: 'nowrap', fontFamily: 'inherit',
+                }}>Zaloguj</button>
+              </SignInButton>
               <Link href="/app" style={{
                 backgroundColor: '#6C47FF', color: '#fff', padding: '8px 18px',
                 borderRadius: '20px', fontWeight: 600, fontSize: '14px',
