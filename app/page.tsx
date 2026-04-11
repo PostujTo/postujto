@@ -50,6 +50,279 @@ function FaqAccordion() {
   );
 }
 
+function BrowserBar({ url }: { url: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderBottom: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.03)" }}>
+      <div style={{ display: "flex", gap: 5, flexShrink: 0 }}>
+        {[0,1,2].map(i => <span key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: "rgba(255,255,255,0.15)", display: "inline-block" }} />)}
+      </div>
+      <div style={{ flex: 1, background: "rgba(255,255,255,0.06)", borderRadius: 6, padding: "3px 10px", fontSize: 11, color: "rgba(255,255,255,0.4)", textAlign: "center" }}>{url}</div>
+    </div>
+  );
+}
+
+function Screen1() {
+  return (
+    <div style={{ padding: 20, background: "#0F0F1A", minHeight: 320 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+        <span style={{ fontSize: 11, color: "rgba(240,240,245,0.4)" }}>Branża:</span>
+        <div style={{ background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: "5px 12px", fontSize: 12, color: "#f0f0f5" }}>Salon kosmetyczny ▾</div>
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <div style={{ fontSize: 11, color: "rgba(240,240,245,0.4)", marginBottom: 6 }}>Temat posta:</div>
+        <div style={{ background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "10px 12px", fontSize: 12, color: "rgba(240,240,245,0.35)", fontStyle: "italic" }}>np. Wiosenna promocja, nowe zabiegi...</div>
+      </div>
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 11, color: "rgba(240,240,245,0.4)", marginBottom: 8 }}>Platforma:</div>
+        <div style={{ display: "flex", gap: 6 }}>
+          {["Facebook","Instagram","TikTok"].map((p,i) => (
+            <div key={p} style={{ flex: 1, textAlign: "center", padding: "7px 4px", borderRadius: 8, fontSize: 11, fontWeight: 600, background: i === 0 ? "rgba(99,102,241,0.2)" : "#1a1a2e", border: "1px solid " + (i === 0 ? "rgba(99,102,241,0.5)" : "rgba(255,255,255,0.08)"), color: i === 0 ? "#a5b4fc" : "rgba(240,240,245,0.4)" }}>{p}</div>
+          ))}
+        </div>
+      </div>
+      <div style={{ background: "linear-gradient(135deg, #6366f1, #a855f7)", borderRadius: 10, padding: "11px", textAlign: "center", fontSize: 13, fontWeight: 700, color: "#fff" }}>✨ Generuj 3 wersje</div>
+    </div>
+  );
+}
+
+function Screen2() {
+  return (
+    <div style={{ padding: 20, background: "#0F0F1A", minHeight: 320 }}>
+      <div style={{ display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap" as const }}>
+        <span style={{ fontSize: 11, color: "rgba(240,240,245,0.5)" }}>Salon kosmetyczny</span>
+        <span style={{ color: "rgba(255,255,255,0.2)" }}>|</span>
+        <span style={{ fontSize: 11, color: "rgba(240,240,245,0.5)" }}>Wiosenna promocja</span>
+      </div>
+      <div style={{ display: "flex", gap: 5, marginBottom: 14 }}>
+        {["FB","IG","TT"].map((p,i) => <div key={p} style={{ padding: "4px 10px", borderRadius: 6, fontSize: 10, fontWeight: 600, background: i === 0 ? "rgba(99,102,241,0.2)" : "#1a1a2e", border: "1px solid " + (i === 0 ? "rgba(99,102,241,0.5)" : "rgba(255,255,255,0.08)"), color: i === 0 ? "#a5b4fc" : "rgba(240,240,245,0.4)" }}>{p}</div>)}
+      </div>
+      {[
+        { v: "WERSJA 1", t: "🌸 Wiosna to czas zmian! Odśwież swój look z naszą ofertą zabiegów pielęgnacyjnych — teraz -15%.\n#salonurody #wiosna2026 #piękno" },
+        { v: "WERSJA 2", t: "✨ Twoja skóra zasługuje na więcej! Zabiegi wiosenne w wyjątkowej cenie..." },
+      ].map((item,i) => (
+        <div key={i} style={{ background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 10, padding: 12, marginBottom: 8 }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: "#a5b4fc", marginBottom: 6 }}>{item.v}</div>
+          <div style={{ fontSize: 11, color: "rgba(240,240,245,0.65)", lineHeight: 1.6, marginBottom: 8, whiteSpace: "pre-line" as const }}>{item.t}</div>
+          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+            <span style={{ fontSize: 10, color: "rgba(240,240,245,0.5)", cursor: "pointer" }}>📋 Kopiuj</span>
+            <span style={{ fontSize: 10, color: "rgba(240,240,245,0.5)", cursor: "pointer" }}>♡</span>
+          </div>
+        </div>
+      ))}
+      <div style={{ fontSize: 11, fontWeight: 600, color: "#4ade80", marginTop: 4 }}>⚡ Wygenerowano w 4 sek</div>
+    </div>
+  );
+}
+
+function Screen3() {
+  return (
+    <div style={{ padding: 20, background: "#0F0F1A", minHeight: 320 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(240,240,245,0.7)" }}>← Marzec 2026 →</span>
+        <div style={{ display: "flex", gap: 4 }}>
+          {["Siatka","Lista"].map((v,i) => <div key={v} style={{ padding: "4px 10px", borderRadius: 6, fontSize: 10, fontWeight: 600, background: i === 0 ? "rgba(99,102,241,0.2)" : "#1a1a2e", border: "1px solid " + (i === 0 ? "rgba(99,102,241,0.5)" : "rgba(255,255,255,0.08)"), color: i === 0 ? "#a5b4fc" : "rgba(240,240,245,0.4)" }}>{v}</div>)}
+        </div>
+      </div>
+      <div style={{ fontSize: 10, color: "#4ade80", marginBottom: 10 }}>8/31 gotowych</div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 3, marginBottom: 14 }}>
+        {["Pn","Wt","Śr","Cz","Pt","So","Nd"].map(d => <div key={d} style={{ textAlign: "center", fontSize: 8, fontWeight: 600, color: "rgba(240,240,245,0.25)", paddingBottom: 3 }}>{d}</div>)}
+        {Array.from({length:31},(_,i) => { const gen=[1,2,3,4,5,8,9,10].includes(i+1); return (<div key={i} style={{ aspectRatio: "1", borderRadius: 4, background: gen ? "rgba(99,102,241,0.25)" : "#1a1a2e", border: "1px solid " + (gen ? "rgba(99,102,241,0.4)" : "rgba(255,255,255,0.06)"), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 8, fontWeight: gen ? 700 : 400, color: gen ? "#a5b4fc" : "rgba(240,240,245,0.3)" }}>{i+1}</div>); })}
+      </div>
+      <div style={{ background: "linear-gradient(135deg, #6366f1, #a855f7)", borderRadius: 8, padding: "8px", textAlign: "center", fontSize: 11, fontWeight: 700, color: "#fff" }}>✨ Wygeneruj cały miesiąc</div>
+    </div>
+  );
+}
+
+function Screen4() {
+  return (
+    <div style={{ padding: 20, background: "#0F0F1A", minHeight: 320 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(240,240,245,0.7)" }}>← Marzec 2026 →</span>
+        <div style={{ display: "flex", gap: 4 }}>
+          {["Siatka","Lista"].map((v,i) => <div key={v} style={{ padding: "4px 10px", borderRadius: 6, fontSize: 10, fontWeight: 600, background: i === 1 ? "rgba(99,102,241,0.2)" : "#1a1a2e", border: "1px solid " + (i === 1 ? "rgba(99,102,241,0.5)" : "rgba(255,255,255,0.08)"), color: i === 1 ? "#a5b4fc" : "rgba(240,240,245,0.4)" }}>{v}</div>)}
+        </div>
+      </div>
+      {[
+        { day: "Pon 3 marca", pl: "FB", t: "🌸 Wiosna to czas zmian! Odśwież swój look...", bg: "#3b82f6" },
+        { day: "Wt 4 marca", pl: "IG", t: "✨ Twoja skóra zasługuje na więcej!...", bg: "#ec4899" },
+        { day: "Śr 5 marca", pl: "TT", t: "Nikt Ci nie mówi tego o pielęgnacji skóry 👇", bg: "#111" },
+      ].map((item,i) => (
+        <div key={i} style={{ marginBottom: 10 }}>
+          <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(240,240,245,0.4)", marginBottom: 4 }}>{item.day}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 8, padding: "9px 10px" }}>
+            <div style={{ width: 24, height: 24, borderRadius: 6, background: item.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: "#fff", flexShrink: 0 }}>{item.pl}</div>
+            <span style={{ fontSize: 11, color: "rgba(240,240,245,0.65)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{item.t}</span>
+            <span style={{ fontSize: 11, color: "rgba(240,240,245,0.4)", flexShrink: 0 }}>📋</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Screen5() {
+  return (
+    <div style={{ padding: 20, background: "#0F0F1A", minHeight: 320 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginBottom: 16 }}>
+        {[{v:"47",l:"postów"},{v:"12",l:"ulubionych"},{v:"3",l:"platformy"}].map((s,i) => (
+          <div key={i} style={{ background: "#1a1a2e", border: "1px solid rgba(99,102,241,0.15)", borderRadius: 10, padding: "10px 8px", textAlign: "center" }}>
+            <div style={{ fontSize: 20, fontWeight: 800, color: "#a5b4fc" }}>{s.v}</div>
+            <div style={{ fontSize: 9, color: "rgba(240,240,245,0.4)", marginTop: 2 }}>{s.l}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: 11, fontWeight: 600, color: "rgba(240,240,245,0.4)", marginBottom: 8 }}>Ostatnie posty:</div>
+      {[
+        { t: "Promocja wiosenna salonu...", pl: "FB", bg: "#3b82f6", stars: 5 },
+        { t: "Nowe zabiegi pielęgnacyjne...", pl: "IG", bg: "#ec4899", stars: 4 },
+        { t: "Walentynkowa oferta...", pl: "TT", bg: "#111827", stars: 5 },
+      ].map((post,i) => (
+        <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "9px 10px", background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 8, marginBottom: 6 }}>
+          <div style={{ width: 26, height: 26, borderRadius: 6, background: post.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: "#fff", flexShrink: 0 }}>{post.pl}</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 11, color: "rgba(240,240,245,0.7)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>{post.t}</div>
+            <div style={{ fontSize: 9, color: "#fbbf24" }}>{"★".repeat(post.stars)}{"☆".repeat(5-post.stars)}</div>
+          </div>
+          <span style={{ fontSize: 11, color: "rgba(240,240,245,0.4)", flexShrink: 0 }}>📋</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Screen6() {
+  return (
+    <div style={{ padding: 20, background: "#0F0F1A", minHeight: 320 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <span style={{ fontSize: 13, fontWeight: 700, color: "#f0f0f5" }}>Brand Kit</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ fontSize: 10, color: "rgba(240,240,245,0.4)" }}>Uzupełnienie:</span>
+          <div style={{ width: 60, height: 6, background: "rgba(255,255,255,0.1)", borderRadius: 100, overflow: "hidden" }}>
+            <div style={{ width: "85%", height: "100%", background: "linear-gradient(90deg,#6366f1,#a855f7)", borderRadius: 100 }} />
+          </div>
+          <span style={{ fontSize: 10, color: "#a5b4fc", fontWeight: 600 }}>85%</span>
+        </div>
+      </div>
+      {[
+        { l: "Nazwa firmy", v: "Salon Urody Magda" },
+        { l: "Branża", v: "Salon kosmetyczny" },
+        { l: "Ton komunikacji", v: "Swobodny, przyjazny" },
+      ].map((f,i) => (
+        <div key={i} style={{ display: "flex", gap: 8, marginBottom: 8, fontSize: 12 }}>
+          <span style={{ color: "rgba(240,240,245,0.4)", minWidth: 100, flexShrink: 0 }}>{f.l}:</span>
+          <span style={{ color: "#f0f0f5" }}>{f.v}</span>
+        </div>
+      ))}
+      <div style={{ marginBottom: 12 }}>
+        <div style={{ fontSize: 11, color: "rgba(240,240,245,0.4)", marginBottom: 6 }}>USP:</div>
+        <div style={{ background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "8px 12px", fontSize: 11, color: "rgba(240,240,245,0.65)", lineHeight: 1.6 }}>Jedyny salon w dzielnicy z certyfikowanymi zabiegami anti-aging i konsultacją kolorystyczną gratis.</div>
+      </div>
+      <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+        {["#D4A0B0","#F5E6E8","#8B6470"].map(c => (
+          <div key={c} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <div style={{ width: 18, height: 18, borderRadius: 4, background: c, border: "1px solid rgba(255,255,255,0.12)" }} />
+            <span style={{ fontSize: 9, color: "rgba(240,240,245,0.4)" }}>{c}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ textAlign: "center", padding: "8px 16px", background: "rgba(99,102,241,0.1)", border: "1px solid rgba(99,102,241,0.25)", borderRadius: 8, fontSize: 12, fontWeight: 600, color: "#a5b4fc", display: "inline-block" }}>✏️ Edytuj Brand Kit</div>
+    </div>
+  );
+}
+
+const CAROUSEL_SCREENS = [
+  { url: "postujto.com/app", label: "Generator — przed", content: <Screen1 /> },
+  { url: "postujto.com/app", label: "Generator — wyniki", content: <Screen2 /> },
+  { url: "postujto.com/calendar", label: "Kalendarz — siatka", content: <Screen3 /> },
+  { url: "postujto.com/calendar", label: "Kalendarz — lista", content: <Screen4 /> },
+  { url: "postujto.com/dashboard", label: "Dashboard", content: <Screen5 /> },
+  { url: "postujto.com/settings", label: "Brand Kit", content: <Screen6 /> },
+];
+
+function PreviewCarousel({ isVisible }: { isVisible: boolean }) {
+  const [active, setActive] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const prev = () => setActive(i => Math.max(0, i - 1));
+  const next = () => setActive(i => Math.min(CAROUSEL_SCREENS.length - 1, i + 1));
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      const el = scrollRef.current;
+      const slideWidth = el.offsetWidth;
+      el.scrollTo({ left: active * slideWidth, behavior: "smooth" });
+    }
+  }, [active]);
+
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      const el = scrollRef.current;
+      const idx = Math.round(el.scrollLeft / el.offsetWidth);
+      setActive(idx);
+    }
+  };
+
+  return (
+    <div className={`section-reveal from-up ${isVisible ? "visible" : ""}`} style={{ transitionDelay: "0.1s" }}>
+      {/* Desktop carousel */}
+      <div className="preview-carousel-desktop" style={{ position: "relative", display: "flex", alignItems: "center", gap: 16 }}>
+        <button
+          onClick={prev}
+          disabled={active === 0}
+          style={{ flexShrink: 0, width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", color: active === 0 ? "rgba(255,255,255,0.2)" : "#f0f0f5", fontSize: 18, cursor: active === 0 ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}
+        >←</button>
+
+        <div style={{ flex: 1, overflow: "hidden", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)", background: "#0F0F1A" }}>
+          <BrowserBar url={CAROUSEL_SCREENS[active].url} />
+          <div style={{ overflow: "hidden" }}>
+            <div style={{ display: "flex", transform: "translateX(" + (-active * 100) + "%)", transition: "transform 0.35s ease" }}>
+              {CAROUSEL_SCREENS.map((s, i) => (
+                <div key={i} style={{ minWidth: "100%", flexShrink: 0 }}>{s.content}</div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={next}
+          disabled={active === CAROUSEL_SCREENS.length - 1}
+          style={{ flexShrink: 0, width: 44, height: 44, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.05)", color: active === CAROUSEL_SCREENS.length - 1 ? "rgba(255,255,255,0.2)" : "#f0f0f5", fontSize: 18, cursor: active === CAROUSEL_SCREENS.length - 1 ? "default" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}
+        >→</button>
+      </div>
+
+      {/* Mobile carousel */}
+      <div className="preview-carousel-mobile" style={{ display: "none" }}>
+        <div
+          ref={scrollRef}
+          onScroll={handleScroll}
+          style={{ display: "flex", overflowX: "auto", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", gap: 0 }}
+        >
+          {CAROUSEL_SCREENS.map((s, i) => (
+            <div key={i} style={{ minWidth: "100%", flexShrink: 0, scrollSnapAlign: "start", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)", overflow: "hidden", background: "#0F0F1A" }}>
+              <BrowserBar url={s.url} />
+              {s.content}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Dot indicators — shared */}
+      <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 24 }}>
+        {CAROUSEL_SCREENS.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setActive(i)}
+            style={{ width: i === active ? 24 : 8, height: 8, borderRadius: 100, background: i === active ? "#6366f1" : "rgba(255,255,255,0.2)", border: "none", cursor: "pointer", padding: 0, transition: "all 0.25s ease" }}
+          />
+        ))}
+      </div>
+
+      {/* Slide label */}
+      <div style={{ textAlign: "center", marginTop: 12, fontSize: 12, color: "rgba(240,240,245,0.35)", fontWeight: 500 }}>{CAROUSEL_SCREENS[active].label}</div>
+    </div>
+  );
+}
+
 export default function LandingPage() {
   const [scrollY, setScrollY] = useState(0);
   const [landingBilling, setLandingBilling] = useState<'monthly' | 'annual'>('monthly');
@@ -608,84 +881,11 @@ const handleConfirmTerms = async () => {
         <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 800, height: 800, borderRadius: "50%", background: "radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
         <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative" }}>
           <div className={`section-reveal from-up ${isVisible("preview") ? "visible" : ""}`} style={{ textAlign: "center", marginBottom: 56 }}>
-            <div style={{ display: "inline-block", fontSize: 12, fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", color: "#6366f1", marginBottom: 16 }}>Podglad aplikacji</div>
-            <h2 className="font-display" style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, letterSpacing: "-0.02em" }}>Wszystko w jednym miejscu</h2>
+            <div style={{ display: "inline-block", fontSize: 12, fontWeight: 600, letterSpacing: "0.15em", textTransform: "uppercase", color: "#6366f1", marginBottom: 16 }}>Podgląd aplikacji</div>
+            <h2 className="font-display gradient-text" style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, letterSpacing: "-0.02em" }}>Wszystko w jednym miejscu</h2>
           </div>
-          <div className={`app-preview-grid section-reveal from-up ${isVisible("preview") ? "visible" : ""}`} style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, transitionDelay: "0.1s" }}>
-            
-            <div className="app-preview-card" style={{ borderRadius: 20, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
-              
-              <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ display: "flex", gap: 6 }}>
-                  {["#ef4444","#f59e0b","#22c55e"].map((col,i) => <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: col }} />)}
-                </div>
-                <span style={{ fontSize: 11, color: "rgba(240,240,245,0.3)", marginLeft: 4 }}>Generator postow</span>
-              </div>
-              <div style={{ padding: 20 }}>
-                <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "10px 14px", marginBottom: 10 }}>
-                  <div style={{ fontSize: 11, color: "rgba(240,240,245,0.35)", marginBottom: 6 }}>Temat posta</div>
-                  <div style={{ fontSize: 12, color: "rgba(240,240,245,0.7)" }}>Wiosenna promocja salonu - 15% rabatu na zabiegi...</div>
-                </div>
-                <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
-                  {["Facebook","Instagram","TikTok"].map((pl,i) => (<div key={pl} style={{ flex: 1, textAlign: "center", padding: "6px 4px", borderRadius: 8, fontSize: 10, fontWeight: 600, background: i===0 ? "rgba(99,102,241,0.2)" : "rgba(255,255,255,0.04)", border: "1px solid " + (i===0 ? "rgba(99,102,241,0.4)" : "rgba(255,255,255,0.08)"), color: i===0 ? "#a5b4fc" : "rgba(240,240,245,0.4)" }}>{pl}</div>))}
-                </div>
-                <div style={{ background: "linear-gradient(135deg, #6366f1, #a855f7)", borderRadius: 10, padding: 9, textAlign: "center", fontSize: 11, fontWeight: 700, color: "#fff", marginBottom: 14 }}>Generuj 3 wersje</div>
-                <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 10, padding: 12 }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: "#a5b4fc", marginBottom: 6 }}>WERSJA 1</div>
-                  <div style={{ fontSize: 11, color: "rgba(240,240,245,0.6)", lineHeight: 1.6, marginBottom: 8 }}>Wiosna to czas zmian! Odswierz swoj look z nasza oferta zabiegow pielegnacyjnych...</div>
-                  <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                    {["#salonurody","#wiosna2026","#piekno"].map(h => (<span key={h} style={{ fontSize: 9, color: "#6366f1", background: "rgba(99,102,241,0.1)", padding: "2px 8px", borderRadius: 100 }}>{h}</span>))}
-                  </div>
-                </div>
-              </div>
-              <div style={{ padding: "10px 20px", borderTop: "1px solid rgba(255,255,255,0.06)", background: "rgba(99,102,241,0.05)", fontSize: 11, fontWeight: 600, color: "#4ade80" }}>Wygenerowano w 4 sek</div>
-            </div>
-            
-            <div className="app-preview-card" style={{ borderRadius: 20, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
-              
-              <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ display: "flex", gap: 6 }}>
-                  {["#ef4444","#f59e0b","#22c55e"].map((col,i) => <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: col }} />)}
-                </div>
-                <span style={{ fontSize: 11, color: "rgba(240,240,245,0.3)", marginLeft: 4 }}>Historia postow</span>
-              </div>
-              <div style={{ padding: 20 }}>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginBottom: 14 }}>
-                  {[{v:"47",l:"postow"},{v:"12",l:"ulubionych"},{v:"3",l:"platformy"}].map((s,i) => (<div key={i} style={{ background: "rgba(99,102,241,0.08)", border: "1px solid rgba(99,102,241,0.15)", borderRadius: 10, padding: "10px 8px", textAlign: "center" }}><div style={{ fontSize: 18, fontWeight: 800, color: "#a5b4fc" }}>{s.v}</div><div style={{ fontSize: 9, color: "rgba(240,240,245,0.4)", marginTop: 2 }}>{s.l}</div></div>))}
-                </div>
-                {[{t:"Promocja wiosenna salonu...",pl:"FB",stars:5,bg:"#3b82f6"},{t:"Nowe zabiegi pielegnacyjne...",pl:"IG",stars:4,bg:"#ec4899"},{t:"Walentynkowa oferta...",pl:"TT",stars:5,bg:"#111"}].map((post,i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 10, marginBottom: 6 }}>
-                    <div style={{ width: 28, height: 28, borderRadius: 8, background: post.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, color: "#fff", flexShrink: 0 }}>{post.pl}</div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 11, color: "rgba(240,240,245,0.7)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{post.t}</div>
-                      <div style={{ fontSize: 9, color: "#fbbf24", marginTop: 2 }}>{"⭐".repeat(post.stars)}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="app-preview-card" style={{ borderRadius: 20, overflow: "hidden", border: "1px solid rgba(255,255,255,0.08)", background: "rgba(255,255,255,0.02)" }}>
-              
-              <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.03)", display: "flex", alignItems: "center", gap: 8 }}>
-                <div style={{ display: "flex", gap: 6 }}>
-                  {["#ef4444","#f59e0b","#22c55e"].map((col,i) => <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: col }} />)}
-                </div>
-                <span style={{ fontSize: 11, color: "rgba(240,240,245,0.3)", marginLeft: 4 }}>Kalendarz tresci</span>
-              </div>
-              <div style={{ padding: 20 }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(240,240,245,0.6)" }}>Marzec 2026</span>
-                  <span style={{ fontSize: 10, color: "#4ade80", background: "rgba(74,222,128,0.1)", padding: "2px 10px", borderRadius: 100, border: "1px solid rgba(74,222,128,0.2)" }}>8/31 gotowych</span>
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 3, marginBottom: 14 }}>
-                  {["Pn","Wt","Sr","Cz","Pt","So","Nd"].map(d => (<div key={d} style={{ textAlign: "center", fontSize: 8, fontWeight: 600, color: "rgba(240,240,245,0.25)", paddingBottom: 4 }}>{d}</div>))}
-                  {Array.from({length:31},(_,i) => { const gen=[1,2,3,4,5,8,9,10].includes(i+1); const plan=[11,12,15,16,17,18,19,22,23].includes(i+1); return (<div key={i} style={{ aspectRatio: "1", borderRadius: 5, background: gen ? "rgba(99,102,241,0.25)" : plan ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.02)", border: "1px solid " + (gen ? "rgba(99,102,241,0.4)" : plan ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.04)"), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: gen ? 700 : 400, color: gen ? "#a5b4fc" : plan ? "rgba(240,240,245,0.5)" : "rgba(240,240,245,0.2)" }}>{i+1}</div>); })}
-                </div>
-                <div style={{ background: "linear-gradient(135deg, #6366f1, #a855f7)", borderRadius: 10, padding: 9, textAlign: "center", fontSize: 11, fontWeight: 700, color: "#fff" }}>Wygeneruj caly miesiac</div>
-              </div>
-            </div>
-          </div>
+
+          <PreviewCarousel isVisible={isVisible("preview")} />
         </div>
       </section>
 

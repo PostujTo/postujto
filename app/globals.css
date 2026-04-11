@@ -491,6 +491,15 @@ body { overflow-x: clip; }
 
 }
 
+/* ── PREVIEW CAROUSEL ── */
+.preview-carousel-desktop { display: flex; }
+.preview-carousel-mobile  { display: none; }
+
+@media (max-width: 767px) {
+  .preview-carousel-desktop { display: none !important; }
+  .preview-carousel-mobile  { display: block !important; }
+}
+
 /* Tidio chat widget — przesun powyzej BottomNavBar na mobile */
 @media (max-width: 767px) {
   #tidio-chat-iframe,
