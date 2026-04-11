@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { AppHeader } from '@/components/AppHeader';
 
 const LAST_UPDATED = '21 marca 2026';
 const COMPANY = 'PostujTo';
@@ -49,7 +48,6 @@ export default function TermsPage() {
       </div>
 
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <AppHeader />
 
         <main style={{ flex: 1, maxWidth: 760, margin: '0 auto', width: '100%', padding: '56px 24px 100px' }}>
           <div style={{ marginBottom: 48 }}>

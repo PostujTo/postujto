@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { AppHeader } from '@/components/AppHeader';
 
 const LAST_UPDATED = '6 marca 2026';
 const EMAIL = 'hello@postujto.com';
@@ -40,7 +39,6 @@ export default function PrivacyPage() {
       </div>
 
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <AppHeader />
 
         <main style={{ flex: 1, maxWidth: 760, margin: '0 auto', width: '100%', padding: '56px 24px 100px' }}>
           <div style={{ marginBottom: 48 }}>
