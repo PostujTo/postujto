@@ -394,7 +394,8 @@ body { overflow-x: clip; }
   nav > div > div:last-child a:first-child { display: none !important; } /* hide Cennik link */
 
   /* ── HERO ── */
-  .landing-hero { padding: 72px 16px 48px !important; }
+  .landing-hero { padding: 72px 16px 48px !important; max-width: 100vw !important; box-sizing: border-box !important; overflow-x: clip !important; }
+  .landing-hero * { max-width: 100% !important; box-sizing: border-box !important; }
   .landing-hero-grid {
     grid-template-columns: 1fr !important;
     gap: 32px !important;
@@ -405,7 +406,7 @@ body { overflow-x: clip; }
   .landing-hero p { font-size: 15px !important; line-height: 1.6 !important; max-width: 100% !important; }
   .landing-hero > div { justify-content: center !important; }
   /* CTA button full width */
-  .landing-hero-grid > div:first-child > div a,
+  .landing-hero-grid > div:first-child > div a { display: block !important; width: 100% !important; box-sizing: border-box !important; }
   .landing-hero-grid > div:first-child > div a button { width: 100% !important; box-sizing: border-box !important; justify-content: center !important; }
   /* social proof avatars */
   .landing-hero-grid > div:first-child > div:last-child { justify-content: center !important; }

@@ -114,6 +114,22 @@ const plans = [
   },
 ];
 
+  const comparisonRows = [
+    { feature: 'Generowanie postów', starter: 'Unlimited', pro: 'Unlimited' },
+    { feature: 'Platformy', starter: 'FB / IG / TikTok', pro: 'FB / IG / TikTok' },
+    { feature: 'Brand Kit', starter: '✓', pro: '✓' },
+    { feature: 'Głos marki', starter: '✓', pro: '✓' },
+    { feature: 'Kalendarz treści', starter: '✓', pro: '✓' },
+    { feature: 'Historia postów', starter: '✓', pro: '✓' },
+    { feature: 'Automatyczna publikacja', starter: '✓ Zernio', pro: '✓ Zernio' },
+    { feature: 'Integracja sklepu', starter: '✓ 1 sklep', pro: '✓ 3 sklepy' },
+    { feature: 'Generowanie obrazów AI', starter: 'Ręcznie (1 obraz)', pro: 'Auto 3 obrazy' },
+    { feature: 'Podpis marki na obrazach', starter: '✗', pro: '✓' },
+    { feature: 'Priorytetowe generowanie', starter: '✗', pro: '✓' },
+    { feature: 'AI Trend Advisor', starter: '✗', pro: '✓' },
+    { feature: 'Audyt profilu AI', starter: '✗', pro: '✓ co 3 msc' },
+  ];
+
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0f', color: '#f0f0f5', fontFamily: 'var(--font-dm-sans), sans-serif' }}>
       <style>{`
@@ -128,7 +144,10 @@ const plans = [
         body { scrollbar-gutter: stable; }
         @media (max-width: 767px) {
           .pricing-grid { grid-template-columns: 1fr !important; }
+          .pricing-comparison-table { display: none !important; }
+          .pricing-comparison-cards { display: flex !important; flex-direction: column; gap: 16px; padding: 0 16px; }
         }
+        .pricing-comparison-cards { display: none; }
       `}</style>
 
       {/* TERMS ALERT MODAL */}
@@ -208,6 +227,39 @@ const plans = [
               Pełny Starter bez limitów. Po 14 dniach — automatycznie 97 zł/msc. Anulujesz jednym kliknięciem.
             </p>
           </div>
+
+        {/* MOBILE: M3 comparison cards */}
+        <div className="pricing-comparison-cards">
+          {[
+            { key: 'starter', label: 'STARTER', price: prices.starter, featured: false, priceId: billing === 'monthly' ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_STANDARD_ANNUAL, plan: 'standard' },
+            { key: 'pro', label: 'PRO', price: prices.pro, featured: true, priceId: billing === 'monthly' ? process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM : process.env.NEXT_PUBLIC_STRIPE_PRICE_ID_PREMIUM_ANNUAL, plan: 'premium' },
+          ].map((card) => (
+            <div key={card.key} style={{ background: '#1a1a2e', border: card.featured ? '1px solid #6366f1' : '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '20px 16px', position: 'relative' }}>
+              {card.featured && <div style={{ position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)', background: 'linear-gradient(135deg,#6366f1,#a855f7)', borderRadius: 100, padding: '3px 12px', fontSize: 11, fontWeight: 700, color: '#fff', whiteSpace: 'nowrap' }}>Najpopularniejszy</div>}
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#6366f1', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>{card.label}</p>
+              <p style={{ fontSize: 40, fontWeight: 800, color: '#f0f0f5', marginBottom: 2 }}>{card.price} <span style={{ fontSize: 14, fontWeight: 500, color: 'rgba(240,240,245,0.4)' }}>zł/msc</span></p>
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', margin: '16px 0' }} />
+              {comparisonRows.map((row, i) => {
+                const val = card.key === 'starter' ? row.starter : row.pro;
+                return (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: i < comparisonRows.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                    <span style={{ fontSize: 14, color: 'rgba(240,240,245,0.65)' }}>{row.feature}</span>
+                    <span style={{ fontSize: 14, fontWeight: val === '✓' ? 700 : 400, color: val === '✓' ? '#22c55e' : val === '✗' ? 'rgba(240,240,245,0.3)' : 'rgba(240,240,245,0.7)', textAlign: 'right', marginLeft: 8 }}>{val}</span>
+                  </div>
+                );
+              })}
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', marginTop: 16 }} />
+              <button
+                className={card.featured ? 'btn-primary' : 'btn-secondary'}
+                style={{ width: '100%', padding: '13px', borderRadius: 10, fontSize: 14, marginTop: 16 }}
+                onClick={() => card.priceId && handleSubscribe(card.priceId, card.plan)}
+              >
+                {loading === card.plan ? 'Przekierowuję...' : ('Wybierz ' + card.label[0] + card.label.slice(1).toLowerCase())}
+              </button>
+            </div>
+          ))}
+        </div>
+
         </div>
       )}
 
@@ -276,7 +328,7 @@ const plans = [
         <h2 style={{ fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: 800, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 48 }}>
           Starter vs <span className="gradient-text">Pro</span>
         </h2>
-        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        <div className="pricing-comparison-table" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
         <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, overflow: 'hidden', minWidth: 480 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
             <div style={{ padding: '20px 28px' }} />
@@ -287,22 +339,8 @@ const plans = [
               </div>
             ))}
           </div>
-          {[
-            { feature: 'Generowanie postów', starter: 'Unlimited', pro: 'Unlimited' },
-            { feature: 'Platformy', starter: 'FB / IG / TikTok', pro: 'FB / IG / TikTok' },
-            { feature: 'Brand Kit', starter: '✓', pro: '✓' },
-            { feature: 'Głos marki', starter: '✓', pro: '✓' },
-            { feature: 'Kalendarz treści', starter: '✓', pro: '✓' },
-            { feature: 'Historia postów', starter: '✓', pro: '✓' },
-            { feature: 'Automatyczna publikacja', starter: '✓ Zernio', pro: '✓ Zernio' },
-            { feature: 'Integracja sklepu', starter: '✓ 1 sklep', pro: '✓ 3 sklepy' },
-            { feature: 'Generowanie obrazów AI', starter: 'Ręcznie (1 obraz)', pro: 'Auto 3 obrazy' },
-            { feature: 'Podpis marki na obrazach', starter: '✗', pro: '✓' },
-            { feature: 'Priorytetowe generowanie', starter: '✗', pro: '✓' },
-            { feature: 'AI Trend Advisor', starter: '✗', pro: '✓' },
-            { feature: 'Audyt profilu AI', starter: '✗', pro: '✓ co 3 msc' },
-          ].map((row, i) => (
-            <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', borderBottom: i < 12 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+          {comparisonRows.map((row, i) => (
+            <div key={i} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', borderBottom: i < comparisonRows.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
               <div style={{ padding: '16px 28px', fontSize: 14, color: 'rgba(240,240,245,0.65)' }}>{row.feature}</div>
               {[row.starter, row.pro].map((val, j) => (
                 <div key={j} style={{ padding: '16px 24px', textAlign: 'center', borderLeft: '1px solid rgba(255,255,255,0.06)', background: j === 1 ? 'rgba(99,102,241,0.05)' : 'transparent', fontSize: 14, fontWeight: val === '✓' ? 700 : 400, color: val === '✓' ? '#4ade80' : val === '✗' ? 'rgba(240,240,245,0.2)' : 'rgba(240,240,245,0.7)' }}>
