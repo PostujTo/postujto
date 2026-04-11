@@ -53,7 +53,7 @@ export function TopAppBar() {
     <header style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
       height: '64px', display: 'flex', alignItems: 'center',
-      justifyContent: 'space-between', padding: '0 24px',
+      padding: '0 24px',
       backgroundColor: 'rgba(10,10,15,0.92)',
       backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
       borderBottom: '1px solid rgba(255,255,255,0.07)', boxSizing: 'border-box',
@@ -66,7 +66,7 @@ export function TopAppBar() {
       </Link>
 
       {!isMinimal && (
-        <nav className="desktop-nav" style={{ alignItems: 'center', gap: '4px' }}>
+        <nav className="desktop-nav" style={{ alignItems: 'center', gap: '4px', marginLeft: 'auto' }}>
           {isLoaded && user ? (
             <>
               <NavLink href="/app" pathname={pathname}>Generator</NavLink>
@@ -79,6 +79,11 @@ export function TopAppBar() {
             <>
               <NavLink href="/pricing" pathname={pathname}>Cennik</NavLink>
               <NavLink href="/faq" pathname={pathname}>FAQ</NavLink>
+              <Link href="/sign-in" style={{
+                color: 'rgba(255,255,255,0.65)', fontWeight: 400, fontSize: '14px',
+                textDecoration: 'none', padding: '6px 12px', borderRadius: '8px',
+                transition: 'all 0.15s ease', whiteSpace: 'nowrap',
+              }}>Zaloguj</Link>
               <Link href="/app" style={{
                 backgroundColor: '#6C47FF', color: '#fff', padding: '8px 18px',
                 borderRadius: '20px', fontWeight: 600, fontSize: '14px',
