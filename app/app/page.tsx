@@ -47,6 +47,7 @@ const BEST_TIMES: Record<string, { times: string[]; tip: string }> = {
 };
 
 import { INDUSTRIES, INDUSTRY_GROUPS } from '@/lib/constants';
+import { parsePlainTextToPosts } from '@/lib/parseGeneratedPosts';
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
@@ -114,6 +115,8 @@ export default function GeneratorPage() {
   const [tone, setTone] = useState<'professional' | 'casual' | 'humorous' | 'sales'>('professional');
   const [length, setLength] = useState<'short' | 'medium' | 'long'>('medium');
   const [loading, setLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamText, setStreamText] = useState('');
   const [results, setResults] = useState<Array<{
     text: string; hashtags: string[]; imagePrompt: string;
     generatedImage?: string; imageLoading?: boolean; imageTool?: string;
@@ -398,32 +401,81 @@ const handleConfirmPlanTerms = async () => {
   const generatePost = async () => {
     if (!topic.trim()) { showToast('Wpisz temat postu!', 'warning'); return; }
     if (user && credits && credits.remaining <= 0) { showToast('Brak kredytów! Przejdź na plan Starter lub Pro.', 'warning'); return; }
-    setLoading(true); setResults(null);
+    setLoading(true); setResults(null); setStreamText(''); setIsStreaming(false);
     try {
       const res = await fetch('/api/generate', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic, platform, tone, length, industry: selectedIndustry ? INDUSTRIES.find(i => i.id === selectedIndustry)?.hint : null, industryId: selectedIndustry, use_brand_voice: useBrandVoice }),
       });
-      const data = await res.json();
-      if (!res.ok) {
-        if (res.status === 403) { showToast(data.message || 'Brak kredytów!', 'warning'); return; }
-        throw new Error(data.error);
+
+      const contentType = res.headers.get('Content-Type') || '';
+
+      // Błąd lub gość — odpowiedź JSON
+      if (!res.ok || contentType.includes('application/json')) {
+        const data = await res.json();
+        if (!res.ok) {
+          if (res.status === 403) { showToast(data.message || 'Brak kredytów!', 'warning'); return; }
+          throw new Error(data.error);
+        }
+        setGenerationId(data.generationId || null);
+        setIsGuestResult(data.isGuest || false);
+        setLikedPosts(new Set());
+        setFeedbackOpen(null);
+        setFeedbackNote('');
+        setFeedbackSubmitted(new Set());
+        sessionStorage.setItem('lastGenerationId', data.generationId || '');
+        const guestResults = data.posts.map((post: any) => ({ text: post.text, hashtags: post.hashtags, imagePrompt: post.imagePrompt }));
+        setResults(guestResults);
+        sessionStorage.setItem('lastResults', JSON.stringify(guestResults));
+        showToast('Post wygenerowany!', 'success');
+        if (data.creditsRemaining !== undefined) setCredits(prev => prev ? { ...prev, remaining: data.creditsRemaining, total: data.creditsTotal || prev.total } : null);
+        return;
       }
-      setGenerationId(data.generationId || null);
-      setIsGuestResult(data.isGuest || false);
+
+      // Streaming — zalogowany użytkownik
+      setIsStreaming(true);
+      const reader = res.body!.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        accumulated += decoder.decode(value, { stream: true });
+        const metaSplit = accumulated.lastIndexOf('\n---META---\n');
+        setStreamText(metaSplit !== -1 ? accumulated.slice(0, metaSplit) : accumulated);
+      }
+
+      setIsStreaming(false);
+
+      // Parsuj META footer
+      const metaIdx = accumulated.lastIndexOf('\n---META---\n');
+      let metaData: { generationId?: string; creditsRemaining?: number; creditsTotal?: number } = {};
+      let postsText = accumulated;
+      if (metaIdx !== -1) {
+        postsText = accumulated.slice(0, metaIdx);
+        try { metaData = JSON.parse(accumulated.slice(metaIdx + '\n---META---\n'.length)); } catch {}
+      }
+
+      const newResults = parsePlainTextToPosts(postsText).map(post => ({ ...post, generatedImage: undefined as string | undefined, imageLoading: false, imageTool: undefined as string | undefined }));
+      setResults(newResults);
+      setStreamText('');
+      setGenerationId(metaData.generationId || null);
+      setIsGuestResult(false);
       setLikedPosts(new Set());
       setFeedbackOpen(null);
       setFeedbackNote('');
       setFeedbackSubmitted(new Set());
-      sessionStorage.setItem('lastGenerationId', data.generationId || '');
-      const newResults = data.posts.map((post: any) => ({ text: post.text, hashtags: post.hashtags, imagePrompt: post.imagePrompt }));
-      setResults(newResults);
+      sessionStorage.setItem('lastGenerationId', metaData.generationId || '');
       sessionStorage.setItem('lastResults', JSON.stringify(newResults));
       showToast('Posty wygenerowane!', 'success');
-      if (credits?.plan === 'premium') newResults.forEach((post: any, idx: number) => generateImageAuto(idx, post.imagePrompt));
-      if (data.creditsRemaining !== undefined) setCredits(prev => prev ? { ...prev, remaining: data.creditsRemaining, total: data.creditsTotal || prev.total } : null);
+      if (credits?.plan === 'premium') newResults.forEach((post, idx) => generateImageAuto(idx, post.imagePrompt));
+      if (metaData.creditsRemaining !== undefined) setCredits(prev => prev ? { ...prev, remaining: metaData.creditsRemaining!, total: metaData.creditsTotal || prev.total } : null);
+
     } catch (error) {
       console.error(error);
+      setIsStreaming(false);
+      setStreamText('');
       showToast('Błąd podczas generowania. Spróbuj ponownie.', 'error');
     } finally { setLoading(false); }
   };
@@ -447,6 +499,7 @@ const handleConfirmPlanTerms = async () => {
           to { opacity: 1; transform: translateY(0); }
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         @keyframes pulse-glow {
           0%, 100% { box-shadow: 0 0 20px rgba(99,102,241,0.3); }
           50% { box-shadow: 0 0 50px rgba(99,102,241,0.7), 0 0 80px rgba(99,102,241,0.2); }
@@ -1018,6 +1071,22 @@ const handleConfirmPlanTerms = async () => {
                           {new Date(termsAcceptedAt).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' })}
                         </p>
                       )}
+                  </div>
+                </div>
+              )}
+
+              {isStreaming && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <h2 className="font-display" style={{ fontSize: 20, fontWeight: 700 }}>Generuję posty...</h2>
+                    <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" strokeWidth="3"/>
+                      <path d="M12 2a10 10 0 0 1 10 10" stroke="#a5b4fc" strokeWidth="3" strokeLinecap="round"/>
+                    </svg>
+                  </div>
+                  <div className="glass-card" style={{ padding: 24 }}>
+                    <p style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', fontSize: 14, lineHeight: 1.7, color: 'rgba(240,240,245,0.9)', margin: 0 }}>{streamText}</p>
+                    <span style={{ display: 'inline-block', animation: 'blink 1s step-end infinite', color: '#a5b4fc', fontSize: 18, marginTop: 4 }}>&#9611;</span>
                   </div>
                 </div>
               )}

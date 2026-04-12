@@ -5,6 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import { rateLimit } from '@/lib/rateLimit';
 import { GOLDEN_PATTERNS, LP_SLUG_BY_INDUSTRY_ID, buildSystemPrompt } from '@/lib/prompts';
 import { sendUsageAlert } from '@/lib/alerts';
+import { parsePlainTextToPosts } from '@/lib/parseGeneratedPosts';
 
 // Server-side Supabase client z service role
 const supabase = createClient(
@@ -244,6 +245,29 @@ ${lowRated.length > 0 ? `\nPOSTY KTÓRE SIĘ NIE PODOBAŁY (ocena 1-2★) — un
     const postCount = isGuest || isPreview ? 1 : 3;
     const now = new Date();
     const dateStr = `${now.getDate()}.${now.getMonth() + 1}.${now.getFullYear()}`;
+    // Format odpowiedzi — JSON dla gości, plain text z separatorami dla zalogowanych
+    const formatInstruction = (isGuest || isPreview)
+      ? `ZWRÓĆ ODPOWIEDŹ W FORMACIE JSON (bez markdown backticks):
+{
+  "posts": [
+    {
+      "text": "treść postu...",
+      "hashtags": ["#hashtag1", "#hashtag2", ...],
+      "imagePrompt": "opis grafiki do wygenerowania przez AI..."
+    }
+  ]
+}
+WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy ani markdown formatowania.`
+      : `Format odpowiedzi (DOKŁADNIE te separatory, bez żadnych modyfikacji):
+---WERSJA---
+[treść posta]
+---HASHTAGI---
+[hashtagi oddzielone spacjami, np. #marketing #facebook #polska]
+---PROMPT_OBRAZU---
+[opis grafiki do generatora AI po angielsku, max 1 zdanie]
+
+Wygeneruj dokładnie ${postCount} ${postCount === 1 ? 'wersję' : 'wersje'} w tym formacie. Nie dodawaj żadnych komentarzy, numeracji ani nagłówków poza separatorami.`;
+
     const prompt = `Aktualna data: ${dateStr}. Rok: ${now.getFullYear()}.
 
 Wygeneruj ${postCount} ${isGuest ? 'wersję' : 'różne wersje'} postu na ${platformDescription}.${brandContextHint}${polishLawHint}${samplePostsHint}${ratingsHint}
@@ -260,19 +284,7 @@ Dla każdego postu wygeneruj również:
 1. 5-7 relevantnych hashtagów po polsku
 2. Krótki opis grafiki AI (prompt do generatora obrazów)
 
-ZWRÓĆ ODPOWIEDŹ W FORMACIE JSON (bez markdown backticks):
-{
-  "posts": [
-    {
-      "text": "treść postu...",
-      "hashtags": ["#hashtag1", "#hashtag2", ...],
-      "imagePrompt": "opis grafiki do wygenerowania przez AI..."
-    },
-    ... (3 wersje)
-  ]
-}
-
-WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy czy markdown formatowania.`;
+${formatInstruction}`;
 
     // System prompt — hierarchia priorytetów (Mega-Prompt)
     const systemPrompt = buildSystemPrompt({
@@ -288,138 +300,135 @@ WAŻNE: Zwróć TYLKO czysty JSON, bez żadnego dodatkowego tekstu, komentarzy c
       dream_outcome_source: fetchedBrandKit?.dream_outcome_source,
     }, platform as 'facebook' | 'instagram' | 'tiktok', feedbackHint);
 
-    // Wywołanie Claude API
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
-      system: systemPrompt,
-      messages: [
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-    });
-
-    // Parsowanie odpowiedzi
-    const responseText = message.content[0].type === 'text' 
-      ? message.content[0].text 
-      : '';
-
-    // Próba wyciągnięcia JSON z odpowiedzi
-    let jsonData;
-    try {
-      // Usuń ewentualne markdown backticks
-      const cleanedText = responseText
-        .replace(/```json\n?/g, '')
-        .replace(/```\n?/g, '')
-        .trim();
-      
-      jsonData = JSON.parse(cleanedText);
-    } catch (parseError) {
-      console.error('Błąd parsowania JSON:', parseError);
-      console.error('Odpowiedź Claude:', responseText);
-      
-      // Fallback - zwróć surowy tekst jako pojedynczy post
-      jsonData = {
-        posts: [
-          {
-            text: responseText,
-            hashtags: ['#socialmedia', '#marketing', '#polska'],
-            imagePrompt: `Grafika związana z: ${topic}`,
-          },
-        ],
-      };
-    }
-
-    // Goście i preview — nie zapisujemy, nie odejmujemy kredytów
+    // ============================================
+    // GOŚCIE I PREVIEW — blokujące wywołanie, JSON
+    // ============================================
     if (isGuest || isPreview) {
-      return NextResponse.json({
-        ...jsonData,
-        generationId: null,
-        isGuest: isGuest,
+      const guestMessage = await anthropic.messages.create({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 2000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: prompt }],
       });
+      const responseText = guestMessage.content[0].type === 'text' ? guestMessage.content[0].text : '';
+      let jsonData;
+      try {
+        const cleanedText = responseText.replace(/```json
+?/g, '').replace(/```
+?/g, '').trim();
+        jsonData = JSON.parse(cleanedText);
+      } catch {
+        jsonData = { posts: [{ text: responseText, hashtags: ['#socialmedia', '#marketing', '#polska'], imagePrompt: `Grafika związana z: ${topic}` }] };
+      }
+      return NextResponse.json({ ...jsonData, generationId: null, isGuest });
     }
 
-    // ============================================
-    // ODEJMIJ KREDYT I ZAPISZ GENERACJĘ
-    // ============================================
-    
-    const { data: newCredits } = await supabase.rpc('decrement_credit', { p_user_id: user!.id });
-    if (newCredits === -1 || newCredits === null) {
+    // Sprawdź kredyty przed streamingiem (soft check — atomic decrement po streamie)
+    if (user!.credits_remaining <= 0) {
       return NextResponse.json(
-        {
-          error: 'Brak kredytów',
-          message: 'Wykorzystałeś wszystkie kredyty w tym miesiącu. Przejdź na plan Standard lub Premium!',
-          creditsRemaining: 0,
-        },
+        { error: 'Brak kredytów', message: 'Wykorzystałeś wszystkie kredyty w tym miesiącu. Przejdź na plan Standard lub Premium!', creditsRemaining: 0 },
         { status: 403 }
       );
     }
 
-    const { data: newGen, error: historyError } = await supabase
-      .from('generations')
-      .insert({
-        user_id: user!.id,
-        topic,
-        platform,
-        tone,
-        length,
-        generated_posts: jsonData.posts,
-        quality_tier: 'standard',
-        has_image: false,
-        has_audio: false,
-        cost_usd: 0.015,
-        scheduled_date: scheduled_date || null,
-        industry: industryId || null,
-      })
-      .select('id')
-      .single();
-
-    if (historyError) {
-      console.error('Błąd zapisywania generacji:', historyError);
-    }
-
     // ============================================
-    // MONITORING UŻYCIA — sprawdź anomalie
+    // STREAMING DLA ZALOGOWANYCH UŻYTKOWNIKÓW
     // ============================================
-    try {
-      const startOfMonth = new Date();
-      startOfMonth.setDate(1);
-      startOfMonth.setHours(0, 0, 0, 0);
-
-      const { count: monthlyCount } = await supabase
-        .from('generations')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user!.id)
-        .gte('created_at', startOfMonth.toISOString());
-
-      const ALERT_THRESHOLDS = [100, 300, 500];
-      if (monthlyCount && ALERT_THRESHOLDS.includes(monthlyCount)) {
-        await sendUsageAlert({
-          userId: user!.id,
-          email: user!.email,
-          plan: user!.subscription_plan,
-          monthlyCount,
-        });
-      }
-    } catch (monitorErr) {
-      console.error('Błąd monitoringu użycia:', monitorErr);
-    }
-
-    // Aktualizuj last_active_at — fire and forget, nie blokuj odpowiedzi
-    void (supabase
-      .from('users')
-      .update({ last_active_at: new Date().toISOString() })
-      .eq('id', user!.id) as unknown as Promise<void>);
-
-    return NextResponse.json({
-      ...jsonData,
-      generationId: newGen?.id || null,
-      creditsRemaining: newCredits,
-      creditsTotal: user!.credits_total,
+    const anthropicStream = anthropic.messages.stream({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 2000,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: prompt }],
     });
-  } catch (error: any) {
+
+    let fullText = '';
+
+    const readable = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of anthropicStream) {
+            if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
+              fullText += chunk.delta.text;
+              controller.enqueue(new TextEncoder().encode(chunk.delta.text));
+            }
+          }
+
+          // Stream zakończony — parsuj, odejmij kredyt, zapisz
+          const posts = parsePlainTextToPosts(fullText);
+
+          const { data: newCredits } = await supabase.rpc('decrement_credit', { p_user_id: user!.id });
+
+          if (newCredits !== -1 && newCredits !== null) {
+            const { data: newGen, error: historyError } = await supabase
+              .from('generations')
+              .insert({
+                user_id: user!.id,
+                topic,
+                platform,
+                tone,
+                length,
+                generated_posts: posts,
+                quality_tier: 'standard',
+                has_image: false,
+                has_audio: false,
+                cost_usd: 0.015,
+                scheduled_date: scheduled_date || null,
+                industry: industryId || null,
+              })
+              .select('id')
+              .single();
+
+            if (historyError) {
+              console.error('Błąd zapisywania generacji:', historyError);
+            }
+
+            // Monitoring użycia
+            try {
+              const startOfMonth = new Date();
+              startOfMonth.setDate(1);
+              startOfMonth.setHours(0, 0, 0, 0);
+              const { count: monthlyCount } = await supabase
+                .from('generations')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user!.id)
+                .gte('created_at', startOfMonth.toISOString());
+              const ALERT_THRESHOLDS = [100, 300, 500];
+              if (monthlyCount && ALERT_THRESHOLDS.includes(monthlyCount)) {
+                await sendUsageAlert({ userId: user!.id, email: user!.email, plan: user!.subscription_plan, monthlyCount });
+              }
+            } catch (monitorErr) {
+              console.error('Błąd monitoringu użycia:', monitorErr);
+            }
+
+            // last_active_at — fire and forget
+            void (supabase.from('users').update({ last_active_at: new Date().toISOString() }).eq('id', user!.id) as unknown as Promise<void>);
+
+            // META footer — generationId + kredyty dla frontendu
+            const meta = JSON.stringify({ generationId: newGen?.id || null, creditsRemaining: newCredits, creditsTotal: user!.credits_total });
+            controller.enqueue(new TextEncoder().encode(`
+---META---
+${meta}`));
+          } else {
+            console.warn('Brak kredytów podczas post-stream decrement, user:', user!.id);
+          }
+        } catch (err) {
+          console.error('Stream error:', err);
+          controller.error(err);
+          return;
+        }
+        controller.close();
+      },
+    });
+
+    return new Response(readable, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Transfer-Encoding': 'chunked',
+        'Cache-Control': 'no-cache',
+        'X-Content-Type-Options': 'nosniff',
+      },
+    });
+    } catch (error: any) {
     console.error('Błąd API:', error);
     return NextResponse.json(
       { error: 'Wystąpił błąd podczas generowania postów' },
