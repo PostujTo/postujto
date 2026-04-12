@@ -803,7 +803,7 @@ const handleConfirmTerms = async () => {
       {/* FEATURES PILLS */}
       <div style={{ padding: '20px 24px', borderTop: '1px solid rgba(99,102,241,0.15)', borderBottom: '1px solid rgba(99,102,241,0.15)', background: 'rgba(99,102,241,0.06)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-          {['Facebook', 'Instagram', 'TikTok', 'Brand Kit', 'AI Obrazy', 'Polskie Okazje', 'Kalendarz Treści', '30 postów w 5 minut', 'Podpis Marki', '21 Branż', 'Guest Mode'].map((item, i) => (
+          {['Facebook', 'Instagram', 'TikTok', 'Brand Kit', 'AI Obrazy', 'Polskie Okazje', 'Kalendarz Treści', 'Magic Import', 'Audyt Profilu AI', 'Baselinker', 'Shoper', 'Allegro', '21 Branż', 'Podpis Marki'].map((item, i) => (
             <span key={i} style={{ fontSize: 13, color: 'rgba(165,180,252,0.8)', fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 100, padding: '6px 16px' }}>
               {item}
             </span>
