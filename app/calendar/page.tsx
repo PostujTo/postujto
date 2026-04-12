@@ -577,6 +577,7 @@ useEffect(() => {
     };
 
     const BATCH_SIZE = 5;
+    const BATCH_DELAY_MS = 1000;
     const batches = chunkArray(toGenerate, BATCH_SIZE);
     let completedCount = 0;
     let abort403 = false;
@@ -607,6 +608,11 @@ useEffect(() => {
         setProgressLabel('Brak kredytów. Przejdź na plan Starter aby generować bez limitu.');
         setUpgradeModal({ generated: completedCount, remaining: toGenerate.length - completedCount });
         break;
+      }
+
+      // Przerwa między batchami — ochrona przed rate limitem Anthropic
+      if (!abort403 && batches.indexOf(batch) < batches.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, BATCH_DELAY_MS));
       }
     }
 
