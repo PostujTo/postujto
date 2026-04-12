@@ -818,7 +818,6 @@ const handleConfirmTerms = async () => {
             {[
               { value: '12h', label: 'tygodniowo odzyskanych' },
               { value: '30', label: 'postów w 5 minut' },
-              { value: '14', label: 'platform dzięki Zernio' },
               { value: '21', label: 'branż, każda z własnym stylem' },
             ].map((stat, i) => (
               <div
@@ -848,7 +847,7 @@ const handleConfirmTerms = async () => {
             {[
                   { step: '01', title: 'Ustaw markę', desc: 'Wpisz nazwę firmy, wklej link do swojej strony WWW — AI sam wypełni Brand Kit. Zrób to raz, a każdy post będzie brzmieć jak Ty.', delay: 0 },
                   { step: '02', title: 'Wpisz temat', desc: 'Wybierz gotowy temat z inspiracji dla Twojej branży albo wpisz własny. AI dobiera strukturę, ton i długość pod każdą platformę.', delay: 0.15 },
-                  { step: '03', title: 'Publikuj automatycznie', desc: 'Dostaniesz 3 gotowe wersje tekstu z hashtagami i grafiką AI. Jeden klik — post trafia automatycznie na 14 platform przez Zernio.', delay: 0.3 },
+                  { step: '03', title: 'Publikuj automatycznie', desc: 'Dostaniesz 3 gotowe wersje tekstu z hashtagami i grafiką AI. Jeden klik — post publikuje się automatycznie na Facebooku, Instagramie i TikToku.', delay: 0.3 },
                   ].map((item, i) => (
               <div key={i} className={`section-reveal from-up ${isVisible('how') ? 'visible' : ''}`} style={{ transitionDelay: `${item.delay}s` }}>
             <div className="card-glass" style={{ borderRadius: 20, padding: 36, height: '100%' }}>
