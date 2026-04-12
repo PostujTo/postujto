@@ -313,9 +313,7 @@ ${formatInstruction}`;
       const responseText = guestMessage.content[0].type === 'text' ? guestMessage.content[0].text : '';
       let jsonData;
       try {
-        const cleanedText = responseText.replace(/```json
-?/g, '').replace(/```
-?/g, '').trim();
+        const cleanedText = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
         jsonData = JSON.parse(cleanedText);
       } catch {
         jsonData = { posts: [{ text: responseText, hashtags: ['#socialmedia', '#marketing', '#polska'], imagePrompt: `Grafika związana z: ${topic}` }] };
