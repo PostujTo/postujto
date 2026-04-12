@@ -816,7 +816,7 @@ const handleConfirmTerms = async () => {
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 2 }}>
             {[
-              { value: '10h', label: 'tygodniowo odzyskanych' },
+              { value: '12h', label: 'tygodniowo odzyskanych' },
               { value: '30', label: 'postów w 5 minut' },
               { value: '14', label: 'platform dzięki Zernio' },
               { value: '21', label: 'branż, każda z własnym stylem' },
