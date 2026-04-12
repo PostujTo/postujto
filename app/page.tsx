@@ -10,7 +10,7 @@ function FaqAccordion() {
   const items = [
     { q: 'Czy mogę przetestować PostujTo za darmo?', a: 'Tak! Po rejestracji otrzymujesz 5 darmowych kredytów — bez karty kredytowej. Każdy kredyt to jedno generowanie 3 wersji posta.' },
     { q: 'Czy posty są generowane po polsku?', a: 'Tak, wszystkie posty są generowane naturalną polszczyzną, z uwzględnieniem polskich zwrotów marketingowych i prawa reklamowego.' },
-    { q: 'Czym różni się Starter od Pro?', a: 'Starter (97 zł/msc) zawiera unlimited posty, obrazy AI, Brand Kit i automatyczną publikację na 14 platformach przez Zernio. Pro (247 zł/msc) dodaje auto 3 obrazy do każdego posta, AI Trend Advisor i audyt profilu.' },
+    { q: 'Czym różni się Starter od Pro?', a: 'Starter (97 zł/msc) zawiera unlimited posty, obrazy AI, Brand Kit i automatyczną publikację na Facebooku, Instagramie i TikToku. Pro (247 zł/msc) dodaje auto 3 obrazy do każdego posta, AI Trend Advisor i audyt profilu.' },
     { q: 'Czy mogę anulować subskrypcję?', a: 'Tak, w dowolnym momencie przez Panel → Subskrypcja. Zachowujesz dostęp do końca opłaconego okresu. Odnowienia są bezzwrotne.' },
     { q: 'Czy moje dane są bezpieczne?', a: 'Dane przechowujemy na serwerach w Irlandii (UE). Płatności obsługuje Stripe. Treści generowane przez AI nie są używane do trenowania modeli.' },
   ];
