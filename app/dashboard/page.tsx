@@ -11,6 +11,8 @@ type Generation = {
   id: string; topic: string; platform: string; tone: string; length: string;
   generated_posts: Post[]; is_favorite: boolean; liked_versions: number[]; created_at: string;
   ratings: Record<number, number>; performance?: Performance;
+  ayrshare_post_id?: string | null;
+  stats_likes?: number; stats_comments?: number; stats_shares?: number; stats_reach?: number;
 };
 type Stats = { total: number; favorites: number; facebook: number; instagram: number; tiktok: number; };
 
@@ -127,6 +129,8 @@ const deleteAccount = async () => {
   const fetchData = async () => {
     try {
       const [res, credRes] = await Promise.all([fetch('/api/dashboard'), fetch('/api/credits')]);
+      // Fire-and-forget stats sync z Zernio
+      fetch('/api/social/sync-stats', { method: 'POST' }).catch(() => {});
       const data = await res.json();
       const gens = data.generations || [];
       const st = data.stats || null;
@@ -646,6 +650,16 @@ const deleteAccount = async () => {
                           )}
                         </div>
                       </div>
+
+                      {/* Statystyki Zernio */}
+                      {gen.ayrshare_post_id && (gen.stats_likes! > 0 || gen.stats_reach! > 0) && (
+                        <div style={{ display: 'flex', gap: 12, padding: '8px 0 4px', flexWrap: 'wrap' }}>
+                          {(gen.stats_likes || 0) > 0 && <span style={{ fontSize: 12, color: 'rgba(240,240,245,0.6)' }}>❤️ {gen.stats_likes}</span>}
+                          {(gen.stats_comments || 0) > 0 && <span style={{ fontSize: 12, color: 'rgba(240,240,245,0.6)' }}>💬 {gen.stats_comments}</span>}
+                          {(gen.stats_shares || 0) > 0 && <span style={{ fontSize: 12, color: 'rgba(240,240,245,0.6)' }}>🔄 {gen.stats_shares}</span>}
+                          {(gen.stats_reach || 0) > 0 && <span style={{ fontSize: 12, color: 'rgba(240,240,245,0.6)' }}>👁️ {gen.stats_reach}</span>}
+                        </div>
+                      )}
 
                       {/* Actions */}
                       <div className="gen-card-actions" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>

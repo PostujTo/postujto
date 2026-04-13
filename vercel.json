@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/trend-advisor",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/sync-stats",
+      "schedule": "0 8 * * *"
     }
   ]
 }

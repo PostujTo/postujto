@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
   const { data: user } = await supabase
     .from('users')
-    .select('id, subscription_price_id, audit_used_at')
+    .select('id, subscription_price_id, audit_used_at, ayrshare_profile_key')
     .eq('clerk_user_id', userId)
     .single();
 
@@ -50,6 +50,32 @@ export async function POST(req: Request) {
     .select('company_name, tone')
     .eq('user_id', user.id)
     .single();
+
+  // Best-time z Zernio Analytics (opcjonalne — tylko jeśli user ma połączone Zernio)
+  let bestTimesSection = '';
+  if (user.ayrshare_profile_key) {
+    try {
+      const platforms = ['facebook', 'instagram', 'tiktok'];
+      const btResults = await Promise.allSettled(
+        platforms.map(platform =>
+          fetch(
+            `https://zernio.com/api/v1/analytics/best-time?platform=${platform}&profileId=${user.ayrshare_profile_key}`,
+            { headers: { Authorization: `Bearer ${process.env.ZERNIO_API_KEY}` } }
+          ).then(r => r.ok ? r.json() : null)
+        )
+      );
+      const [fb, ig, tt] = btResults.map(r => r.status === 'fulfilled' ? r.value : null);
+      const formatSlots = (data: any) => {
+        if (!data?.slots?.length) return 'brak danych';
+        return data.slots.slice(0, 2).map((s: any) => `${s.day} ${s.hour}:00 UTC (eng: ${s.avg_engagement?.toFixed(1) ?? '?'})`).join(', ');
+      };
+      if (fb || ig || tt) {
+        bestTimesSection = `\n## Dane analityczne z platform (Zernio):\nNajlepsze godziny publikowania:\n- Facebook: ${formatSlots(fb)}\n- Instagram: ${formatSlots(ig)}\n- TikTok: ${formatSlots(tt)}\n`;
+      }
+    } catch {
+      // Brak danych best-time — audyt działa bez nich
+    }
+  }
 
   const message = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',
@@ -75,6 +101,7 @@ Przeprowadź szczegółowy audyt tych postów. Odpowiedz w języku polskim, uży
 
 ## 📅 Częstotliwość i timing
 (analiza i rekomendacje)
+${bestTimesSection}
 
 ## #️⃣ Hashtagi
 (ocena i sugestie)
