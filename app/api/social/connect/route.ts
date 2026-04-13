@@ -19,36 +19,38 @@ export async function POST() {
 
   if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
-  if (user.ayrshare_profile_key) {
+  // Nowy format klucza zaczyna się od "prof_" — jeśli już istnieje, zwróć
+  if (user.ayrshare_profile_key?.startsWith('prof_')) {
     return NextResponse.json({ profileKey: user.ayrshare_profile_key, existing: true });
   }
 
-  const response = await fetch('https://app.zernio.com/api/profiles/profile', {
+  // Stary format lub brak klucza — utwórz nowy profil przez Zernio v1
+  const response = await fetch('https://zernio.com/api/v1/profiles', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${process.env.ZERNIO_API_KEY}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ title: userId }),
+    body: JSON.stringify({ name: userId }),
   });
 
   if (!response.ok) {
     const err = await response.text();
     console.error('Zernio profile create error:', err);
-    return NextResponse.json({ error: 'Nie udalo sie polaczyc z Zernio' }, { status: 500 });
+    return NextResponse.json({ error: 'Nie udało się połączyć z Zernio' }, { status: 500 });
   }
 
   const data = await response.json();
-  const profileKey = data.profileKey;
+  const profileId = data.profile?._id;
 
-  if (!profileKey) {
-    return NextResponse.json({ error: 'Brak profileKey w odpowiedzi Zernio' }, { status: 500 });
+  if (!profileId) {
+    return NextResponse.json({ error: 'Brak profileId w odpowiedzi Zernio' }, { status: 500 });
   }
 
   await supabase
     .from('users')
-    .update({ ayrshare_profile_key: profileKey })
+    .update({ ayrshare_profile_key: profileId })
     .eq('id', user.id);
 
-  return NextResponse.json({ profileKey, existing: false });
+  return NextResponse.json({ profileKey: profileId, existing: false });
 }
