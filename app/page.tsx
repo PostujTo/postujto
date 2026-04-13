@@ -818,6 +818,7 @@ const handleConfirmTerms = async () => {
             {[
               { value: '12h', label: 'tygodniowo odzyskanych' },
               { value: '30', label: 'postów w 5 minut' },
+              { value: '5 min', label: 'od pomysłu do gotowego posta' },
               { value: '21', label: 'branż, każda z własnym stylem' },
             ].map((stat, i) => (
               <div
