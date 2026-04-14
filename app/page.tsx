@@ -1086,7 +1086,7 @@ const handleConfirmTerms = async () => {
       price: landingBilling === 'monthly' ? '97' : '77',
       period: landingBilling === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 924 zł/rok',
       desc: landingBilling === 'monthly' ? '3,20 zł dziennie' : 'Oszczędzasz 240 zł rocznie',
-      features: ['Unlimited postów', 'Brand Kit i głos marki', 'Kalendarz treści', 'Automatyczna publikacja (Zernio)', 'Integracja ze sklepem', 'Generowanie obrazów AI'],
+      features: ['Unlimited postów', 'Brand Kit i głos marki', 'Kalendarz treści', 'Automatyczna publikacja (Facebook, Instagram, TikTok)', 'Integracja ze sklepem (Baselinker / Shoper / Allegro)', 'Generowanie obrazów AI', 'Historia i ulubione posty', 'Eksport CSV'],
       featured: true, badge: 'NAJPOPULARNIEJSZY', href: '/pricing', cta: 'Wybierz Starter',
     },
     {
@@ -1094,7 +1094,7 @@ const handleConfirmTerms = async () => {
       price: landingBilling === 'monthly' ? '247' : '197',
       period: landingBilling === 'monthly' ? '/ miesiąc' : '/ miesiąc • płacisz 2364 zł/rok',
       desc: landingBilling === 'monthly' ? '8,20 zł dziennie' : 'Oszczędzasz 600 zł rocznie',
-      features: ['Wszystko ze Starter', 'Auto 3 obrazy AI przy każdym poście', 'AI Trend Advisor', 'Audyt profilu AI (co 3 msc)', 'Wsparcie priorytetowe'],
+      features: ['Wszystko ze Starter', 'Auto 3 obrazy AI przy każdym poście', 'Podpis marki na obrazach', 'Priorytetowe generowanie', 'AI Trend Advisor', 'Audyt profilu AI (co 3 msc)', 'Wsparcie priorytetowe'],
       featured: false, href: '/pricing', cta: 'Wybierz Pro',
     },
   ].map((plan, i) => (
