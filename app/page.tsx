@@ -326,6 +326,7 @@ function PreviewCarousel({ isVisible }: { isVisible: boolean }) {
 export default function LandingPage() {
   const [scrollY, setScrollY] = useState(0);
   const [landingBilling, setLandingBilling] = useState<'monthly' | 'annual'>('monthly');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 const { user, isLoaded } = useUser();
 const [showTermsModal, setShowTermsModal] = useState(false);
 const [termsChecked, setTermsChecked] = useState(false);
@@ -668,7 +669,7 @@ const handleConfirmTerms = async () => {
               Postuj<span className="gradient-text">To</span>
             </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          <div className="landing-nav-links" style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
             <Link href="/pricing" 
               style={{ fontSize: 14, color: 'rgba(240,240,245,0.6)', textDecoration: 'none', transition: 'color 0.2s' }}
               onMouseEnter={e => (e.currentTarget.style.color = '#a5b4fc')}
@@ -696,8 +697,34 @@ const handleConfirmTerms = async () => {
               <UserButton afterSignOutUrl="/" />
             </SignedIn>
           </div>
+          <button
+            className="landing-hamburger"
+            onClick={() => setMobileMenuOpen(o => !o)}
+            aria-label="Menu"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: '#fff', padding: 8, lineHeight: 1 }}
+          >
+            {mobileMenuOpen ? '✕' : '☰'}
+          </button>
         </div>
       </nav>
+      {mobileMenuOpen && (
+        <div style={{ position: 'fixed', top: 60, left: 0, right: 0, zIndex: 99, background: 'rgba(10,10,15,0.97)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '16px 24px 24px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <Link href="/pricing" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: 16, color: 'rgba(240,240,245,0.8)', textDecoration: 'none', padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'block' }}>Cennik</Link>
+          <SignedOut>
+            <SignInButton mode="modal" forceRedirectUrl="/app">
+              <button style={{ fontSize: 16, color: 'rgba(240,240,245,0.8)', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%' }}>Zaloguj się</button>
+            </SignInButton>
+            <Link href="/app" onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', marginTop: 12 }}>
+              <button className="btn-primary" style={{ width: '100%', padding: '14px', borderRadius: 12, fontSize: 15, cursor: 'pointer' }}>Wypróbuj za darmo</button>
+            </Link>
+          </SignedOut>
+          <SignedIn>
+            <Link href="/app" onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', marginTop: 12 }}>
+              <button className="btn-primary" style={{ width: '100%', padding: '14px', borderRadius: 12, fontSize: 15, cursor: 'pointer' }}>Otwórz generator</button>
+            </Link>
+          </SignedIn>
+        </div>
+      )}
 
       {/* HERO */}
       <section className="landing-hero mesh-bg" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', padding: '56px 24px 80px', position: 'relative', overflow: 'hidden' }}>
