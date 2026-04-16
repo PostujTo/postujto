@@ -22,6 +22,7 @@ export function TopAppBar() {
   const [credits, setCredits] = useState<{ plan: string; remaining: number; total: number } | null>(null);
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [hamburgerOpen, setHamburgerOpen] = useState(false);
 
   const isMinimal = MINIMAL_NAV_ROUTES.some(r => pathname.startsWith(r));
   const logoHref = user ? '/app' : '/';
@@ -50,6 +51,7 @@ export function TopAppBar() {
   };
 
   return (
+    <>
     <header style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
       height: '64px', display: 'flex', alignItems: 'center',
@@ -179,8 +181,31 @@ export function TopAppBar() {
             )}
           </div>
         )}
+        {!isMinimal && isLoaded && !user && (
+          <button
+            className="mobile-only"
+            onClick={() => setHamburgerOpen(o => !o)}
+            aria-label="Menu"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 22, color: '#fff', padding: '4px 8px', lineHeight: 1 }}
+          >
+            {hamburgerOpen ? '✕' : '☰'}
+          </button>
+        )}
       </div>
     </header>
+    {hamburgerOpen && !isMinimal && !user && (
+      <div style={{ position: 'fixed', top: 64, left: 0, right: 0, zIndex: 999, background: 'rgba(10,10,15,0.97)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '16px 24px 24px', display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <Link href="/pricing" onClick={() => setHamburgerOpen(false)} style={{ fontSize: 16, color: 'rgba(240,240,245,0.8)', textDecoration: 'none', padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'block' }}>Cennik</Link>
+        <Link href="/faq" onClick={() => setHamburgerOpen(false)} style={{ fontSize: 16, color: 'rgba(240,240,245,0.8)', textDecoration: 'none', padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'block' }}>FAQ</Link>
+        <SignInButton mode="modal">
+          <button onClick={() => setHamburgerOpen(false)} style={{ fontSize: 16, color: 'rgba(240,240,245,0.8)', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', fontFamily: 'inherit' }}>Zaloguj się</button>
+        </SignInButton>
+        <Link href="/app" onClick={() => setHamburgerOpen(false)} style={{ display: 'block', marginTop: 12 }}>
+          <button style={{ width: '100%', padding: '14px', borderRadius: 12, fontSize: 15, cursor: 'pointer', background: 'linear-gradient(135deg,#6366f1,#a855f7)', border: 'none', color: '#fff', fontWeight: 700, fontFamily: 'inherit' }}>Otwórz generator →</button>
+        </Link>
+      </div>
+    )}
+    </>
   );
 }
 

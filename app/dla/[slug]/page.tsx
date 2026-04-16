@@ -42,7 +42,7 @@ export default async function IndustryLandingPage({ params }: { params: Promise<
     <div style={{ minHeight: '100vh', background: '#0a0a0f', fontFamily: '"DM Sans", sans-serif', color: '#f0f0f5' }}>
 
       {/* ── 1. HERO ── */}
-      <section style={{ maxWidth: 760, margin: '0 auto', padding: '80px 24px 56px', textAlign: 'center' }}>
+      <section className="dla-hero-section" style={{ maxWidth: 760, margin: '0 auto', padding: '80px 24px 56px', textAlign: 'center' }}>
         <div style={{ fontSize: 64, marginBottom: 20, lineHeight: 1 }}>{industry.icon}</div>
         <h1 style={{ fontFamily: '"Poppins", sans-serif', fontWeight: 800, fontSize: 36, color: '#fff', marginBottom: 16, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
           {industry.headline}
@@ -61,7 +61,7 @@ export default async function IndustryLandingPage({ params }: { params: Promise<
       {/* ── 2. BÓL BRANŻY ── */}
       {pattern && (
         <section style={{ background: 'rgba(99,102,241,0.06)', borderTop: '1px solid rgba(99,102,241,0.15)', borderBottom: '1px solid rgba(99,102,241,0.15)' }}>
-          <div style={s.sectionNarrow}>
+          <div className="dla-section-narrow" style={s.sectionNarrow}>
             <p style={{ fontSize: 12, fontWeight: 700, color: 'rgba(240,240,245,0.3)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>Znasz to uczucie?</p>
             <p style={{ fontSize: 20, color: '#f0f0f5', lineHeight: 1.7, marginBottom: 20 }}>
               😔 {pattern.pain}
@@ -74,7 +74,7 @@ export default async function IndustryLandingPage({ params }: { params: Promise<
       )}
 
       {/* ── 3. PRZYKŁADOWE POSTY ── */}
-      <section style={s.section}>
+      <section className="dla-section" style={s.section}>
         <h2 style={s.h2}>Tak wyglądają posty dla branży {industry.name}</h2>
         <p style={{ color: 'rgba(240,240,245,0.4)', fontSize: 15, marginBottom: 28 }}>
           Realne przykłady wygenerowane przez PostujTo — gotowe do publikacji.
@@ -96,7 +96,7 @@ export default async function IndustryLandingPage({ params }: { params: Promise<
       {/* ── 4. ZŁOTE TEMATY ── */}
       {topics.length > 0 && (
         <section style={{ background: 'rgba(255,255,255,0.01)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-          <div style={s.section}>
+          <div className="dla-section" style={s.section}>
             <h2 style={s.h2}>Tematy postów dla branży {industry.name}</h2>
             <p style={{ color: 'rgba(240,240,245,0.4)', fontSize: 15, marginBottom: 28 }}>
               Kliknij temat — a PostujTo wygeneruje gotowy post w 30 sekund.
@@ -121,7 +121,7 @@ export default async function IndustryLandingPage({ params }: { params: Promise<
       )}
 
       {/* ── 5. JAK TO DZIAŁA ── */}
-      <section style={s.section}>
+      <section className="dla-section" style={s.section}>
         <h2 style={{ ...s.h2, textAlign: 'center' }}>Jak to działa?</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20, marginTop: 32 }}>
           {[
@@ -141,7 +141,7 @@ export default async function IndustryLandingPage({ params }: { params: Promise<
 
       {/* ── 6. SOCIAL PROOF ── */}
       <section style={{ background: 'rgba(99,102,241,0.05)', borderTop: '1px solid rgba(99,102,241,0.1)', borderBottom: '1px solid rgba(99,102,241,0.1)' }}>
-        <div style={{ ...s.sectionNarrow, textAlign: 'center' }}>
+        <div className="dla-section-narrow" style={{ ...s.sectionNarrow, textAlign: 'center' }}>
           <p style={{ fontSize: 12, fontWeight: 700, color: 'rgba(240,240,245,0.3)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 20 }}>
             Co mówią przedsiębiorcy z branży {industry.name}?
           </p>
@@ -159,7 +159,7 @@ export default async function IndustryLandingPage({ params }: { params: Promise<
 
       {/* ── 8. FAQ ── */}
       <section style={{ background: 'rgba(255,255,255,0.01)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-        <div style={s.section}>
+        <div className="dla-section" style={s.section}>
           <h2 style={s.h2}>Często zadawane pytania</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {[
@@ -178,7 +178,7 @@ export default async function IndustryLandingPage({ params }: { params: Promise<
       </section>
 
       {/* FOOTER CTA */}
-      <section style={{ textAlign: 'center', padding: '56px 24px 80px' }}>
+      <section className="dla-footer-section" style={{ textAlign: 'center', padding: '56px 24px 80px' }}>
         <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.3)', marginBottom: 20 }}>Dołącz do setek polskich przedsiębiorców, którzy oszczędzają czas na social mediach</p>
         <Link href="/sign-up" style={{ display: 'inline-block', padding: '16px 40px', background: 'linear-gradient(135deg,#6366f1,#a855f7)', borderRadius: 14, color: '#fff', fontWeight: 700, fontSize: 17, textDecoration: 'none' }}>
           Zacznij za darmo →

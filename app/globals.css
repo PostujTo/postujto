@@ -490,6 +490,12 @@ body { overflow-x: clip; }
   footer > div { flex-direction: column !important; align-items: flex-start !important; gap: 20px !important; }
   footer > div > div:last-child { flex-wrap: wrap !important; gap: 16px !important; }
 
+  /* ── LP BRANŻOWE — mniejszy padding sekcji ── */
+  .dla-hero-section { padding: 48px 16px 32px !important; }
+  .dla-section { padding: 32px 16px !important; }
+  .dla-section-narrow { padding: 24px 16px !important; }
+  .dla-footer-section { padding: 32px 16px 48px !important; }
+
 }
 
 /* ── PREVIEW CAROUSEL ── */
