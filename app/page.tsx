@@ -418,9 +418,7 @@ const handleConfirmTerms = async () => {
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
-        body { font-family: var(--font-dm-sans), sans-serif; background: #0a0a0f; color: #f0f0f5; overflow-x: hidden; }
-
-        font-family: var(--font-poppins), sans-serif;
+        body { font-family: var(--font-dm-sans), sans-serif; background: #0a0a0f; color: #f0f0f5; overflow-x: clip; }
 
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
