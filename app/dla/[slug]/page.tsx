@@ -42,7 +42,7 @@ export default async function IndustryLandingPage({ params }: { params: Promise<
     <div style={{ background: '#0a0a0f', fontFamily: '"DM Sans", sans-serif', color: '#f0f0f5' }}>
 
       {/* ── 1. HERO ── */}
-      <section className="dla-hero-section" style={{ padding: '80px 24px 56px' }}>
+      <section className="dla-hero-section" style={{ padding: '56px 24px 40px' }}>
         <div className="dla-hero-grid" style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center' }}>
 
           {/* Left — tekst */}
