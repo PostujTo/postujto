@@ -101,12 +101,14 @@ export function PricingSection() {
               href={plan.href}
               style={{
                 display: 'block',
-                padding: '10px 16px',
-                background: plan.highlight ? 'linear-gradient(135deg,#6366f1,#a855f7)' : 'rgba(255,255,255,0.08)',
-                borderRadius: 10,
+                padding: '14px 20px',
+                background: plan.highlight ? 'linear-gradient(135deg, #6366f1, #a855f7)' : 'rgba(255,255,255,0.06)',
+                border: plan.highlight ? 'none' : '1px solid rgba(255,255,255,0.12)',
+                borderRadius: 12,
                 color: '#fff',
                 fontWeight: 700,
-                fontSize: 13,
+                fontSize: 15,
+                textAlign: 'center',
                 textDecoration: 'none',
               }}
             >

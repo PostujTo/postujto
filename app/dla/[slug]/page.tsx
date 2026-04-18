@@ -20,7 +20,7 @@ export async function generateStaticParams() {
 }
 
 const TYPE_LABELS = { pain: '🔴 Ból klienta', result: '🟢 Rezultat', relation: '🟡 Kulisy' };
-const PLATFORM_COLORS = { facebook: '#1877F2', instagram: '#E1306C', tiktok: '#010101' };
+const PLATFORM_COLORS = { facebook: '#1877F2', instagram: '#E1306C', tiktok: '#69C9D0' };
 const PLATFORM_LABELS = { facebook: 'Facebook', instagram: 'Instagram', tiktok: 'TikTok' };
 
 export default async function IndustryLandingPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -53,7 +53,10 @@ export default async function IndustryLandingPage({ params }: { params: Promise<
             </div>
             <div style={{ fontSize: 56, marginBottom: 16, lineHeight: 1 }}>{industry.icon}</div>
             <h1 style={{ fontFamily: '"Poppins", sans-serif', fontWeight: 800, color: '#fff', marginBottom: 16, letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-              {industry.headline}
+              {industry.headline.split(' — ')[0]}{' — '}
+              <span style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                {industry.headline.split(' — ').slice(1).join(' — ')}
+              </span>
             </h1>
             <p style={{ fontSize: 18, color: 'rgba(240,240,245,0.6)', marginBottom: 36, lineHeight: 1.6 }}>
               {industry.subheadline}
@@ -104,19 +107,6 @@ export default async function IndustryLandingPage({ params }: { params: Promise<
       </section>
 
       {/* ── 2. BÓL BRANŻY ── */}
-      {pattern && (
-        <section style={{ background: 'rgba(99,102,241,0.06)', borderTop: '1px solid rgba(99,102,241,0.15)', borderBottom: '1px solid rgba(99,102,241,0.15)' }}>
-          <div className="dla-section-narrow" style={s.sectionNarrow}>
-            <p style={{ fontSize: 12, fontWeight: 700, color: 'rgba(240,240,245,0.3)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>Znasz to uczucie?</p>
-            <p style={{ fontSize: 20, color: '#f0f0f5', lineHeight: 1.7, marginBottom: 20 }}>
-              😔 {pattern.pain}
-            </p>
-            <p style={{ fontSize: 18, color: '#a5b4fc', lineHeight: 1.7 }}>
-              ✨ {pattern.dream}
-            </p>
-          </div>
-        </section>
-      )}
 
       {/* ── 3. PRZYKŁADOWE POSTY ── */}
       <section className="dla-section" style={s.section}>
