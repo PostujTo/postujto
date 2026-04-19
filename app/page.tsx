@@ -745,7 +745,7 @@ const handleConfirmTerms = async () => {
               <span className="text-shimmer">nigdy nie będzie pusty</span>
             </h1>
 
-            <p style={{ fontSize: 18, color: 'rgba(240,240,245,0.6)', lineHeight: 1.7, marginBottom: 40, maxWidth: 480 }}>
+            <p style={{ fontSize: 18, color: 'rgba(240,240,245,0.6)', lineHeight: 1.7, marginBottom: 40, maxWidth: '100%', width: '100%', boxSizing: 'border-box', overflowWrap: 'break-word', wordBreak: 'break-word' }}>
               Właściciele firm tracą średnio <strong style={{ color: '#a5b4fc' }}>10 godzin tygodniowo</strong> na wymyślanie postów — albo rezygnują i profil stoi martwy.<br />
               PostujTo generuje 30 gotowych postów na FB, IG i TikTok w 5 minut, dopasowanych do Twojej branży i stylu.
             </p>

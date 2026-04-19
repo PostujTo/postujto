@@ -61,7 +61,7 @@ export function TopAppBar() {
       borderBottom: '1px solid rgba(255,255,255,0.07)', boxSizing: 'border-box',
     }}>
 
-      <Link href={logoHref} style={{ textDecoration: 'none', flexShrink: 0 }}>
+      <Link href={logoHref} className="topbar-logo" style={{ textDecoration: 'none', flexShrink: 0 }}>
         <span className="font-display" style={{ fontWeight: 800, fontSize: '20px', color: '#fff', letterSpacing: '-0.02em' }}>
           Postuj<span className="gradient-text">To</span>
         </span>
@@ -98,7 +98,7 @@ export function TopAppBar() {
         </nav>
       )}
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div className="topbar-trailing" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         {!isMinimal && isLoaded && user && credits && (
           <>
             <span className="desktop-only" style={{

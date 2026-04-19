@@ -31,6 +31,8 @@ body {
   .desktop-nav  { display: none !important; }
   .desktop-only { display: none !important; }
   .mobile-only  { display: flex !important; }
+  .topbar-trailing { order: -1; }
+  .topbar-logo     { flex: 1; text-align: center; }
 
   /* Padding pod bottom nav na stronach aplikacji */
   .has-bottom-nav {

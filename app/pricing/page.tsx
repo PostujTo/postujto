@@ -144,7 +144,6 @@ const plans = [
         body { scrollbar-gutter: stable; }
         @media (max-width: 767px) {
           .pricing-grid { grid-template-columns: 1fr !important; }
-          .pricing-comparison-table { display: none !important; }
           .pricing-comparison-cards { display: flex !important; flex-direction: column; gap: 16px; padding: 0 16px; }
         }
         .pricing-comparison-cards { display: none; }
