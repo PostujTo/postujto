@@ -74,6 +74,20 @@
 
   /* Font */
   --font-primary: "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Typografia desktop */
+  --font-heading-xl: 52px;
+  --font-heading-l:  36px;
+  --font-heading-m:  24px;
+  --font-heading-s:  18px;
+  --font-body:       16px;
+  --font-small:      14px;
+  --font-caption:    12px;
+  --font-label:      13px;
+
+  /* Padding sekcji — desktop */
+  --section-padding:      64px 24px;
+  --section-padding-hero: 56px 24px 40px;
 }
 
 html {
@@ -97,6 +111,24 @@ body {
 .mobile-only   { display: none !important; }
 /* Main content: brak padding-bottom domyślnie */
 .main-content  { padding-bottom: 0; }
+
+/* ── Design Tokens — mobile overrides (M3) ── */
+@media (max-width: 767px) {
+  :root {
+    /* Typografia — M3 Type Scale mobile */
+    --font-heading-xl: 34px;
+    --font-heading-l:  24px;
+    --font-heading-m:  18px;
+
+    /* Spacing — mniejsze na mobile */
+    --space-2xl: 32px;
+    --space-3xl: 48px;
+
+    /* Padding sekcji — mobile */
+    --section-padding:      32px 16px;
+    --section-padding-hero: 48px 16px;
+  }
+}
 
 @media (max-width: 767px) {
   .desktop-nav  { display: none !important; }
@@ -459,6 +491,17 @@ body {
     #0a0a0f;
 }
 .dla-hero-section h1 { font-size: 52px !important; line-height: 1.1 !important; letter-spacing: -0.02em !important; }
+
+/* Landing page — global */
+.landing-hero {
+  background: var(--color-background);
+  color: var(--color-text);
+}
+
+/* LP branżowe — platform card border tokens */
+.dla-platform-facebook  { border-left: 3px solid var(--color-facebook); }
+.dla-platform-instagram { border-left: 3px solid var(--color-instagram); }
+.dla-platform-tiktok    { border-left: 3px solid var(--color-tiktok); }
 
 /* Global overflow guard */
 /* overflow-x: clip (nie hidden!) — clip nie blokuje position:fixed */
