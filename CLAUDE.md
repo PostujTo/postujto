@@ -201,3 +201,14 @@ Load the relevant skill file only when the task touches that domain:
 | API contracts, versioning, backward compatibility | `skills/api-contracts.md` |
 
 Skills are in `skills/` directory. Load only what is needed. Do not load all skills for every task.
+
+## Design Tokens
+
+Wszystkie wartości wizualne są zdefiniowane w `lib/design-tokens.ts`.
+- Używaj `tokens.colors.primary` zamiast `#6366f1`
+- Używaj `tokens.spacing.md` zamiast `16`
+- Używaj `tokens.radius.lg` zamiast `16`
+- CSS variables: `var(--color-primary)` zamiast `#6366f1`
+
+Design system: shadcn/ui (desktop) + Material Design 3 (mobile)
+Dokumentacja: https://ui.shadcn.com + https://m3.material.io

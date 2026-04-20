@@ -1,8 +1,79 @@
 @import "tailwindcss";
 
 :root {
+  /* Legacy aliases (używane przez body) */
   --background: #0a0a0f;
   --foreground: #f0f0f5;
+
+  /* ── Design Tokens PostujTo ── */
+
+  /* Brand */
+  --color-primary:        #6366f1;
+  --color-primary-hover:  #5558e3;
+  --color-primary-light:  rgba(99, 102, 241, 0.1);
+  --color-primary-border: rgba(99, 102, 241, 0.3);
+  --color-secondary:      #a855f7;
+  --gradient-primary:     linear-gradient(135deg, #6366f1, #a855f7);
+
+  /* Tło */
+  --color-background:     #0a0a0f;
+  --color-surface:        rgba(255, 255, 255, 0.03);
+  --color-surface-hover:  rgba(255, 255, 255, 0.06);
+  --color-surface-active: rgba(255, 255, 255, 0.08);
+
+  /* Obramowania */
+  --color-border:         rgba(255, 255, 255, 0.08);
+  --color-border-hover:   rgba(255, 255, 255, 0.15);
+  --color-border-focus:   rgba(99, 102, 241, 0.5);
+
+  /* Tekst */
+  --color-text:           #f0f0f5;
+  --color-text-secondary: rgba(240, 240, 245, 0.7);
+  --color-text-muted:     rgba(240, 240, 245, 0.5);
+  --color-text-disabled:  rgba(240, 240, 245, 0.3);
+
+  /* Statusy */
+  --color-success:        #22c55e;
+  --color-success-light:  rgba(34, 197, 94, 0.1);
+  --color-error:          #ef4444;
+  --color-error-light:    rgba(239, 68, 68, 0.1);
+  --color-warning:        #f59e0b;
+  --color-warning-light:  rgba(245, 158, 11, 0.1);
+
+  /* Platformy */
+  --color-facebook:       #1877F2;
+  --color-instagram:      #E1306C;
+  --color-tiktok:         #69C9D0;
+
+  /* Spacing */
+  --space-xs:   4px;
+  --space-sm:   8px;
+  --space-md:   16px;
+  --space-lg:   24px;
+  --space-xl:   32px;
+  --space-2xl:  48px;
+  --space-3xl:  64px;
+
+  /* Radius */
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  16px;
+  --radius-xl:  24px;
+  --radius-full: 9999px;
+
+  /* Shadow */
+  --shadow-subtle:   0 1px 4px rgba(0, 0, 0, 0.2);
+  --shadow-card:     0 4px 24px rgba(0, 0, 0, 0.3);
+  --shadow-elevated: 0 8px 40px rgba(0, 0, 0, 0.4);
+  --shadow-glow:     0 0 24px rgba(99, 102, 241, 0.3);
+
+  /* Transitions */
+  --transition-fast:   all 0.15s ease;
+  --transition-normal: all 0.25s ease;
+  --transition-slow:   all 0.35s ease;
+
+  /* Font */
+  --font-primary: "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 html {
