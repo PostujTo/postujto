@@ -55,7 +55,7 @@ if (!allowed) {
     }
 
     const body = await request.json();
-const { topic, platform, tone, length, industry, industryId, scheduled_date, use_brand_voice, isPreview, brandKitOverride } = body;
+const { topic, platform, tone, length, industry, industryId, scheduled_date, use_brand_voice, isPreview, brandKitOverride, regenerate } = body;
 
 // Walidacja obecności
 if (!topic || !platform || !tone || !length) {
@@ -354,7 +354,10 @@ ${formatInstruction}`;
           // Stream zakończony — parsuj, odejmij kredyt, zapisz
           const posts = parsePlainTextToPosts(fullText);
 
-          const { data: newCredits } = await supabase.rpc('decrement_credit', { p_user_id: user!.id });
+          // Skip credit decrement for regeneration of same topic+platform
+          const { data: newCredits } = regenerate
+            ? { data: user!.credits_remaining }
+            : await supabase.rpc('decrement_credit', { p_user_id: user!.id });
 
           if (newCredits !== -1 && newCredits !== null) {
             const { data: newGen, error: historyError } = await supabase

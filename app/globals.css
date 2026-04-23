@@ -823,3 +823,11 @@ body { overflow-x: clip; }
     font-size: 12px;
   }
 }
+
+/* ── Post actions — mobile (M3) ── */
+@media (max-width: 767px) {
+  .post-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+}

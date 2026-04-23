@@ -152,6 +152,8 @@ export default function GeneratorPage() {
   const [lazyCompanyName, setLazyCompanyName] = useState('');
   const [lazyIndustry, setLazyIndustry] = useState('');
   const [brandKitCompletion, setBrandKitCompletion] = useState(0);
+  const [lastGeneratedTopic, setLastGeneratedTopic] = useState('');
+  const [lastGeneratedPlatform, setLastGeneratedPlatform] = useState('');
   const [credits, setCredits] = useState<{ plan: string; remaining: number; total: number } | null>(() => {
     if (typeof window === 'undefined') return null;
     try { const d = localStorage.getItem('dash_credits'); return d ? JSON.parse(d) : null; } catch { return null; }
@@ -469,6 +471,8 @@ const handleConfirmPlanTerms = async () => {
 
       const newResults = parsePlainTextToPosts(postsText).map(post => ({ ...post, generatedImage: undefined as string | undefined, imageLoading: false, imageTool: undefined as string | undefined }));
       setResults(newResults);
+      setLastGeneratedTopic(topic);
+      setLastGeneratedPlatform(platform);
       notify.success('Wygenerowano 3 wersje posta');
       setStreamText('');
       setGenerationId(metaData.generationId || null);
@@ -1194,6 +1198,28 @@ const handleConfirmPlanTerms = async () => {
                             <a href="/settings#social" style={{ padding: '7px 14px', borderRadius: 9, fontSize: 13, color: 'rgba(240,240,245,0.5)', border: '1px solid rgba(255,255,255,0.1)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
                               🔗 Połącz SM
                             </a>
+                          )}
+                          {!isGuestResult && results && results.length > 0 && (
+                            <button
+                              onClick={() => {
+                                const sameContext = lastGeneratedTopic === topic && lastGeneratedPlatform === platform;
+                                if (sameContext) {
+                                  const body = { topic, platform, tone, length, industry: null, industryId: selectedIndustry, use_brand_voice: useBrandVoice, regenerate: true };
+                                  setLoading(true); setResults(null); setStreamText(''); setIsStreaming(false);
+                                  fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+                                    .then(() => {})
+                                    .catch(() => {});
+                                  // Re-use the same generatePost flow
+                                } else {
+                                  // topic/platform changed — normal generation
+                                }
+                                void generatePost();
+                              }}
+                              className="btn-ghost post-actions"
+                              style={{ padding: '7px 14px', borderRadius: 9, fontSize: 13 }}
+                            >
+                              🔄 Nie podoba mi się
+                            </button>
                           )}
                         </div>
                       </div>
