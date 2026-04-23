@@ -57,6 +57,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { notify } from '@/lib/toast';
 import { OnboardingChecklist } from '@/components/OnboardingChecklist';
 import { ZernioStatus } from '@/components/ZernioStatus';
+import { ProGated } from '@/components/ProGated';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription,
@@ -148,7 +149,6 @@ export default function GeneratorPage() {
   const [addWatermark, setAddWatermark] = useState(() => typeof window !== 'undefined' ? localStorage.getItem('gen_useLogo') === 'true' : false);
   const [useBrandColors, setUseBrandColors] = useState(() => typeof window !== 'undefined' ? localStorage.getItem('gen_useBrandKit') !== 'false' : true);
   const [useBrandVoice, setUseBrandVoice] = useState(() => typeof window !== 'undefined' ? localStorage.getItem('gen_useMyStyle') !== 'false' : true);
-  const [showTooltip, setShowTooltip] = useState<string | null>(null);
   const [hasBrandKit, setHasBrandKit] = useState(false);
   const [showLazyOnboarding, setShowLazyOnboarding] = useState(false);
   const [lazyOnboardingDismissed, _setLazyOnboardingDismissed] = useState(
@@ -828,45 +828,30 @@ const handleConfirmPlanTerms = async () => {
                   style={{ width: '100%', padding: '14px 16px', borderRadius: 14, fontSize: 14, lineHeight: 1.6, color: '#f0f0f5', border: '1px solid rgba(255,255,255,0.25)' }}
                 />
                 <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  <div style={{ position: 'relative' }}
-                    onMouseEnter={() => (!user || credits?.plan === 'free') ? setShowTooltip('brand-kit') : undefined}
-                    onMouseLeave={() => setShowTooltip(null)}>
-                    <label className="checkbox-label" style={{ opacity: credits?.plan !== 'free' && user ? 1 : 0.4, cursor: credits?.plan !== 'free' && user ? 'pointer' : 'not-allowed' }}>
-                      <input type="checkbox" checked={useBrandColors} onChange={e => setUseBrandColors(e.target.checked)} disabled={!user || credits?.plan === 'free'} />
+                  <ProGated requiredPlan="starter" currentPlan={credits?.plan ?? 'free'} featureName="Użyj kolorów i stylu z Brand Kit">
+                    <label className="checkbox-label">
+                      <input type="checkbox" checked={useBrandColors} onChange={e => setUseBrandColors(e.target.checked)} />
                       <span style={{ fontSize: 13, color: 'rgba(240,240,245,0.6)' }}>
                         Użyj kolorów i stylu z Brand Kit
-                        {(!user || credits?.plan === 'free') && <span style={{ marginLeft: 6, fontSize: 11, color: '#6366f1' }}>(tylko Starter i Pro)</span>}
                       </span>
                     </label>
-                    {showTooltip === 'brand-kit' && (
-                      <div style={{ position: 'absolute', bottom: '100%', left: 0, marginBottom: 6, padding: '8px 12px', borderRadius: 8, fontSize: 12, background: 'rgba(26,26,46,0.98)', border: '1px solid rgba(99,102,241,0.3)', color: '#f0f0f5', whiteSpace: 'nowrap', zIndex: 50, boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
-                        Dostępne w planie Starter (79 zł/msc) lub Pro (199 zł/msc)
-                      </div>
-                    )}
-                  </div>
-                  <label className="checkbox-label" style={{ opacity: credits?.plan === 'premium' ? 1 : 0.4, cursor: credits?.plan === 'premium' ? 'pointer' : 'not-allowed' }}>
-                    <input type="checkbox" checked={addWatermark} onChange={e => setAddWatermark(e.target.checked)} disabled={credits?.plan !== 'premium'} />
-                    <span style={{ fontSize: 13, color: 'rgba(240,240,245,0.6)' }}>
-                      Dodaj logo na obraz
-                      {credits?.plan !== 'premium' && <span style={{ marginLeft: 6, fontSize: 11, color: '#6366f1' }}>(tylko PRO)</span>}
-                    </span>
-                  </label>
-                  <div style={{ position: 'relative' }}
-                    onMouseEnter={() => (!user || credits?.plan === 'free') ? setShowTooltip('brand-voice') : undefined}
-                    onMouseLeave={() => setShowTooltip(null)}>
-                    <label className="checkbox-label" style={{ opacity: credits?.plan !== 'free' && user ? 1 : 0.4, cursor: credits?.plan !== 'free' && user ? 'pointer' : 'not-allowed' }}>
-                      <input type="checkbox" checked={useBrandVoice} onChange={e => setUseBrandVoice(e.target.checked)} disabled={!user || credits?.plan === 'free'} />
+                  </ProGated>
+                  <ProGated requiredPlan="pro" currentPlan={credits?.plan ?? 'free'} featureName="Dodaj logo na obraz">
+                    <label className="checkbox-label">
+                      <input type="checkbox" checked={addWatermark} onChange={e => setAddWatermark(e.target.checked)} />
+                      <span style={{ fontSize: 13, color: 'rgba(240,240,245,0.6)' }}>
+                        Dodaj logo na obraz
+                      </span>
+                    </label>
+                  </ProGated>
+                  <ProGated requiredPlan="starter" currentPlan={credits?.plan ?? 'free'} featureName="Generuj w moim stylu">
+                    <label className="checkbox-label">
+                      <input type="checkbox" checked={useBrandVoice} onChange={e => setUseBrandVoice(e.target.checked)} />
                       <span style={{ fontSize: 13, color: 'rgba(240,240,245,0.6)' }}>
                         Generuj w moim stylu
-                        {(!user || credits?.plan === 'free') && <span style={{ marginLeft: 6, fontSize: 11, color: '#6366f1' }}>(tylko Starter i Pro)</span>}
                       </span>
                     </label>
-                    {showTooltip === 'brand-voice' && (
-                      <div style={{ position: 'absolute', bottom: '100%', left: 0, marginBottom: 6, padding: '8px 12px', borderRadius: 8, fontSize: 12, background: 'rgba(26,26,46,0.98)', border: '1px solid rgba(99,102,241,0.3)', color: '#f0f0f5', whiteSpace: 'nowrap', zIndex: 50, boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
-                        Dostępne w planie Starter (79 zł/msc) lub Pro (199 zł/msc)
-                      </div>
-                    )}
-                  </div>
+                  </ProGated>
                 </div>
               </div>
 
