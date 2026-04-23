@@ -56,6 +56,7 @@ import { SignInButton, SignedIn, SignedOut, useClerk, useUser } from '@clerk/nex
 import { EmptyState } from '@/components/EmptyState';
 import { notify } from '@/lib/toast';
 import { OnboardingChecklist } from '@/components/OnboardingChecklist';
+import { ZernioStatus } from '@/components/ZernioStatus';
 
 type Plan = 'free' | 'standard' | 'premium';
 type ToastType = 'error' | 'success' | 'info' | 'warning';
@@ -701,6 +702,11 @@ const handleConfirmPlanTerms = async () => {
             <p style={{ fontSize: 16, color: 'rgba(240,240,245,0.45)' }}>
               Wpisz temat, wybierz platformę i kliknij generuj
             </p>
+            {user && (
+              <div style={{ marginTop: 16 }}>
+                <ZernioStatus status={socialConnected ? 'connected' : 'not_setup'} />
+              </div>
+            )}
           </div>
 
           {user && (

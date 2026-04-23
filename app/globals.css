@@ -816,3 +816,10 @@ body { overflow-x: clip; }
   --radius: 0.75rem;                          /* 12px */
 }
 
+/* ── ZernioStatus — mobile (M3 Chip) ── */
+@media (max-width: 767px) {
+  .zernio-status-badge {
+    padding: 4px 10px;
+    font-size: 12px;
+  }
+}
