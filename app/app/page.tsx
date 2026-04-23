@@ -58,6 +58,7 @@ import { notify } from '@/lib/toast';
 import { OnboardingChecklist } from '@/components/OnboardingChecklist';
 import { ZernioStatus } from '@/components/ZernioStatus';
 import { ProGated } from '@/components/ProGated';
+import { PublishButton } from '@/components/PublishButton';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription,
@@ -1186,20 +1187,12 @@ const handleConfirmPlanTerms = async () => {
                           >
                             {likedPosts.has(idx) ? '⭐' : '☆'}
                           </button>
-                          {!isGuestResult && socialConnected && credits?.plan !== 'free' && (
-                            <button
-                              onClick={() => handlePublish(result.text, result.hashtags, idx)}
-                              disabled={publishLoading === idx}
-                              className="btn-ghost"
-                              style={{ padding: '7px 14px', borderRadius: 9, fontSize: 13, opacity: publishLoading === idx ? 0.6 : 1 }}
-                            >
-                              {publishLoading === idx ? '⏳' : '📤 Opublikuj'}
-                            </button>
-                          )}
-                          {!isGuestResult && !socialConnected && credits?.plan !== 'free' && (
-                            <a href="/settings#social" style={{ padding: '7px 14px', borderRadius: 9, fontSize: 13, color: 'rgba(240,240,245,0.5)', border: '1px solid rgba(255,255,255,0.1)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
-                              🔗 Połącz SM
-                            </a>
+                          {!isGuestResult && credits?.plan !== 'free' && (
+                            <PublishButton
+                              postContent={result.text}
+                              platform={platform}
+                              zernioConnected={!!socialConnected}
+                            />
                           )}
                           {!isGuestResult && results && results.length > 0 && (
                             <button
