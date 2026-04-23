@@ -831,3 +831,11 @@ body { overflow-x: clip; }
     width: 100%;
   }
 }
+
+/* ── AlertDialog — mobile (M3) ── */
+@media (max-width: 767px) {
+  [role="alertdialog"] {
+    max-width: calc(100vw - 32px) !important;
+    margin: 0 16px;
+  }
+}

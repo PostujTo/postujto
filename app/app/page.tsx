@@ -57,6 +57,11 @@ import { EmptyState } from '@/components/EmptyState';
 import { notify } from '@/lib/toast';
 import { OnboardingChecklist } from '@/components/OnboardingChecklist';
 import { ZernioStatus } from '@/components/ZernioStatus';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 type Plan = 'free' | 'standard' | 'premium';
 type ToastType = 'error' | 'success' | 'info' | 'warning';
@@ -154,6 +159,7 @@ export default function GeneratorPage() {
   const [brandKitCompletion, setBrandKitCompletion] = useState(0);
   const [lastGeneratedTopic, setLastGeneratedTopic] = useState('');
   const [lastGeneratedPlatform, setLastGeneratedPlatform] = useState('');
+  const [guardOpen, setGuardOpen] = useState(false);
   const [credits, setCredits] = useState<{ plan: string; remaining: number; total: number } | null>(() => {
     if (typeof window === 'undefined') return null;
     try { const d = localStorage.getItem('dash_credits'); return d ? JSON.parse(d) : null; } catch { return null; }
@@ -408,6 +414,17 @@ const handleConfirmPlanTerms = async () => {
       setShowDatePicker(null);
     } catch { showToast('Błąd zapisu', 'error'); }
     finally { setCalendarSaving(false); }
+  };
+
+  const handleGenerateClick = () => {
+    const dismissed = localStorage.getItem('brand_kit_guard_dismissed');
+    const dismissedAt = dismissed ? parseInt(dismissed) : 0;
+    const oneDayMs = 24 * 60 * 60 * 1000;
+    if (brandKitCompletion < 30 && Date.now() - dismissedAt > oneDayMs) {
+      setGuardOpen(true);
+      return;
+    }
+    void generatePost();
   };
 
   const generatePost = async () => {
@@ -938,7 +955,7 @@ const handleConfirmPlanTerms = async () => {
               </div>
 
               {/* Generate button */}
-              <button onClick={generatePost} disabled={loading} className="btn-primary animate-glow"
+              <button onClick={handleGenerateClick} disabled={loading} className="btn-primary animate-glow"
                 style={{ width: '100%', padding: '16px', borderRadius: 14, fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
               >
                 {loading ? (
@@ -1363,6 +1380,60 @@ const handleConfirmPlanTerms = async () => {
           </p>
         </footer>
       </div>
+
+      <AlertDialog open={guardOpen} onOpenChange={setGuardOpen}>
+        <AlertDialogContent style={{
+          background: 'var(--color-background)',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-lg)',
+          maxWidth: 440,
+        }}>
+          <AlertDialogHeader>
+            <AlertDialogTitle style={{ color: 'var(--color-text)', fontSize: 18, fontWeight: 700 }}>
+              🎨 Twój Profil Marki jest pusty
+            </AlertDialogTitle>
+            <AlertDialogDescription style={{ color: 'var(--color-text-secondary)', fontSize: 14, lineHeight: 1.6 }}>
+              Posty będą generyczne — bez nazwy Twojej firmy, branży ani stylu.
+              Uzupełnij Profil w 30 sekund żeby PostujTo pisało jak Twój copywriter.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter style={{ gap: 8, flexDirection: 'column' }}>
+            <AlertDialogAction
+              style={{
+                background: 'var(--gradient-primary)',
+                color: 'var(--color-text)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '12px 20px',
+                fontWeight: 700,
+                border: 'none',
+                cursor: 'pointer',
+                width: '100%',
+              }}
+              onClick={() => { window.location.href = '/settings/brand-kit'; }}
+            >
+              Uzupełnij Profil Marki →
+            </AlertDialogAction>
+            <AlertDialogCancel
+              style={{
+                background: 'transparent',
+                color: 'var(--color-text-muted)',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '10px 20px',
+                fontSize: 13,
+                cursor: 'pointer',
+                width: '100%',
+              }}
+              onClick={() => {
+                localStorage.setItem('brand_kit_guard_dismissed', Date.now().toString());
+                void generatePost();
+              }}
+            >
+              Generuj mimo to (post będzie ogólny)
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
