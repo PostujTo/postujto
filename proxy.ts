@@ -2,9 +2,24 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const isProtectedRoute = createRouteMatcher([
-  '/dashboard(.*)',
-  '/settings(.*)',
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/dla/(.*)',
+  '/blog',
+  '/blog/(.*)',
+  '/pricing',
+  '/faq',
+  '/terms',
+  '/privacy',
+  '/status',
+  '/cancel',
+  '/success',
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+  '/api/lead-magnet(.*)',
+  '/api/stripe/webhooks(.*)',
+  '/api/webhooks/(.*)',
+  '/api/cron/(.*)',
 ]);
 
 // Prosta mapa rate limitingu w pamięci
@@ -51,8 +66,8 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
     );
   }
 
-  // Ochrona tras wymagających logowania
-  if (isProtectedRoute(req)) {
+  // Ochrona tras wymagających logowania (whitelist: wszystko poza isPublicRoute wymaga auth)
+  if (!isPublicRoute(req)) {
     await auth.protect();
   }
 });

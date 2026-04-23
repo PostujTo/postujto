@@ -69,7 +69,7 @@ export function PricingSection() {
               }}
             >
               {option === 'monthly' ? 'Miesięczny' : (
-                <>Roczny <span style={{ marginLeft: 4, fontSize: 11, background: 'rgba(255,255,255,0.2)', padding: '2px 6px', borderRadius: 6 }}>-29%</span></>
+                <>Roczny <span style={{ marginLeft: 4, fontSize: 11, background: 'rgba(255,255,255,0.2)', padding: '2px 6px', borderRadius: 6 }}>-20%</span></>
               )}
             </button>
           ))}

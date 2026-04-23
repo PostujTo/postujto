@@ -92,14 +92,14 @@ export function LeadMagnetButton({ industryName, industrySlug }: Props) {
 
       {open && (
         <div style={overlayStyle} onClick={(e) => { if (e.target === e.currentTarget) setOpen(false) }}>
-          <div style={modalStyle}>
+          <div style={modalStyle} role="dialog" aria-modal="true" aria-labelledby="lead-magnet-title">
             {/* Handle (mobile) */}
             {isMobile && (
               <div style={{ width: 40, height: 4, background: 'rgba(255,255,255,0.2)', borderRadius: 2, margin: '0 auto 20px' }} />
             )}
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-              <h2 style={{ color: 'var(--color-text)', fontSize: 22, fontWeight: 700, margin: 0, maxWidth: 340, lineHeight: 1.3 }}>
+              <h2 id="lead-magnet-title" style={{ color: 'var(--color-text)', fontSize: 22, fontWeight: 700, margin: 0, maxWidth: 340, lineHeight: 1.3 }}>
                 30 gotowych tematów dla branży {industryName}
               </h2>
               <button
