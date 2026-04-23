@@ -642,3 +642,31 @@ body { overflow-x: clip; }
     bottom: calc(80px + env(safe-area-inset-bottom, 0px)) !important;
   }
 }
+
+/* ── Empty State — mobile (M3) ── */
+@media (max-width: 767px) {
+  .empty-state {
+    padding: var(--space-2xl) var(--space-md);
+    min-height: 220px;
+  }
+  .empty-state-cta {
+    width: 100%;
+    max-width: 320px;
+    box-sizing: border-box;
+    text-align: center;
+  }
+}
+
+/* ── Onboarding Checklist — mobile (M3) ── */
+@media (max-width: 767px) {
+  .onboarding-checklist {
+    padding: var(--space-md);
+    margin-bottom: var(--space-lg);
+  }
+  .onboarding-step-cta {
+    width: 100%;
+    margin-top: 8px;
+    text-align: center;
+    box-sizing: border-box;
+  }
+}

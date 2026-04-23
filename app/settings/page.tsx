@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { EmptyState } from '@/components/EmptyState';
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 
@@ -374,6 +375,26 @@ export default function SettingsPage() {
           </h1>
           <p style={{ color: 'rgba(240,240,245,0.4)', fontSize: 15 }}>Skonfiguruj styl komunikacji swojej firmy</p>
         </div>
+
+        {!dbBrandKit.company_name && !isEditing && (
+          <div style={{
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
+            borderRadius: 'var(--radius-lg)',
+            overflow: 'hidden',
+            marginBottom: 16,
+          }}>
+            <EmptyState
+              icon="🎨"
+              title="Profil Twojej Firmy jest pusty"
+              description="Opisz swoją firmę raz — PostujTo użyje tych informacji we wszystkich postach."
+              ctaLabel="Opisz swoją firmę w 30 sekund →"
+              ctaOnClick={() => setIsEditing(true)}
+              secondaryLabel="Wolę wpisać ręcznie"
+              secondaryHref="#manual-form"
+            />
+          </div>
+        )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { industries, INDUSTRY_TOPICS } from '@/lib/industries';
 import { GOLDEN_PATTERNS } from '@/lib/prompts';
 import { PricingSection } from './PricingSection';
+import { LeadMagnetButton } from '@/components/LeadMagnetButton';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -67,6 +68,7 @@ export default async function IndustryLandingPage({ params }: { params: Promise<
             <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.3)', marginTop: 12 }}>
               5 postów gratis • Bez karty kredytowej
             </p>
+            <LeadMagnetButton industryName={industry.name} industrySlug={industry.slug} />
           </div>
 
           {/* Right — przykładowy post */}

@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
+import { EmptyState } from '@/components/EmptyState';
 
 type Post = { text: string; hashtags: string[]; imagePrompt: string; };
 type Performance = { likes?: number; reach?: number; comments?: number; shares?: number; };
@@ -561,50 +562,19 @@ const deleteAccount = async () => {
                 </Link>
               </div>
             ) : (
-              <div className="fade-up" style={{ animationDelay: '0.15s' }}>
-                {/* Hero empty state */}
-                <div className="glass-card" style={{ padding: '56px 40px', textAlign: 'center', marginBottom: 28 }}>
-                  <div style={{ fontSize: 56, marginBottom: 20 }}>🚀</div>
-                  <h3 className="font-display" style={{ fontSize: 24, fontWeight: 800, marginBottom: 12, color: '#f0f0f5' }}>
-                    Witaj w PostujTo!
-                  </h3>
-                  <p style={{ fontSize: 15, color: 'rgba(240,240,245,0.45)', marginBottom: 32, maxWidth: 480, margin: '0 auto 32px' }}>
-                    Wygeneruj swój pierwszy post AI w mniej niż 30 sekund. Żadnych szablonów — każdy post pisany specjalnie dla Ciebie.
-                  </p>
-                  <Link href="/app">
-                    <button className="btn-primary" style={{ padding: '14px 36px', borderRadius: 14, fontSize: 16 }}>✨ Wygeneruj pierwszy post</button>
-                  </Link>
-                </div>
-
-                {/* Mini-tutorial */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 28 }}>
-                  {[
-                    { step: '1', emoji: '✍️', title: 'Wpisz temat', desc: 'Napisz o czym ma być post — np. "nowa kolekcja butów" lub "promocja weekendowa".' },
-                    { step: '2', emoji: '⚙️', title: 'Wybierz platformę i ton', desc: 'Facebook, Instagram lub TikTok. Profesjonalny, swobodny, humorystyczny lub sprzedażowy.' },
-                    { step: '3', emoji: '🎉', title: 'Gotowe!', desc: 'Claude generuje 3 wersje posta z hashtagami i opisem grafiki AI. Kopiuj i publikuj.' },
-                  ].map(item => (
-                    <div key={item.step} className="glass-card" style={{ padding: '28px 24px', textAlign: 'center' }}>
-                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px', fontSize: 14, fontWeight: 700, color: '#a5b4fc', fontFamily: "'Poppins', sans-serif" }}>
-                        {item.step}
-                      </div>
-                      <div style={{ fontSize: 28, marginBottom: 10 }}>{item.emoji}</div>
-                      <p className="font-display" style={{ fontSize: 15, fontWeight: 700, marginBottom: 8, color: '#f0f0f5' }}>{item.title}</p>
-                      <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.4)', lineHeight: 1.6 }}>{item.desc}</p>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Brand Kit tip */}
-                <div style={{ padding: '20px 24px', background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 16, display: 'flex', alignItems: 'center', gap: 16 }}>
-                  <div style={{ fontSize: 32, flexShrink: 0 }}>💡</div>
-                  <div style={{ flex: 1 }}>
-                    <p className="font-display" style={{ fontSize: 14, fontWeight: 700, marginBottom: 4, color: '#a5b4fc' }}>Wskazówka: skonfiguruj Brand Kit</p>
-                    <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.45)', lineHeight: 1.5 }}>Dodaj nazwę firmy, kolory i przykładowe posty w Ustawieniach — Claude będzie generował posty dopasowane do Twojej marki.</p>
-                  </div>
-                  <Link href="/settings" style={{ flexShrink: 0 }}>
-                    <button className="btn-ghost" style={{ padding: '9px 18px', borderRadius: 10, fontSize: 13 }}>Skonfiguruj →</button>
-                  </Link>
-                </div>
+              <div style={{
+                background: 'var(--color-surface)',
+                border: '1px solid var(--color-border)',
+                borderRadius: 'var(--radius-lg)',
+                overflow: 'hidden',
+              }}>
+                <EmptyState
+                  icon="📊"
+                  title="Jeszcze nic tu nie ma"
+                  description="Zacznij od wygenerowania pierwszego posta — zobaczysz tu statystyki i historię."
+                  ctaLabel="Zacznij od pierwszego posta →"
+                  ctaHref="/app"
+                />
               </div>
             )
           ) : (

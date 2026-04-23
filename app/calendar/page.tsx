@@ -62,6 +62,7 @@ function buildWeekGroups(currentDays: CalendarDay[]): CalendarDay[][] {
 }
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
+import { EmptyState } from '@/components/EmptyState';
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
 
@@ -864,6 +865,26 @@ useEffect(() => {
                     <div key={d} style={{ textAlign: 'center', fontSize: 12, fontWeight: 600, color: 'rgba(240,240,245,0.75)', letterSpacing: '0.08em', padding: '6px 0' }}>{d}</div>
                   ))}
                 </div>
+                {generatedCount === 0 && (
+                  <div style={{
+                    background: 'var(--color-surface)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-lg)',
+                    overflow: 'hidden',
+                    marginBottom: 8,
+                  }}>
+                    <EmptyState
+                      icon="📅"
+                      title="Kalendarz jest pusty"
+                      description="Wygeneruj 30 postów na cały miesiąc jednym kliknięciem."
+                      ctaLabel="Wygeneruj cały miesiąc →"
+                      ctaOnClick={() => generateAllPosts()}
+                      secondaryLabel="Wygeneruj jeden post →"
+                      secondaryHref="/app"
+                    />
+                  </div>
+                )}
+
                 {/* Days */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
                   {days.map((day, i) => (

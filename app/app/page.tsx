@@ -53,6 +53,8 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { SignInButton, SignedIn, SignedOut, useClerk, useUser } from '@clerk/nextjs';
+import { EmptyState } from '@/components/EmptyState';
+import { OnboardingChecklist } from '@/components/OnboardingChecklist';
 
 type Plan = 'free' | 'standard' | 'premium';
 type ToastType = 'error' | 'success' | 'info' | 'warning';
@@ -147,7 +149,8 @@ export default function GeneratorPage() {
   );
   const [lazyCompanyName, setLazyCompanyName] = useState('');
   const [lazyIndustry, setLazyIndustry] = useState('');
-  const [credits, setCredits] = useState<{ remaining: number; total: number; plan: Plan } | null>(() => {
+  const [brandKitCompletion, setBrandKitCompletion] = useState(0);
+  const [credits, setCredits] = useState<{ plan: string; remaining: number; total: number } | null>(() => {
     if (typeof window === 'undefined') return null;
     try { const d = localStorage.getItem('dash_credits'); return d ? JSON.parse(d) : null; } catch { return null; }
   });
@@ -274,6 +277,11 @@ const handleConfirmPlanTerms = async () => {
     fetchUserCredits();
     fetch('/api/brand-kit').then(r => r.json()).then(data => {
       if (data?.company_name) setHasBrandKit(true);
+      if (data) {
+        const fields = ['company_name','industry','tone','usp','platforms'];
+        const filled = fields.filter(f => data[f] && (Array.isArray(data[f]) ? data[f].length > 0 : String(data[f]).trim().length > 0)).length;
+        setBrandKitCompletion(Math.round((filled / fields.length) * 100));
+      }
     }).catch(() => {});
     fetch('/api/credits').then(r => r.json()).then(data => {
       if (data.onboarding_completed === false) {
@@ -693,6 +701,14 @@ const handleConfirmPlanTerms = async () => {
             </p>
           </div>
 
+          {user && (
+            <OnboardingChecklist
+              brandKitCompletion={brandKitCompletion}
+              hasGenerations={!!(results && results.length > 0)}
+              hasPlatformSelected={true}
+            />
+          )}
+
           <div className="generator-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 32, alignItems: 'start' }}>
 
             {/* LEFT — Form */}
@@ -1110,7 +1126,19 @@ const handleConfirmPlanTerms = async () => {
                     </div>
                   )}
 
-                  {results.map((result, idx) => (
+                  {(!results || results.length === 0) && !loading && (
+                    <EmptyState
+                      icon="✨"
+                      title="Twój profil czeka na pierwszy post"
+                      description="PostujTo napisze go za Ciebie w 30 sekund. Wybierz temat i platformę poniżej."
+                      ctaLabel="Wygeneruj swój pierwszy post →"
+                      ctaOnClick={() => {
+                        document.querySelector<HTMLElement>('.generator-form')?.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                    />
+                  )}
+
+                  {results && results.map((result, idx) => (
                     <div key={idx} className="glass-card" style={{ padding: 24 }}>
                       {/* Card header */}
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
