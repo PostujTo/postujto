@@ -7,7 +7,6 @@ import { CookieBanner } from '@/components/CookieBanner';
 import { TopAppBar } from '@/components/nav/TopAppBar';
 import { BottomNavBarConditional } from '@/components/nav/BottomNavBarConditional';
 import { MainWrapper } from '@/components/nav/MainWrapper';
-
 const poppins = Poppins({
   weight: ['600', '700', '800'],
   subsets: ['latin'],
