@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { EmptyState } from '@/components/EmptyState';
+import { notify } from '@/lib/toast';
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 
@@ -333,6 +334,7 @@ export default function SettingsPage() {
         setDbBrandKit({ ...brandKit }); // sync — user just saved, so DB now matches UI
         setEditSnapshot(null);
         setIsEditing(false); // back to VIEW mode after save
+        notify.success('Profil Marki zapisany');
         setTimeout(() => setSaved(false), 3000);
       }
     } finally {

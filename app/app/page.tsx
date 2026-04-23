@@ -54,6 +54,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { SignInButton, SignedIn, SignedOut, useClerk, useUser } from '@clerk/nextjs';
 import { EmptyState } from '@/components/EmptyState';
+import { notify } from '@/lib/toast';
 import { OnboardingChecklist } from '@/components/OnboardingChecklist';
 
 type Plan = 'free' | 'standard' | 'premium';
@@ -467,6 +468,7 @@ const handleConfirmPlanTerms = async () => {
 
       const newResults = parsePlainTextToPosts(postsText).map(post => ({ ...post, generatedImage: undefined as string | undefined, imageLoading: false, imageTool: undefined as string | undefined }));
       setResults(newResults);
+      notify.success('Wygenerowano 3 wersje posta');
       setStreamText('');
       setGenerationId(metaData.generationId || null);
       setIsGuestResult(false);

@@ -7,6 +7,7 @@ import { CookieBanner } from '@/components/CookieBanner';
 import { TopAppBar } from '@/components/nav/TopAppBar';
 import { BottomNavBarConditional } from '@/components/nav/BottomNavBarConditional';
 import { MainWrapper } from '@/components/nav/MainWrapper';
+import { Toaster } from 'sonner';
 const poppins = Poppins({
   weight: ['600', '700', '800'],
   subsets: ['latin'],
@@ -34,6 +35,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <TopAppBar />
           <MainWrapper>{children}</MainWrapper>
           <BottomNavBarConditional />
+          <Toaster
+            position="bottom-center"
+            offset={72}
+            theme="dark"
+            toastOptions={{
+              style: {
+                background: '#1a1a2e',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text)',
+                borderRadius: 'var(--radius-md)',
+                fontSize: 14,
+              },
+            }}
+          />
           <CookieBanner />
           <Script src="//code.tidio.co/n72cgknm7wuvvfcfhz0dglu7gwkcef2n.js" strategy="afterInteractive" />
         </body>
