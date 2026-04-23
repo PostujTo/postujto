@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider signInFallbackRedirectUrl="/app" signUpFallbackRedirectUrl="/onboarding">
       <html lang="pl">
         <body className={`${poppins.variable} ${dmSans.variable}`}>
           <TopAppBar />
