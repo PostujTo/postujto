@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 
 const MINIMAL_NAV_ROUTES = [
   '/sign-in', '/sign-up', '/onboarding', '/success', '/cancel',
-  '/terms', '/privacy', '/status',
+  '/status',
 ];
 const PLAN_LABELS: Record<string, string> = { free: 'FREE', standard: 'STARTER', premium: 'PRO' };
 const PLAN_COLORS: Record<string, { bg: string; text: string }> = {
