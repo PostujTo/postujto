@@ -675,7 +675,7 @@ const handleConfirmTerms = async () => {
               Cennik
             </Link>
             <SignedOut>
-              <SignInButton mode="modal" forceRedirectUrl="/app">
+              <SignInButton forceRedirectUrl="/app">
               <button className="btn-secondary" style={{ padding: '10px 20px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
                 Zaloguj się
               </button>
@@ -709,7 +709,7 @@ const handleConfirmTerms = async () => {
         <div style={{ position: 'fixed', top: 60, left: 0, right: 0, zIndex: 99, background: 'rgba(10,10,15,0.97)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '16px 24px 24px', display: 'flex', flexDirection: 'column', gap: 4 }}>
           <Link href="/pricing" onClick={() => setMobileMenuOpen(false)} style={{ fontSize: 16, color: 'rgba(240,240,245,0.8)', textDecoration: 'none', padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'block' }}>Cennik</Link>
           <SignedOut>
-            <SignInButton mode="modal" forceRedirectUrl="/app">
+            <SignInButton forceRedirectUrl="/app">
               <button style={{ fontSize: 16, color: 'rgba(240,240,245,0.8)', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%' }}>Zaloguj się</button>
             </SignInButton>
             <Link href="/app" onClick={() => setMobileMenuOpen(false)} style={{ display: 'block', marginTop: 12 }}>

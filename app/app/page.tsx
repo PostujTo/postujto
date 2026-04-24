@@ -1073,7 +1073,7 @@ const handleConfirmPlanTerms = async () => {
                               ))}
                             </ul>
                             <SignedOut>
-                              <SignInButton mode="modal" forceRedirectUrl="/app">
+                              <SignInButton forceRedirectUrl="/app">
                                 <button
                                   style={{ width: '100%', padding: '12px', borderRadius: 10, fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)', color: '#fff', transition: 'all 0.25s ease' }}
                                   onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.25)'; }}
@@ -1133,7 +1133,7 @@ const handleConfirmPlanTerms = async () => {
                     <div style={{ padding: 20, background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: 16 }}>
                       <p className="font-display" style={{ fontWeight: 700, marginBottom: 6 }}>Podoba Ci się? To tylko 1 z 3 wersji!</p>
                       <p style={{ fontSize: 13, color: 'rgba(240,240,245,0.55)', marginBottom: 12 }}>Zaloguj się za darmo i dostań 3 wersje + 5 kredytów na start.</p>
-                      <SignInButton mode="modal">
+                      <SignInButton>
                         <button className="btn-primary" style={{ padding: '9px 20px', borderRadius: 10, fontSize: 13 }}>
                           <span>Załóż konto za darmo</span>
                         </button>

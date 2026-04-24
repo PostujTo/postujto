@@ -81,7 +81,7 @@ export function TopAppBar() {
             <>
               <NavLink href="/pricing" pathname={pathname}>Cennik</NavLink>
               <NavLink href="/faq" pathname={pathname}>FAQ</NavLink>
-              <SignInButton mode="modal">
+              <SignInButton>
                 <button style={{
                   color: 'rgba(255,255,255,0.65)', fontWeight: 400, fontSize: '14px',
                   background: 'none', border: 'none', cursor: 'pointer', padding: '6px 12px', borderRadius: '8px',
@@ -197,7 +197,7 @@ export function TopAppBar() {
       <div style={{ position: 'fixed', top: 64, left: 0, right: 0, zIndex: 999, background: 'rgba(10,10,15,0.97)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '16px 24px 24px', display: 'flex', flexDirection: 'column', gap: 4 }}>
         <Link href="/pricing" onClick={() => setHamburgerOpen(false)} style={{ fontSize: 16, color: 'rgba(240,240,245,0.8)', textDecoration: 'none', padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'block' }}>Cennik</Link>
         <Link href="/faq" onClick={() => setHamburgerOpen(false)} style={{ fontSize: 16, color: 'rgba(240,240,245,0.8)', textDecoration: 'none', padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'block' }}>FAQ</Link>
-        <SignInButton mode="modal">
+        <SignInButton>
           <button onClick={() => setHamburgerOpen(false)} style={{ fontSize: 16, color: 'rgba(240,240,245,0.8)', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: '14px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', width: '100%', fontFamily: 'inherit' }}>Zaloguj się</button>
         </SignInButton>
         <Link href="/app" onClick={() => setHamburgerOpen(false)} style={{ display: 'block', marginTop: 12 }}>

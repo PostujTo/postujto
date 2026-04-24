@@ -108,7 +108,7 @@ export function AppHeader({ activePage, credits, onPortalClick, portalLoading }:
           </SignedIn>
           <SignedOut>
             <div className="desktop-signin">
-              <SignInButton mode="modal" forceRedirectUrl="/app">
+              <SignInButton forceRedirectUrl="/app">
                 <button className="btn-secondary" style={{ padding: '10px 20px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
                   Zaloguj się
                 </button>
@@ -170,7 +170,7 @@ export function AppHeader({ activePage, credits, onPortalClick, portalLoading }:
             </div>
           </SignedIn>
           <SignedOut>
-            <SignInButton mode="modal" forceRedirectUrl="/app">
+            <SignInButton forceRedirectUrl="/app">
               <button className="btn-secondary" style={{ width: '100%', padding: '12px 20px', borderRadius: 10, fontSize: 14, cursor: 'pointer' }}>
                 Zaloguj się
               </button>
