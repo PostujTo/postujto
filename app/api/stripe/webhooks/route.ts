@@ -34,6 +34,28 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
 
+    // Idempotency: claim event before processing.
+    // If duplicate and already processed → return 200; if in-flight/crashed → 503 for retry.
+    const { error: claimErr } = await supabaseAdmin
+      .from('webhook_events')
+      .insert({ event_id: event.id, source: 'stripe', event_type: event.type });
+
+    if (claimErr) {
+      if (claimErr.code === '23505') {
+        const { data: existing } = await supabaseAdmin
+          .from('webhook_events')
+          .select('processed_at')
+          .eq('event_id', event.id)
+          .maybeSingle();
+        if (existing?.processed_at) {
+          return NextResponse.json({ received: true, duplicate: true }, { status: 200 });
+        }
+        return NextResponse.json({ in_flight: true }, { status: 503 });
+      }
+      console.error('❌ webhook_events claim error:', claimErr);
+      return NextResponse.json({ error: 'Database error' }, { status: 500 });
+    }
+
 
     // Handle checkout.session.completed
     if (event.type === 'checkout.session.completed') {
@@ -127,10 +149,14 @@ try {
       const billingReason = (invoice as any).billing_reason as string;
       // Pierwsze płatności obsługuje checkout.session.completed — pomijamy
       if (billingReason === 'subscription_create') {
+        await supabaseAdmin.from('webhook_events').update({ processed_at: new Date().toISOString() }).eq('event_id', event.id);
         return NextResponse.json({ received: true });
       }
       const subscriptionId = (invoice as any).subscription as string;
-      if (!subscriptionId) return NextResponse.json({ received: true });
+      if (!subscriptionId) {
+        await supabaseAdmin.from('webhook_events').update({ processed_at: new Date().toISOString() }).eq('event_id', event.id);
+        return NextResponse.json({ received: true });
+      }
 
       // Odnowienie — przedłuż plan (kredyty unlimited nie wymagają resetu, ale aktualizujemy status)
       await supabaseAdmin
@@ -177,6 +203,7 @@ try {
         plan = 'standard';
       } else {
         console.error('customer.subscription.updated: nieznany priceId:', priceId, '— nie zmieniam planu');
+        await supabaseAdmin.from('webhook_events').update({ processed_at: new Date().toISOString() }).eq('event_id', event.id);
         return NextResponse.json({ received: true });
       }
 
@@ -220,6 +247,11 @@ try {
       }
 
     }
+
+    await supabaseAdmin
+      .from('webhook_events')
+      .update({ processed_at: new Date().toISOString() })
+      .eq('event_id', event.id);
 
     return NextResponse.json({ received: true }, { status: 200 });
 
