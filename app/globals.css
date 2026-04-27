@@ -169,17 +169,17 @@ body {
   .topbar-trailing { order: -1; }
   .topbar-logo     { flex: 1; text-align: center; }
 
-  /* Padding pod bottom nav na stronach aplikacji */
+  /* Fix 1.5: padding pod bottom nav na stronach aplikacji — ujednolicone na 80px (matchuje BottomNavBar height) */
   .has-bottom-nav {
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
   }
 }
 
-/* Safari iOS safe area */
+/* Fix 1.5: Safari iOS safe area — ujednolicone na 80px (fallback dla inline style w BottomNavBar) */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .bottom-nav {
     padding-bottom: env(safe-area-inset-bottom);
-    height: calc(64px + env(safe-area-inset-bottom));
+    height: calc(80px + env(safe-area-inset-bottom));
   }
 }
 

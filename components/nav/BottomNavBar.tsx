@@ -15,7 +15,8 @@ export function BottomNavBar() {
   return (
     <nav className="mobile-only bottom-nav" style={{
       position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 1000,
-      height: '80px',
+      // Fix 1.5: total height = 80px (ikony) + safe-area (gesture bar iOS) — z box-sizing: border-box
+      height: 'calc(80px + env(safe-area-inset-bottom, 0px))',
       paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       backgroundColor: '#0f0f1a',
       borderTop: '1px solid var(--color-border)',
