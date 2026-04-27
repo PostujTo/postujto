@@ -58,25 +58,34 @@ export async function POST(req: Request) {
     const { id, email_addresses, first_name, last_name } = evt.data;
 
     try {
-      // Utwórz użytkownika w Supabase
-      const { data, error } = await supabaseAdmin
+      // Fix 1.1: idempotent UPSERT — chroni przed Clerk webhook retries (duplicate key 23505)
+      // ignoreDuplicates=true preservuje credits_remaining/subscription_plan dla istniejących userów
+      const { data: createdUser, error } = await supabaseAdmin
         .from('users')
-        .insert({
-          clerk_user_id: id,
-          email: email_addresses[0].email_address,
-          full_name: `${first_name || ''} ${last_name || ''}`.trim() || null,
-          subscription_plan: 'free',
-          credits_total: 5,
-          credits_remaining: 5,
-        })
+        .upsert(
+          {
+            clerk_user_id: id,
+            email: email_addresses[0].email_address,
+            full_name: `${first_name || ''} ${last_name || ''}`.trim() || null,
+            subscription_plan: 'free',
+            credits_total: 5,
+            credits_remaining: 5,
+          },
+          { onConflict: 'clerk_user_id', ignoreDuplicates: true }
+        )
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error creating user in Supabase:', error);
         return new Response('Error creating user', { status: 500 });
       }
 
+      // Jeśli createdUser === null, user już istniał — pomijamy onboarding email i alert,
+      // żeby retry webhooka nie wysłał ich ponownie.
+      if (!createdUser) {
+        return new Response('User already exists (idempotent)', { status: 200 });
+      }
 
       // Wyślij onboarding email
       try {
