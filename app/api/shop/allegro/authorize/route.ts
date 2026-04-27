@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getAllegroAuthUrl } from '@/lib/integrations/allegro';
+import { sanitizeError } from '@/lib/sanitize-error';
 
 export async function GET() {
   try {
@@ -17,7 +18,7 @@ export async function GET() {
     const url = getAllegroAuthUrl(clientId, redirectUri);
     return NextResponse.json({ url });
   } catch (error) {
-    console.error('[shop/allegro/authorize]', error);
+    console.error('[shop/allegro/authorize]', sanitizeError(error));
     return NextResponse.json({ error: 'Blad serwera' }, { status: 500 });
   }
 }

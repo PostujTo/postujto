@@ -6,6 +6,7 @@ import { getBaselinkerStorages, getBaselinkerProducts, mapBaselinkerProduct } fr
 import { getShoperProducts, mapShoperProduct } from '@/lib/integrations/shoper';
 import { getAllegroOffers, mapAllegroOffer, refreshAllegroToken } from '@/lib/integrations/allegro';
 import type { ShopProduct } from '@/lib/integrations/types';
+import { sanitizeError } from '@/lib/sanitize-error';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -122,7 +123,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ status: 'completed', products_synced: products.length });
   } catch (error) {
-    console.error('[shop/sync]', error);
+    console.error('[shop/sync]', sanitizeError(error));
     return NextResponse.json({ error: 'Blad synchronizacji' }, { status: 500 });
   }
 }

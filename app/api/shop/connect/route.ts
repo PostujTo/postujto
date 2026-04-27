@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import { encrypt } from '@/lib/crypto';
 import { testBaselinkerConnection, getBaselinkerStorages, getBaselinkerProducts } from '@/lib/integrations/baselinker';
 import { testShoperConnection, getShoperShopName, getShoperProducts } from '@/lib/integrations/shoper';
+import { sanitizeError } from '@/lib/sanitize-error';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -30,7 +31,7 @@ export async function GET() {
 
     return NextResponse.json({ connections: connections || [] });
   } catch (error) {
-    console.error('[shop/connect GET]', error);
+    console.error('[shop/connect GET]', sanitizeError(error));
     return NextResponse.json({ error: 'Blad serwera' }, { status: 500 });
   }
 }
@@ -158,7 +159,7 @@ export async function POST(req: Request) {
       products_count: productsCount,
     });
   } catch (error) {
-    console.error('[shop/connect POST]', error);
+    console.error('[shop/connect POST]', sanitizeError(error));
     return NextResponse.json({ error: 'Blad serwera' }, { status: 500 });
   }
 }

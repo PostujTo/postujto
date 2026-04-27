@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 import { exchangeAllegroCode, getAllegroSellerInfo, getAllegroOffers, mapAllegroOffer } from '@/lib/integrations/allegro';
 import { encrypt } from '@/lib/crypto';
+import { sanitizeError } from '@/lib/sanitize-error';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -105,7 +106,7 @@ export async function GET(req: Request) {
     shopUrl.searchParams.set('connected', 'allegro');
     return NextResponse.redirect(shopUrl);
   } catch (error) {
-    console.error('[shop/allegro/callback]', error);
+    console.error('[shop/allegro/callback]', sanitizeError(error));
     shopUrl.searchParams.set('error', 'allegro_callback_failed');
     return NextResponse.redirect(shopUrl);
   }

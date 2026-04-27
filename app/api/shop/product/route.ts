@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
+import { sanitizeError } from '@/lib/sanitize-error';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -27,7 +28,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({ product });
   } catch (error) {
-    console.error('[shop/product]', error);
+    console.error('[shop/product]', sanitizeError(error));
     return NextResponse.json({ error: 'Blad serwera' }, { status: 500 });
   }
 }

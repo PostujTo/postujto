@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
+import { sanitizeError } from '@/lib/sanitize-error';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,7 +33,7 @@ export async function DELETE(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[shop/disconnect]', error);
+    console.error('[shop/disconnect]', sanitizeError(error));
     return NextResponse.json({ error: 'Blad serwera' }, { status: 500 });
   }
 }

@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 import { buildSystemPrompt } from '@/lib/prompts';
+import { sanitizeError } from '@/lib/sanitize-error';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -162,7 +163,7 @@ export async function POST(req: Request) {
       creditsRemaining: newCredits,
     });
   } catch (error) {
-    console.error('[shop/generate-post]', error);
+    console.error('[shop/generate-post]', sanitizeError(error));
     return NextResponse.json({ error: 'Blad generowania posta' }, { status: 500 });
   }
 }
