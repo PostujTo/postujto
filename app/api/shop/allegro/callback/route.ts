@@ -1,9 +1,14 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@supabase/supabase-js';
 import { exchangeAllegroCode, getAllegroSellerInfo, getAllegroOffers, mapAllegroOffer } from '@/lib/integrations/allegro';
 import { encrypt } from '@/lib/crypto';
 import { sanitizeError } from '@/lib/sanitize-error';
+
+// Fix 2.2: TTL state'u OAuth (musi matchować authorize)
+const STATE_TTL_SECONDS = 600;
+const OAUTH_STATE_COOKIE = 'allegro_oauth_state';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -25,12 +30,52 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url);
     const code = searchParams.get('code');
+    const stateParam = searchParams.get('state');
     const oauthError = searchParams.get('error');
 
-    if (oauthError || !code) {
+    if (oauthError || !code || !stateParam) {
       shopUrl.searchParams.set('error', 'allegro_auth_failed');
       return NextResponse.redirect(shopUrl);
     }
+
+    // Fix 2.2: weryfikacja state (CSRF protection)
+    const cookieStore = await cookies();
+    const cookieState = cookieStore.get(OAUTH_STATE_COOKIE)?.value;
+
+    if (!cookieState || cookieState !== stateParam) {
+      shopUrl.searchParams.set('error', 'allegro_state_mismatch');
+      return NextResponse.redirect(shopUrl);
+    }
+
+    // Defense in depth — sprawdź state w Supabase z bindingiem do user_id
+    const { data: stateRecord } = await supabase
+      .from('oauth_states')
+      .select('user_id, created_at')
+      .eq('state', stateParam)
+      .eq('provider', 'allegro')
+      .maybeSingle();
+
+    if (!stateRecord) {
+      shopUrl.searchParams.set('error', 'allegro_state_not_found');
+      return NextResponse.redirect(shopUrl);
+    }
+
+    // Expiry check (10 min) — oauth_states bez kolumny expires_at, więc liczymy z created_at
+    const ageSec = (Date.now() - new Date(stateRecord.created_at).getTime()) / 1000;
+    if (ageSec > STATE_TTL_SECONDS) {
+      await supabase.from('oauth_states').delete().eq('state', stateParam);
+      shopUrl.searchParams.set('error', 'allegro_state_expired');
+      return NextResponse.redirect(shopUrl);
+    }
+
+    if (stateRecord.user_id !== userId) {
+      shopUrl.searchParams.set('error', 'allegro_user_mismatch');
+      return NextResponse.redirect(shopUrl);
+    }
+
+    // Replay prevention — usuń state z DB i cookie po pierwszym użyciu
+    await supabase.from('oauth_states').delete().eq('state', stateParam);
+    cookieStore.delete(OAUTH_STATE_COOKIE);
 
     const { data: user } = await supabase
       .from('users')

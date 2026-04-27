@@ -7,11 +7,13 @@ function allegroBasicAuth(clientId: string, clientSecret: string): string {
   return Buffer.from(clientId + ':' + clientSecret).toString('base64');
 }
 
-export function getAllegroAuthUrl(clientId: string, redirectUri: string): string {
+export function getAllegroAuthUrl(clientId: string, redirectUri: string, state: string): string {
+  // Fix 2.2: state parameter (CSRF protection) — wymagany
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: clientId,
     redirect_uri: redirectUri,
+    state,
   });
   return ALLEGRO_AUTH_URL + '/authorize?' + params.toString();
 }
